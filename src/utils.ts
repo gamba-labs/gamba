@@ -16,33 +16,34 @@ export async function sha256(message: string) {
 
 export const parseStatus = (x: UserState['status']) => new Enum(x).enum as UserStatus
 
-export const parseEvent = (name: string, e: any, blockTime: number): SettledGameEvent | undefined => {
+export const parseEvent = (name: string, e: any, estimatedTime: number): SettledGameEvent | undefined => {
   try {
     const wager = e.wager.toNumber()
     const unit = wager / 1_000
     return {
       player: e.player,
+      creator: e.creator,
       wager,
       nonce: e.nonce.toNumber(),
       payout: unit * e.resultMultiplier.toNumber(),
       multiplier: e.resultMultiplier.toNumber(),
-      blockTime,
+      estimatedTime,
       rngSeed: e.rngSeed,
       clientSeed: e.clientSeed,
       resultIndex: e.resultIndex.toNumber(),
     }
   } catch (err) {
-    console.warn('🍤 Failed to parse event', name, e, blockTime, err)
+    console.warn('🍤 Failed to parse event', name, e, estimatedTime, err)
     return undefined
   }
 }
 
-export const getRecentGames = async (connection: Connection) => {
+export const getRecentGames = async (connection: Connection, limit: number) => {
   const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
   console.debug('🍤 Get recent bets')
   const signatures = await connection.getSignaturesForAddress(PROGRAM_ID, {}, 'confirmed')
   console.debug('🍤 Recent signatures', signatures)
-  const transactions = await connection.getParsedTransactions(signatures.slice(0, 10).map((x) => x.signature), 'confirmed')
+  const transactions = await connection.getParsedTransactions(signatures.slice(0, limit).map((x) => x.signature), 'confirmed')
   console.debug('🍤 Recent transactions', transactions)
   return new Promise<any[]>((resolve) => {
     const _events = []
@@ -50,13 +51,13 @@ export const getRecentGames = async (connection: Connection) => {
       if (tx?.meta?.logMessages) {
         const events = eventParser.parseLogs(tx.meta.logMessages)
         for (const event of events) {
-          _events.push({ event, blockTime: tx.blockTime ? tx.blockTime * 1000 : Date.now() })
+          _events.push({ event, estimatedTime: tx.blockTime ? tx.blockTime * 1000 : Date.now() })
         }
       }
     }
     resolve(
       _events
-        .map(({ event, blockTime }) => parseEvent(event.name, event.data, blockTime))
+        .map(({ event, estimatedTime }) => parseEvent(event.name, event.data, estimatedTime))
         .filter((x) => !!x),
     )
   })

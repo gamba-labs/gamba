@@ -20,17 +20,52 @@ export type GambaConfigInput = Omit<GambaConfig, 'creator'> & {
    * The address that receives fees
    */
   creator: PublicKey | string
+  /**
+   * Maximum number of recent games to fetch at start. Default is 20.
+   */
+  recentGamesFetchLimit?: number
 }
 
 export interface SettledGameEvent {
+  /**
+   * The address for the App Creator
+   */
+  creator: PublicKey
+  /**
+   * Who played the game
+   */
   player: PublicKey
+  /**
+   * Amount of lamports that was wagered
+   */
   wager: number
+  /**
+   * Amount of lamports that was won
+   */
   payout: number
+  /**
+   *
+   */
   multiplier: number
+  /**
+   * The resulting number of the game
+   */
   resultIndex: number
-  blockTime: number
+  /**
+   * Approximate time of when the game occured
+   */
+  estimatedTime: number
+  /**
+   *
+   */
   nonce: number
+  /**
+   *
+   */
   clientSeed: string
+  /**
+   *
+   */
   rngSeed: string
 }
 

@@ -9,7 +9,17 @@ import { Loading } from './components/Loading'
 import { RecentGames } from './components/RecentGames'
 import { Value } from './components/Value'
 import { getConfig } from './config'
-import { Amount, Button, ButtonGroup, Container, Controls, GlobalStyle, Info, Wrapper } from './styles'
+import {
+  Amount,
+  Button,
+  ButtonGroup,
+  CanvasWrapper,
+  Container,
+  Controls,
+  GlobalStyle,
+  Info,
+  Wrapper,
+} from './styles'
 
 const HEADS = [2, 0]
 const TAILS = [0, 2]
@@ -43,14 +53,11 @@ function Game() {
     <Container>
       <Header />
       <div>
-        <Canvas
-          style={{ width: '100%', height: '320px' }}
-          linear
-          flat
-          camera={{ fov: 50 }}
-        >
-          <CoinFlip result={result} flipping={loading} />
-        </Canvas>
+        <CanvasWrapper>
+          <Canvas linear flat camera={{ fov: 50 }}>
+            <CoinFlip result={result} flipping={loading} />
+          </Canvas>
+        </CanvasWrapper>
         <Loading loading={loading} />
         <Wrapper>
           <Controls>

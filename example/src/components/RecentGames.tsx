@@ -1,3 +1,4 @@
+import { PublicKey } from '@solana/web3.js'
 import { LAMPORTS_PER_SOL, useGamba } from 'gamba'
 import React from 'react'
 import styled from 'styled-components'
@@ -7,7 +8,9 @@ import { Value } from './Value'
 const Container = styled.div`
   display: grid;
   gap: 20px;
+  display: none;
   ${MOBILE} {
+    display: unset;
     z-index: 1;
     position: fixed;
     right: 20px;
@@ -16,7 +19,7 @@ const Container = styled.div`
   }
 `
 
-const Notifcation = styled.div`
+const Wrapper = styled.div`
   display: flex;
   gap: 20px;
   font-size: 12px;
@@ -28,21 +31,40 @@ const Notifcation = styled.div`
   }
 `
 
+interface AppConfig {
+  name: string,
+  results: Record<number, string>
+}
+
+const KNOWN_APPS: Record<string, AppConfig> = {
+  '9PKb9odH8t2iAwXPtSXCvTAHJNbJ8Grfj1QWyGgyur7F': {
+    name: 'Gamba Flip',
+    results: {
+      0: 'Heads',
+      1: 'Tails',
+    },
+  },
+}
+const getAppConfig = (pubkey: PublicKey) => KNOWN_APPS[pubkey.toBase58()] ?? 'Unknown Game'
+
 export function RecentGames() {
   const gamba = useGamba()
   return (
     <Container>
-      {gamba.recentGames.map((game) => {
-        const profit = game.payout - game.wager
-        const key = game.player.toBase58() + '-' + game.nonce
+      {gamba.recentGames.map((res) => {
+        const profit = res.payout - res.wager
+        const key = res.player.toBase58() + '-' + res.nonce
+        const app = getAppConfig(res.creator)
         return (
-          <Notifcation key={key}>
-            <div>{game.player.toBase58().substring(0, 6)}...</div>
+          <Wrapper key={key}>
+            <div>{app.name}</div>
+            <div>{app.results[res.resultIndex] ?? res.resultIndex}</div>
+            <div>{res.player.toBase58().substring(0, 6)}...</div>
             <Amount $value={profit}>
-              <Value children={`${profit / LAMPORTS_PER_SOL} SOL`} />
+              <Value children={`${profit >= 0 ? '+' : ''}${profit / LAMPORTS_PER_SOL} SOL`} />
             </Amount>
-            {/* <Time time={game.blockTime} /> */}
-          </Notifcation>
+            {/* <Time time={res.estimatedTime} /> */}
+          </Wrapper>
         )
       })}
     </Container>

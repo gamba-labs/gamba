@@ -31,27 +31,30 @@ export const GlobalStyle = createGlobalStyle`
 `
 
 export const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
   width: 100%;
+  ${MOBILE} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `
 
 export const Wrapper = styled.div`
   padding: 20px;
-  background: #fafafa;
   display: grid;
   gap: 20px;
   max-width: 100%;
   width: 100%;
+  border-radius: 20px;
+  position: absolute;
+  bottom: 0;
   ${MOBILE} {
     min-width: 320px;
-    border-radius: 20px;
+    position: relative;
   }
   background: #191c23;
   color: white;
-  position: relative;
 `
 
 export const Controls = styled.div`
@@ -112,4 +115,16 @@ export const SmallButton = styled.button`
 export const Amount = styled.div<{$value: number}>`
   color: ${({ $value }) => $value >= 0 ? '#00ff83' : '#ff2862'};
   font-weight: bold;
+`
+
+export const CanvasWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  ${MOBILE} {
+    position: relative;
+    height: 320px;
+  }
 `

@@ -34,12 +34,12 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
               return arr.findIndex((b) => key(b) === key(a)) === i
             },
           )
-          .sort((a, b) => b.blockTime - a.blockTime)
-          .slice(0, 20),
+          .sort((a, b) => b.estimatedTime - a.estimatedTime)
+          .slice(0, 100),
     }))
 
   useEffect(() => {
-    getRecentGames(connection)
+    getRecentGames(connection, configInput.recentGamesFetchLimit ?? 20)
       .then(addRecentGames)
       .catch((err) => console.error('🍤 Failed to get recent bets', err))
   }, [])

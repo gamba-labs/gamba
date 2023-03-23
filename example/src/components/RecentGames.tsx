@@ -37,7 +37,7 @@ interface AppConfig {
 }
 
 const KNOWN_APPS: Record<string, AppConfig> = {
-  '9PKb9odH8t2iAwXPtSXCvTAHJNbJ8Grfj1QWyGgyur7F': {
+  DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV: {
     name: 'Gamba Flip',
     results: {
       0: 'Heads',
@@ -45,7 +45,7 @@ const KNOWN_APPS: Record<string, AppConfig> = {
     },
   },
 }
-const getAppConfig = (pubkey: PublicKey) => KNOWN_APPS[pubkey.toBase58()] ?? 'Unknown Game'
+const getAppConfig = (pubkey: PublicKey): AppConfig | undefined => KNOWN_APPS[pubkey.toBase58()]
 
 export function RecentGames() {
   const gamba = useGamba()
@@ -57,8 +57,8 @@ export function RecentGames() {
         const app = getAppConfig(res.creator)
         return (
           <Wrapper key={key}>
-            <div>{app.name}</div>
-            <div>{app.results[res.resultIndex] ?? res.resultIndex}</div>
+            <div>{app?.name ?? 'Unknown Game'}</div>
+            <div>{app?.results[res.resultIndex] ?? res.resultIndex}</div>
             <div>{res.player.toBase58().substring(0, 6)}...</div>
             <Amount $value={profit}>
               <Value children={`${profit >= 0 ? '+' : ''}${profit / LAMPORTS_PER_SOL} SOL`} />

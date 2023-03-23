@@ -86,7 +86,7 @@ interface DropdownOptionProps {
 
 interface Props {
   label: string
-  options: (DropdownOptionProps | undefined | false)[]
+  options: (DropdownOptionProps | undefined | false)[]
   disabled?: boolean
 }
 

@@ -1,121 +1,78 @@
-import { BorshCoder, EventParser } from '@coral-xyz/anchor'
 import { ConnectionProviderProps, useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { PublicKey } from '@solana/web3.js'
+import { AccountInfo, PublicKey } from '@solana/web3.js'
 import { Buffer } from 'buffer'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnchorProvider, useAnchorProgram } from './AnchorProvider'
-import { GambaConfigInput } from './config'
-import { useFetchState, useGambaResult } from './hooks'
 import { SolanaProvider } from './SolanaProvider'
 import { useGambaStore } from './store'
-import { GameResult } from './types'
-import { getEnum } from './utils'
+import { GambaConfigInput, User, SettledGameEvent } from './types'
+import { getPdaAddress, getRecentGames, parseEvent, parseUserAccount } from './utils'
 
-export type GambaProps = {
+export type GambaProviderProps = GambaConfigInput & {
   children: any
-} & GambaConfigInput
-
-const parseEvent = (name: string, e: any, blockTime: number): GameResult | undefined => {
-  try {
-    return {
-      player: e.player,
-      nonce: e.nonce.toNumber(),
-      payout: e.unit.toNumber() * e.betMultiplier.toNumber(),
-      amount: e.unit.toNumber() * 1000,
-      multiplier: e.betMultiplier.toNumber(),
-      resultIndex: e.resultIndex.toNumber(),
-      blockTime,
-    }
-  } catch (err) {
-    console.warn('🍤 Failed to parse event', name, e, blockTime)
-    return undefined
-  }
 }
 
-export function GambaProvider({ children, ...configInput }: GambaProps) {
+const HOUSE_SEED = [Buffer.from('house')]
+const USER_SEED = (owner: PublicKey) => [Buffer.from('user'), owner.toBuffer()]
+
+export function GambaProvider({ children, ...configInput }: GambaProviderProps) {
   const { connection } = useConnection()
   const wallet = useWallet()
-  const fetchState = useFetchState()
   const [ready, setReady] = useState(false)
   const set = useGambaStore((state) => state.set)
-  const programId = useGambaStore((state) => state.program)
   const program = useAnchorProgram()
-  const game = useGambaStore((state) => state.game)
-  const player = useGambaStore((state) => state.player)
-  const playRequested = useGambaStore((state) => state.playRequested)
+  const accounts = useGambaStore((state) => state.accounts)
   const eventEmitter = useGambaStore((state) => state.eventEmitter)
 
-  const getRecentBets = async () => {
-    const eventParser = new EventParser(programId, new BorshCoder(program.idl))
-    console.debug('🍤 Get recent bets')
-    const signatures = await connection.getSignaturesForAddress(programId, {}, 'confirmed')
-    console.debug('🍤 Recent signatures', signatures)
-    const transactions = await connection.getParsedTransactions(signatures.slice(0, 10).map((x) => x.signature), 'confirmed')
-    console.debug('🍤 Recent transactions', transactions)
-    return new Promise<any[]>((resolve) => {
-      const _events = []
-      for (const tx of transactions) {
-        if (tx?.meta?.logMessages) {
-          const events = eventParser.parseLogs(tx.meta.logMessages)
-          for (const event of events) {
-            _events.push({event, blockTime: tx.blockTime ? tx.blockTime * 1000 : Date.now()})
-          }
-        }
-      }
-      resolve(
-        _events
-          .map(({event, blockTime}) => parseEvent(event.name, event.data, blockTime))
-          .filter((x) => !!x)
-      )
-    })
-  }
+  const addRecentGames = (bets: SettledGameEvent[]) =>
+    set((s) => ({
+      recentGames:
+        [...s.recentGames, ...bets]
+          .filter(
+            (a, i, arr) => {
+              const key = (game: SettledGameEvent) => game.player.toBase58() + '-' + game.nonce
+              return arr.findIndex((b) => key(b) === key(a)) === i
+            },
+          )
+          .sort((a, b) => b.blockTime - a.blockTime)
+          .slice(0, 20),
+    }))
+
   useEffect(() => {
-    getRecentBets()
-      .then((x) => set((s) => ({recentBets: [...s.recentBets, ...x]})))
+    getRecentGames(connection)
+      .then(addRecentGames)
       .catch((err) => console.error('🍤 Failed to get recent bets', err))
   }, [])
 
   useEffect(() => {
-    const config = {
-      ...configInput,
-      creator: new PublicKey(configInput.creator)
-    }
-    set({ config })
+    set({
+      config: {
+        ...configInput,
+        creator: new PublicKey(configInput.creator),
+      },
+    })
   }, [configInput])
-
-  useGambaResult((result) => {
-    console.debug('🍤 Unset playRequested 1')
-    set({ playRequested: undefined })
-  })
-
-  useEffect(() => {
-    if (playRequested) {
-      if (getEnum(game.state.status) === 'hashedSeedRequested') {
-        console.debug('🍤 Unset playRequested 2')
-        set({ playRequested: undefined })
-      }
-    }
-  }, [game, player, playRequested])
-
-  const getPdaAddress = async (...seeds: (Uint8Array | Buffer)[]) => {
-    const [address] = await PublicKey.findProgramAddressSync(seeds, programId)
-    return address
-  }
-  const getHouseAddress = () => getPdaAddress(Buffer.from('house'))
-  const getGameAddress = (player: PublicKey) => getPdaAddress(Buffer.from('game'), player.toBuffer())
 
   const getAccounts = async () => {
     try {
-      const house = await getHouseAddress()
-      const player = wallet.publicKey
-      if (player) {
-        const game = await getGameAddress(player)
+      const house = await getPdaAddress(...HOUSE_SEED)
+      const owner = wallet.publicKey
+      if (owner) {
+        const user = await getPdaAddress(...USER_SEED(owner))
         set((state) => ({
-          player: { ...state.player, address: player },
-          game: { ...state.game, address: game },
+          accounts: {
+            ...state.accounts,
+            wallet: owner,
+            user,
+          },
         }))
       }
-      set((state) => ({ house: { ...state.house, address: house } }))
+      set((state) => ({
+        accounts: {
+          ...state.accounts,
+          house,
+        },
+      }))
     } catch (err) {
       console.error('🍤 Failed to get accounts', err)
     } finally {
@@ -128,6 +85,9 @@ export function GambaProvider({ children, ...configInput }: GambaProps) {
     getAccounts()
   }, [wallet])
 
+  /**
+   * Program event listener
+   */
   useEffect(() => {
     if (ready) {
       const betSettled = program.addEventListener('BetSettledEvent', (e) => {
@@ -135,55 +95,62 @@ export function GambaProvider({ children, ...configInput }: GambaProps) {
         if (gameResult) {
           console.debug('🍤 GameResult', gameResult)
           eventEmitter.emitGameSettled(gameResult)
-          set((store) => ({
-            recentBets: [...store.recentBets, gameResult],
-          }))
+          addRecentGames([gameResult])
         }
       })
-
-      const betStarted = program.addEventListener('BetStartedEvent', (e) => {
-        console.debug('🍤 BetStarted', e)
-        eventEmitter.emitGameStarted(e)
-      })
-
       return () => {
         program.removeEventListener(betSettled)
-        program.removeEventListener(betStarted)
       }
     }
   }, [ready])
 
-  useEffect(() => {
-    if (game.address) {
-      fetchState()
-      const listener = connection.onAccountChange(game.address, (stuff) => {
-        console.debug('🍤 Account changed', stuff)
-        fetchState()
-      })
-      return () => {
-        connection.removeAccountChangeListener(listener)
-      }
-    }
-  }, [wallet, game.address])
+  const previousUser = useRef<User>()
+  /**
+   * Game state change listener
+   */
+  const handleUserAccount = async (account: AccountInfo<Buffer> | null) => {
+    const user = parseUserAccount(account)
+    console.debug('🍤 Game Account changed', account?.lamports, user)
+    eventEmitter.emitUserAccountChanged(user, previousUser.current)
+    set({ user })
+    previousUser.current = user
+  }
 
   useEffect(() => {
-    if (player.address) {
-      const updateBalance = (balance: number) => set((store) => ({ player: { ...store.player, balance } }))
-      connection.getBalance(player.address).then(updateBalance)
-      const listener = connection.onAccountChange(player.address, (account) => {
-        updateBalance(account.lamports)
-        console.debug('🍤 Player account changed', account)
+    if (accounts.user) {
+      connection.getAccountInfo(accounts.user).then(handleUserAccount)
+      const listener = connection.onAccountChange(accounts.user, (account) => {
+        handleUserAccount(account)
       })
       return () => {
         connection.removeAccountChangeListener(listener)
       }
     }
-  }, [player.address])
+  }, [wallet, accounts.user])
+
+  /**
+   * Player balance listener
+   */
+  const handlePlayerBalance = (balance: number) => {
+    set((store) => ({ wallet: { ...store.wallet, balance } }))
+  }
+  useEffect(() => {
+    if (accounts.wallet) {
+      connection.getBalance(accounts.wallet).then(handlePlayerBalance)
+      const listener = connection.onAccountChange(accounts.wallet, (account) => {
+        console.debug('🍤 Player account changed', account)
+        handlePlayerBalance(account.lamports)
+      })
+      return () => {
+        connection.removeAccountChangeListener(listener)
+      }
+    }
+  }, [accounts.wallet])
 
   return !ready ? null : children
 }
 
-export function Gamba({children, connection, ...configInput}: GambaProps & {connection?: Omit<ConnectionProviderProps, 'children'>}) {
+export function Gamba({ children, connection, ...configInput }: GambaProviderProps & {connection?: Omit<ConnectionProviderProps, 'children'>}) {
   return (
     <SolanaProvider connection={connection}>
       <AnchorProvider>

@@ -29,10 +29,11 @@ const Link = styled.a`
 
 const Title = styled.h1`
   font-size: 18px;
+  font-weight: bold;
 `
 
 const Subtitle = styled.h2`
-  font-size: 12px;
+  font-size: 14px;
   color: #ccc;
 `
 

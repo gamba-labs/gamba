@@ -1,31 +1,52 @@
-import { GameResult, LAMPORTS_PER_SOL, useGamba, useGambaResult } from 'gamba'
-import React, { useState } from 'react'
+import { LAMPORTS_PER_SOL, useGamba } from 'gamba'
+import React from 'react'
+import styled from 'styled-components'
 import { Amount } from '../styles'
 import { Value } from './Value'
 
+const ResultWrapper = styled.div`
+  font-size: 32px;
+  font-weight: bold;
+  padding: 20px;
+`
+
 export function Result() {
   const gamba = useGamba()
-  const [result, setResult] = useState<GameResult>()
-  const amount = !result ? 0 : result.payout - result.amount
 
-  useGambaResult((result) => {
-    setResult(result)
-  })
+  if (gamba.waitingForResult) {
+    return (
+      <ResultWrapper>
+        <small>FLIPPING</small>
+        <div>
+          <>...</>
+        </div>
+      </ResultWrapper>
+    )
+  }
+
+  if (!gamba.result) {
+    return (
+      <ResultWrapper>
+        <small>-</small>
+        <div>
+          <>{gamba.config.name}</>
+        </div>
+      </ResultWrapper>
+    )
+  }
+
+  const amount = gamba.result.payout - gamba.result.wager
 
   return (
-    <div style={{fontSize: 32, fontWeight: 'bold', padding: 20}}>
+    <ResultWrapper>
       <small>
-        {gamba.waitingForResult ?
-          'FLIPPING..'
-        : result ?
-          ['HEADS', 'TAILS'][result.resultIndex]
-        : '-'}
+        {['HEADS', 'TAILS'][gamba.result.resultIndex]}
       </small>
       <Amount $value={amount}>
-        <Value key={result?.nonce ?? amount}>
+        <Value key={String(gamba.result.nonce)}>
           {`${(amount / LAMPORTS_PER_SOL).toFixed(3)} SOL`}
         </Value>
       </Amount>
-    </div>
+    </ResultWrapper>
   )
 }

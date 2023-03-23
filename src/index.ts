@@ -1,8 +1,7 @@
 export { LAMPORTS_PER_SOL } from '@solana/web3.js'
-export { createConfig, type GambaConfig } from './config'
-export { useFetchState, useGamba, useGambaResult, type GambaState } from './hooks'
-export { Gamba, type GambaProps } from './provider'
-export { type GameResult } from './types'
-import * as buffer from 'buffer'
+export { useGamba, useGambaEvent, type GambaState } from './hooks'
+export { Gamba, GambaProvider, type GambaProviderProps } from './provider'
+export { type SettledGameEvent, type GambaConfig } from './types'
 
+import * as buffer from 'buffer'
 window.Buffer = buffer.Buffer

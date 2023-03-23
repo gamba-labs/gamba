@@ -12,11 +12,10 @@ const Wrapper = styled.span<{$flash?: boolean}>`
 `
 
 interface Props {
-  key?: string
   children: ReactNode
 }
 
-export function Value({ key, children }: Props) {
+export function Value({ children }: Props) {
   const [flash, set] = useState(false)
 
   useEffect(() => {
@@ -24,7 +23,7 @@ export function Value({ key, children }: Props) {
     setTimeout(() => {
       set(false)
     }, 250)
-  }, [key, children])
+  }, [children])
 
   return (
     <Wrapper $flash={flash}>

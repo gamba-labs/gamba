@@ -13,7 +13,8 @@ const Wrapper = styled.div<{$loading: boolean}>`
   position: relative;
   transform: opacity .5s;
   height: 5px;
-  opacity: ${({$loading}) => $loading ? '1' : '0'};
+  margin-bottom: 10px;
+  opacity: ${({ $loading }) => $loading ? '1' : '0'};
   & > div {
     width: 50%;
     height: 100%;
@@ -26,7 +27,7 @@ const Wrapper = styled.div<{$loading: boolean}>`
   }
 `
 
-export function Loading({loading}: {loading: boolean}) {
+export function Loading({ loading }: {loading: boolean}) {
   return (
     <Wrapper $loading={loading}>
       {loading && <div />}

@@ -22,8 +22,8 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
   }
   body, input, button, textarea, pre {
-    font-family: arial;
-    font-size: 16px;
+    font-family: 'Roboto Mono', sans-serif;
+    font-size: 14px;
   }
   #root {
     height: 100%;
@@ -35,19 +35,21 @@ export const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
 `
 
 export const Wrapper = styled.div`
   padding: 20px;
   background: #fafafa;
-  border-radius: 20px;
-  border: 1px solid #ccc;
   display: grid;
   gap: 20px;
-  min-width: 320px;
   max-width: 100%;
+  width: 100%;
+  ${MOBILE} {
+    min-width: 320px;
+    border-radius: 20px;
+  }
   background: #191c23;
-  border: none;
   color: white;
   position: relative;
 `
@@ -66,24 +68,8 @@ export const ButtonGroup = styled.div`
 `
 
 export const Info = styled.div`
-  font-size: 14px;
   display: flex;
   justify-content: space-between;
-`
-
-export const Input = styled.input`
-  padding: 15px;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  border: none;
-  background: rgb(47 51 60);
-  color: white;
-  outline: none;
-  transition: background .1s;
-  &:focus {
-    background: rgb(58 63 75);
-  }
 `
 
 export const ButtonCSS = css<{$gradient?: boolean}>`
@@ -103,7 +89,7 @@ export const ButtonCSS = css<{$gradient?: boolean}>`
     cursor: default;
     background: #090f1b33;
   }
-  ${({$gradient}) => $gradient && `
+  ${({ $gradient }) => $gradient && `
     transition: background .5s;
     background-image: linear-gradient(90deg,rgba(255,124,83,1) -0%,rgba(255,85,85,1) 48%,rgba(255,10,83,1) 100%);
     &:hover {
@@ -118,12 +104,12 @@ export const Button = styled.button`
 
 export const SmallButton = styled.button`
   ${ButtonCSS}
-  font-size: 12px;
-  padding: 5px;
+  padding: 2.5px 5px;
   min-width: unset;
+  font-size: 12px;
 `
 
 export const Amount = styled.div<{$value: number}>`
-  color: ${({$value}) => $value >= 0 ? '#00ff83' : '#ff2862'};
+  color: ${({ $value }) => $value >= 0 ? '#00ff83' : '#ff2862'};
   font-weight: bold;
 `

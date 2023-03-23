@@ -84,7 +84,7 @@ Any child components of the Gamba provider can now start using the `useGamba` ho
 > This only has to be done once per user, as they will use the same account for every Gamba game they play.
 > Your app should assume that your users may not already have an account and offer a way to create one.
 
-In order to play any game on Gamba, a user first needs to have a Gamba account associated with their wallet. We can check if the user already has a Gamba user account by looking at `gamba.user.created`. If the value is `false` we can create an account for the user by calling `gamba.init()`. Example:
+In order to play any game on Gamba, a user first needs to have a Gamba user account associated with their wallet. We can check if the user already has an account by looking at `gamba.user.created`. If the value is `false` we can create an account for the user by calling `gamba.init()`. Example:
 
 ```tsx
 const gamba = useGamba()
@@ -153,14 +153,14 @@ To wait for the actual result, we also have to await the `response.result` promi
 
 #### Withdrawing
 
-Every time the player wins a bet, the payout will be added to the player's game account balance. The `withdraw` method can be called to claim any or all funds currently in the Gamba account.
+Every time the player wins a bet, the payout will be added to the player's user account balance. The `withdraw` method can be called to claim any or all funds currently in the Gamba account.
 
-The following example withdraws all the SOL available in the player's game account:
+The following example withdraws all the SOL available in the player's user account:
 
 ```tsx
 const gamba = useGamba()
 
-gamba.withdraw(gamba.game.balance)
+gamba.withdraw(gamba.user.balance)
 ```
 
 ## Resources

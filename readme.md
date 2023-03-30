@@ -24,9 +24,9 @@ This package lets you build a react app that interacts with Gamba's Anchor progr
 
 `yarn add gamba`
 
-For a quick setup you can clone this repository and use the example template under /example.
+For a quick setup you can check out the guide on our Coin Flip repo
 
-[👉 Full template guide here](example/readme.md)
+[👉 Full template guide here](https://github.com/gamba-labs/flip)
 
 
 ## Basic Usage

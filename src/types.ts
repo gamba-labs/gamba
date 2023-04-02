@@ -123,8 +123,31 @@ export interface GambaAccounts {
   wallet: PublicKey | null
 }
 
+export type HouseState = IdlAccounts<Gamba>['house']
 export type UserState = IdlAccounts<Gamba>['user']
 export type UserStatus = keyof UserState['status']
+
+export interface House {
+  /** */
+  state: HouseState | null
+  /**
+   * Account balance available in the House wallet
+   */
+  balance: number
+  /**
+   * The maximum number of lamports a User can win in a bet
+   */
+  maxPayout: number
+  /**
+   * For every bet a certain % is rewarded to the House and Game creator
+   */
+  fees: {
+    /** Fee to the Game creator (1% = 0.01) */
+    creator: number
+    /** Fee to the House treasury (1% = 0.01) */
+    house: number
+  }
+}
 
 export interface User {
   /**
@@ -163,6 +186,7 @@ export interface GambaStore {
   config: GambaConfig
   seed: string
   user: User
+  house: House
   wallet: Wallet
   recentGames: SettledGameEvent[]
 }

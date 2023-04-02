@@ -2,14 +2,14 @@ import { BorshAccountsCoder, BorshCoder, EventParser } from '@coral-xyz/anchor'
 import { AccountInfo, Connection, Enum, PublicKey } from '@solana/web3.js'
 import { Buffer } from 'buffer'
 import { IDL, PROGRAM_ID } from './constants'
-import { GameResult, SettledGameEvent, User, UserState, UserStatus } from './types'
+import { GameResult, House, HouseState, SettledGameEvent, User, UserState, UserStatus } from './types'
 
 export const randomSeed = (len = 16) =>
   Array.from({ length: len }).map(() =>
     (Math.random() * 16 | 0).toString(16),
   ).join('')
 
-export async function sha256(message: string) {
+const sha256 = async (message: string) => {
   const arrayBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message))
   return Buffer.from(arrayBuffer).toString('hex')
 }
@@ -41,9 +41,10 @@ export const parseEvent = (name: string, e: any, estimatedTime: number): Settled
 export const getRecentGames = async (connection: Connection, limit: number) => {
   const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
   console.debug('🍤 Get recent bets')
-  const signatures = await connection.getSignaturesForAddress(PROGRAM_ID, {}, 'confirmed')
+  const signatures = await connection.getSignaturesForAddress(PROGRAM_ID, { limit: 500 }, 'confirmed')
   console.debug('🍤 Recent signatures', signatures)
-  const transactions = await connection.getParsedTransactions(signatures.slice(0, limit).map((x) => x.signature), 'confirmed')
+  const signatureStrings = signatures.slice(0, limit).map((x) => x.signature)
+  const transactions = await connection.getParsedTransactions(signatureStrings, 'confirmed')
   console.debug('🍤 Recent transactions', transactions)
   return new Promise<any[]>((resolve) => {
     const _events = []
@@ -77,13 +78,42 @@ export const parseUserAccount = (account: AccountInfo<Buffer | null> | null): Us
       state,
     }
   } catch (err) {
-    console.warn('🍤 Error parsing game state', err)
+    console.warn('🍤 Error parsing User state', err)
     return {
       status: 'none',
       created: false,
       balance: 0,
       _accountBalance: 0,
       state: null,
+    }
+  }
+}
+
+export const parseHouseAccount = (account: AccountInfo<Buffer | null> | null): House => {
+  try {
+    if (!account?.data) {
+      throw new Error('No account data')
+    }
+    const state = new BorshAccountsCoder(IDL).decode('house', account.data) as HouseState
+    return {
+      state,
+      balance: account.lamports,
+      maxPayout: state.maxPayout.toNumber(),
+      fees: {
+        house: state.houseFee.toNumber() / 1000,
+        creator: state.creatorFee.toNumber() / 1000,
+      },
+    }
+  } catch (err) {
+    console.warn('🍤 Error parsing House state', err)
+    return {
+      state: null,
+      balance: 0,
+      maxPayout: 0,
+      fees: {
+        house: 0,
+        creator: 0,
+      },
     }
   }
 }

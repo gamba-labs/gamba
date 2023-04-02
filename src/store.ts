@@ -3,7 +3,7 @@ import { GambaEventEmitter } from './events'
 import { GambaStore } from './types'
 import { randomSeed } from './utils'
 
-export const useGambaStore = create<GambaStore>((set, get) => ({
+export const useGambaStore = create<GambaStore>((set) => ({
   eventEmitter: new GambaEventEmitter,
   set,
   seed: randomSeed(),
@@ -16,7 +16,6 @@ export const useGambaStore = create<GambaStore>((set, get) => ({
     name: 'Gamba Game',
     creator: null!,
   },
-  house: { balance: 0 },
   wallet: { balance: 0 },
   user: {
     created: false,
@@ -24,6 +23,15 @@ export const useGambaStore = create<GambaStore>((set, get) => ({
     _accountBalance: 0,
     state: null,
     status: 'none',
+  },
+  house: {
+    balance: 0,
+    state: null,
+    maxPayout: 0,
+    fees: {
+      creator: 0,
+      house: 0,
+    },
   },
   recentGames: [],
 }))

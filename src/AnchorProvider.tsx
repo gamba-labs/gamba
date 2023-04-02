@@ -9,14 +9,16 @@ export const AnchorContext = createContext<Program<Gamba>>(null!)
 export function AnchorProvider({ children }: {children: ReactNode}) {
   const wallet = useAnchorWallet()
   const { connection } = useConnection()
+
   const program = useMemo(() => {
     const provider = new AnchorProviderClass(
       connection,
-      wallet!,
+      wallet,
       { preflightCommitment: 'processed' },
     )
     return new Program(IDL, PROGRAM_ID, provider)
   }, [wallet, connection])
+
   return (
     <AnchorContext.Provider value={program}>
       {children}

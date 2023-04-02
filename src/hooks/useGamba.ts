@@ -1,7 +1,7 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { PublicKey, SYSVAR_CLOCK_PUBKEY } from '@solana/web3.js'
-import { BN } from 'bn.js'
+import { BN } from '@coral-xyz/anchor'
 import { useAnchorProgram } from '../AnchorProvider'
 import { BET_UNIT, SYSTEM_PROGRAM } from '../constants'
 import { GambaEventEmitter } from '../events'
@@ -45,6 +45,7 @@ export function useGamba() {
   const walletModal = useWalletModal()
   const program = useAnchorProgram()
   const recentGames = useGambaStore((store) => store.recentGames)
+  const house = useGambaStore((store) => store.house)
   const set = useGambaStore((store) => store.set)
   const user = useGambaStore((store) => store.user)
   const accounts = useGambaStore((store) => store.accounts)
@@ -154,7 +155,7 @@ export function useGamba() {
      */
     web3Connection: program.provider.connection,
     /**
-     * ⚠️ The connected web3 wallet. Avoid using this if possible. It may be removed in future updates
+     * The connected web3 wallet
      */
     web3Wallet,
     /**
@@ -197,7 +198,11 @@ export function useGamba() {
      */
     withdraw,
     /**
-     * The Gamba user account for the connected user
+     * The Gamba House account
+     */
+    house,
+    /**
+     * The Gamba User account for the connected wallet
      */
     user,
     /**

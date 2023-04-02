@@ -18,14 +18,12 @@
     "@solana/wallet-adapter-react": "^0.15.30",
     "@solana/wallet-adapter-react-ui": "^0.9.29",
     "@solana/wallet-adapter-wallets": "^0.19.15",
-    "@solana/web3.js": "^1.73.3",
-    "bn.js": "^5.2.1",
+    "@solana/web3.js": "^1.74.0",
     "react": "^18.2.0",
     "zustand": "^4.3.6"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
-    "@types/bn.js": "^5.1.1",
     "@types/react": "^18.0.28",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",

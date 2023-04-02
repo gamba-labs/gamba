@@ -1,13 +1,7 @@
-<p align="center">
-  <img src="gamba.png" />
-</p>
+![Gamba](gamba.png)
 
-<br />
-
-<h1 align="center">Gamba</h1>
-<h3 align="center">Create on-chain betting apps for Solana with zero deployments</h3>
-
-<br>
+# Gamba
+Create on-chain betting apps for Solana with zero deployments ✨
 
 > **Note**
 > Gamba is under heavy development and all APIs are subject to change. Please follow us on [Twitter](https://twitter.com/GambaLabs) for updates.

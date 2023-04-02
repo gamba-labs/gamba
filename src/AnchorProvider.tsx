@@ -13,7 +13,7 @@ export function AnchorProvider({ children }: {children: ReactNode}) {
   const program = useMemo(() => {
     const provider = new AnchorProviderClass(
       connection,
-      wallet,
+      wallet!,
       { preflightCommitment: 'processed' },
     )
     return new Program(IDL, PROGRAM_ID, provider)

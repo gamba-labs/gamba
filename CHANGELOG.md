@@ -1,5 +1,11 @@
 # gamba
 
+## 0.4.1
+
+### Patch Changes
+
+- 3449fcb: `window.Buffer` polyfill
+
 ## 0.4.0
 
 ### Minor Changes

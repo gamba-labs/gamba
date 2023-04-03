@@ -1,5 +1,11 @@
 # gamba
 
+## 0.4.2
+
+### Patch Changes
+
+- e2615e6: Test Patch
+
 ## 0.4.1
 
 ### Patch Changes

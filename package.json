@@ -9,7 +9,8 @@
     "start": "pnpm run dev",
     "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
     "build": "tsup src/index.ts --format cjs,esm --dts",
-    "release": "pnpm run build && pnpm publish",
+    "version": "changeset version && pnpm install --no-frozen-lockfile",
+    "release": "pnpm run build && changeset publish",
     "lint": "tsc"
   },
   "dependencies": {

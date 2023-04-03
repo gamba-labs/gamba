@@ -1,8 +1,7 @@
 import { create } from 'zustand'
 import { GambaEventEmitter } from './events'
-import { GambaStore } from './types'
+import { GambaStore, SettledGameEvent } from './types'
 import { randomSeed } from './utils'
-import { SettledGameEvent } from '../dist'
 
 export const useGambaStore = create<GambaStore>((set) => ({
   eventEmitter: new GambaEventEmitter,

@@ -1,5 +1,11 @@
 # gamba
 
+## 0.4.3
+
+### Patch Changes
+
+- 97d993f: Fixes Buffer issue
+
 ## 0.4.2
 
 ### Patch Changes

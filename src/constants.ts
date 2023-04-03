@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
+import { Buffer } from 'buffer'
 export { IDL } from './idl'
 
 export const SYSTEM_PROGRAM = new PublicKey('11111111111111111111111111111111')

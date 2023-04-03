@@ -56,22 +56,6 @@ export function useGamba() {
 
   const updateSeed = () => set({ seed: randomSeed() })
 
-  const _init = () => {
-    if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    return program.methods
-      .initializeUser(
-        accounts.wallet,
-      )
-      .accounts({
-        user: accounts.user,
-        owner: accounts.wallet,
-        systemProgram: SYSTEM_PROGRAM,
-      })
-      .remainingAccounts([
-        { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
-      ])
-  }
-
   const _play = (
     gameConfig: number[],
     wager: number,
@@ -93,19 +77,21 @@ export function useGamba() {
       })
   }
 
-  const _withdraw = (amount: number) => {
+  async function init() {
     if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
     return program.methods
-      .userWithdraw(new BN(amount))
+      .initializeUser(
+        accounts.wallet,
+      )
       .accounts({
         user: accounts.user,
         owner: accounts.wallet,
+        systemProgram: SYSTEM_PROGRAM,
       })
-  }
-
-  async function init() {
-    if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    return _init().rpc()
+      .remainingAccounts([
+        { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
+      ])
+      .rpc()
   }
 
   async function play(gameConfigInput: number[], wager: number) {
@@ -133,7 +119,13 @@ export function useGamba() {
   async function withdraw(_amount?: number) {
     const amount = _amount ?? user.balance
     if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    return _withdraw(amount).rpc()
+    return program.methods
+      .userWithdraw(new BN(amount))
+      .accounts({
+        user: accounts.user,
+        owner: accounts.wallet,
+      })
+      .rpc()
   }
 
   async function close() {

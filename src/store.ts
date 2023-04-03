@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { GambaEventEmitter } from './events'
 import { GambaStore } from './types'
 import { randomSeed } from './utils'
+import { SettledGameEvent } from '../dist'
 
 export const useGambaStore = create<GambaStore>((set) => ({
   eventEmitter: new GambaEventEmitter,
@@ -34,4 +35,17 @@ export const useGambaStore = create<GambaStore>((set) => ({
     },
   },
   recentGames: [],
+  addRecentGames: (bets: SettledGameEvent[]) =>
+    set((s) => ({
+      recentGames:
+        [...s.recentGames, ...bets]
+          .filter(
+            (a, i, arr) => {
+              const key = (game: SettledGameEvent) => game.player.toBase58() + '-' + game.nonce
+              return arr.findIndex((b) => key(b) === key(a)) === i
+            },
+          )
+          .sort((a, b) => b.estimatedTime - a.estimatedTime)
+          .slice(0, 100),
+    })),
 }))

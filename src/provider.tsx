@@ -1,43 +1,16 @@
 import { ConnectionProviderProps, useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { AccountInfo, PublicKey } from '@solana/web3.js'
-import { Buffer } from 'buffer'
-import { useEffect, useRef, useState } from 'react'
+import { PublicKey } from '@solana/web3.js'
+import { useEffect, useState } from 'react'
 import { AnchorProvider, useAnchorProgram } from './AnchorProvider'
 import { SolanaProvider } from './SolanaProvider'
+import { HOUSE_SEED, USER_SEED } from './constants'
+import { useAccountChangeListener } from './hooks'
 import { useGambaStore } from './store'
-import { GambaConfigInput, SettledGameEvent } from './types'
+import { GambaConfigInput } from './types'
 import { getPdaAddress, getRecentGames, parseEvent, parseHouseAccount, parseUserAccount } from './utils'
 
 export type GambaProviderProps = GambaConfigInput & {
   children: any
-}
-
-const HOUSE_SEED = [Buffer.from('house')]
-const getUserSeed = (owner: PublicKey) => [Buffer.from('user'), owner.toBuffer()]
-
-function useSolanaAccountListener(
-  account: PublicKey | null,
-  callback: (account: AccountInfo<Buffer> | null, previous: AccountInfo<Buffer> | null) => void,
-) {
-  const { connection } = useConnection()
-  const previous = useRef<AccountInfo<Buffer>>(null)
-  const handler = (account: AccountInfo<Buffer> | null) => {
-    callback(account, previous.current)
-    ;(previous as any).current = account
-  }
-  useEffect(() => {
-    if (account) {
-      connection.getAccountInfo(account)
-        .then(handler)
-        .catch((err) => {
-          console.error('🍤 Failed to getAccountInfo', err)
-        })
-      const listener = connection.onAccountChange(account, handler)
-      return () => {
-        connection.removeAccountChangeListener(listener)
-      }
-    }
-  })
 }
 
 export function GambaProvider({ children, ...configInput }: GambaProviderProps) {
@@ -48,20 +21,7 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
   const program = useAnchorProgram()
   const accounts = useGambaStore((state) => state.accounts)
   const eventEmitter = useGambaStore((state) => state.eventEmitter)
-
-  const addRecentGames = (bets: SettledGameEvent[]) =>
-    set((s) => ({
-      recentGames:
-        [...s.recentGames, ...bets]
-          .filter(
-            (a, i, arr) => {
-              const key = (game: SettledGameEvent) => game.player.toBase58() + '-' + game.nonce
-              return arr.findIndex((b) => key(b) === key(a)) === i
-            },
-          )
-          .sort((a, b) => b.estimatedTime - a.estimatedTime)
-          .slice(0, 100),
-    }))
+  const addRecentGames = useGambaStore((state) => state.addRecentGames)
 
   useEffect(() => {
     getRecentGames(connection, configInput.recentGamesFetchLimit ?? 20)
@@ -80,10 +40,10 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
 
   const getAccounts = async () => {
     try {
-      const house = await getPdaAddress(...HOUSE_SEED)
+      const house = await getPdaAddress(HOUSE_SEED)
       const owner = wallet.publicKey
       if (owner) {
-        const user = await getPdaAddress(...getUserSeed(owner))
+        const user = await getPdaAddress(USER_SEED, owner.toBuffer())
         set((state) => ({
           accounts: {
             ...state.accounts,
@@ -129,8 +89,8 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
     }
   }, [ready])
 
-  /** Game state change listener */
-  useSolanaAccountListener(accounts.user, (account, previous) => {
+  /** User state change listener */
+  useAccountChangeListener(accounts.user, (account, previous) => {
     const user = parseUserAccount(account)
     const previousUser = parseUserAccount(previous)
     console.debug('🍤 User Account changed', account?.lamports, user)
@@ -138,8 +98,8 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
     set({ user })
   })
 
-  /** Game state change listener */
-  useSolanaAccountListener(accounts.house, (account) => {
+  /** House state change listener */
+  useAccountChangeListener(accounts.house, (account) => {
     const house = parseHouseAccount(account)
     console.debug('🍤 House Account changed', account?.lamports, house)
     set({ house })
@@ -148,10 +108,10 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
   /**
    * Player balance listener
    */
-  const handlePlayerBalance = (balance: number) => {
-    set((store) => ({ wallet: { ...store.wallet, balance } }))
-  }
   useEffect(() => {
+    const handlePlayerBalance = (balance: number) => {
+      set((store) => ({ wallet: { ...store.wallet, balance } }))
+    }
     if (accounts.wallet) {
       connection.getBalance(accounts.wallet).then(handlePlayerBalance)
       const listener = connection.onAccountChange(accounts.wallet, (account) => {

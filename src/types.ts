@@ -189,4 +189,5 @@ export interface GambaStore {
   house: House
   wallet: Wallet
   recentGames: SettledGameEvent[]
+  addRecentGames: (bets: SettledGameEvent[]) => void
 }

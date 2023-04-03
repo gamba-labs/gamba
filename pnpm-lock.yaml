@@ -11,8 +11,10 @@ specifiers:
   '@types/react': ^18.0.28
   '@typescript-eslint/eslint-plugin': ^5.56.0
   '@typescript-eslint/parser': ^5.56.0
+  buffer: ^6.0.3
   eslint: ^8.36.0
   eslint-plugin-react: ^7.32.2
+  events: ^3.3.0
   react: ^18.2.0
   tsup: ^6.6.3
   typescript: ^4.9.5
@@ -25,6 +27,8 @@ dependencies:
   '@solana/wallet-adapter-react-ui': 0.9.31_wzeqaehrffkscl6ntoimonhymu
   '@solana/wallet-adapter-wallets': 0.19.16_gl43mks5fcyeigqmevxkunq2eu
   '@solana/web3.js': 1.74.0
+  buffer: 6.0.3
+  events: 3.3.0
   react: 18.2.0
   zustand: 4.3.7_react@18.2.0
 

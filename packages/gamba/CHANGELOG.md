@@ -1,5 +1,11 @@
 # gamba
 
+## 0.5.1
+
+### Patch Changes
+
+- b7df72a: Export `PROGRAM_ID`, `MIN_BET` & `GambaError` constants
+
 ## 0.5.0
 
 ### Minor Changes

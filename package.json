@@ -1,41 +1,22 @@
 {
-  "name": "gamba",
-  "version": "0.4.3",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "license": "MIT",
+  "private": true,
   "scripts": {
-    "start": "pnpm run dev",
-    "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "version": "changeset version && pnpm install --no-frozen-lockfile",
-    "release": "pnpm run build && changeset publish",
-    "lint": "tsc"
+    "build": "turbo run build",
+    "dev": "turbo run dev --no-cache --continue",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build && changeset publish"
   },
-  "dependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
-    "@solana/wallet-adapter-base": "^0.9.22",
-    "@solana/wallet-adapter-react": "^0.15.30",
-    "@solana/wallet-adapter-react-ui": "^0.9.29",
-    "@solana/wallet-adapter-wallets": "^0.19.15",
-    "@solana/web3.js": "^1.74.0",
-    "buffer": "^6.0.3",
-    "events": "^3.3.0",
-    "react": "^18.2.0",
-    "zustand": "^4.3.6"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
-    "@types/react": "^18.0.28",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
-    "eslint": "^8.36.0",
     "eslint-plugin-react": "^7.32.2",
-    "tsup": "^6.6.3",
+    "eslint": "^8.36.0",
+    "turbo": "^1.8.8",
     "typescript": "^4.9.5"
-  },
-  "peerDependencies": {
-    "react": "*"
   }
 }

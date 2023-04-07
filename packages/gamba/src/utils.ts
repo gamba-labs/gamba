@@ -1,7 +1,7 @@
 import { BorshAccountsCoder, BorshCoder, EventParser } from '@coral-xyz/anchor'
 import { AccountInfo, Connection, Enum, PublicKey } from '@solana/web3.js'
 import { Buffer } from 'buffer'
-import { IDL, PROGRAM_ID } from './constants'
+import { BET_UNIT, IDL, PROGRAM_ID } from './constants'
 import { GameResult, House, HouseState, SettledGameEvent, User, UserState, UserStatus } from './types'
 
 export const randomSeed = (len = 16) =>
@@ -19,7 +19,7 @@ export const parseStatus = (x: UserState['status']) => new Enum(x).enum as UserS
 export const parseEvent = (name: string, e: any, estimatedTime: number): SettledGameEvent | undefined => {
   try {
     const wager = e.wager.toNumber()
-    const unit = wager / 1_000
+    const unit = wager / BET_UNIT
     return {
       player: e.player,
       creator: e.creator,
@@ -95,13 +95,16 @@ export const parseHouseAccount = (account: AccountInfo<Buffer | null> | null): H
       throw new Error('No account data')
     }
     const state = new BorshAccountsCoder(IDL).decode('house', account.data) as HouseState
+    const houseFee = state.houseFee.toNumber() / 1000
+    const creatorFee = state.creatorFee.toNumber() / 1000
     return {
       state,
       balance: account.lamports,
       maxPayout: state.maxPayout.toNumber(),
       fees: {
-        house: state.houseFee.toNumber() / 1000,
-        creator: state.creatorFee.toNumber() / 1000,
+        total: houseFee + creatorFee,
+        house: houseFee,
+        creator: creatorFee,
       },
     }
   } catch (err) {
@@ -111,6 +114,7 @@ export const parseHouseAccount = (account: AccountInfo<Buffer | null> | null): H
       balance: 0,
       maxPayout: 0,
       fees: {
+        total: 0,
         house: 0,
         creator: 0,
       },

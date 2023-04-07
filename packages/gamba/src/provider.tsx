@@ -1,8 +1,8 @@
-import { ConnectionProviderProps, useConnection, useWallet } from '@solana/wallet-adapter-react'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
 import { AnchorProvider, useAnchorProgram } from './AnchorProvider'
-import { SolanaProvider } from './SolanaProvider'
+import { SolanaProvider, SolanaProviderProps } from './SolanaProvider'
 import { HOUSE_SEED, USER_SEED } from './constants'
 import { useAccountChangeListener } from './hooks'
 import { useGambaStore } from './store'
@@ -66,6 +66,7 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
     }
   }
 
+
   useEffect(() => {
     getAccounts()
   }, [wallet])
@@ -94,7 +95,7 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
     const user = parseUserAccount(account)
     const previousUser = parseUserAccount(previous)
     console.debug('🍤 User Account changed', account?.lamports, user)
-    eventEmitter.emitUserAccountChanged(user, previousUser)
+    eventEmitter.emitUserAccountChanged(user.state, previousUser.state)
     set({ user })
   })
 
@@ -127,7 +128,7 @@ export function GambaProvider({ children, ...configInput }: GambaProviderProps) 
   return !ready ? null : children
 }
 
-export function Gamba({ children, connection, ...configInput }: GambaProviderProps & {connection?: Omit<ConnectionProviderProps, 'children'>}) {
+export function Gamba({ children, connection, ...configInput }: GambaProviderProps & SolanaProviderProps) {
   return (
     <SolanaProvider connection={connection}>
       <AnchorProvider>

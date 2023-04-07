@@ -5,12 +5,16 @@ import { UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { clusterApiUrl } from '@solana/web3.js'
 import { ReactNode, useMemo } from 'react'
 
-export function SolanaProvider({ children, connection }: {children: ReactNode, connection?: Omit<ConnectionProviderProps, 'children'>}) {
+export interface SolanaProviderProps {
+  connection?: Omit<ConnectionProviderProps, 'children'>
+}
+
+export function SolanaProvider({ children, connection }: {children: ReactNode} & SolanaProviderProps) {
   const endpoint = connection?.endpoint ?? clusterApiUrl()
   const wallets = useMemo(() => [new UnsafeBurnerWalletAdapter()], [endpoint])
   return (
     <ConnectionProvider {...connection} endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider autoConnect wallets={wallets}>
         <WalletModalProvider>
           {children}
         </WalletModalProvider>

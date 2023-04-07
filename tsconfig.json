@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "module": "commonjs",
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "node",
     "declaration": true,
     "strict": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "noEmit": true,
+    "isolatedModules": true
   },
-  "exclude": [
-    "example"
-  ]
+  "include": ["packages/**/src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

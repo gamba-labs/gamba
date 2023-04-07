@@ -142,6 +142,8 @@ export interface House {
    * For every bet a certain % is rewarded to the House and Game creator
    */
   fees: {
+    /** Fee to the Game creator & House treasury (1% = 0.01) */
+    total: number
     /** Fee to the Game creator (1% = 0.01) */
     creator: number
     /** Fee to the House treasury (1% = 0.01) */

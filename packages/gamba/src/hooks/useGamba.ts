@@ -1,44 +1,23 @@
+import { BN } from '@coral-xyz/anchor'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { PublicKey, SYSVAR_CLOCK_PUBKEY } from '@solana/web3.js'
-import { BN } from '@coral-xyz/anchor'
 import { useAnchorProgram } from '../AnchorProvider'
 import { BET_UNIT, SYSTEM_PROGRAM } from '../constants'
-import { GambaEventEmitter } from '../events'
+import { waitForClosed, waitForCreated, waitForResult } from '../events'
 import { useGambaStore } from '../store'
-import { GambaAccounts, GameResult } from '../types'
-import { getGameResult, randomSeed } from '../utils'
+import { GambaAccounts } from '../types'
+import { randomSeed } from '../utils'
 
 export type GambaState = ReturnType<typeof useGamba>
 type NoUndefinedField<T> = { [P in keyof T]-?: NoUndefinedField<NonNullable<T[P]>> };
 type NoUndefinedAccount = NoUndefinedField<GambaAccounts>
 
-const checkAccounts = (x: any): x is NoUndefinedAccount => {
-  return !!x.wallet && !!x.house && !!x.user
-}
+const checkAccounts = (x: any): x is NoUndefinedAccount => !!x.wallet && !!x.house && !!x.user
 
-const waitForResult = (eventEmitter: GambaEventEmitter) => new Promise<GameResult>((resolve, reject) => {
-  eventEmitter.on('userAccountChanged', function changeListener(game, previousGame) {
-    const off = () => eventEmitter.off('userAccountChanged', changeListener)
-    if (!game.created) {
-      off()
-      reject('ACCOUNT_CLOSED')
-    }
-    if (previousGame?.state?.status.hashedSeedRequested) {
-      if (game.state?.status.playing) {
-        // Game status went from hashedSeedRequested to playing
-        // We can now derive a result
-        const result = getGameResult(previousGame.state, game.state)
-        off()
-        resolve(result)
-      } else if (!game.state?.status.hashedSeedRequested) {
-        //
-        off()
-        reject('UNEXPECTED_STATE_CHANGE')
-      }
-    }
-  })
-})
+interface PlayParams {
+  deductFees?: boolean
+}
 
 export function useGamba() {
   const web3Wallet = useWallet()
@@ -56,30 +35,10 @@ export function useGamba() {
 
   const updateSeed = () => set({ seed: randomSeed() })
 
-  const _play = (
-    gameConfig: number[],
-    wager: number,
-    seed: string,
-  ) => {
-    if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    return program.methods
-      .play(
-        new PublicKey(config.creator),
-        new BN(wager),
-        gameConfig,
-        seed,
-      )
-      .accounts({
-        user: accounts.user,
-        owner: accounts.wallet,
-        creator: config.creator,
-        house: accounts.house,
-      })
-  }
-
   async function init() {
     if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    return program.methods
+
+    const tx = await program.methods
       .initializeUser(
         accounts.wallet,
       )
@@ -92,16 +51,34 @@ export function useGamba() {
         { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
       ])
       .rpc()
+
+    return {
+      tx,
+      result: waitForCreated(eventEmitter),
+    }
   }
 
-  async function play(gameConfigInput: number[], wager: number) {
-    const gameConfig = gameConfigInput.map((x) => x * BET_UNIT)
+  async function play(gameConfigInput: number[], wager: number, params?: PlayParams) {
+    if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
 
-    const tx = await _play(
-      gameConfig,
-      wager,
-      seed,
-    ).transaction()
+    const gameConfig = gameConfigInput.map((x) => x * BET_UNIT)
+    const fees = house.fees.total * wager
+    const _wager = params?.deductFees ? (wager - fees) : wager
+
+    const tx = await program.methods
+      .play(
+        new PublicKey(config.creator),
+        new BN(_wager),
+        gameConfig,
+        seed,
+      )
+      .accounts({
+        user: accounts.user,
+        owner: accounts.wallet,
+        creator: config.creator,
+        house: accounts.house,
+      })
+      .transaction()
 
     const signature = await web3Wallet.sendTransaction(tx, program.provider.connection)
 
@@ -119,26 +96,33 @@ export function useGamba() {
   async function withdraw(_amount?: number) {
     const amount = _amount ?? user.balance
     if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    return program.methods
+    const tx = program.methods
       .userWithdraw(new BN(amount))
       .accounts({
         user: accounts.user,
         owner: accounts.wallet,
       })
       .rpc()
+
+    return { tx }
   }
 
   async function close() {
     if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    return program.methods
+
+    const tx = await program.methods
       .close()
       .accounts({
         user: accounts.user,
         house: accounts.house,
         owner: accounts.wallet,
-        // creator: config.creator,
       })
       .rpc()
+
+    return {
+      tx,
+      result: () => waitForClosed(eventEmitter),
+    }
   }
 
   return {

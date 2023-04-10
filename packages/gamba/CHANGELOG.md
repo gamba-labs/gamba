@@ -1,5 +1,11 @@
 # gamba
 
+## 0.5.2
+
+### Patch Changes
+
+- 76b9802: Fix fee calcualtion
+
 ## 0.5.1
 
 ### Patch Changes

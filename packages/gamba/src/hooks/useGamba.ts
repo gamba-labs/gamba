@@ -62,8 +62,7 @@ export function useGamba() {
     if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
 
     const gameConfig = gameConfigInput.map((x) => x * BET_UNIT)
-    const fees = house.fees.total * wager
-    const _wager = params?.deductFees ? (wager - fees) : wager
+    const _wager = params?.deductFees ? Math.ceil(wager / (1 + house.fees.total)) : wager
 
     const tx = await program.methods
       .play(
@@ -96,7 +95,7 @@ export function useGamba() {
   async function withdraw(_amount?: number) {
     const amount = _amount ?? user.balance
     if (!checkAccounts(accounts)) throw new Error('Accounts not initialized')
-    const tx = program.methods
+    const tx = await program.methods
       .userWithdraw(new BN(amount))
       .accounts({
         user: accounts.user,
@@ -104,7 +103,16 @@ export function useGamba() {
       })
       .rpc()
 
-    return { tx }
+    return {
+      tx,
+      result: async () => {
+        const result = await program.provider.connection.confirmTransaction(tx, 'confirmed')
+        if (result.value.err) {
+          throw new Error(result.value.err.toString())
+        }
+        return { status: result.value }
+      },
+    }
   }
 
   async function close() {
@@ -126,6 +134,10 @@ export function useGamba() {
   }
 
   return {
+    /** */
+    clientSeed: seed,
+    /** */
+    updateClientSeed: updateSeed,
     /**
      * The web3 connection
      */

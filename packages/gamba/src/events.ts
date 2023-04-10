@@ -43,7 +43,7 @@ export const makeStateChangePromise = <T>(
 export const waitForResult = makeStateChangePromise(
   (state, previous) => {
     if (!state?.created) {
-      return { error: GambaError.USER_ACCOUNT_WAS_CLOSED_BEFORE_RESULT }
+      return { error: GambaError.USER_ACCOUNT_CLOSED_BEFORE_RESULT }
     }
     if (previous?.status.hashedSeedRequested) {
       if (!state?.status.playing) {

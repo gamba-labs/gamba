@@ -11,7 +11,7 @@ export const HOUSE_SEED = Buffer.from('house')
 export const USER_SEED = Buffer.from('user')
 
 export enum GambaError {
-  USER_ACCOUNT_WAS_CLOSED_BEFORE_RESULT = 'User account was closed before a result was generated',
+  USER_ACCOUNT_CLOSED_BEFORE_RESULT = 'User account was closed before a result was generated',
   FAILED_TO_GENERATE_RESULT = 'Failed to generate a result',
   FAILED_CREATING_USER_ACCOUNT = 'Failed to create User account',
   FAILED_TO_CLOSE_USER_ACCOUNT = 'Failed to close User account',

@@ -108,7 +108,7 @@ In the following example the player will pay `BET_AMOUNT` lamports to initiate t
 ```tsx
 const gamba = useGamba()
 
-const BET_AMOUNT = 1e8 // 1 SOL
+const BET_AMOUNT = 1e9 // 1 SOL
 
 gamba.play([2, 0], BET_AMOUNT)
 ```
@@ -127,7 +127,7 @@ In most apps we want to display the result of the player's bet when it's done, a
 
 ```tsx
 const [loading, setLoading] = useState(false)
-const BET_AMOUNT = 1e8 // 1 SOL
+const BET_AMOUNT = 1e9 // 1 SOL
 
 const play = async () => {
   try {

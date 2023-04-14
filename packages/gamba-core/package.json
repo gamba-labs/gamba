@@ -1,0 +1,36 @@
+{
+  "name": "gamba-core",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist/**"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.27.0",
+    "@hmans/signal": "^0.2.2",
+    "@solana/web3.js": "^1.74.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "eslint": "^8.36.0",
+    "tsup": "^5.10.1",
+    "typescript": "^4.5.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

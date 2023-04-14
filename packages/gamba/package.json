@@ -1,43 +1,59 @@
 {
   "name": "gamba",
-  "version": "0.5.2",
+  "version": "0.5.1",
   "author": "",
-  "license": "MIT",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**"
+    "dist/**",
+    "react/dist/**"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
+    "build": "pnpm build:main && pnpm build:react && pnpm build:ui",
+    "dev": "pnpm dev:main && pnpm dev:react && pnpm dev:ui",
+
+    "dev:main": "tsup src/index.ts --watch --format cjs,esm --dts",
+    "build:main": "tsup src/index.ts --format cjs,esm --dts",
+    "clean:main": "rm -rf dist",
+
+    "build:react": "tsup src/react.ts -d react/dist --format cjs,esm --dts",
+    "dev:react": "tsup src/react.ts -d react/dist --watch --format cjs,esm --dts",
+    "clean:react": "rm -rf react/dist",
+
+    "build:ui": "tsup src/react-ui.ts -d react-ui/dist --format cjs,esm --dts",
+    "dev:ui": "tsup src/react-ui.ts -d react-ui/dist --watch --format cjs,esm --dts",
+    "clean:ui": "rm -rf react-ui/dist",
+
     "lint": "tsc",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist && rm -rf react/dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && clean:main && clean:react && clean:ui"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
-    "@solana/wallet-adapter-base": "^0.9.22",
-    "@solana/wallet-adapter-react": "^0.15.32",
-    "@solana/wallet-adapter-react-ui": "^0.9.31",
-    "@solana/wallet-adapter-wallets": "^0.19.16",
-    "@solana/web3.js": "^1.75.0",
-    "buffer": "^6.0.3",
-    "events": "^3.3.0",
-    "react": "^18.2.0",
-    "zustand": "^4.3.6"
+    "gamba-core": "workspace:*",
+    "gamba-react": "workspace:*",
+    "gamba-react-ui": "workspace:*"
   },
   "devDependencies": {
+    "react": "^18.2.0",
     "@changesets/cli": "^2.26.0",
     "@types/react": "^18.0.28",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
+    "@coral-xyz/anchor": "^0.27.0",
+    "gamba-core": "*",
+    "gamba-react": "*",
+    "gamba-react-ui": "*",
     "react": "*"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   }
 }

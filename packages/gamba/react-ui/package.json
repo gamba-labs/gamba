@@ -1,0 +1,5 @@
+{
+  "main": "dist/react-ui.js",
+  "module": "dist/react-ui.mjs",
+  "types": "dist/react-ui.d.ts"
+}

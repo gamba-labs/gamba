@@ -1,15 +1,7 @@
 {
-  "name": "gamba-react-nested",
-  "private": true,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "dev": "tsup ./src/index.ts -d ./dist --watch --format cjs,esm --dts",
-    "build": "tsup ../src/index.ts -d ./dist --format cjs,esm --dts",
-    "clean": "rm -rf ./dist",
-    "lint": "tsc"
-  },
   "dependencies": {
     "gamba-react": "workspace:*"
   },

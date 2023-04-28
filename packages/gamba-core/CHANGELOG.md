@@ -1,5 +1,11 @@
 # gamba-core
 
+## 0.2.1
+
+### Patch Changes
+
+- 4dba6d4: Fixed exports
+
 ## 0.2.0
 
 ### Minor Changes

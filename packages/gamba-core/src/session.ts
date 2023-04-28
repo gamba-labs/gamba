@@ -1,13 +1,11 @@
-import { AnchorProvider, Wallet as AnchorWallet, BN, Program } from '@coral-xyz/anchor'
-import { Keypair, SYSVAR_CLOCK_PUBKEY, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
+import { AnchorProvider, BN, Program } from '@coral-xyz/anchor'
+import { SYSVAR_CLOCK_PUBKEY, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 import { StateAccount } from './account'
 import { BET_UNIT, GambaError, HOUSE_SEED, IDL, PROGRAM_ID, SYSTEM_PROGRAM, USER_SEED } from './constants'
 import { Gamba as GambaProgram } from './idl'
 import { GambaProvider } from './provider'
-import { UserState } from './types'
+import { UserState, Wallet } from './types'
 import { decodeUser, getGameResult, getPdaAddress } from './utils'
-
-export type Wallet = Omit<AnchorWallet, 'payer'> & {payer?: Keypair}
 
 export interface GambaPlayParams {
   deductFees?: boolean

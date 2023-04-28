@@ -1,6 +1,8 @@
-import { IdlAccounts, IdlEvents } from '@coral-xyz/anchor'
-import { PublicKey } from '@solana/web3.js'
+import { IdlAccounts, IdlEvents, Wallet as AnchorWallet } from '@coral-xyz/anchor'
+import { Keypair, PublicKey } from '@solana/web3.js'
 import { GambaIdl } from './constants'
+
+export type Wallet = Omit<AnchorWallet, 'payer'> & {payer?: Keypair}
 
 export type HouseState = IdlAccounts<GambaIdl>['house']
 export type UserState = IdlAccounts<GambaIdl>['user']

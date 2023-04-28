@@ -1,0 +1,5 @@
+---
+"gamba": patch
+---
+
+Nested packages

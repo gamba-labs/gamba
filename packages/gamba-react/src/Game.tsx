@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js'
 import { useGambaProvider } from './hooks/useGambaProvider'
 import React, { useEffect } from 'react'
 
-export function Game({ children, creator }: React.PropsWithChildren<{creator: PublicKey}>) {
+export function Game({ children, creator }: React.PropsWithChildren<{creator: string | PublicKey}>) {
   const provider = useGambaProvider()
 
   useEffect(() => {
@@ -10,5 +10,5 @@ export function Game({ children, creator }: React.PropsWithChildren<{creator: Pu
     provider.setCreator(_creator)
   }, [creator])
 
-  return children
+  return <>{children}</>
 }

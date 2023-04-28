@@ -2,22 +2,22 @@
   "name": "gamba-react",
   "version": "0.1.0",
   "author": "",
+  "license": "MIT",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**",
-    "readme.md"
+    "dist/**"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --external react --dts",
+    "dev": "tsup src/index.ts --watch --format cjs,esm --external react --dts",
     "lint": "tsc",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist && rm -rf react/dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
@@ -26,6 +26,7 @@
     "@solana/wallet-adapter-react": "^0.15.32",
     "@solana/web3.js": "^1.75.0",
     "buffer": "^6.0.3",
+    "esbuild-plugin-polyfill-node": "^0.2.0",
     "gamba-core": "workspace:*",
     "react": "^18.2.0",
     "zustand": "^4.3.6"
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
     "@types/react": "^18.0.28",
+    "assert": "^2.0.0",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"
   },

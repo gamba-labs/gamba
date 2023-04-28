@@ -9,6 +9,10 @@ import { decodeUser, getGameResult, getPdaAddress } from './utils'
 
 export type Wallet = Omit<AnchorWallet, 'payer'> & {payer?: Keypair}
 
+export interface GambaPlayParams {
+  deductFees?: boolean
+}
+
 export class GambaSession {
   program: Program<GambaProgram>
   provider: GambaProvider
@@ -16,7 +20,7 @@ export class GambaSession {
   _wallet: Wallet
 
   wallet: StateAccount<any>
-  user: StateAccount<UserState>
+  user: StateAccount<UserState | undefined>
 
   private _unsubscribe?: () => void
 
@@ -77,15 +81,23 @@ export class GambaSession {
     gameConfigInput: number[],
     wager: number,
     seed: string,
+    params: GambaPlayParams = { deductFees: false },
   ) {
     if (!this.provider.creator) {
       throw new Error('NO_CREATOR')
     }
+
+    const houseFee = this.provider.house.state?.houseFee.toNumber() / 1000
+    const creatorFee = this.provider.house.state?.creatorFee.toNumber() / 1000
+    const totalFee = houseFee + creatorFee
+
+    const _wager = params?.deductFees ? Math.ceil(wager / (1 + totalFee)) : wager
+
     const gameConfig = gameConfigInput.map((x) => x * BET_UNIT)
     const instruction = await this.program.methods
       .play(
         this.provider.creator,
-        new BN(wager),
+        new BN(_wager),
         gameConfig,
         seed,
       )
@@ -102,11 +114,11 @@ export class GambaSession {
     return {
       txId,
       result: async () => {
-        console.debug('Game none:', this.user.state?.nonce.toNumber())
+        console.debug('Game nonce:', this.user.state?.nonce.toNumber())
         const result = await this.user.waitForState(
           (current, previous) => {
             if (!current?.decoded?.created) {
-              return { error: GambaError.USER_ACCOUNT_CLOSED_BEFORE_RESULT }
+              throw new Error(GambaError.USER_ACCOUNT_CLOSED_BEFORE_RESULT)
             }
             if (current.decoded && previous.decoded) {
               // Game nonce increased
@@ -114,15 +126,15 @@ export class GambaSession {
               const previousNonce = previous.decoded.nonce.toNumber()
               const currentNonce = current.decoded.nonce.toNumber()
               if (currentNonce === previousNonce + 1)
-                return { result: getGameResult(previous.decoded, current.decoded) }
+                return getGameResult(previous.decoded, current.decoded)
               // nonce skipped
               if (currentNonce > previousNonce + 1)
-                return { error: GambaError.FAILED_TO_GENERATE_RESULT }
+                throw new Error(GambaError.FAILED_TO_GENERATE_RESULT)
             }
             // unexpected status
             if (!current?.decoded?.status.playing && !current?.decoded?.status.hashedSeedRequested) {
               console.error('Unexpected status', current?.decoded?.status)
-              return { error: GambaError.FAILED_TO_GENERATE_RESULT }
+              throw new Error(GambaError.FAILED_TO_GENERATE_RESULT)
             }
           },
         )
@@ -154,7 +166,7 @@ export class GambaSession {
         return this.user.waitForState(
           (current) => {
             if (current.decoded?.created) {
-              return { result: true }
+              return true
             }
           },
         )
@@ -207,7 +219,7 @@ export class GambaSession {
         return this.user.waitForState(
           (current) => {
             if (!current.decoded?.created) {
-              return { result: true }
+              return true
             }
           },
         )

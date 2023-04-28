@@ -8,18 +8,16 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/**",
-    "react/dist/**"
+    "react/dist/**",
+    "ui/dist/**"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "pnpm build:main && pnpm build:react && pnpm build:ui",
-    "dev": "pnpm dev:main && pnpm dev:react && pnpm dev:ui",
-
-    "dev:main": "tsup src/index.ts --watch --format cjs,esm --dts",
-    "build:main": "tsup src/index.ts --format cjs,esm --dts",
-    "clean:main": "rm -rf dist",
+    "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "clean": "rm -rf dist",
 
     "build:react": "tsup src/react.ts -d react/dist --format cjs,esm --dts",
     "dev:react": "tsup src/react.ts -d react/dist --watch --format cjs,esm --dts",
@@ -30,7 +28,7 @@
     "clean:ui": "rm -rf react-ui/dist",
 
     "lint": "tsc",
-    "clean": "rm -rf .turbo && rm -rf node_modules && clean:main && clean:react && clean:ui"
+    "_clean": "rm -rf .turbo && rm -rf node_modules && clean:main && clean:react && clean:ui"
   },
   "dependencies": {
     "gamba-core": "workspace:*",

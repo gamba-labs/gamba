@@ -23,27 +23,15 @@ export class StateAccount<T> {
 
   /** Fetch and update state */
   async fetchState(connection: Connection) {
-    connection.getAccountInfo(this.publicKey).then((info) => {
-      if (JSON.stringify(info) !== JSON.stringify(this.current.info)) {
-        this.update(info)
-      }
-    })
+    const info = await connection.getAccountInfo(this.publicKey)
+    this.update(info)
   }
 
   /** Listen for Account changes */
   listen(connection: Connection) {
     console.debug(this._debugIdentifier, 'LISTEN')
 
-    const handle = (info: NullableAccountInfo) => {
-      if (JSON.stringify(info) !== JSON.stringify(this.current.info)) {
-        this.update(info)
-      }
-    }
-
-    connection.getAccountInfo(this.publicKey).then((info) => {
-      console.debug(this._debugIdentifier, 'Initial', info?.lamports)
-      handle(info)
-    })
+    this.fetchState(connection)
 
     // const pollInterval = setInterval(() => {
     //   connection.getAccountInfo(this.publicKey).then((info) => {
@@ -52,10 +40,7 @@ export class StateAccount<T> {
     //   })
     // }, 3000)
 
-    const listener = connection.onAccountChange(this.publicKey, (info) => {
-      console.debug(this._debugIdentifier, 'Update', info?.lamports)
-      handle(info)
-    })
+    const listener = connection.onAccountChange(this.publicKey, (info) => this.update(info))
 
     return () => {
       console.debug(this._debugIdentifier, 'STOP')
@@ -83,20 +68,23 @@ export class StateAccount<T> {
    * @return promise that resolves / rejects when the callback function returns a result object
    */
   waitForState<U>(
-    callback: (current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>) => {result?: U, error?: string} | undefined,
-    options = { timeout: 60000 },
+    callback: (current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>) => U | undefined,
+    // options = { timeout: 60000 },
   ) {
     return new Promise<U>((resolve, reject) => {
       const { signal } = this
 
       const listener = ([current, previous]: [current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>]) => {
-        const handled = callback(current, previous)
-        if (handled?.error) {
+        try {
+          const handled = callback(current, previous)
+          if (handled) {
+            removeListener()
+            resolve(handled)
+          }
+        } catch (err) {
           removeListener()
-          reject(handled.error)
-        } else if (handled?.result) {
-          removeListener()
-          resolve(handled.result)
+          console.error('State error', err)
+          reject(err)
         }
       }
 
@@ -105,7 +93,6 @@ export class StateAccount<T> {
       // run listener with current state
       listener([this.current, this.previous])
 
-      //
       // setTimeout(() => {
       //   removeListener()
       //   reject(GambaError.FAILED_CREATING_USER_ACCOUNT)
@@ -117,6 +104,10 @@ export class StateAccount<T> {
   }
 
   private update(info: NullableAccountInfo) {
+    if (JSON.stringify(info) === JSON.stringify(this.current?.info)) {
+      console.debug(this._debugIdentifier, 'Recevied same state')
+      return
+    }
     const decoded = this.decoder(info)
     this.current = { info, decoded }
     this.signal.emit([

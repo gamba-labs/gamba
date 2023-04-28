@@ -7,7 +7,6 @@ import { useRerender } from './useRerender'
 
 interface SessionStore {
   seed: string
-  session: GambaSession | null
   sessions: Record<string, GambaSession | null>
   set: StoreApi<SessionStore>['setState']
 }
@@ -15,7 +14,6 @@ interface SessionStore {
 export const useSessionStore = create<SessionStore>((set) => ({
   sessions: {},
   seed: randomSeed(),
-  session: null,
   set,
 }))
 
@@ -27,6 +25,7 @@ export function useGambaSession(sessionId: string) {
 
   useEffect(() => session?.user?.onChange(rerender),
     [session?.user.publicKey])
+
   useEffect(() => session?.wallet?.onChange(rerender),
     [session?.wallet.publicKey])
 

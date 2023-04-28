@@ -21,7 +21,7 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
     "@hmans/signal": "^0.2.2",
-    "@solana/web3.js": "^1.74.0"
+    "@solana/web3.js": "^1.75.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.56.0",

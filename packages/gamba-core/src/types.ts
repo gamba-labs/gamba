@@ -44,3 +44,16 @@ export interface GameResult {
    */
   resultIndex: number
 }
+
+export interface RecentPlayEvent {
+  signature: string
+  estimatedTime: number
+  creator: PublicKey
+  player: PublicKey
+  wager: number
+  nonce: number
+  rngSeed: string
+  clientSeed: string
+  resultMultiplier: number
+  resultIndex: number
+}

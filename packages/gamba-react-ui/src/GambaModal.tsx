@@ -1,10 +1,18 @@
-import { useWallet, Wallet } from '@solana/wallet-adapter-react'
-import { LAMPORTS_PER_SOL } from 'gamba-core'
+import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react'
+import { lamportsToSol } from 'gamba-core'
 import { useGamba } from 'gamba-react'
 import { useState } from 'react'
 import styled from 'styled-components'
+import { Button } from './components/Button'
 import { Modal } from './components/Modal'
-import { Button, Padding } from './styles'
+import { Padding } from './styles'
+
+const statusMapping = {
+  none: 'None',
+  playing: 'Ready',
+  seedRequested: 'Initializing Account',
+  hashedSeedRequested: 'Generating Results',
+}
 
 const WalletButton = styled.button`
   display: grid;
@@ -14,6 +22,7 @@ const WalletButton = styled.button`
   padding: 10px 20px;
   background: none;
   border: none;
+  width: 100%;
   margin: 0;
   cursor: pointer;
   color: unset;
@@ -27,27 +36,32 @@ const WalletButton = styled.button`
   }
 `
 
+const Address = styled.div`
+  overflow: auto;
+  text-overflow: ellipsis;
+`
+
 function SelectWallet() {
-  const { wallets } = useWallet()
-  const gamba = useGamba()
+  const { wallets, select } = useWallet()
   const [loading, setLoading] = useState(false)
 
   const connect = async (wallet: Wallet) => {
     try {
       setLoading(true)
-      const session = await gamba.connect(wallet)
-      return session
+      select(wallet.adapter.name)
+      await wallet.adapter.connect()
     } catch (err) {
       console.error('Modal Error', err)
-    } finally {
       setLoading(false)
+    } finally {
+      // setLoading(false)
     }
   }
 
   return (
     <>
-      <Padding><b>Select Wallet</b></Padding>
-      <div style={{ display: 'grid' }}>
+      <div>
+        <Padding><b>Select Wallet</b></Padding>
         {wallets.length === 0 && (
           <Padding>
             You need a Solana wallet to connect
@@ -60,7 +74,11 @@ function SelectWallet() {
             disabled={loading}
           >
             {wallet.adapter.name}
-            <img src={wallet.adapter.icon} width="30" height="30" />
+            <img
+              src={wallet.adapter.icon}
+              width="30"
+              height="30"
+            />
           </WalletButton>
         ))}
       </div>
@@ -86,25 +104,24 @@ function CreateAccount() {
   }
 
   return (
-    <>
-      <Padding>
+    <div>
+      <Padding style={{ display: 'grid', gap: 20 }}>
         <div><b>Create Account</b></div>
-      </Padding>
-      <Padding>
-        <Button disabled={loading} onClick={createAccount}>
+        <Button loading={loading} onClick={createAccount}>
           Create account
         </Button>
         <Button onClick={() => gamba.disconnect()}>
           Change wallet
         </Button>
       </Padding>
-    </>
+    </div>
   )
 }
 
 function Account() {
   const gamba = useGamba()
   const [loading, setLoading] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
   const closeUserAccount = async () => {
     try {
@@ -132,49 +149,61 @@ function Account() {
     }
   }
 
+  const refreshAccount = async () => {
+    try {
+      setRefreshing(true)
+      await gamba.refresh()
+    } catch (err) {
+      console.error('Modal Error', err)
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   if (!gamba.user || !gamba.wallet) return null
   return (
     <>
-      <Padding>
-        <b>
-          {gamba.wallet.publicKey.toBase58()}
-        </b>
-      </Padding>
-      <Padding>
-        <img
-          width="50"
-          height="50"
-          src={`https://images.xnfts.dev/cdn-cgi/image/fit=contain,width=50,height=50,quality=85/https://swr.xnfts.dev/avatars/${gamba.wallet.publicKey.toBase58()}/1681424998617?size=400`}
-        />
-        <div>
-          Status: {gamba.user.status}
-        </div>
-        <div>
-          Balance: {gamba.balances.wallet / LAMPORTS_PER_SOL} SOL
-        </div>
-        <Button disabled={loading || !gamba.balances.user} onClick={() => withdraw()}>
-          +{gamba.balances.user / LAMPORTS_PER_SOL} SOL
-        </Button>
-        <Button disabled={loading} onClick={() => closeUserAccount()}>
-          Close account
-        </Button>
-        <Button onClick={() => gamba.refresh()}>
-          Refresh
-        </Button>
-        <Button onClick={() => gamba.disconnect()}>
-          Disconnect
-        </Button>
-      </Padding>
+      <div style={{ height: '100%' }}>
+        <Padding style={{ display: 'grid', gap: 20 }}>
+          <div style={{ textAlign: 'center', fontSize: '32px' }}>
+            {parseFloat(lamportsToSol(gamba.balances.wallet).toFixed(4))} SOL
+          </div>
+          <Address>
+            {gamba.wallet.publicKey.toBase58()}
+          </Address>
+          <div>
+            Status: {statusMapping[gamba.user.status]}
+          </div>
+          {gamba.balances.user > 0 && (
+            <Button onClick={withdraw}>
+              Claim {parseFloat(lamportsToSol(gamba.balances.user).toFixed(4))} SOL
+            </Button>
+          )}
+          <Button loading={refreshing} onClick={refreshAccount}>
+            Refresh
+          </Button>
+          <Button loading={loading} onClick={() => closeUserAccount()}>
+            Close account
+          </Button>
+          <Button onClick={() => gamba.disconnect()}>
+            Disconnect
+          </Button>
+        </Padding>
+      </div>
     </>
   )
 }
 
 export const GambaModal = ({ onClose }: {onClose: () => void}) => {
   const { session, user } = useGamba()
+  const { connected } = useWallet()
+  const { connection } = useConnection()
 
   return (
     <Modal onClose={onClose}>
-      {(!session || !session.wallet.state) ? (
+      {!connection ? (
+        <>No Connection...</>
+      ) : (!connected || !session?.wallet.info) ? (
         <SelectWallet />
       ) : !user?.created ? (
         <CreateAccount />

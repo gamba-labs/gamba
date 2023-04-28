@@ -1,5 +1,21 @@
 {
-  "main": "dist/react-ui.js",
-  "module": "dist/react-ui.mjs",
-  "types": "dist/react-ui.d.ts"
+  "name": "gamba-react-ui-nested",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsup ./src/index.ts -d ./dist --watch --format cjs,esm --dts",
+    "build": "tsup ./src/index.ts -d ./dist --format cjs,esm --dts",
+    "clean": "rm -rf ./dist",
+    "lint": "tsc"
+  },
+  "dependencies": {
+    "gamba-react-ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.0",
+    "@types/react": "^18.0.28",
+    "tsup": "^6.6.3",
+    "typescript": "^4.9.5"
+  }
 }

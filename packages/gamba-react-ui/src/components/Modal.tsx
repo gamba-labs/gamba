@@ -1,13 +1,46 @@
 import { useEffect, useRef } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+import { Close } from '../Svg'
+
+const appear = keyframes`
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+`
 
 const Wrapper = styled.div`
-  background: #090a0d;
+  background: #16171a;
   color: white;
-  border-radius: 10px;
-  min-width: 320px;
+  width: 100%;
+  height: 100vh;
   max-width: 100vw;
-  overflow: hidden;
+  overflow-y: auto;
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  animation ${appear} .1s;
+  @media (min-height: 460px) {
+    width: 320px;
+    height: 420px;
+    border-radius: 10px;
+  }
+`
+
+const CloseButton = styled.button`
+  background: none;
+  margin: 0;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: none;
+  z-index: 11;
+  opacity: .75;
+  transition: opacity .2s;
+  &:hover {
+    opacity: 1;
+  }
 `
 
 const Container = styled.div`
@@ -19,7 +52,7 @@ const Container = styled.div`
   align-items: center;
   width: 100vw;
   height: 100vh;
-  z-index: 10;
+  z-index: 1000;
   background: #00000099;
 `
 
@@ -51,6 +84,9 @@ export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: (
   return (
     <Container>
       <Wrapper ref={ref}>
+        <CloseButton onClick={onClose}>
+          <Close />
+        </CloseButton>
         {children}
       </Wrapper>
     </Container>

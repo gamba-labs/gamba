@@ -4,3 +4,5 @@ dev-dist/
 .DS_Store
 .vscode
 trash.*
+.turbo
+.env

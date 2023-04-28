@@ -1,19 +1,17 @@
 import { BorshCoder, EventParser } from '@coral-xyz/anchor'
-import { Connection, PublicKey } from '@solana/web3.js'
 import { Signal } from '@hmans/signal'
+import { Connection, PublicKey } from '@solana/web3.js'
 import { StateAccount } from './account'
 import { HOUSE_SEED, IDL, PROGRAM_ID } from './constants'
 import { GambaSession, Wallet } from './session'
-import { HouseState } from './types'
+import { BetSettledEvent, HouseState, RecentPlayEvent } from './types'
 import { decodeHouse, getPdaAddress } from './utils'
 
-type EventPayload = {data: any, slot: number, signature: string}
-
 export class GambaProvider {
-  private eventSignal = new Signal<EventPayload>()
+  private eventSignal = new Signal<RecentPlayEvent>()
   private creatorSignal = new Signal<PublicKey | undefined>()
   readonly connection: Connection
-  readonly house: StateAccount<HouseState>
+  readonly house: StateAccount<HouseState | undefined>
 
   private _creator?: PublicKey
 
@@ -42,12 +40,24 @@ export class GambaProvider {
 
     const logSubscription = this.connection.onLogs(
       PROGRAM_ID,
-      (logs, ctx) => {
+      (logs) => {
         if (logs.err) {
           return
         }
         for (const event of eventParser.parseLogs(logs.logs)) {
-          this.eventSignal.emit({ data: event.data, slot: ctx.slot, signature: logs.signature })
+          const data = event.data as BetSettledEvent
+          this.eventSignal.emit({
+            creator: data.creator,
+            clientSeed: data.clientSeed,
+            wager: data.wager.toNumber(),
+            signature: logs.signature,
+            estimatedTime: Date.now(),
+            resultIndex: data.resultIndex.toNumber(),
+            resultMultiplier: data.resultMultiplier.toNumber() / 1000,
+            rngSeed: data.rngSeed,
+            player: data.player,
+            nonce: data.nonce.toNumber(),
+          })
         }
       },
     )
@@ -65,7 +75,7 @@ export class GambaProvider {
     }
   }
 
-  onEvent(callback: (event: EventPayload) => void) {
+  onEvent(callback: (event: RecentPlayEvent) => void) {
     this.eventSignal.add(callback)
     return () => {
       this.eventSignal.remove(callback)

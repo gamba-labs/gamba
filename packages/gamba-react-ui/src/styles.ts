@@ -1,65 +1,28 @@
-import styled, { createGlobalStyle } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 export const MOBILE = '@media (min-width: 400px)'
 export const TABLET = '@media (min-width: 750px)'
 export const DESKTOP = '@media (min-width: 1280px)'
 
-export const MAIN_COLOR = '#ff5333'
+export const DEFAULT_COLOR = '#ff5333'
 
-export const GlobalStyle = createGlobalStyle`
-  * {
-    box-sizing: border-box;
-    user-select: none;
-  }
-  ::selection {
-    color: black;
-    background: ${MAIN_COLOR};
-  }
-  html, body {
-    height: 100%;
-  }
-  body {
-    margin: 0;
-    color: white;
-    background: #090a0d;
-    cursor: default;
-  }
-  h1, h2, h3, h4 {
-    margin: 0;
-    display: flex;
-    gap: .5em;
-    align-items: center;
-    margin-bottom: .5em;
-    font-weight: normal;
-  }
-  body, input, button, textarea, pre {
-    font-family: 'Roboto Mono', sans-serif;
-    font-size: 14px;
-  }
-  a {
-    color: unset;
-  }
-  #root {
-    height: 100%;
-  }
-`
-
-export const Button = styled.button`
+export const StyledButton = styled.button`
   padding: 0 10px;
   margin: 0;
   border-radius: 5px;
   cursor: pointer;
   border: 1px solid currentColor;
-  color: ${MAIN_COLOR};
+  color: ${({ theme }) => theme?.palette?.primary?.main ?? DEFAULT_COLOR};
   background: transparent;
   transition: background .1s, color .1s;
   text-transform: uppercase;
   line-height: 40px;
   height: 40px;
   user-select: none;
-  display: flex;
+  display: grid;
+  text-align: left;
   align-items: center;
-  gap: 10px;
+  grid-template-columns: 1fr auto;
   &:disabled {
     color: gray!important;
     cursor: default;
@@ -86,16 +49,42 @@ export const ActionBar = styled.div`
   gap: 20px;
   justify-content: center;
   width: 100%;
-  background: #000000CC;
-  backdrop-filter: blur(50px);
-  z-index: 5;
+  z-index: 1;
+  width: 100%;
+  flex-wrap: wrap;
+`
+
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`
+
+export const Loader = styled.div`
+  border: 3px solid transparent;
+  border-top: 3px solid;
+  border-top-color: ${({ theme }) => theme?.palette?.primary?.main ?? DEFAULT_COLOR};
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: ${spin} .5s linear infinite;
+`
+
+export const Content = styled.div`
+  padding-top: 80px;
 `
 
 export const GameWrapper = styled.div`
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  background: black;
+  height: 100vh;
+  display: grid;
+  position: relative;
+  transition: height .25s ease;
+  background: ${({ theme }) => theme.palette.backgroundGame};
+  @media (min-height: 960px) {
+    height: 800px;
+  }
+`
+
+export const SubContent = styled.div`
+  padding: 20px;
+  text-align: center;
 `

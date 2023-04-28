@@ -3,6 +3,8 @@
 # Gamba
 Create on-chain betting apps for Solana with zero deployments ✨
 
+[![npm](https://img.shields.io/npm/v/gamba.svg?color=blue)](https://www.npmjs.com/package/gamba)
+
 > **Note**
 > Gamba is under heavy development and all APIs are subject to change. Please follow us on [Twitter](https://twitter.com/GambaLabs) for updates.
 
@@ -13,12 +15,6 @@ Gamba is a protocol that lets developers build web3 casino games for Solana. It 
 This package lets you build a react app that interacts with Gamba's Anchor program using a simple API.
 
 [Learn more](https://medium.com/@gambaLabs/what-is-gamba-721f6064e050)
-
-## Quick Setup
-
-Learn how to host your own custom Gamba app on our Coin Flip example repo:
-
-[👉 Full guide here](https://github.com/gamba-labs/flip)
 
 ## Installation
 
@@ -32,7 +28,7 @@ The following example is a simple game where the user has a 50/50 chance of doub
 
 ```tsx
 import React from 'react'
-import { Gamba, useGamba } from 'gamba'
+import { Gamba, useGamba } from 'gamba/react'
 
 function DoubleOrNothing() {
   const gamba = useGamba()
@@ -45,7 +41,7 @@ function DoubleOrNothing() {
 
 function App() {
   return (
-    <Gamba name="Double Or Nothing" creator="<PUBLIC KEY>">
+    <Gamba creator="<PUBLIC KEY>">
       <DoubleOrNothing />
     </Gamba>
   )

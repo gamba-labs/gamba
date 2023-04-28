@@ -1,5 +1,11 @@
 # gamba
 
+## 0.6.2
+
+### Patch Changes
+
+- 0c09ba0: Nested packages
+
 ## 0.6.1
 
 ### Patch Changes

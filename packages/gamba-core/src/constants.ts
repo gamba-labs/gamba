@@ -1,8 +1,6 @@
-import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 import { Buffer } from 'buffer'
 export { IDL, type Gamba as GambaIdl } from './idl'
-
-export { LAMPORTS_PER_SOL }
 
 export const SYSTEM_PROGRAM = new PublicKey('11111111111111111111111111111111')
 export const PROGRAM_ID = new PublicKey('GambaXcmhJg1vgPm1Gn6mnMKGyyR3X2eSmF6yeU6XWtT')
@@ -11,6 +9,8 @@ export const MIN_BET = 1_000_000 // 0.001 SOL
 
 export const HOUSE_SEED = Buffer.from('house')
 export const USER_SEED = Buffer.from('user')
+
+export const LAMPORTS_PER_SOL = 1e9
 
 export enum GambaError {
   PLAY_WITHOUT_CONNECTED = 'User not connected',

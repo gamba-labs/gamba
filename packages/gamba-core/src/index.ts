@@ -5,6 +5,7 @@ export {
   MIN_BET,
   HOUSE_SEED,
   USER_SEED,
+  LAMPORTS_PER_SOL,
   GambaError,
 } from './constants'
 export { GambaProvider } from './provider'
@@ -13,6 +14,7 @@ export {
   type GambaPlayParams,
 } from './session'
 export type {
+  Wallet,
   GameResult,
   HouseState,
   UserState,
@@ -27,4 +29,5 @@ export {
   getGameHash,
   calculateResultIndex,
   getGameResult,
+  getRecentEvents,
 } from './utils'

@@ -1,5 +1,11 @@
 # gamba-react
 
+## 0.1.1
+
+### Patch Changes
+
+- 2cb2cad: Version fix
+
 ## 1.0.0
 
 ### Minor Changes

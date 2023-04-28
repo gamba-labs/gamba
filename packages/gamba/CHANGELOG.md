@@ -1,5 +1,14 @@
 # gamba
 
+## 0.6.1
+
+### Patch Changes
+
+- 2cb2cad: Version fix
+- Updated dependencies [2cb2cad]
+  - gamba-react@0.1.1
+  - gamba-react-ui@0.1.1
+
 ## 1.0.0
 
 ### Minor Changes

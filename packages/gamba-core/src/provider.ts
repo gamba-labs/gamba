@@ -3,8 +3,8 @@ import { Signal } from '@hmans/signal'
 import { Connection, PublicKey } from '@solana/web3.js'
 import { StateAccount } from './account'
 import { HOUSE_SEED, IDL, PROGRAM_ID } from './constants'
-import { GambaSession, Wallet } from './session'
-import { BetSettledEvent, HouseState, RecentPlayEvent } from './types'
+import { GambaSession } from './session'
+import { BetSettledEvent, HouseState, RecentPlayEvent, Wallet } from './types'
 import { decodeHouse, getPdaAddress } from './utils'
 
 export class GambaProvider {

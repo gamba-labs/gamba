@@ -7,8 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "gamba-react-nested",
-    "gamba-react-ui-nested"
-  ]
+  "ignore": []
 }

@@ -1,5 +1,15 @@
 # gamba
 
+## 0.6.4
+
+### Patch Changes
+
+- 4dba6d4: Fixed exports
+- Updated dependencies [4dba6d4]
+  - gamba-core@0.2.1
+  - gamba-react@0.1.2
+  - gamba-react-ui@0.1.2
+
 ## 0.6.3
 
 ### Patch Changes

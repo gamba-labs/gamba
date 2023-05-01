@@ -26,7 +26,7 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
-  apps/gamba-casino:
+  apps/gamba-demo:
     dependencies:
       '@react-three/drei':
         specifier: ^9.65.5

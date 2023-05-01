@@ -4,7 +4,7 @@ import { useGamba } from 'gamba-react'
 import { Button } from './components/Button'
 import { useGambaUi } from './context'
 
-export function GambaButton() {
+export function GambaModalButton() {
   const gamba = useGamba()
   const { wallet, connected } = useWallet()
   const setModal = useGambaUi((state) => state.setModal)

@@ -7,7 +7,7 @@ const spin = keyframes`
 
 export const Loader = styled.div`
   border: 6px solid transparent;
-  border-top: 6px solid ${({ theme }) => theme.palette.primary.main};
+  border-top: 6px solid ${({ theme }) => theme.palette.primary};
   border-radius: 50%;
   width: 80px;
   height: 80px;

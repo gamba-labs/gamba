@@ -1,12 +1,12 @@
 import { ButtonHTMLAttributes } from 'react'
 import { Loader, StyledButton } from '../styles'
 
-interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean
   icon?: string
 }
 
-export function Button({ children, icon, loading, disabled, ...props }: Props) {
+export function Button({ children, icon, loading, disabled, ...props }: ButtonProps) {
   return (
     <StyledButton disabled={disabled || loading} {...props}>
       <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

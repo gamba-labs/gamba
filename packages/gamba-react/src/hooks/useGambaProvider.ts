@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { DependencyList, useContext } from 'react'
 import { GambaProviderContext } from '../provider'
 import { useRerender } from './useRerender'
 import { useEffect } from 'react'
@@ -14,7 +14,7 @@ export function useGambaProvider() {
   return provider
 }
 
-export function useGambaEvent(callback: (event: RecentPlayEvent) => void) {
+export function useGambaEvent(callback: (event: RecentPlayEvent) => void, deps: DependencyList = []) {
   const { provider } = useContext(GambaProviderContext)
-  useEffect(() => provider.onEvent(callback), [provider])
+  useEffect(() => provider.onEvent(callback), [...deps, provider])
 }

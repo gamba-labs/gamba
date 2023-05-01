@@ -4,9 +4,9 @@ import { GambaError, useGamba, useGambaErrorHander, useGambaEvent } from 'gamba-
 import { PropsWithChildren, useEffect, useRef } from 'react'
 import { BrowserRouter, useInRouterContext } from 'react-router-dom'
 import { GambaModal } from './GambaModal'
-import { Header } from './components/Header'
 import { GambaUiContext, createGambaUiStore, useGambaUi } from './context'
 import { GameBundle } from './types'
+import { Alerts } from './Alerts'
 
 export interface GambaUiProps {
   games: GameBundle[]
@@ -61,6 +61,7 @@ function Content({ children }: PropsWithChildren) {
 
   const content = (
     <>
+      <Alerts />
       {modal && <GambaModal onClose={() => setModal(false)} />}
       {children}
     </>

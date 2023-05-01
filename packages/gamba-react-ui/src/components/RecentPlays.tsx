@@ -1,23 +1,10 @@
 import { RecentPlayEvent, lamportsToSol } from 'gamba-core'
 import { useGamba } from 'gamba-react'
-import styled, { keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import { useGambaUi } from '../context'
 import { Time } from './Time'
 
-const Wrapper = styled.div`
-  padding: 10px;
-  width: 100%;
-  @media (min-width: 600px) {
-    width: 500px;
-  }
-  display: grid;
-  gap: 10px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 20px;
-`
-
-const StyledRecentPlay = styled.div`
+const PlayCSS = css`
   padding: 10px;
   display: flex;
   gap: 5px;
@@ -29,18 +16,23 @@ const StyledRecentPlay = styled.div`
   justify-content: space-between;
 `
 
+const StyledRecentPlay = styled.div`
+  ${PlayCSS}
+`
+
 const skeletonAnimation = keyframes`
   0% {
-    background-color: hsl(200, 20%, 80%);
+    background-color: hsla(200, 20%, 80%, .5);
   }
   100% {
-    background-color: hsl(200, 20%, 95%);
+    background-color: hsla(200, 20%, 95%, .5);
   }
 `
 
 const Skeleton = styled.div`
+  ${PlayCSS}
   animation: ${skeletonAnimation} 1s linear infinite alternate;
-  width: 5em;
+  color: transparent;
 `
 
 const Amount = styled.span<{$win: boolean}>`
@@ -59,7 +51,7 @@ function RecentPlay({ event }: {event: RecentPlayEvent}) {
     <StyledRecentPlay>
       <div>
         <span>
-          {you ? 'You' : 'Someone'}
+          {you ? 'Someone' : 'Someone'}
         </span>
         <span>
           {win ? ' won ' : ' lost '}
@@ -79,16 +71,14 @@ function RecentPlay({ event }: {event: RecentPlayEvent}) {
 
 export function RecentPlays() {
   const recentPlays = useGambaUi((state) => state.recentPlays)
-
   return (
-    <Wrapper>
-      <h2>RECENT PLAYS</h2>
+    <>
       {!recentPlays.length ? (
         <>
           {Array.from({ length: 5 }).map((_, i) => (
-            <StyledRecentPlay key={i}>
-              <Skeleton>.</Skeleton>
-            </StyledRecentPlay>
+            <Skeleton key={i}>
+              .
+            </Skeleton>
           ))}
         </>
       ) : recentPlays.map((event, i) => (
@@ -97,6 +87,6 @@ export function RecentPlays() {
       <div style={{ opacity: .5 }}>
         Some transactions may be too old to load
       </div>
-    </Wrapper>
+    </>
   )
 }

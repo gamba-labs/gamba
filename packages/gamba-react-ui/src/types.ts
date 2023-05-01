@@ -2,6 +2,7 @@ import React from 'react'
 
 export interface GameBundle {
   name: string
+  description?: string
   shortName: string
   creator: string
   app: (() => JSX.Element) | React.LazyExoticComponent<() => JSX.Element>

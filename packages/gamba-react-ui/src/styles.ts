@@ -12,7 +12,7 @@ export const StyledButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
   border: 1px solid currentColor;
-  color: ${({ theme }) => theme?.palette?.primary?.main ?? DEFAULT_COLOR};
+  color: ${({ theme }) => theme?.palette?.primary ?? DEFAULT_COLOR};
   background: transparent;
   transition: background .1s, color .1s;
   text-transform: uppercase;
@@ -52,6 +52,7 @@ export const ActionBar = styled.div`
   z-index: 1;
   width: 100%;
   flex-wrap: wrap;
+  background: #000000CC;
 `
 
 const spin = keyframes`
@@ -62,7 +63,7 @@ const spin = keyframes`
 export const Loader = styled.div`
   border: 3px solid transparent;
   border-top: 3px solid;
-  border-top-color: ${({ theme }) => theme?.palette?.primary?.main ?? DEFAULT_COLOR};
+  border-top-color: ${({ theme }) => theme?.palette?.primary ?? DEFAULT_COLOR};
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -71,17 +72,6 @@ export const Loader = styled.div`
 
 export const Content = styled.div`
   padding-top: 80px;
-`
-
-export const GameWrapper = styled.div`
-  height: 100vh;
-  display: grid;
-  position: relative;
-  transition: height .25s ease;
-  background: ${({ theme }) => theme.palette.backgroundGame};
-  @media (min-height: 960px) {
-    height: 800px;
-  }
 `
 
 export const SubContent = styled.div`

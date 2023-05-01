@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Close } from '../Svg'
 
@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 const CloseButton = styled.button`
   background: none;
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   color: white;
   cursor: pointer;
   position: absolute;
@@ -56,6 +56,16 @@ const Container = styled.div`
   background: #00000099;
 `
 
+function useLockBodyScroll() {
+  useLayoutEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow
+    // document.body.style.overflow = 'scroll'
+    return () => {
+      document.body.style.overflow = originalStyle
+    }
+  }, [])
+}
+
 function useOnClickOutside(ref: any, handler: (event: MouseEvent | TouchEvent) => void) {
   useEffect(
     () => {
@@ -80,6 +90,7 @@ export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: (
   const ref = useRef<HTMLDivElement>(null!)
 
   useOnClickOutside(ref, onClose)
+  useLockBodyScroll()
 
   return (
     <Container>

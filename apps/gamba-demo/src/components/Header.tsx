@@ -1,17 +1,15 @@
+import { GambaModalButton, GameBundle, useGambaUi } from 'gamba/react-ui'
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { GambaButton } from '../GambaButton'
-import { useGambaUi } from '../context'
-import { GameBundle } from '../types'
-import useMediaQuery from '../useMediaQuery'
+import { useMediaQuery } from '../hooks'
 
 const Wrapper = styled.div`
-  padding: 20px;
   display: grid;
-  grid-template-columns: 1fr max-content;
+  grid-template-columns: max-content 1fr max-content;
   width: 100%;
-  background: ${({ theme }) => theme.palette.background};
+  background: ${({ theme }) => theme.palette.background}EE;
+  backdrop-filter: blur(10px);
   z-index: 10;
   position: fixed;
   top: 0;
@@ -20,18 +18,30 @@ const Wrapper = styled.div`
 
 const NavigationBar = styled.div`
   display: flex;
-  gap: 20px;
+  font-size: 18px;
+  overflow-x: auto;
+  &::scrollbar {
+    height: .2em;
+  }
+  &::scrollbar-thumb {
+    background-color: #ffffff;
+  }
+  @media(min-width:750px) {
+    font-size: unset;
+  }
 `
 
 const StyledNavigationLink = styled(NavLink)<{$active: boolean}>`
-  color: unset;
+  padding: 10px 20px;
   text-decoration: none;
-  color: ${({ $active, theme }) => $active ? theme.palette.primary.main : '#fafafa'};
+  color: ${({ $active, theme }) => $active ? theme.palette.primary : theme.palette.textColor};
   display: flex;
   align-items: center;
   gap: 1em;
-  transition: color .1s;
+  transition: color .1s, border .1s;
+  white-space: nowrap;
   text-transform: uppercase;
+  border-bottom: 3px solid ${({ $active, theme }) => $active ? theme.palette.primary : 'transparent'};
 `
 
 function GameNavigationLink({ game }: {game: GameBundle}) {
@@ -61,10 +71,10 @@ export function Header() {
   const games = useGambaUi((state) => state.games)
   return (
     <Wrapper>
+      <NavigationLink to="/">
+        <img height={30} src="/icon-32.png" /> {displayName && 'Gamba Demo'}
+      </NavigationLink>
       <NavigationBar>
-        <NavigationLink to="/">
-          <img height={40} src="/icon-192.png" /> {displayName && 'Gamba Portal'}
-        </NavigationLink>
         {games.map((game) => (
           <GameNavigationLink
             key={game.shortName}
@@ -72,7 +82,9 @@ export function Header() {
           />
         ))}
       </NavigationBar>
-      <GambaButton />
+      <div style={{ padding: 10 }}>
+        <GambaModalButton />
+      </div>
     </Wrapper>
   )
 }

@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { Button } from './components/Button'
 import { Modal } from './components/Modal'
 import { Padding } from './styles'
+import { HexColor } from './components/HexColor'
 
 const statusMapping = {
   none: 'None',
@@ -25,9 +26,9 @@ const WalletButton = styled.button`
   width: 100%;
   margin: 0;
   cursor: pointer;
-  color: unset;
   transition: background .2s, opacity .2s;
   text-align: left;
+  color: white;
   &:disabled {
     opacity: .5;
   }
@@ -37,8 +38,12 @@ const WalletButton = styled.button`
 `
 
 const Address = styled.div`
-  overflow: auto;
+  overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
+  background: #00000033;
+  padding: 2px;
+  border-radius: 2px;
 `
 
 function SelectWallet() {
@@ -169,7 +174,9 @@ function Account() {
             {parseFloat(lamportsToSol(gamba.balances.wallet).toFixed(4))} SOL
           </div>
           <Address>
-            {gamba.wallet.publicKey.toBase58()}
+            <HexColor>
+              {gamba.wallet.publicKey.toBase58()}
+            </HexColor>
           </Address>
           <div>
             Status: {statusMapping[gamba.user.status]}

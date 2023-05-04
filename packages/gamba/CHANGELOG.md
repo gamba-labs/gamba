@@ -1,5 +1,15 @@
 # gamba
 
+## 0.6.5
+
+### Patch Changes
+
+- d5a804e: Some fixes
+- Updated dependencies [d5a804e]
+  - gamba-core@0.2.2
+  - gamba-react@0.1.3
+  - gamba-react-ui@0.1.3
+
 ## 0.6.4
 
 ### Patch Changes

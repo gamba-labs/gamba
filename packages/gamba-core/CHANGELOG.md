@@ -1,5 +1,11 @@
 # gamba-core
 
+## 0.2.2
+
+### Patch Changes
+
+- d5a804e: Some fixes
+
 ## 0.2.1
 
 ### Patch Changes

@@ -13,7 +13,6 @@ export default defineConfig(() => ({
     port: 3000,
     host: true,
   },
-  // resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
   define: { 'process.env.ANCHOR_BROWSER': true },
   build: {
     rollupOptions: {

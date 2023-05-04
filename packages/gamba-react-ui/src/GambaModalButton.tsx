@@ -21,7 +21,7 @@ export function GambaModalButton() {
           </>
         ) : (
           <>
-            Select Wallet
+            Connect Wallet
           </>
         )}
       </Button>

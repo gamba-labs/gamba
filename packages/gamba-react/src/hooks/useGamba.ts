@@ -9,7 +9,7 @@ import { randomSeed } from '../utils'
 
 const errorSignal = new Signal<GambaError>()
 
-export function useGambaErrorHander(callback: (err: GambaError) => void) {
+export function useGambaError(callback: (err: GambaError) => void) {
   useEffect(() => {
     errorSignal.add(callback)
     return () => {
@@ -25,6 +25,8 @@ export function useGamba() {
   const seed = useSessionStore((state) => state.seed)
   const set = useSessionStore((state) => state.set)
   const web3Wallet = useWallet()
+
+  const updateSeed = () => set({ seed: randomSeed() })
 
   const wallet = mainSession.session?.wallet
   const user = useMemo(() => parseUserAccount(mainSession.session?.user), [mainSession.session?.user?.state])
@@ -58,7 +60,7 @@ export function useGamba() {
       throw new Error(GambaError.PLAY_WITHOUT_CONNECTED)
     }
     const req = await mainSession.session.play(config, wager, seed, params)
-    set({ seed: randomSeed() })
+    updateSeed()
     return req
   }
 
@@ -98,6 +100,7 @@ export function useGamba() {
 
   return {
     creator: provider.creator,
+    updateSeed,
     wallet,
     user,
     seed,

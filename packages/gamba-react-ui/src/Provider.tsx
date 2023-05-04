@@ -1,12 +1,12 @@
 import { useConnection } from '@solana/wallet-adapter-react'
 import { getRecentEvents } from 'gamba-core'
-import { GambaError, useGamba, useGambaErrorHander, useGambaEvent } from 'gamba-react'
+import { GambaError, useGamba, useGambaError, useGambaEvent } from 'gamba-react'
 import { PropsWithChildren, useEffect, useRef } from 'react'
-import { BrowserRouter, useInRouterContext } from 'react-router-dom'
+import { Alerts } from './Alerts'
 import { GambaModal } from './GambaModal'
+import { Modal } from './components/Modal'
 import { GambaUiContext, createGambaUiStore, useGambaUi } from './context'
 import { GameBundle } from './types'
-import { Alerts } from './Alerts'
 
 export interface GambaUiProps {
   games: GameBundle[]
@@ -47,11 +47,10 @@ export function GambaUiProvider({ children, games }: GambaUiProviderProps) {
 }
 
 function Content({ children }: PropsWithChildren) {
-  const inRouter = useInRouterContext()
   const modal = useGambaUi((state) => state.modal)
   const setModal = useGambaUi((state) => state.setModal)
 
-  useGambaErrorHander((err) => {
+  useGambaError((err) => {
     if (err === GambaError.PLAY_WITHOUT_CONNECTED) {
       setModal(true)
     }
@@ -59,18 +58,16 @@ function Content({ children }: PropsWithChildren) {
 
   useRecentPlays()
 
-  const content = (
+  return (
     <>
       <Alerts />
-      {modal && <GambaModal onClose={() => setModal(false)} />}
+      {modal && (
+        <Modal onClose={() => setModal(false)}>
+          <GambaModal />
+        </Modal>
+      )}
       {children}
     </>
-  )
-
-  return inRouter ? content : (
-    <BrowserRouter>
-      {content}
-    </BrowserRouter>
   )
 }
 

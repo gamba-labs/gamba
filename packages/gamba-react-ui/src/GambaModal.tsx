@@ -1,12 +1,10 @@
 import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react'
-import { lamportsToSol } from 'gamba-core'
 import { useGamba } from 'gamba-react'
 import { useState } from 'react'
 import styled from 'styled-components'
 import { Button } from './components/Button'
-import { Modal } from './components/Modal'
-import { Padding } from './styles'
 import { HexColor } from './components/HexColor'
+import { formatLamports } from './utils'
 
 const statusMapping = {
   none: 'None',
@@ -14,6 +12,12 @@ const statusMapping = {
   seedRequested: 'Initializing Account',
   hashedSeedRequested: 'Generating Results',
 }
+
+const Content = styled.div`
+  width: 100%;
+  overflow: hidden;
+  padding: 20px;
+`
 
 const WalletButton = styled.button`
   display: grid;
@@ -25,7 +29,6 @@ const WalletButton = styled.button`
   border: none;
   width: 100%;
   margin: 0;
-  cursor: pointer;
   transition: background .2s, opacity .2s;
   text-align: left;
   color: white;
@@ -46,7 +49,16 @@ const Address = styled.div`
   border-radius: 2px;
 `
 
-function SelectWallet() {
+const List = styled.div`
+  width: 100%;
+  overflow: hidden;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`
+
+function ConnectWallet() {
   const { wallets, select } = useWallet()
   const [loading, setLoading] = useState(false)
 
@@ -65,12 +77,14 @@ function SelectWallet() {
 
   return (
     <>
+      <Content>
+        <h1>Connect Wallet</h1>
+      </Content>
       <div>
-        <Padding><b>Select Wallet</b></Padding>
         {wallets.length === 0 && (
-          <Padding>
+          <>
             You need a Solana wallet to connect
-          </Padding>
+          </>
         )}
         {wallets.map((wallet, i) => (
           <WalletButton
@@ -109,114 +123,118 @@ function CreateAccount() {
   }
 
   return (
-    <div>
-      <Padding style={{ display: 'grid', gap: 20 }}>
-        <div><b>Create Account</b></div>
+    <>
+      <Content>
+        <h1>Create Account</h1>
+      </Content>
+      <List>
         <Button loading={loading} onClick={createAccount}>
           Create account
         </Button>
         <Button onClick={() => gamba.disconnect()}>
           Change wallet
         </Button>
-      </Padding>
-    </div>
+      </List>
+    </>
   )
 }
 
 function Account() {
   const gamba = useGamba()
-  const [loading, setLoading] = useState(false)
-  const [refreshing, setRefreshing] = useState(false)
+  const [loading, setLoading] = useState<string>()
 
   const closeUserAccount = async () => {
     try {
       const res = await gamba.closeAccount()
-      setLoading(true)
+      setLoading('close')
       const response = await res.result()
       return response
     } catch (err) {
       console.error('Modal Error', err)
     } finally {
-      setLoading(false)
+      setLoading(undefined)
     }
   }
 
   const withdraw = async () => {
     try {
       const res = await gamba.withdraw()
-      setLoading(true)
+      setLoading('withdraw')
       const response = await res.result()
       return response
     } catch (err) {
       console.error('Modal Error', err)
     } finally {
-      setLoading(false)
+      setLoading(undefined)
     }
   }
 
   const refreshAccount = async () => {
     try {
-      setRefreshing(true)
+      setLoading('refresh')
       await gamba.refresh()
     } catch (err) {
       console.error('Modal Error', err)
     } finally {
-      setRefreshing(false)
+      setLoading(undefined)
     }
   }
 
   if (!gamba.user || !gamba.wallet) return null
   return (
     <>
-      <div style={{ height: '100%' }}>
-        <Padding style={{ display: 'grid', gap: 20 }}>
-          <div style={{ textAlign: 'center', fontSize: '32px' }}>
-            {parseFloat(lamportsToSol(gamba.balances.wallet).toFixed(4))} SOL
-          </div>
-          <Address>
-            <HexColor>
-              {gamba.wallet.publicKey.toBase58()}
-            </HexColor>
-          </Address>
-          <div>
-            Status: {statusMapping[gamba.user.status]}
-          </div>
-          {gamba.balances.user > 0 && (
-            <Button onClick={withdraw}>
-              Claim {parseFloat(lamportsToSol(gamba.balances.user).toFixed(4))} SOL
-            </Button>
-          )}
-          <Button loading={refreshing} onClick={refreshAccount}>
-            Refresh
+      <Content>
+        <h1>
+          {formatLamports(gamba.balances.wallet)}
+        </h1>
+      </Content>
+      <List>
+        <Address>
+          <HexColor>
+            {gamba.wallet.publicKey.toBase58()}
+          </HexColor>
+        </Address>
+        <div>
+          Status: {statusMapping[gamba.user.status]}
+        </div>
+        {gamba.balances.user > 0 && (
+          <Button loading={loading === 'withdraw'} onClick={withdraw}>
+            Claim {formatLamports(gamba.balances.user)}
           </Button>
-          <Button loading={loading} onClick={() => closeUserAccount()}>
-            Close account
-          </Button>
-          <Button onClick={() => gamba.disconnect()}>
-            Disconnect
-          </Button>
-        </Padding>
-      </div>
+        )}
+        <Button loading={loading === 'refresh'} onClick={refreshAccount}>
+          Refresh
+        </Button>
+        {/* <Button onClick={() => alert(JSON.stringify(gamba.user?.state, null, 2))}>
+          Debug
+        </Button> */}
+        <Button loading={loading === 'close'} onClick={() => closeUserAccount()}>
+          Close account
+        </Button>
+        <Button onClick={() => gamba.disconnect()}>
+          Disconnect
+        </Button>
+      </List>
     </>
   )
 }
 
-export const GambaModal = ({ onClose }: {onClose: () => void}) => {
+export const GambaModal = () => {
   const { session, user } = useGamba()
   const { connected } = useWallet()
   const { connection } = useConnection()
 
   return (
-    <Modal onClose={onClose}>
+    <>
       {!connection ? (
         <>No Connection...</>
       ) : (!connected || !session?.wallet.info) ? (
-        <SelectWallet />
+        <ConnectWallet />
       ) : !user?.created ? (
         <CreateAccount />
       ) : (
         <Account />
       )}
-    </Modal>
+    </>
   )
 }

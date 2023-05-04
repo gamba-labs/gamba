@@ -1,7 +1,8 @@
-import { RecentPlayEvent, lamportsToSol } from 'gamba-core'
+import { RecentPlayEvent, solToLamports } from 'gamba-core'
 import { useGamba } from 'gamba-react'
 import styled, { css, keyframes } from 'styled-components'
 import { useGambaUi } from '../context'
+import { formatLamports } from '../utils'
 import { Time } from './Time'
 
 const PlayCSS = css`
@@ -10,8 +11,8 @@ const PlayCSS = css`
   gap: 5px;
   grid-template-columns: auto;
   text-align: left;
-  background: #1a1c24;
-  border-radius: 5px;
+  background: var(--bg-light-color);
+  border-radius: var(--border-radius);
   height: 40px;
   justify-content: space-between;
 `
@@ -47,18 +48,40 @@ function RecentPlay({ event }: {event: RecentPlayEvent}) {
   const profit = wager * multiplier - wager
   const win = profit >= 0
 
+  const who = (
+    <span style={{ color: '#ffc459' }}>
+      {you ? 'You ' : 'Someone '}
+    </span>
+  )
+
+  const content = (() => {
+    if (multiplier >= 2) {
+      return (
+        <>
+          {who} bet {formatLamports(event.wager)} and <Amount $win>{multiplier}x</Amount>
+        </>
+      )
+    }
+
+    if (profit < solToLamports(-.01)) {
+      return (
+        <>
+          {who} bet {formatLamports(event.wager)} and lost
+        </>
+      )
+    }
+
+    return (
+      <>
+        {who} {win ? 'won' : 'lost'} <Amount $win={profit >= 0}>{formatLamports(Math.abs(profit))}</Amount>
+      </>
+    )
+  })()
+
   return (
     <StyledRecentPlay>
       <div>
-        <span>
-          {you ? 'Someone' : 'Someone'}
-        </span>
-        <span>
-          {win ? ' won ' : ' lost '}
-          <Amount $win={win}>
-            {Math.abs(parseFloat(lamportsToSol(profit).toFixed(4)))} SOL
-          </Amount>
-        </span>
+        {content}
       </div>
       <span>
         <a target="_blank" href={`https://solscan.io/tx/${event.signature}`} rel="noreferrer">
@@ -76,15 +99,13 @@ export function RecentPlays() {
       {!recentPlays.length ? (
         <>
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i}>
-              .
-            </Skeleton>
+            <Skeleton key={i} />
           ))}
         </>
       ) : recentPlays.map((event, i) => (
         <RecentPlay key={i} event={event} />
       ))}
-      <div style={{ opacity: .5 }}>
+      <div style={{ opacity: .5, fontSize: 12 }}>
         Some transactions may be too old to load
       </div>
     </>

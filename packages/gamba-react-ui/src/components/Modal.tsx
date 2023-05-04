@@ -3,11 +3,14 @@ import styled, { keyframes } from 'styled-components'
 import { Close } from '../Svg'
 
 const appear = keyframes`
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% { opacity: 0; transform: scale(.9); }
+  100% { opacity: 1; transform: scale(1); }
 `
 
 const Wrapper = styled.div`
+  h1 {
+    text-align: center;
+  }
   background: #16171a;
   color: white;
   width: 100%;
@@ -16,7 +19,7 @@ const Wrapper = styled.div`
   overflow-y: auto;
   position: relative;
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto 1fr;
   animation ${appear} .1s;
   @media (min-height: 460px) {
     width: 320px;
@@ -30,7 +33,6 @@ const CloseButton = styled.button`
   margin: 0;
   font-size: 18px;
   color: white;
-  cursor: pointer;
   position: absolute;
   right: 10px;
   top: 10px;

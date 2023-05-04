@@ -1,4 +1,4 @@
-export { useGamba, useGambaErrorHander } from './useGamba'
+export { useGamba, useGambaError } from './useGamba'
 export { useGambaEvent } from './useGambaProvider'
 export { useGambaSession, useSessionStore } from './useSession'
-// export { useUnsafeInlineSession } from './useUnsafeInlineSession'
+export { UNSAFE_useInlineSession } from './useInlineSession'

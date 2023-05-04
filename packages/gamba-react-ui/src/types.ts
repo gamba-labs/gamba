@@ -1,11 +1,11 @@
 import React from 'react'
 
 export interface GameBundle {
-  name: string
-  description?: string
-  shortName: string
   creator: string
+  name: string
+  short_name: string
+  description?: string
+  image?: string
+  links?: {url: string, title: string}[]
   app: (() => JSX.Element) | React.LazyExoticComponent<() => JSX.Element>
-  icon: () => JSX.Element
-  loadScreen?: () => JSX.Element
 }

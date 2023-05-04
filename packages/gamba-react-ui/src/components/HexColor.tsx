@@ -5,13 +5,13 @@ function hue(str: string) {
 }
 
 export const HexColor = (props: {children: string}) => {
-  const numChunks = Math.floor(props.children.length / 12)
+  const numChunks = Math.floor(props.children.length / 8)
   return (
     <>
       {Array.from({ length: numChunks }).map((_, i) => {
-        const chunk = props.children.substring(i * 12, i * 12 + 12)
+        const chunk = props.children.substring(i * 8, i * 8 + 8)
         return (
-          <span key={i} style={{ color: `hsl(${hue(chunk)}, 90%, 70%)` }}>
+          <span key={i} style={{ color: `hsl(${hue(chunk)}, 95%, 75%)` }}>
             {chunk}
           </span>
         )

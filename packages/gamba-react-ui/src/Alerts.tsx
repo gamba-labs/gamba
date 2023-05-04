@@ -1,8 +1,9 @@
 import { lamportsToSol } from 'gamba-core'
-import { useGamba, useGambaErrorHander, useGambaEvent } from 'gamba-react'
+import { useGamba, useGambaError, useGambaEvent } from 'gamba-react'
 import { useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { create } from 'zustand'
+import { formatLamports } from './utils'
 
 type StatusType = 'error' | 'warning' | 'notification'
 
@@ -109,12 +110,12 @@ const StyledAlert = styled.div`
   padding: 10px;
   pointer-events: auto;
   width: 300px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
-  background: #090a0d;
-  color: white;
+  background: #ffffff;
+  color: #333333;
   animation: ${appear} .2s ease;
 `
 
@@ -127,11 +128,12 @@ export function Alerts() {
   useGambaEvent((event) => {
     if (gamba.wallet?.publicKey?.equals(event.player)) {
       const profit = event.resultMultiplier * event.wager - event.wager
-      addAlert({ title: 'You won ' + parseFloat(lamportsToSol(profit).toFixed(4)) + ' SOL', type: 'notification' })
+      const wonLost = profit >= 0 ? ' won ' : ' lost '
+      addAlert({ title: 'You' + wonLost + formatLamports(Math.abs(profit)), type: 'notification' })
     }
   }, [gamba.user])
 
-  useGambaErrorHander((err) => {
+  useGambaError((err) => {
     addAlert({ title: err, type: 'error' })
   })
 

@@ -165,13 +165,3 @@ gamba.withdraw(gamba.user.balance)
 * [🐥 Twitter](https://twitter.com/GambaLabs)
 
 * 📝 Full documentation coming soon
-
-## 🕹️ Powered by Gamba
-
-A list of projects that are currently using Gamba. Feel free to add your own game to the list!
-
-| Title | Description | Links |
-| --- | --- | --- |
-| Gamba Flip | Simple Coin Flip game | [Website](https://flip.gamba.so) |
-| Gamba Roulette | Miniature Roulette game | [Website](https://roulette.gamba.so) |
-| Your project | [Contact us](https://twitter.com/GambaLabs) to add your game to this list | |

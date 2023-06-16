@@ -1,5 +1,16 @@
 # gamba-react-ui
 
+## 0.2.0
+
+### Minor Changes
+
+- 5c4db9b: Gamba UI improvements
+
+### Patch Changes
+
+- Updated dependencies [5c4db9b]
+  - gamba-react@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes

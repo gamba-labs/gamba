@@ -1,5 +1,11 @@
 # gamba-react
 
+## 0.1.4
+
+### Patch Changes
+
+- 5c4db9b: Gamba UI improvements
+
 ## 0.1.3
 
 ### Patch Changes

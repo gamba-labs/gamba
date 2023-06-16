@@ -1,0 +1,5 @@
+---
+"gamba": patch
+---
+
+Added GambaProvider

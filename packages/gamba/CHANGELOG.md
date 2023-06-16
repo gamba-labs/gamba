@@ -1,5 +1,11 @@
 # gamba
 
+## 0.6.6
+
+### Patch Changes
+
+- 3eb3560: Added GambaProvider
+
 ## 1.0.0
 
 ### Patch Changes

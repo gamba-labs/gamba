@@ -1,5 +1,12 @@
 # gamba-demo
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [3eb3560]
+  - gamba@0.6.6
+
 ## 1.0.2
 
 ### Patch Changes

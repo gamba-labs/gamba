@@ -29,6 +29,9 @@ export const GlobalStyle = createGlobalStyle`
       --border-radius: 5px;
       --text-color: ${theme.palette.textColor};
       --primary-color: ${theme.palette.primary};
+      --header-bg-color: ${theme.palette.background};
+      --gamba-modal-bg: #10141f;
+      --gamba-modal-text: ${theme.palette.textColor};
       --bg-color: ${theme.palette.background};
       --bg-light-color: ${theme.palette.backgroundLight};
     `})
@@ -40,8 +43,6 @@ export const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
   ::selection {
-    color: black;
-    background: var(--primary-color);
   }
   button {
     user-select: none;
@@ -66,7 +67,6 @@ export const GlobalStyle = createGlobalStyle`
 
   body, input, button, textarea, pre {
     font-family: 'Roboto Mono', monospace;
-    font-display: block;
     font-size: 14px;
   }
   button, a {

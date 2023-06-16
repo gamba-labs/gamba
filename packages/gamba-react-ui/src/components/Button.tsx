@@ -24,7 +24,7 @@ const pulse = keyframes`
 export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
   padding: 0 10px;
   margin: 0;
-  border-radius: var(--border-radius);
+  border-radius: 5px;
   border: 1px solid currentColor;
   transition: background .1s, color .1s;
   text-transform: uppercase;
@@ -34,6 +34,7 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
   text-align: left;
   align-items: center;
   grid-template-columns: 1fr auto;
+  cursor: pointer;
   &:disabled {
     color: gray!important;
     cursor: default;

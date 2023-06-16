@@ -18,7 +18,6 @@ export function UNSAFE_useInlineSession() {
 
   const inlineWallet = useMemo(() => createInlineWallet(Keypair.generate()), [])
 
-  // console.log(JSON.stringify(Array.from(inlineWallet.payer.secretKey)))
   const create = async (lamports: number) => {
     if (!mainSession) throw new Error('NO_CREATE')
     const session = await inline.create(inlineWallet)

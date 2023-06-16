@@ -1,23 +1,41 @@
-import { GambaModalButton } from 'gamba/react-ui'
+import { GambaConnectButton } from 'gamba/react-ui'
 import React from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { FaDiscord, FaGithub, FaTwitter } from 'react-icons/fa'
+import { NavLink } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import styled from 'styled-components'
 
+const Logo = styled.img`
+  width: 2em;
+  height: 2em;
+`
+
 const Wrapper = styled.div`
-  display: grid;
-  align-items: center;
-  grid-template-columns: 1fr max-content;
   width: 100%;
-  background: ${({ theme }) => theme.palette.background}EE;
+  background: var(--header-bg-color);
   backdrop-filter: blur(10px);
   z-index: 10;
   position: fixed;
   top: 0;
   left: 0;
   padding: 10px 20px;
+  .label {
+    display: none;
+    @media (min-width: 800px) {
+      display: block;
+    }
+  }
+  > div {
+    margin: 0 auto;
+    max-width: 90rem;
+    gap: 20px;
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto 1fr max-content;
+  }
 `
 
-const StyledNavigationLink = styled(NavLink)<{$active: boolean}>`
+const StyledNavigationLink = styled(NavLink)`
   color: var(--text-color);
   display: flex;
   align-items: center;
@@ -27,10 +45,19 @@ const StyledNavigationLink = styled(NavLink)<{$active: boolean}>`
   text-transform: uppercase;
 `
 
+const Links = styled.div`
+  display: flex;
+  gap: 20px;
+  font-size: 20px;
+  align-items: center;
+  & > a > svg {
+    display: block;
+  }
+`
+
 function NavigationLink({ children, to }: React.PropsWithChildren<{to: string}>) {
-  const { pathname } = useLocation()
   return (
-    <StyledNavigationLink $active={pathname === to} to={to}>
+    <StyledNavigationLink to={to}>
       {children}
     </StyledNavigationLink>
   )
@@ -39,10 +66,24 @@ function NavigationLink({ children, to }: React.PropsWithChildren<{to: string}>)
 export function Header() {
   return (
     <Wrapper>
-      <NavigationLink to="/">
-        <img height={30} src="/icon-32.png" /> Gamba Demo
-      </NavigationLink>
-      <GambaModalButton />
+      <div>
+        <NavigationLink to="/">
+          <Logo src="/logo.png" />
+          <div className="label">Gamba Demo</div>
+        </NavigationLink>
+        <Links>
+          <a target="_blank" href="https://github.com/gamba-labs/gamba" rel="noreferrer">
+            <FaGithub />
+          </a>
+          <a target="_blank" href="http://discord.gg/xjBsW3e8fK" rel="noreferrer">
+            <FaDiscord />
+          </a>
+          <a target="_blank" href="https://twitter.com/GambaLabs" rel="noreferrer">
+            <FaTwitter />
+          </a>
+        </Links>
+        <GambaConnectButton />
+      </div>
     </Wrapper>
   )
 }

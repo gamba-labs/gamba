@@ -4,6 +4,7 @@ export interface GameBundle {
   creator: string
   name: string
   short_name: string
+  theme_color?: string
   description?: string
   image?: string
   links?: {url: string, title: string}[]

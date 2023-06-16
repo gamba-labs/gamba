@@ -9,6 +9,34 @@ const sha256 = async (message: string) => {
   return Buffer.from(arrayBuffer).toString('hex')
 }
 
+// // https://stackoverflow.com/questions/49081874/i-have-to-hash-a-text-with-hmac-sha256-in-javascript
+// export async function hmac256(secretKey: string, message: string, algorithm = 'SHA-256') {
+//   const encoder = new TextEncoder()
+//   const messageUint8Array = encoder.encode(message)
+//   const keyUint8Array = encoder.encode(secretKey)
+
+//   const cryptoKey = await window.crypto.subtle.importKey(
+//     'raw',
+//     keyUint8Array,
+//     { name: 'HMAC', hash: algorithm },
+//     false,
+//     ['sign'],
+//   )
+
+//   const signature = await window.crypto.subtle.sign(
+//     'HMAC',
+//     cryptoKey,
+//     messageUint8Array,
+//   )
+
+//   const hashArray = Array.from(new Uint8Array(signature))
+//   const hashHex = hashArray
+//     .map((b) => b.toString(16).padStart(2, '0'))
+//     .join('')
+
+//   return hashHex
+// }
+
 export const lamportsToSol = (lamports: number) => {
   return lamports / LAMPORTS_PER_SOL
 }
@@ -35,10 +63,11 @@ export const decodeHouse = (account: AccountInfo<Buffer> | null) => {
 }
 
 export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
+  // return hmac256(rngSeed, [clientSeed, nonce].join('-'))
   return sha256([rngSeed, clientSeed, nonce].join('-'))
 }
 
-export const calculateResultIndex = (gameHash: string, options: number[]) => {
+export const resultIndexFromGameHash = (gameHash: string, options: number[]) => {
   const result = parseInt(gameHash.substring(0, 5), 16)
   return result % options.length
 }
@@ -54,7 +83,7 @@ export const getGameResult = async (previousState: UserState, currentState: User
   const rngSeedHashed = previousState.currentGame.rngSeedHashed
   const rngSeed = currentState.previousRngSeed
   const gameHash = await getGameHash(rngSeed, clientSeed, nonce)
-  const resultIndex = calculateResultIndex(gameHash, options)
+  const resultIndex = resultIndexFromGameHash(gameHash, options)
   const multiplier = options[resultIndex]
   const wager = previousState.currentGame.wager.toNumber()
   const payout = wager / 1000 * multiplier

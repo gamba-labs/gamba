@@ -1,5 +1,5 @@
 export { GambaError, MIN_BET, PROGRAM_ID } from 'gamba-core'
 export { Game } from './Game'
-export { useGamba, useGambaError, useGambaEvent, useGambaSession, UNSAFE_useInlineSession } from './hooks'
-export { Gamba } from './provider'
+export * from './hooks'
+export * from './provider'
 import './polyfill'

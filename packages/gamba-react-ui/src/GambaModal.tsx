@@ -1,10 +1,20 @@
 import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react'
+import { solToLamports } from 'gamba-core'
 import { useGamba } from 'gamba-react'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import styled from 'styled-components'
 import { Button } from './components/Button'
 import { HexColor } from './components/HexColor'
+import { GambaUiContext, useGambaUi } from './context'
 import { formatLamports } from './utils'
+
+function useCallbacks() {
+  const {
+    onError = () => null,
+    onWithdraw = () => null,
+  } = useContext(GambaUiContext)
+  return { onError, onWithdraw }
+}
 
 const statusMapping = {
   none: 'None',
@@ -15,8 +25,12 @@ const statusMapping = {
 
 const Content = styled.div`
   width: 100%;
-  overflow: hidden;
   padding: 20px;
+  h1 {
+    font-size: 24px;
+    padding-top: 20px;
+    text-align: center;
+  }
 `
 
 const WalletButton = styled.button`
@@ -40,12 +54,17 @@ const WalletButton = styled.button`
   }
 `
 
-const Address = styled.div`
+const Address = styled.button`
+  border: none;
+  margin: 0;
+  outline: none;
+  display: block;
+  cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
   background: #00000033;
-  padding: 2px;
+  padding: 5px 10px;
   border-radius: 2px;
 `
 
@@ -59,10 +78,11 @@ const List = styled.div`
 `
 
 function ConnectWallet() {
+  const { onError } = useCallbacks()
   const { wallets, select } = useWallet()
   const [loading, setLoading] = useState(false)
 
-  const connect = async (wallet: Wallet) => {
+  const selectWallet = async (wallet: Wallet) => {
     try {
       setLoading(true)
       select(wallet.adapter.name)
@@ -70,6 +90,7 @@ function ConnectWallet() {
     } catch (err) {
       console.error('Modal Error', err)
       setLoading(false)
+      onError(err)
     } finally {
       // setLoading(false)
     }
@@ -89,7 +110,7 @@ function ConnectWallet() {
         {wallets.map((wallet, i) => (
           <WalletButton
             key={i}
-            onClick={() => connect(wallet)}
+            onClick={() => selectWallet(wallet)}
             disabled={loading}
           >
             {wallet.adapter.name}
@@ -106,20 +127,52 @@ function ConnectWallet() {
 }
 
 function CreateAccount() {
+  const { onError } = useCallbacks()
+  const { tos } = useGambaUi()
   const gamba = useGamba()
   const [loading, setLoading] = useState(false)
+  const [showTnc, setShowTnc] = useState(false)
 
   const createAccount = async () => {
     try {
-      const res = await gamba.createAccount()
       setLoading(true)
+      const res = await gamba.createAccount()
       const response = await res.result()
       return response
     } catch (err) {
       console.error('Modal Error', err)
+      onError(err)
     } finally {
       setLoading(false)
     }
+  }
+  const createAccountOrShowTnc = () => {
+    if (tos) {
+      setShowTnc(true)
+    } else {
+      createAccount()
+    }
+  }
+
+  if (tos && showTnc) {
+    return (
+      <>
+        <Content>
+          <h1>Terms of Service</h1>
+        </Content>
+        <div style={{ padding: 20, fontSize: '12px' }}>
+          {tos}
+        </div>
+        <div style={{ padding: 20, display: 'flex', justifyContent: 'space-around' }}>
+          <Button loading={loading} onClick={createAccount}>
+            Accept
+          </Button>
+          <Button disabled={loading} onClick={() => setShowTnc(false)}>
+            Cancel
+          </Button>
+        </div>
+      </>
+    )
   }
 
   return (
@@ -128,7 +181,7 @@ function CreateAccount() {
         <h1>Create Account</h1>
       </Content>
       <List>
-        <Button loading={loading} onClick={createAccount}>
+        <Button loading={loading} onClick={createAccountOrShowTnc}>
           Create account
         </Button>
         <Button onClick={() => gamba.disconnect()}>
@@ -138,19 +191,27 @@ function CreateAccount() {
     </>
   )
 }
-
+export async function copyTextToClipboard(text: string) {
+  if ('clipboard' in navigator) {
+    return await navigator.clipboard.writeText(text)
+  } else {
+    return document.execCommand('copy', true, text)
+  }
+}
 function Account() {
+  const { onError, onWithdraw } = useCallbacks()
   const gamba = useGamba()
   const [loading, setLoading] = useState<string>()
 
   const closeUserAccount = async () => {
     try {
-      const res = await gamba.closeAccount()
       setLoading('close')
+      const res = await gamba.closeAccount()
       const response = await res.result()
       return response
     } catch (err) {
       console.error('Modal Error', err)
+      onError(err)
     } finally {
       setLoading(undefined)
     }
@@ -158,12 +219,14 @@ function Account() {
 
   const withdraw = async () => {
     try {
-      const res = await gamba.withdraw()
       setLoading('withdraw')
+      const res = await gamba.withdraw(solToLamports(.001))
       const response = await res.result()
+      onWithdraw(response.status)
       return response
     } catch (err) {
       console.error('Modal Error', err)
+      onError(err)
     } finally {
       setLoading(undefined)
     }
@@ -175,12 +238,16 @@ function Account() {
       await gamba.refresh()
     } catch (err) {
       console.error('Modal Error', err)
+      onError(err)
     } finally {
       setLoading(undefined)
     }
   }
 
-  if (!gamba.user || !gamba.wallet) return null
+  if (!gamba.user || !gamba.wallet) {
+    return null
+  }
+
   return (
     <>
       <Content>
@@ -189,7 +256,7 @@ function Account() {
         </h1>
       </Content>
       <List>
-        <Address>
+        <Address onClick={() => copyTextToClipboard(gamba.wallet!.publicKey.toBase58())}>
           <HexColor>
             {gamba.wallet.publicKey.toBase58()}
           </HexColor>
@@ -205,9 +272,6 @@ function Account() {
         <Button loading={loading === 'refresh'} onClick={refreshAccount}>
           Refresh
         </Button>
-        {/* <Button onClick={() => alert(JSON.stringify(gamba.user?.state, null, 2))}>
-          Debug
-        </Button> */}
         <Button loading={loading === 'close'} onClick={() => closeUserAccount()}>
           Close account
         </Button>
@@ -228,7 +292,7 @@ export const GambaModal = () => {
     <>
       {!connection ? (
         <>No Connection...</>
-      ) : (!connected || !session?.wallet.info) ? (
+      ) : (!connected || !session?.wallet.publicKey) ? (
         <ConnectWallet />
       ) : !user?.created ? (
         <CreateAccount />

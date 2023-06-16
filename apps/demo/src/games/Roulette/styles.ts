@@ -60,7 +60,7 @@ export const StylelessButton = styled.button`
 `
 
 export const TableSquare = styled.div<{$color: 'red' | 'black' | 'none', $transparent?: boolean, $highlighted?: boolean}>`
-  border-radius: var(--border-radius);
+  border-radius: 5px;
   width: 60px;
   height: 40px;
   line-height: 40px;
@@ -78,7 +78,7 @@ export const TableSquare = styled.div<{$color: 'red' | 'black' | 'none', $transp
 export const Chip = styled.div<{value?: number, inactive?: boolean}>`
   --chip-color: ${({ value, inactive }) => inactive ? '#ccc' : getChipColor(value)};
   width: 30px;
-  border-radius: var(--border-radius);
+  border-radius: 5px;
   background: var(--chip-color);
   color: black;
   font-size: 12px;

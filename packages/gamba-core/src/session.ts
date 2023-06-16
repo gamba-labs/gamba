@@ -92,6 +92,7 @@ export class GambaSession {
     const _wager = params?.deductFees ? Math.ceil(wager / (1 + totalFee)) : wager
 
     const gameConfig = gameConfigInput.map((x) => x * BET_UNIT)
+
     const instruction = await this.program.methods
       .play(
         this.provider.creator,

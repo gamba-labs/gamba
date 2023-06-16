@@ -23,7 +23,7 @@ const StyledRecentPlay = styled.div`
 
 const skeletonAnimation = keyframes`
   0% {
-    background-color: hsla(200, 20%, 80%, .5);
+    background-color: hsla(200, 20%, 80%, .4);
   }
   100% {
     background-color: hsla(200, 20%, 95%, .5);
@@ -32,7 +32,7 @@ const skeletonAnimation = keyframes`
 
 const Skeleton = styled.div`
   ${PlayCSS}
-  animation: ${skeletonAnimation} 1s linear infinite alternate;
+  animation: ${skeletonAnimation} .5s linear infinite alternate;
   color: transparent;
 `
 
@@ -93,7 +93,8 @@ function RecentPlay({ event }: {event: RecentPlayEvent}) {
 }
 
 export function RecentPlays() {
-  const recentPlays = useGambaUi((state) => state.recentPlays)
+  const { recentPlays } = useGambaUi()
+
   return (
     <>
       {!recentPlays.length ? (

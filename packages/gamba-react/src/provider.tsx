@@ -1,6 +1,6 @@
-import { ConnectionContext, WalletProvider, useWallet } from '@solana/wallet-adapter-react'
+import { ConnectionContext, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Connection, ConnectionConfig, PublicKey } from '@solana/web3.js'
-import { GambaProvider } from 'gamba-core'
+import { GambaProvider as GambaProviderCore } from 'gamba-core'
 import { createContext, useEffect, useMemo } from 'react'
 import { useGamba } from './hooks'
 
@@ -13,23 +13,54 @@ type GambaProviderProps = {
 }
 
 type GambaProviderContext = {
-  provider: GambaProvider,
+  provider: GambaProviderCore
 }
 
 export const GambaProviderContext = createContext<GambaProviderContext>({ provider: null! })
 
-// todo
+/**
+ * Automatically connects / disconnects web3 wallet to Gamba
+ */
 function WalletSideEffects() {
-  const wallet = useWallet()
+  const { wallet, connected } = useWallet()
   const gamba = useGamba()
 
   useEffect(() => {
-    wallet.connected && wallet.wallet && gamba.connect(wallet.wallet)
-  }, [wallet.connected])
+    if (wallet && connected) {
+      gamba.connect(wallet)
+    }
+    if (!connected && gamba.session?._wallet) {
+      gamba.disconnect()
+    }
+  }, [wallet, connected])
 
   return null
 }
 
+/**
+ *
+ */
+export function GambaProvider({ children, creator }: React.PropsWithChildren<{ creator?: PublicKey | string }>) {
+  const { connection } = useConnection()
+
+  const provider = useMemo(() => {
+    const _creator = typeof creator === 'undefined' ? undefined : new PublicKey(creator)
+    return new GambaProviderCore(connection, _creator)
+  }, [connection, creator])
+
+  useEffect(() => provider.listen(), [provider])
+
+  return (
+    <GambaProviderContext.Provider value={{ provider }}>
+      <WalletSideEffects />
+      {children}
+    </GambaProviderContext.Provider>
+  )
+}
+
+/**
+ * GambaProvider with ConnectionProvider and WalletProvider
+ */
 export function Gamba({ children, connection: connectionProps, creator }: React.PropsWithChildren<GambaProviderProps>) {
   const endpoint = connectionProps?.endpoint ?? ''
   const connectionParams: ConnectionConfig = {
@@ -38,20 +69,12 @@ export function Gamba({ children, connection: connectionProps, creator }: React.
   }
   const connection = useMemo(() => new Connection(endpoint, connectionParams), [endpoint, connectionParams])
 
-  const provider = useMemo(() => {
-    const _creator = typeof creator === 'string' ? new PublicKey(creator) : undefined
-    return new GambaProvider(connection, _creator)
-  }, [connection, creator])
-
-  useEffect(() => provider.listen(), [provider])
-
   return (
     <ConnectionContext.Provider value={{ connection }}>
       <WalletProvider autoConnect wallets={[]}>
-        <GambaProviderContext.Provider value={{ provider }}>
-          <WalletSideEffects />
+        <GambaProvider creator={creator}>
           {children}
-        </GambaProviderContext.Provider>
+        </GambaProvider>
       </WalletProvider>
     </ConnectionContext.Provider>
   )

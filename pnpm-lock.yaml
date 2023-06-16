@@ -26,6 +26,94 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
+  apps/basic:
+    dependencies:
+      '@react-three/drei':
+        specifier: ^9.65.5
+        version: 9.65.5(@react-three/fiber@8.12.2)(@types/three@0.150.2)(react-dom@18.2.0)(react@18.2.0)(three@0.151.3)
+      '@react-three/fiber':
+        specifier: ^8.12.2
+        version: 8.12.2(react-dom@18.2.0)(react-native@0.71.7)(react@18.2.0)(three@0.151.3)
+      '@solana/wallet-adapter-react':
+        specifier: ^0.15.32
+        version: 0.15.32(@solana/web3.js@1.75.0)(bs58@4.0.1)(react-native@0.71.7)(react@18.2.0)
+      '@solana/wallet-adapter-react-ui':
+        specifier: ^0.9.31
+        version: 0.9.31(@solana/web3.js@1.75.0)(bs58@4.0.1)(react-dom@18.2.0)(react-native@0.71.7)(react@18.2.0)
+      assert:
+        specifier: ^2.0.0
+        version: 2.0.0
+      gamba:
+        specifier: workspace:*
+        version: link:../../packages/gamba
+      gamba-react-ui:
+        specifier: workspace:*
+        version: link:../../packages/gamba-react-ui
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-icons:
+        specifier: ^4.8.0
+        version: 4.8.0(react@18.2.0)
+      react-router-dom:
+        specifier: ^6.10.0
+        version: 6.10.0(react-dom@18.2.0)(react@18.2.0)
+      react-toastify:
+        specifier: ^9.1.3
+        version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
+      styled-components:
+        specifier: ^5.3.11
+        version: 5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+      three:
+        specifier: ^0.151.3
+        version: 0.151.3
+      tone:
+        specifier: ^14.7.77
+        version: 14.7.77
+      zustand:
+        specifier: ^4.3.7
+        version: 4.3.7(react@18.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.28
+        version: 18.2.0
+      '@types/react-dom':
+        specifier: ^18.0.11
+        version: 18.0.11
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
+      '@types/styled-components':
+        specifier: ^5.1.26
+        version: 5.1.26
+      '@types/three':
+        specifier: ^0.150.2
+        version: 0.150.2
+      '@vitejs/plugin-react':
+        specifier: ^3.1.0
+        version: 3.1.0(vite@4.2.1)
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      rollup-plugin-polyfill-node:
+        specifier: ^0.12.0
+        version: 0.12.0(rollup@3.21.4)
+      tsup:
+        specifier: ^6.7.0
+        version: 6.7.0(typescript@4.9.5)
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@4.2.1)
+      vite:
+        specifier: ^4.2.1
+        version: 4.2.1
+      vite-plugin-pwa:
+        specifier: ^0.14.7
+        version: 0.14.7(vite@4.2.1)(workbox-build@6.5.4)(workbox-window@6.5.4)
+
   apps/demo:
     dependencies:
       '@react-three/drei':
@@ -33,7 +121,7 @@ importers:
         version: 9.65.5(@react-three/fiber@8.12.2)(@types/three@0.150.2)(react-dom@18.2.0)(react@18.2.0)(three@0.151.3)
       '@react-three/fiber':
         specifier: ^8.12.2
-        version: 8.12.2(react-dom@18.2.0)(react@18.2.0)(three@0.151.3)
+        version: 8.12.2(react-dom@18.2.0)(react-native@0.71.7)(react@18.2.0)(three@0.151.3)
       assert:
         specifier: ^2.0.0
         version: 2.0.0
@@ -52,9 +140,12 @@ importers:
       react-router-dom:
         specifier: ^6.10.0
         version: 6.10.0(react-dom@18.2.0)(react@18.2.0)
+      react-toastify:
+        specifier: ^9.1.3
+        version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
       styled-components:
-        specifier: ^5.3.9
-        version: 5.3.9(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+        specifier: ^5.3.11
+        version: 5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
       three:
         specifier: ^0.151.3
         version: 0.151.3
@@ -194,9 +285,6 @@ importers:
       '@hmans/signal':
         specifier: ^0.2.2
         version: 0.2.2
-      '@preact/signals-react':
-        specifier: ^1.2.2
-        version: 1.2.2(react@18.2.0)
       '@solana/wallet-adapter-react':
         specifier: ^0.15.32
         version: 0.15.32(@solana/web3.js@1.75.0)(bs58@4.0.1)(react-native@0.71.7)(react@18.2.0)
@@ -247,11 +335,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       styled-components:
-        specifier: ^5.3.9
-        version: 5.3.9(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
-      zustand:
-        specifier: ^4.3.7
-        version: 4.3.7(react@18.2.0)
+        specifier: ^5.3.11
+        version: 5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
     devDependencies:
       '@changesets/cli':
         specifier: ^2.26.0
@@ -2164,20 +2249,6 @@ packages:
       fastq: 1.15.0
     dev: true
 
-  /@preact/signals-core@1.3.0:
-    resolution: {integrity: sha512-M+M3ZOtd1dtV/uasyk4SZu1vbfEJ4NeENv0F7F12nijZYedB5wSgbtZcuACyssnTznhF4ctUyrR0dZHuHfyWKA==}
-    dev: false
-
-  /@preact/signals-react@1.2.2(react@18.2.0):
-    resolution: {integrity: sha512-GoESQ9n1bns2FD+8yqH7lBvQMavboKLCNEW+s0hs3Wcp5B1VHvVxwJo6aFs6rpxoh1/q8Tvwbi4vIeehBD2mzA==}
-    peerDependencies:
-      react: 17.x || 18.x
-    dependencies:
-      '@preact/signals-core': 1.3.0
-      react: 18.2.0
-      use-sync-external-store: 1.2.0(react@18.2.0)
-    dev: false
-
   /@react-native-async-storage/async-storage@1.18.1(react-native@0.71.7):
     resolution: {integrity: sha512-70aFW8fVCKl+oA1AKPFDpE6s4t9pulj2QeLX+MabEmzfT3urd/3cckv45WJvtocdoIH/oXA3Y+YcCRJCcNa8mA==}
     peerDependencies:
@@ -2415,7 +2486,7 @@ packages:
       '@react-spring/core': 9.6.1(react@18.2.0)
       '@react-spring/shared': 9.6.1(react@18.2.0)
       '@react-spring/types': 9.6.1
-      '@react-three/fiber': 8.12.2(react-dom@18.2.0)(react@18.2.0)(three@0.151.3)
+      '@react-three/fiber': 8.12.2(react-dom@18.2.0)(react-native@0.71.7)(react@18.2.0)(three@0.151.3)
       react: 18.2.0
       three: 0.151.3
     dev: false
@@ -2437,7 +2508,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       '@react-spring/three': 9.6.1(@react-three/fiber@8.12.2)(react@18.2.0)(three@0.151.3)
-      '@react-three/fiber': 8.12.2(react-dom@18.2.0)(react@18.2.0)(three@0.151.3)
+      '@react-three/fiber': 8.12.2(react-dom@18.2.0)(react-native@0.71.7)(react@18.2.0)(three@0.151.3)
       '@use-gesture/react': 10.2.26(react@18.2.0)
       camera-controls: 2.3.4(three@0.151.3)
       detect-gpu: 5.0.22
@@ -2463,7 +2534,7 @@ packages:
       - '@types/three'
     dev: false
 
-  /@react-three/fiber@8.12.2(react-dom@18.2.0)(react@18.2.0)(three@0.151.3):
+  /@react-three/fiber@8.12.2(react-dom@18.2.0)(react-native@0.71.7)(react@18.2.0)(three@0.151.3):
     resolution: {integrity: sha512-CIjSK02ffXnT6q+/7HJ1JTX9dDS4N67OAs/yYYtUKK5qkO2WUFVt6ymQDAp7yLPRFA+frvYfAHSIIYwQ48dmDQ==}
     peerDependencies:
       expo: '>=43.0'
@@ -2490,6 +2561,7 @@ packages:
       its-fine: 1.1.1(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+      react-native: 0.71.7(@babel/core@7.21.8)(@babel/preset-env@7.21.5)(react@18.2.0)
       react-reconciler: 0.27.0(react@18.2.0)
       react-use-measure: 2.1.1(react-dom@18.2.0)(react@18.2.0)
       scheduler: 0.21.0
@@ -2674,6 +2746,24 @@ packages:
       '@wallet-standard/base': 1.0.1
       '@wallet-standard/features': 1.0.3
       eventemitter3: 4.0.7
+
+  /@solana/wallet-adapter-react-ui@0.9.31(@solana/web3.js@1.75.0)(bs58@4.0.1)(react-dom@18.2.0)(react-native@0.71.7)(react@18.2.0):
+    resolution: {integrity: sha512-shk42x9tvtkZAX0TSatrJMxM7Lb2xbzKmgVE2X9NsDODiO7MORyUGTaspK695u4f1CrhUhZnbUlLhTw3vDHRUw==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.58.0
+      react: '*'
+      react-dom: '*'
+    dependencies:
+      '@solana/wallet-adapter-base': 0.9.22(@solana/web3.js@1.75.0)
+      '@solana/wallet-adapter-react': 0.15.32(@solana/web3.js@1.75.0)(bs58@4.0.1)(react-native@0.71.7)(react@18.2.0)
+      '@solana/web3.js': 1.75.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    transitivePeerDependencies:
+      - bs58
+      - react-native
+    dev: false
 
   /@solana/wallet-adapter-react@0.15.32(@solana/web3.js@1.75.0)(bs58@4.0.1)(react-native@0.71.7)(react@18.2.0):
     resolution: {integrity: sha512-dnbMVQeO2WBvK13M4kiUo1TBONJpfpO1r9JA5FuXG/Zwdt4RbGT+h6HSOaplHPO6pzDVk2nT/bU8wjqI9GxTYQ==}
@@ -3434,7 +3524,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /babel-plugin-styled-components@2.1.1(styled-components@5.3.9):
+  /babel-plugin-styled-components@2.1.1(styled-components@5.3.11):
     resolution: {integrity: sha512-c8lJlszObVQPguHkI+akXv8+Jgb9Ccujx0EetL7oIvwU100LxO6XAGe45qry37wUL40a5U9f23SYrivro2XKhA==}
     peerDependencies:
       styled-components: '>= 2'
@@ -3444,7 +3534,7 @@ packages:
       babel-plugin-syntax-jsx: 6.18.0
       lodash: 4.17.21
       picomatch: 2.3.1
-      styled-components: 5.3.9(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+      styled-components: 5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
     dev: false
 
   /babel-plugin-syntax-jsx@6.18.0:
@@ -3858,6 +3948,11 @@ packages:
   /clone@1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
     engines: {node: '>=0.8'}
+
+  /clsx@1.2.1:
+    resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
+    engines: {node: '>=6'}
+    dev: false
 
   /collection-visit@1.0.0:
     resolution: {integrity: sha512-lNkKvzEeMBBjUGHZ+q6z9pSJla0KWAQPvtzhEV9+iGyQYG+pBpl7xKDhxoNSOZH2hhv0v5k0y2yAM4o4SjoSkw==}
@@ -7326,6 +7421,17 @@ packages:
       react: 18.2.0
       react-is: 18.2.0
 
+  /react-toastify@9.1.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-fPfb8ghtn/XMxw3LkxQBk3IyagNpF/LIKjOBflbexr2AWxAH1MJgvnESwEwBn9liLFXgTKWgBSdZpw9m4OTHTg==}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      clsx: 1.2.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /react-use-measure@2.1.1(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-nocZhN26cproIiIduswYpV5y5lQpSQS1y/4KuvUCjSKmw7ZWIS/+g3aFnX3WdBkyuGUtTLif3UTqnLLhbDoQig==}
     peerDependencies:
@@ -8079,8 +8185,8 @@ packages:
   /strnum@1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
 
-  /styled-components@5.3.9(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-Aj3kb13B75DQBo2oRwRa/APdB5rSmwUfN5exyarpX+x/tlM/rwZA2vVk2vQgVSP6WKaZJHWwiFrzgHt+CLtB4A==}
+  /styled-components@5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-uuzIIfnVkagcVHv9nE0VPlHPSCmXIUGKfJ42LNjxCCTDTL5sgnJ8Z7GZBq0EnLYGln77tPpEpExt2+qa+cZqSw==}
     engines: {node: '>=10'}
     peerDependencies:
       react: '>= 16.8.0'
@@ -8092,7 +8198,7 @@ packages:
       '@emotion/is-prop-valid': 1.2.0
       '@emotion/stylis': 0.8.5
       '@emotion/unitless': 0.7.5
-      babel-plugin-styled-components: 2.1.1(styled-components@5.3.9)
+      babel-plugin-styled-components: 2.1.1(styled-components@5.3.11)
       css-to-react-native: 3.2.0
       hoist-non-react-statics: 3.3.2
       react: 18.2.0

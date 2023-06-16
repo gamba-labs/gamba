@@ -3,9 +3,9 @@ import { Wallet, useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { GambaError, GambaPlayParams } from 'gamba-core'
 import { useEffect, useMemo } from 'react'
 import { parseHouseAccount, parseUserAccount } from '../parsers'
+import { randomSeed } from '../utils'
 import { useGambaProvider } from './useGambaProvider'
 import { useGambaSession, useSessionStore } from './useSession'
-import { randomSeed } from '../utils'
 
 const errorSignal = new Signal<GambaError>()
 

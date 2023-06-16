@@ -16,7 +16,4 @@ export enum GambaError {
   PLAY_WITHOUT_CONNECTED = 'User not connected',
   USER_ACCOUNT_CLOSED_BEFORE_RESULT = 'User account was closed before a result was generated',
   FAILED_TO_GENERATE_RESULT = 'Failed to generate a result',
-  FAILED_CREATING_USER_ACCOUNT = 'Failed to create User account',
-  FAILED_TO_CLOSE_USER_ACCOUNT = 'Failed to close User account',
-  STATE_TIMEOUT = 'State update timeout',
 }

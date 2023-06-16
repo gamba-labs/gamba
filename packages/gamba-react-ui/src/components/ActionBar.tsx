@@ -72,8 +72,8 @@ export function ActionBar({ children }: Props) {
         <div>
           {children}
         </div>
-        <div className="seperator" />
-        <div>
+        {/* <div className="seperator" /> */}
+        {/* <div>
           <div style={{ position: 'relative' }}>
             <Button fill onClick={toggleProof}>
               <Svg.GambaLogo />
@@ -84,7 +84,7 @@ export function ActionBar({ children }: Props) {
               </StyledPopup>
             )}
           </div>
-        </div>
+        </div> */}
       </Wrapper>
     </Container>
   )

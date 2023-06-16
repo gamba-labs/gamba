@@ -58,6 +58,7 @@ function BetButton({
         onPointerDown={hover}
         onPointerUp={leave}
         onPointerCancel={leave}
+        style={{ fontWeight: 'bold' }}
       >
         {children}
       </StylelessButton>

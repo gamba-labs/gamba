@@ -1,29 +1,13 @@
-import { Button, GameBundle, GameView, RecentPlays, Svg, useGambaUi } from 'gamba/react-ui'
+import { Button, GameBundle, GameView, RecentPlays, Svg } from 'gamba/react-ui'
 import React, { Fragment, useMemo } from 'react'
 import { FaArrowRight, FaDice, FaList } from 'react-icons/fa'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { GameCard } from './components/GameCard'
+import { Card } from './components/Card'
 import { Slider } from './components/Slider'
+import { GAMES } from './games'
 import { StylelessButton } from './games/Roulette/styles'
 import { Banner, Section } from './styles'
-
-function GameSection({ play, games }: {play: boolean, games: GameBundle[]}) {
-  return (
-    <Section>
-      <h2>
-        <FaDice /> Featured Games
-      </h2>
-      <Slider $minimized={play}>
-        {games.map((game) => (
-          <NavLink to={`/${game.short_name}`} key={game.short_name}>
-            <GameCard game={game} />
-          </NavLink>
-        ))}
-      </Slider>
-    </Section>
-  )
-}
 
 const CoverImage = styled.div`
   transition: background-image .2s ease;
@@ -35,10 +19,13 @@ const CoverImage = styled.div`
 
 function Details({ game }: {game?: GameBundle}) {
   const navigate = useNavigate()
-
   return (
     <>
-      <CoverImage style={{ backgroundImage: 'url(' + (game?.image ?? 'https://pbs.twimg.com/profile_banners/1634200383886090249/1680627885/1500x500') + ')' }} />
+      {game ? (
+        <CoverImage style={{ backgroundImage: 'url(' + (game.image) + ')', backgroundColor: game.theme_color }} />
+      ) : (
+        <CoverImage style={{ backgroundImage: 'url(/banner.png)' }} />
+      )}
       <div>
         <Section>
           <div style={{ position: 'absolute', top: 80, right: 20, zIndex: 1000 }}>
@@ -50,10 +37,10 @@ function Details({ game }: {game?: GameBundle}) {
         {game ? (
           <Section>
             <h1>{game.name}</h1>
-            <div style={{ color: '#ffffff99' }}>By {game.creator}</div>
-            <div>{game.description ?? '-'}</div>
+            <div style={{ color: '#ffffff99', wordWrap: 'break-word', overflow: 'hidden' }}>By {game.creator}</div>
+            <div>{game.description || '-'}</div>
             <div style={{ display: 'flex', gap: '20px', justifyContent: 'end' }}>
-              <Button fill pulse onClick={() => navigate('/' + game.short_name + '/play')}>
+              <Button fill pulse onClick={() => navigate('/game/' + game.short_name + '/play')}>
                 Play Game <FaArrowRight />
               </Button>
             </div>
@@ -76,43 +63,59 @@ function Details({ game }: {game?: GameBundle}) {
   )
 }
 
-function Content({ play }: {play: boolean}) {
+function GameSlider() {
   const { shortName } = useParams()
-  const navigate = useNavigate()
-  const games = useGambaUi((state) => state.games)
-  const game = useMemo(() => games.find((x) => x.short_name === shortName), [games, shortName])
-
   return (
-    <Banner $game={play} $yes={!!shortName}>
-      <Fragment key={shortName}>
-        {(play && game) ? (
-          <div>
-            <GameView game={game} />
-            <div style={{ position: 'absolute', top: 80, right: 20, zIndex: 1000 }}>
-              <StylelessButton style={{ color: 'white', fontSize: '20px' }} onClick={() => navigate('/' + game.short_name)}>
-                <Svg.Close />
-              </StylelessButton>
-            </div>
-          </div>
-        ) : (
-          <Details game={game} />
-        )}
-      </Fragment>
-    </Banner>
+    <Slider
+      title={
+        <h2>
+          <FaDice /> Featured Games
+        </h2>
+      }
+    >
+      {GAMES.map((game) => (
+        <NavLink key={game.short_name} to={`/game/${game.short_name}`}>
+          <Card
+            width={150}
+            height={shortName ? 50 : 200}
+            backgroundImage={game.image}
+            backgroundColor={game.theme_color}
+          >
+            {game.name}
+          </Card>
+        </NavLink>
+      ))}
+    </Slider>
   )
 }
 
 export default function View({ play = false }: {play?: boolean}) {
-  const games = useGambaUi((state) => state.games)
+  const { shortName } = useParams()
+  const navigate = useNavigate()
+  const game = useMemo(() => GAMES.find((x) => x.short_name === shortName), [shortName])
+  const isPlaying = play && game
+
   return (
     <>
-      <Content play={play} />
-      {games.length > 1 && (
-        <GameSection
-          games={games}
-          play={play}
-        />
-      )}
+      <Banner $game={play} $yes={!!shortName}>
+        <Fragment key={shortName}>
+          {isPlaying ? (
+            <div>
+              <GameView game={game} />
+              <div style={{ position: 'absolute', top: 80, right: 20, zIndex: 1000 }}>
+                <StylelessButton style={{ color: 'white', fontSize: '20px' }} onClick={() => navigate('/')}>
+                  <Svg.Close />
+                </StylelessButton>
+              </div>
+            </div>
+          ) : (
+            <Details game={game} />
+          )}
+        </Fragment>
+      </Banner>
+      <Section>
+        <GameSlider />
+      </Section>
       <Section>
         <h2>
           <FaList /> Recent Plays

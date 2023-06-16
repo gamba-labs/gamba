@@ -1,6 +1,6 @@
 import { lamportsToSol } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ActionBar, Button, ResponsiveSize } from 'gamba/react-ui'
+import { ActionBar, Button, ResponsiveSize, formatLamports } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import * as Tone from 'tone'
 import { Results } from './Results'
@@ -10,12 +10,17 @@ import { useRoulette } from './store'
 import { Chip, StylelessButton } from './styles'
 import { NamedBet } from './types'
 
-const createSound = (src: string) =>
-  new Tone.Player({ url: new URL(src, import.meta.url).href }).toDestination()
+const createSound = (url: string) =>
+  new Tone.Player({ url }).toDestination()
 
-export const soundChip = createSound('./chip.wav')
-export const soundDice = createSound('./dice.wav')
-export const soundWin = createSound('./win.wav')
+
+import chipSrc from './chip.wav'
+import diceSrc from './dice.wav'
+import winSrc from './win.wav'
+
+export const soundChip = createSound(chipSrc)
+export const soundDice = createSound(diceSrc)
+export const soundWin = createSound(winSrc)
 
 export default function Roulette() {
   const gamba = useGamba()
@@ -63,8 +68,34 @@ export default function Roulette() {
     <>
       <ResponsiveSize>
         <div style={{ display: 'grid', gap: '20px', alignItems: 'center' }}>
+          <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
+            <div>
+              <div style={{ fontWeight: 'bold' }}>
+                {maxPayoutExceeded ? (
+                  <span style={{ color: '#ff0066' }}>
+                    TOO HIGH
+                  </span>
+                ) : (
+                  <>
+                    {formatLamports(maxPayout)}
+                  </>
+                )}
+              </div>
+              <div style={{ fontSize: '10px' }}>
+                MAX PAYOUT
+              </div>
+            </div>
+            <div>
+              <div style={{ fontWeight: 'bold' }}>
+                {formatLamports(wager)}
+              </div>
+              <div style={{ fontSize: '10px' }}>
+                TOTAL BET
+              </div>
+            </div>
+          </div>
           <Results loading={loading} />
-          <div style={{ textAlign: 'left', display: 'flex', gap: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
             {CHIPS.map((value) => (
               <StylelessButton key={value} onClick={() => setSelectedBetAmount(value)}>
                 <Chip inactive={value !== selectedBetAmount} value={lamportsToSol(value)}>
@@ -72,15 +103,6 @@ export default function Roulette() {
                 </Chip>
               </StylelessButton>
             ))}
-            {maxPayoutExceeded ? (
-              <span style={{ color: '#ff0066' }}>
-                (Bet too brave)
-              </span>
-            ) : (
-              <span>
-                MAX WIN = {lamportsToSol(maxPayout).toFixed(3)} SOL
-              </span>
-            )}
           </div>
           <Table />
         </div>

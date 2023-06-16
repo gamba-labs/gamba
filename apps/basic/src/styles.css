@@ -1,0 +1,122 @@
+* {
+  box-sizing: border-box;
+}
+
+#root, html, body {
+  height: 100%;
+}
+
+body {
+  --background-color: #000000;
+  background: var(--background-color);
+  color: white;
+  margin: 0;
+}
+
+button, body, input {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+h1 {
+  margin: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+button.play {
+  --border-size: -1px;
+  --border-radius: 5px;
+
+  position: relative;
+  padding: 20px;
+  border: none;
+  font-size: 16px;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 5px;
+  background: var(--background-color);
+  cursor: pointer;
+  border-radius: var(--border-radius);
+}
+
+button.play::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -2;
+  filter: blur(50px);
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 200% 200%;
+	animation: gradient 5s ease infinite;
+  transition: all 1s ease;
+  opacity:.2;
+}
+
+button.play:hover::before {
+  filter: blur(100px);
+  opacity: 1;
+}
+
+button.play::after {
+  content: '';
+  position: absolute;
+  top: var(--border-size);
+  left: var(--border-size);
+  right: var(--border-size);
+  bottom: var(--border-size);
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 200% 200%;
+  z-index: -1;
+  border-radius: var(--border-radius);
+	animation: gradient 5s ease infinite;
+}
+
+button.play:hover {
+
+}
+
+.status {
+  border-radius: 5px;
+  background: white;
+  color: black;
+  padding: 0 5px;
+}
+
+.money {
+  border-radius: 5px;
+  background: white;
+  color: black;
+  padding: 0 5px;
+}

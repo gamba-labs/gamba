@@ -7,17 +7,26 @@ const appear = keyframes`
   100% { opacity: 1; transform: scale(1); }
 `
 
-const Wrapper = styled.div`
+const Wrapper = styled.dialog`
   h1 {
     text-align: center;
   }
-  background: #16171a;
+  box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  z-index: 1040;
+  padding: 0;
+  border: none;
+  background: #10141f;
   color: white;
   width: 100%;
   height: 100vh;
   max-width: 100vw;
   overflow-y: auto;
-  position: relative;
+  &::-webkit-scrollbar {
+    width: .4em;
+  }
+  &::-webkit-scrollbar-thumb {
+    bg-color: #cccccc33;
+  }
   display: grid;
   grid-template-rows: auto 1fr;
   animation ${appear} .1s;
@@ -25,6 +34,23 @@ const Wrapper = styled.div`
     width: 320px;
     height: 420px;
     border-radius: 10px;
+  }
+
+  ::backdrop {
+    position: fixed;
+    background: red;
+  }
+
+  &::modal {
+    position: fixed;
+    inset-block-start: 0px;
+    inset-block-end: 0px;
+    max-width: calc((100% - 6px) - 2em);
+    max-height: calc((100% - 6px) - 2em);
+    user-select: text;
+    visibility: visible;
+    overflow: auto;
+    background: red;
   }
 `
 
@@ -89,14 +115,14 @@ function useOnClickOutside(ref: any, handler: (event: MouseEvent | TouchEvent) =
 }
 
 export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: () => void}>) {
-  const ref = useRef<HTMLDivElement>(null!)
+  const ref = useRef<HTMLDialogElement>(null!)
 
   useOnClickOutside(ref, onClose)
   useLockBodyScroll()
 
   return (
-    <Container>
-      <Wrapper ref={ref}>
+    <Container className="gamba-connect-modal-container">
+      <Wrapper open className="gamba-connect-modal" ref={ref}>
         <CloseButton onClick={onClose}>
           <Close />
         </CloseButton>

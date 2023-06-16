@@ -5,7 +5,7 @@ import { useRoulette } from './store'
 import { Loader, numberColorToHex } from './styles'
 
 export const Wrapper = styled.div`
-  border-radius: var(--border-radius);
+  border-radius: 5px;
   background: #292a307d;
   margin: 0 auto;
   font-weight: bold;

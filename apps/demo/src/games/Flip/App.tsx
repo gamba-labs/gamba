@@ -1,14 +1,20 @@
+import { OrthographicCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { lamportsToSol, solToLamports } from 'gamba'
+import { GameResult, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ActionBar, Button } from 'gamba/react-ui'
+import { ActionBar, Button, formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
+import { toast } from 'react-toastify'
+import styled from 'styled-components'
 import * as Tone from 'tone'
 import { Dropdown } from '../../components/Dropdown'
 import { Coin } from './Coin'
+import { SplashEffect } from './SplashEffect'
+import coinSrc from './coin.wav'
+import loseSrc from './lose.wav'
+import winSrc from './win.wav'
 
-const BETS = [
-  0.01,
+const WAGER_AMOUNTS = [
   0.05,
   0.1,
   0.25,
@@ -17,32 +23,69 @@ const BETS = [
   3,
 ].map(solToLamports)
 
-const createSound = (src: string) =>
-  new Tone.Player({ url: new URL(src, import.meta.url).href }).toDestination()
+const createSound = (url: string) =>
+  new Tone.Player({ url }).toDestination()
 
-const soundPlay = createSound('./coin.wav')
-const soundWin = createSound('./win.wav')
-const soundLose = createSound('./lose.wav')
+const soundPlay = createSound(coinSrc)
+const soundWin = createSound(winSrc)
+const soundLose = createSound(loseSrc)
+
+const CoinButton = styled.button<{selected: boolean}>`
+  background: #ccc;
+  border: none;
+  margin: 0;
+  position: relative;
+  border-radius: var(--border-radius);
+  ${({ selected }) => selected && `
+    background: #42ff78;
+  `}
+  &:disabled {
+    cursor: default;
+    opacity: .5;
+  }
+`
+
+interface Result {
+  win: boolean
+  index: number
+}
+
+const notifyGameResult = (result: GameResult) => {
+  if (result.payout > 0) {
+    return toast(`🎉 You won ${formatLamports(result.payout)}`)
+  }
+  return toast('💀 You lost')
+}
 
 export default function Flip() {
   const gamba = useGamba()
+  const [heads, setHeads] = useState(true)
   const [flipping, setFlipping] = useState<'heads' | 'tails'>()
-  const [result, setResult] = useState<number | null>(null)
-  const [wager, setWager] = useState(BETS[0])
+  const [result, setResult] = useState<Result>()
+  const [wager, setWager] = useState(WAGER_AMOUNTS[0])
 
-  const play = async (option: 'heads' | 'tails') => {
+  const play = async () => {
     try {
-      const bet = option === 'heads' ? [2, 0] : [0, 2]
+      const bet = heads ? [2, 0] : [0, 2]
       const response = await gamba.play(bet, wager)
       soundPlay.start()
-      setFlipping(option)
+      setFlipping(heads ? 'heads' : 'tails')
       const result = await response.result()
+
       const win = result.payout > 0
-      setResult(result.resultIndex)
-      if (win)
+
+      setResult({
+        index: result.resultIndex,
+        win,
+      })
+
+      notifyGameResult(result)
+
+      if (win) {
         soundWin.start()
-      else
+      } else {
         soundLose.start()
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -52,25 +95,40 @@ export default function Flip() {
 
   return (
     <>
-      <Canvas camera={{ position: [0, 0, 15], fov: 30 }} linear flat>
-        <Coin result={result} flipping={!!flipping} />
+      <Canvas linear flat onContextMenu={(e) => e.preventDefault()} style={{ background: '#191621' }}>
+        <OrthographicCamera
+          makeDefault
+          zoom={80}
+          position={[0, 0, 100]}
+        />
+        <Coin result={result?.index ?? 0} flipping={!!flipping} />
+        {flipping && (
+          <SplashEffect color="white" />
+        )}
+        {!flipping && result !== null && result?.win && <SplashEffect color="#42ff78" />}
+        <ambientLight color="#ffffff" intensity={.5} />
+        <directionalLight position={[0, 5, 5]} intensity={.5} />
+        <hemisphereLight color="black" groundColor="red" intensity={1} />
       </Canvas>
       <ActionBar>
         <Dropdown
           value={wager}
-          format={(value) => lamportsToSol(value) + ' SOL'}
+          format={(value) => formatLamports(value)}
           label="Wager"
           onChange={setWager}
-          options={BETS.map((value) => ({
-            label: lamportsToSol(value) + ' SOL',
+          options={WAGER_AMOUNTS.map((value) => ({
+            label: formatLamports(value),
             value,
           }))}
         />
-        <Button loading={flipping === 'heads'} disabled={!!flipping} onClick={() => play('heads')}>
-          Heads
-        </Button>
-        <Button loading={flipping === 'tails'} disabled={!!flipping} onClick={() => play('tails')}>
-          Tails
+        <CoinButton disabled={!!flipping} selected={heads} onClick={() => setHeads(true)}>
+          HEADS
+        </CoinButton>
+        <CoinButton disabled={!!flipping} selected={!heads} onClick={() => setHeads(false)}>
+          TAILS
+        </CoinButton>
+        <Button disabled={!!flipping} onClick={play}>
+          Flip
         </Button>
       </ActionBar>
     </>

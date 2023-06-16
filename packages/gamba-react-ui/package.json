@@ -23,8 +23,7 @@
     "gamba-core": "workspace:*",
     "gamba-react": "workspace:*",
     "react": "^18.2.0",
-    "styled-components": "^5.3.9",
-    "zustand": "^4.3.7"
+    "styled-components": "^5.3.11"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.0",

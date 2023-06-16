@@ -10,7 +10,7 @@ const Game = styled.div`
   width: 120px;
 `
 
-const Seed = ({ children }: {children: string}) => {
+const Seed = ({ children, title }: {children: string, title?: string}) => {
   async function copyTextToClipboard() {
     if ('clipboard' in navigator) {
       return await navigator.clipboard.writeText(children)
@@ -20,7 +20,7 @@ const Seed = ({ children }: {children: string}) => {
   }
 
   return (
-    <div style={{ cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis' }} onClick={copyTextToClipboard}>
+    <div title={title} style={{ cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis' }} onClick={copyTextToClipboard}>
       <HexColor>
         {children}
       </HexColor>
@@ -60,11 +60,9 @@ export function ProvablyFair() {
           <h2>Next</h2>
           {rngSeedHashed && (
             <div>
-              <div>{gamba.user?.nonce}</div>
-              <Seed>{gamba.seed}</Seed>
-              <Seed>{rngSeedHashed}</Seed>
-              <div>Unknown</div>
-              <div>Unknown</div>
+              <div title="Nonce">{gamba.user?.nonce}</div>
+              <Seed title="Client seed">{gamba.seed}</Seed>
+              <Seed title="Hashed RNG seed">{rngSeedHashed}</Seed>
             </div>
           )}
         </Game>
@@ -72,12 +70,12 @@ export function ProvablyFair() {
           <h2>Previous</h2>
           {previousGame && (
             <div>
-              <div>
+              <div title="Nonce">
                 {previousGame.nonce}
               </div>
-              <Seed>{previousGame.clientSeed}</Seed>
-              <Seed>{previousGame.rngSeedHashed}</Seed>
-              <Seed>{previousGame.rngSeed}</Seed>
+              <Seed title="Client Seed">{previousGame.clientSeed}</Seed>
+              <Seed title="Hashed RNG seed">{previousGame.rngSeedHashed}</Seed>
+              <Seed title="RNG seed">{previousGame.rngSeed}</Seed>
               <div>
                 {previousGame.options.join(',')}
               </div>

@@ -24,7 +24,7 @@ export function useRecentPlays() {
   useGambaEvent((event) => {
     const isPlayer = gamba.wallet?.publicKey?.equals(event.player)
     setTimeout(() => {
-      setRecentPlays((x) => [...x, event])
+      setRecentPlays((x) => [event, ...x])
     }, isPlayer ? 5000 : 0)
   }, [gamba.wallet])
 

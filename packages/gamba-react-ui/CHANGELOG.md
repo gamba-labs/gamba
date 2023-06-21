@@ -1,5 +1,11 @@
 # gamba-react-ui
 
+## 0.2.1
+
+### Patch Changes
+
+- 949b4e8: Fixed order of Recent bets
+
 ## 0.2.0
 
 ### Minor Changes

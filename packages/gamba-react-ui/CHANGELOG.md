@@ -1,5 +1,11 @@
 # gamba-react-ui
 
+## 0.2.2
+
+### Patch Changes
+
+- a6ad7c8: Fixed issue where claiming would only withdraw 0.01 SOL
+
 ## 0.2.1
 
 ### Patch Changes

@@ -220,7 +220,7 @@ function Account() {
   const withdraw = async () => {
     try {
       setLoading('withdraw')
-      const res = await gamba.withdraw(solToLamports(.001))
+      const res = await gamba.withdraw()
       const response = await res.result()
       onWithdraw(response.status)
       return response

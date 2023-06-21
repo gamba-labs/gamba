@@ -1,4 +1,4 @@
-[![Gamba Banner](https://user-images.githubusercontent.com/127314884/230608922-dfc7d430-7931-4bad-98e2-46de91e79fc3.png)](https://gamba.so)
+[![Gamba Banner](https://github.com/gamba-labs/gamba/assets/127314884/fd1227f8-8b63-4515-94fd-6ea1625e8083)](https://gamba.so)
 
 <div align="center">
 
@@ -79,4 +79,4 @@ function App() {
 
 ## Documentation
 
-Read our WIP documentation at [gamba.so](https://gamba.so), or ask away in [Discord](https://discord.com/invite/xjBsW3e8fK)
+Read our WIP documentation at [gamba.so](https://gamba.so/docs), or ask away in [Discord](https://discord.com/invite/xjBsW3e8fK)

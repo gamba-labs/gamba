@@ -4,6 +4,7 @@ import { FaDiscord, FaGithub, FaTwitter } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import styled from 'styled-components'
+import { GAMES } from '../games'
 
 const Logo = styled.img`
   width: 2em;
@@ -81,6 +82,11 @@ export function Header() {
           <a target="_blank" href="https://twitter.com/GambaLabs" rel="noreferrer">
             <FaTwitter />
           </a>
+          {GAMES.map((g) => (
+            <NavLink key={g.short_name} to={'/' + g.short_name + ''}>
+              {g.name}
+            </NavLink>
+          ))}
         </Links>
         <GambaConnectButton />
       </div>

@@ -14,7 +14,10 @@ root.render(
     creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV"
     connection={{
       endpoint: import.meta.env.GAMBA_SOLANA_RPC,
-      config: { wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'processed' },
+      config: {
+        wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS,
+        commitment: 'processed',
+      },
     }}
   >
     <GambaUi

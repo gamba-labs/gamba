@@ -16,4 +16,5 @@ export enum GambaError {
   PLAY_WITHOUT_CONNECTED = 'User not connected',
   USER_ACCOUNT_CLOSED_BEFORE_RESULT = 'User account was closed before a result was generated',
   FAILED_TO_GENERATE_RESULT = 'Failed to generate a result',
+  INSUFFICIENT_BALANCE = 'Insufficient balance',
 }

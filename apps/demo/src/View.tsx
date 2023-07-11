@@ -63,65 +63,13 @@ function Details({ game }: {game?: GameBundle}) {
   )
 }
 
-function GameSlider() {
+export default function View() {
   const { shortName } = useParams()
-  return (
-    <Slider
-      title={
-        <h2>
-          <FaDice /> Featured Games
-        </h2>
-      }
-    >
-      {GAMES.map((game) => (
-        <NavLink key={game.short_name} to={`/game/${game.short_name}`}>
-          <Card
-            width={150}
-            height={shortName ? 50 : 200}
-            backgroundImage={game.image}
-            backgroundColor={game.theme_color}
-          >
-            {game.name}
-          </Card>
-        </NavLink>
-      ))}
-    </Slider>
-  )
-}
-
-export default function View({ play = false }: {play?: boolean}) {
-  const { shortName } = useParams()
-  const navigate = useNavigate()
-  const game = useMemo(() => GAMES.find((x) => x.short_name === shortName), [shortName])
-  const isPlaying = play && game
+  const game = useMemo(() => GAMES.find((x) => x.short_name === shortName) ?? GAMES[0], [shortName])
 
   return (
     <>
-      <Banner $game={play} $yes={!!shortName}>
-        <Fragment key={shortName}>
-          {isPlaying ? (
-            <div>
-              <GameView game={game} />
-              <div style={{ position: 'absolute', top: 80, right: 20, zIndex: 1000 }}>
-                <StylelessButton style={{ color: 'white', fontSize: '20px' }} onClick={() => navigate('/')}>
-                  <Svg.Close />
-                </StylelessButton>
-              </div>
-            </div>
-          ) : (
-            <Details game={game} />
-          )}
-        </Fragment>
-      </Banner>
-      <Section>
-        <GameSlider />
-      </Section>
-      <Section>
-        <h2>
-          <FaList /> Recent Plays
-        </h2>
-        <RecentPlays />
-      </Section>
+      <GameView game={game} />
     </>
   )
 }

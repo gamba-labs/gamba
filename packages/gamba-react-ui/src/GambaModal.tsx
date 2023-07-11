@@ -1,7 +1,7 @@
 import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react'
-import { solToLamports } from 'gamba-core'
+import { getTokenBalance } from 'gamba-core'
 import { useGamba } from 'gamba-react'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Button } from './components/Button'
 import { HexColor } from './components/HexColor'
@@ -244,6 +244,18 @@ function Account() {
     }
   }
 
+  const [bonusTokens, setBonusTokens] = useState(0)
+  const { connection } = useConnection()
+
+  useEffect(() => {
+    const fetchBonusTokens = async () => {
+      console.debug('Fetching bonus tokens')
+      const balance = await getTokenBalance(connection, gamba.wallet!.publicKey, gamba.house!.state!.bonusMint)
+      setBonusTokens(balance)
+    }
+    fetchBonusTokens()
+  }, [gamba.user])
+
   if (!gamba.user || !gamba.wallet) {
     return null
   }
@@ -264,9 +276,23 @@ function Account() {
         <div>
           Status: {statusMapping[gamba.user.status]}
         </div>
+        <div>
+          Bonus: {formatLamports(gamba.balances.bonus)} (+{formatLamports(bonusTokens, '')})
+        </div>
+        <div>
+          User: {formatLamports(gamba.balances.user)}
+        </div>
         {gamba.balances.user > 0 && (
           <Button loading={loading === 'withdraw'} onClick={withdraw}>
             Claim {formatLamports(gamba.balances.user)}
+          </Button>
+        )}
+        {/* <Button onClick={() => gamba.approveBonusToken()}>
+          Approve Bonus
+        </Button> */}
+        {bonusTokens > 0 && (
+          <Button onClick={() => gamba.redeemBonusToken()}>
+            Redeem Bonus
           </Button>
         )}
         <Button loading={loading === 'refresh'} onClick={refreshAccount}>

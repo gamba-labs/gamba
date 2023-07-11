@@ -15,9 +15,11 @@
     <div id="root"></div>
     <script type="module">
       import * as buffer from 'buffer'
+      import * as url from 'url'
       import assert from 'assert'
       window.Buffer = buffer.Buffer
       window.assert = assert
+      window.url = url
     </script>
     <script type="module" src="./src/index.tsx"></script>
   </body>

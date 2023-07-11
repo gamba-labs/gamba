@@ -18,12 +18,8 @@ export function App() {
           element={<View />}
         />
         <Route
-          path="/game/:shortName"
+          path="/:shortName"
           element={<View />}
-        />
-        <Route
-          path="/game/:shortName/play"
-          element={<View play />}
         />
       </Routes>
     </>

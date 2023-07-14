@@ -225,7 +225,7 @@ export class GambaSession {
     // const balance = await getTokenBalance(this.provider.connection, this.wallet.publicKey, mint)
 
     const instruction = await this.program.methods
-      .redeemBonusToken(new BN(1e9))
+      .redeemBonusToken(new BN(1e9 * .1))
       .accounts({
         mint,
         tokenProgram: TOKEN_PROGRAM_ID,

@@ -70,9 +70,9 @@ function Mines() {
         bet[i] = 0
       }
 
-      const WAGER_AMOUNTSum = bet.reduce((sum, val) => sum + val, 0)
-      if (WAGER_AMOUNTSum > bet.length) {
-        const overflow = WAGER_AMOUNTSum - bet.length
+      const wagerAmountSum = bet.reduce((sum, val) => sum + val, 0)
+      if (wagerAmountSum > bet.length) {
+        const overflow = wagerAmountSum - bet.length
         bet[bet.length - 1] -= overflow
       }
 

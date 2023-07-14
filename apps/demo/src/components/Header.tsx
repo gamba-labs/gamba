@@ -1,10 +1,11 @@
 import { GambaConnectButton } from 'gamba/react-ui'
 import React from 'react'
 import { FaDiscord, FaGithub, FaTwitter } from 'react-icons/fa'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import styled from 'styled-components'
 import { GAMES } from '../games'
+import { Dropdown } from './Dropdown'
 
 const Logo = styled.img`
   width: 2em;
@@ -65,6 +66,9 @@ function NavigationLink({ children, to }: React.PropsWithChildren<{to: string}>)
 }
 
 export function Header() {
+  const navigate = useNavigate()
+  const { shortName, ...rest } = useParams()
+  console.log(shortName, rest)
   return (
     <Wrapper>
       <div>
@@ -82,13 +86,26 @@ export function Header() {
           <a target="_blank" href="https://twitter.com/GambaLabs" rel="noreferrer">
             <FaTwitter />
           </a>
-          {GAMES.map((g) => (
+          {/* {GAMES.map((g) => (
             <NavLink key={g.short_name} to={'/' + g.short_name + ''}>
               {g.name}
             </NavLink>
-          ))}
+          ))} */}
         </Links>
-        <GambaConnectButton />
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Dropdown
+            value={shortName}
+            align="top"
+            // format={(value) => formatLamports(value)}
+            label="Game"
+            onChange={(name) => navigate('/' + name)}
+            options={GAMES.map((value) => ({
+              label: value.name,
+              value: value.short_name,
+            }))}
+          />
+          <GambaConnectButton />
+        </div>
       </div>
     </Wrapper>
   )

@@ -7,6 +7,8 @@ import { Button } from './components/Button'
 import { HexColor } from './components/HexColor'
 import { GambaUiContext, useGambaUi } from './context'
 import { formatLamports } from './utils'
+import { BonusChip, Refresh } from './Svg'
+import { StylelessButton } from '../../../apps/demo/src/games/Roulette/styles'
 
 function useCallbacks() {
   const {
@@ -274,14 +276,14 @@ function Account() {
           </HexColor>
         </Address>
         <div>
-          Status: {statusMapping[gamba.user.status]}
+          Status: {statusMapping[gamba.user.status]} <StylelessButton disabled={loading === 'refresh'} style={{ color: 'white' }} onClick={refreshAccount}><Refresh /></StylelessButton>
         </div>
-        <div>
-          Bonus: {formatLamports(gamba.balances.bonus)} (+{formatLamports(bonusTokens, '')})
+        {/* <div>
+          Bonus: {formatLamports(gamba.balances.bonus)} (+{formatLamports(bonusTokens, '')}) <BonusChip />
         </div>
         <div>
           User: {formatLamports(gamba.balances.user)}
-        </div>
+        </div> */}
         {gamba.balances.user > 0 && (
           <Button loading={loading === 'withdraw'} onClick={withdraw}>
             Claim {formatLamports(gamba.balances.user)}
@@ -292,12 +294,12 @@ function Account() {
         </Button> */}
         {bonusTokens > 0 && (
           <Button onClick={() => gamba.redeemBonusToken()}>
-            Redeem Bonus
+            Redeem Bonus +{formatLamports(bonusTokens, '')} gSOL
           </Button>
         )}
-        <Button loading={loading === 'refresh'} onClick={refreshAccount}>
+        {/* <Button loading={loading === 'refresh'} onClick={refreshAccount}>
           Refresh
-        </Button>
+        </Button> */}
         <Button loading={loading === 'close'} onClick={() => closeUserAccount()}>
           Close account
         </Button>

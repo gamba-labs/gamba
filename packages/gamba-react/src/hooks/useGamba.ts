@@ -61,7 +61,6 @@ export function useGamba() {
       throw new Error(GambaError.PLAY_WITHOUT_CONNECTED)
     }
     const req = await mainSession.session.play(config, wager, seed, params)
-    updateSeed()
     return req
   }
 
@@ -139,7 +138,6 @@ export function useGamba() {
     house,
     session: mainSession.session,
     balances: {
-      claimable: userBalance,
       total: userBalance + walletBalance,
       bonus: bonusBalance,
       wallet: walletBalance,

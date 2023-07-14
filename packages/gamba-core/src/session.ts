@@ -7,7 +7,13 @@ import { GambaProvider } from './provider'
 import { UserState, Wallet } from './types'
 import { decodeUser, getGameResult, getPdaAddress } from './utils'
 
+import {
+  TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token'
+
 export interface GambaPlayParams {
+  /** */
   deductFees?: boolean
 }
 
@@ -95,7 +101,6 @@ export class GambaSession {
 
     const instruction = await this.program.methods
       .play(
-        this.provider.creator,
         new BN(_wager),
         gameConfig,
         seed,
@@ -165,6 +170,80 @@ export class GambaSession {
         return this.user.waitForState(
           (current) => {
             if (current.decoded?.created) {
+              return true
+            }
+          },
+        )
+      },
+    }
+  }
+
+  async approveBonusToken() {
+    const mint = this.provider.house.state!.bonusMint
+
+    const associatedTokenAccount = await getAssociatedTokenAddress(
+      mint,
+      this.wallet.publicKey,
+    )
+
+    // const balance = await getTokenBalance(this.provider.connection, this.wallet.publicKey, mint)
+
+    const instruction = await this.program.methods
+      .approveBonusToken(new BN(1))
+      .accounts({
+        to: associatedTokenAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        delegate: this.wallet.publicKey,
+        authority: this.wallet.publicKey,
+      })
+      .instruction()
+
+    const { txId } = await this.createAndSendTransaction(instruction)
+
+    return {
+      txId,
+      result: () => {
+        return this.user.waitForState(
+          (current) => {
+            if (current.decoded?.created) {
+              return true
+            }
+          },
+        )
+      },
+    }
+  }
+
+  async redeemBonusToken() {
+    const mint = this.provider.house.state!.bonusMint
+
+    const associatedTokenAccount = await getAssociatedTokenAddress(
+      mint,
+      this.wallet.publicKey,
+    )
+
+    // const balance = await getTokenBalance(this.provider.connection, this.wallet.publicKey, mint)
+
+    const instruction = await this.program.methods
+      .redeemBonusToken(new BN(1e9 * .1))
+      .accounts({
+        mint,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        from: associatedTokenAccount,
+        authority: this.wallet.publicKey,
+        user: this.user.publicKey,
+        house: this.provider.house.publicKey,
+      })
+      .instruction()
+
+    const { txId } = await this.createAndSendTransaction(instruction)
+
+    return {
+      txId,
+      result: () => {
+        return this.user.waitForState(
+          (current, previous) => {
+            if (current.decoded?.bonusBalance > previous.decoded?.bonusBalance) {
               return true
             }
           },

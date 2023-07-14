@@ -7,7 +7,7 @@ const appear = keyframes`
   100% { opacity: 1; transform: scale(1); }
 `
 
-const Wrapper = styled.dialog`
+const Wrapper = styled.div`
   h1 {
     text-align: center;
   }
@@ -115,14 +115,14 @@ function useOnClickOutside(ref: any, handler: (event: MouseEvent | TouchEvent) =
 }
 
 export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: () => void}>) {
-  const ref = useRef<HTMLDialogElement>(null!)
+  const ref = useRef<HTMLDivElement>(null!)
 
   useOnClickOutside(ref, onClose)
   useLockBodyScroll()
 
   return (
     <Container className="gamba-connect-modal-container">
-      <Wrapper open className="gamba-connect-modal" ref={ref}>
+      <Wrapper className="gamba-connect-modal" ref={ref}>
         <CloseButton onClick={onClose}>
           <Close />
         </CloseButton>

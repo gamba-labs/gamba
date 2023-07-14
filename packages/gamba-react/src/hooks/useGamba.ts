@@ -34,6 +34,7 @@ export function useGamba() {
 
   const userBalance = user?.balance ?? 0
   const walletBalance = wallet?.info?.lamports ?? 0
+  const bonusBalance = user?.bonusBalance ?? 0
 
   const connect = async (wallet: Wallet) => {
     const session = await mainSession.create(wallet.adapter as any)
@@ -60,7 +61,6 @@ export function useGamba() {
       throw new Error(GambaError.PLAY_WITHOUT_CONNECTED)
     }
     const req = await mainSession.session.play(config, wager, seed, params)
-    updateSeed()
     return req
   }
 
@@ -69,7 +69,15 @@ export function useGamba() {
       throw new Error('NO_SESSION')
     }
 
-    return mainSession.session.withdraw(amount ?? userBalance)
+    const availableBalance = userBalance
+
+    const a = amount ?? availableBalance
+
+    if (a > availableBalance) {
+      throw new Error(GambaError.FAILED_TO_GENERATE_RESULT)
+    }
+
+    return mainSession.session.withdraw(a)
   }
 
   const createAccount = async () => {
@@ -84,6 +92,20 @@ export function useGamba() {
       throw new Error('NO_SESSION')
     }
     return mainSession.session.closeUserAccount()
+  }
+
+  const approveBonusToken = async () => {
+    if (!mainSession.session) {
+      throw new Error('NO_SESSION')
+    }
+    return mainSession.session.approveBonusToken()
+  }
+
+  const redeemBonusToken = async () => {
+    if (!mainSession.session) {
+      throw new Error('NO_SESSION')
+    }
+    return mainSession.session.redeemBonusToken()
   }
 
   const refresh = async () => {
@@ -107,12 +129,17 @@ export function useGamba() {
     withdraw,
     createAccount,
     closeAccount,
+
+    redeemBonusToken,
+    approveBonusToken,
+
     refresh,
     disconnect,
     house,
     session: mainSession.session,
     balances: {
       total: userBalance + walletBalance,
+      bonus: bonusBalance,
       wallet: walletBalance,
       user: userBalance,
     },

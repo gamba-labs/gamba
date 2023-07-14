@@ -3,6 +3,7 @@ import { AccountInfo, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/we
 import { Buffer } from 'buffer'
 import { IDL, PROGRAM_ID } from './constants'
 import { BetSettledEvent, GameResult, HouseState, RecentPlayEvent, UserState } from './types'
+import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 
 const sha256 = async (message: string) => {
   const arrayBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message))
@@ -10,32 +11,32 @@ const sha256 = async (message: string) => {
 }
 
 // // https://stackoverflow.com/questions/49081874/i-have-to-hash-a-text-with-hmac-sha256-in-javascript
-// export async function hmac256(secretKey: string, message: string, algorithm = 'SHA-256') {
-//   const encoder = new TextEncoder()
-//   const messageUint8Array = encoder.encode(message)
-//   const keyUint8Array = encoder.encode(secretKey)
+export async function hmac256(secretKey: string, message: string, algorithm = 'SHA-256') {
+  const encoder = new TextEncoder()
+  const messageUint8Array = encoder.encode(message)
+  const keyUint8Array = encoder.encode(secretKey)
 
-//   const cryptoKey = await window.crypto.subtle.importKey(
-//     'raw',
-//     keyUint8Array,
-//     { name: 'HMAC', hash: algorithm },
-//     false,
-//     ['sign'],
-//   )
+  const cryptoKey = await window.crypto.subtle.importKey(
+    'raw',
+    keyUint8Array,
+    { name: 'HMAC', hash: algorithm },
+    false,
+    ['sign'],
+  )
 
-//   const signature = await window.crypto.subtle.sign(
-//     'HMAC',
-//     cryptoKey,
-//     messageUint8Array,
-//   )
+  const signature = await window.crypto.subtle.sign(
+    'HMAC',
+    cryptoKey,
+    messageUint8Array,
+  )
 
-//   const hashArray = Array.from(new Uint8Array(signature))
-//   const hashHex = hashArray
-//     .map((b) => b.toString(16).padStart(2, '0'))
-//     .join('')
+  const hashArray = Array.from(new Uint8Array(signature))
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 
-//   return hashHex
-// }
+  return hashHex
+}
 
 export const lamportsToSol = (lamports: number) => {
   return lamports / LAMPORTS_PER_SOL
@@ -63,8 +64,8 @@ export const decodeHouse = (account: AccountInfo<Buffer> | null) => {
 }
 
 export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
-  // return hmac256(rngSeed, [clientSeed, nonce].join('-'))
-  return sha256([rngSeed, clientSeed, nonce].join('-'))
+  return hmac256(rngSeed, [clientSeed, nonce].join('-'))
+  // return sha256([rngSeed, clientSeed, nonce].join('-'))
 }
 
 export const resultIndexFromGameHash = (gameHash: string, options: number[]) => {
@@ -86,7 +87,7 @@ export const getGameResult = async (previousState: UserState, currentState: User
   const resultIndex = resultIndexFromGameHash(gameHash, options)
   const multiplier = options[resultIndex]
   const wager = previousState.currentGame.wager.toNumber()
-  const payout = wager / 1000 * multiplier
+  const payout = (wager * multiplier / 1000 - wager)
   return {
     player: currentState.owner,
     rngSeedHashed,
@@ -154,4 +155,15 @@ export const getRecentEvents = async (
     }
     resolve(parsedEvents)
   })
+}
+
+export const getTokenBalance = async (connection: Connection, wallet: PublicKey, token: PublicKey) => {
+  const associatedTokenAccount = await getAssociatedTokenAddressSync(
+    token,
+    wallet,
+  )
+
+  const tokenAccountBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
+
+  return Number(tokenAccountBalance.value.amount)
 }

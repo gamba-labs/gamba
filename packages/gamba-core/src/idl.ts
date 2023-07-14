@@ -100,6 +100,37 @@ export type Gamba = {
       ]
     },
     {
+      'name': 'houseSetBonusMintAddress',
+      'accounts': [
+        {
+          'name': 'house',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'authority',
+          'isMut': true,
+          'isSigner': true
+        },
+        {
+          'name': 'mint',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'systemProgram',
+          'isMut': false,
+          'isSigner': false
+        }
+      ],
+      'args': [
+        {
+          'name': 'newMint',
+          'type': 'publicKey'
+        }
+      ]
+    },
+    {
       'name': 'houseSetConfig',
       'accounts': [
         {
@@ -150,6 +181,78 @@ export type Gamba = {
           'name': 'systemProgram',
           'isMut': false,
           'isSigner': false
+        }
+      ],
+      'args': [
+        {
+          'name': 'amount',
+          'type': 'u64'
+        }
+      ]
+    },
+    {
+      'name': 'approveBonusToken',
+      'accounts': [
+        {
+          'name': 'to',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'tokenProgram',
+          'isMut': false,
+          'isSigner': false
+        },
+        {
+          'name': 'delegate',
+          'isMut': false,
+          'isSigner': false
+        },
+        {
+          'name': 'authority',
+          'isMut': false,
+          'isSigner': true
+        }
+      ],
+      'args': [
+        {
+          'name': 'amount',
+          'type': 'u64'
+        }
+      ]
+    },
+    {
+      'name': 'redeemBonusToken',
+      'accounts': [
+        {
+          'name': 'house',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'user',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'mint',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'tokenProgram',
+          'isMut': false,
+          'isSigner': false
+        },
+        {
+          'name': 'from',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'authority',
+          'isMut': false,
+          'isSigner': true
         }
       ],
       'args': [
@@ -241,7 +344,7 @@ export type Gamba = {
         },
         {
           'name': 'creator',
-          'isMut': false,
+          'isMut': true,
           'isSigner': false
         },
         {
@@ -251,10 +354,6 @@ export type Gamba = {
         }
       ],
       'args': [
-        {
-          'name': 'creator',
-          'type': 'publicKey'
-        },
         {
           'name': 'wager',
           'type': 'u64'
@@ -388,6 +487,10 @@ export type Gamba = {
             'type': 'publicKey'
           },
           {
+            'name': 'bonusMint',
+            'type': 'publicKey'
+          },
+          {
             'name': 'creatorFee',
             'type': 'u64'
           },
@@ -417,6 +520,10 @@ export type Gamba = {
           },
           {
             'name': 'balance',
+            'type': 'u64'
+          },
+          {
+            'name': 'bonusBalance',
             'type': 'u64'
           },
           {
@@ -468,11 +575,7 @@ export type Gamba = {
             'type': 'u64'
           },
           {
-            'name': 'houseFeeUnits',
-            'type': 'u64'
-          },
-          {
-            'name': 'creatorFeeUnits',
+            'name': 'bonusUsed',
             'type': 'u64'
           },
           {
@@ -592,16 +695,21 @@ export type Gamba = {
     },
     {
       'code': 6007,
+      'name': 'BonusNotAvailable',
+      'msg': 'User bonus balance too low'
+    },
+    {
+      'code': 6008,
       'name': 'PlayInactiveUser',
       'msg': 'User cannot be played because it isn\'t active'
     },
     {
-      'code': 6008,
+      'code': 6009,
       'name': 'SettleInactiveUser',
       'msg': 'User cannot be settled because it isn\'t active'
     },
     {
-      'code': 6009,
+      'code': 6010,
       'name': 'MaxPayoutExceeded',
       'msg': 'Potential payout exceeded limit'
     }
@@ -710,6 +818,37 @@ export const IDL: Gamba = {
       ],
     },
     {
+      name: 'houseSetBonusMintAddress',
+      accounts: [
+        {
+          name: 'house',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'authority',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'mint',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'newMint',
+          type: 'publicKey',
+        },
+      ],
+    },
+    {
       name: 'houseSetConfig',
       accounts: [
         {
@@ -760,6 +899,78 @@ export const IDL: Gamba = {
           name: 'systemProgram',
           isMut: false,
           isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'amount',
+          type: 'u64',
+        },
+      ],
+    },
+    {
+      name: 'approveBonusToken',
+      accounts: [
+        {
+          name: 'to',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'delegate',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'authority',
+          isMut: false,
+          isSigner: true,
+        },
+      ],
+      args: [
+        {
+          name: 'amount',
+          type: 'u64',
+        },
+      ],
+    },
+    {
+      name: 'redeemBonusToken',
+      accounts: [
+        {
+          name: 'house',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'user',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'mint',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'from',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'authority',
+          isMut: false,
+          isSigner: true,
         },
       ],
       args: [
@@ -851,7 +1062,7 @@ export const IDL: Gamba = {
         },
         {
           name: 'creator',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -861,10 +1072,6 @@ export const IDL: Gamba = {
         },
       ],
       args: [
-        {
-          name: 'creator',
-          type: 'publicKey',
-        },
         {
           name: 'wager',
           type: 'u64',
@@ -996,6 +1203,10 @@ export const IDL: Gamba = {
             type: 'publicKey',
           },
           {
+            name: 'bonusMint',
+            type: 'publicKey',
+          },
+          {
             name: 'creatorFee',
             type: 'u64',
           },
@@ -1025,6 +1236,10 @@ export const IDL: Gamba = {
           },
           {
             name: 'balance',
+            type: 'u64',
+          },
+          {
+            name: 'bonusBalance',
             type: 'u64',
           },
           {
@@ -1070,11 +1285,7 @@ export const IDL: Gamba = {
             type: 'u64',
           },
           {
-            name: 'houseFeeUnits',
-            type: 'u64',
-          },
-          {
-            name: 'creatorFeeUnits',
+            name: 'bonusUsed',
             type: 'u64',
           },
           {
@@ -1186,16 +1397,21 @@ export const IDL: Gamba = {
     },
     {
       code: 6007,
+      name: 'BonusNotAvailable',
+      msg: 'User bonus balance too low',
+    },
+    {
+      code: 6008,
       name: 'PlayInactiveUser',
       msg: 'User cannot be played because it isn\'t active',
     },
     {
-      code: 6008,
+      code: 6009,
       name: 'SettleInactiveUser',
       msg: 'User cannot be settled because it isn\'t active',
     },
     {
-      code: 6009,
+      code: 6010,
       name: 'MaxPayoutExceeded',
       msg: 'Potential payout exceeded limit',
     },

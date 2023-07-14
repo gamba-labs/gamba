@@ -1,0 +1,41 @@
+html, body {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: white;
+}
+
+body {
+  background: black;
+  color: white;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body, input, textarea, button {
+  font-family: 'Roboto Mono', monospace;
+}
+
+input, textarea {
+  width: 100%;
+}
+
+small {
+  display: block;
+}
+
+h1 {
+  margin: 0;
+}
+
+#table {
+  margin: 0 auto;
+}

@@ -13,6 +13,7 @@ export const parseUserAccount = (account: StateAccount<UserState | undefined> | 
     created: state.created,
     status: parseStatus(state.status),
     balance: state.balance.toNumber() as number,
+    bonusBalance: state.bonusBalance.toNumber() as number,
     nonce: state.nonce.toNumber() as number,
     _accountBalance: info.lamports,
     state,

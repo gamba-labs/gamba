@@ -1,4 +1,4 @@
-import React, { MutableRefObject, RefObject, useEffect, useMemo, useRef } from 'react'
+import React, { RefObject, useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 import { create } from 'zustand'
 
@@ -56,9 +56,21 @@ const StyledDropdown = styled.button<{$active?: boolean}>`
   }
 `
 
-const StyledPopup = styled.div`
+const StyledPopup = styled.div<{align?: 'bottom' | 'top'}>`
   position: absolute;
-  bottom: 100%;
+  ${({ align = 'bottom' }) => align === 'bottom' ? `
+    bottom: 100%;
+    margin-bottom: 20px;
+    &:after {
+      bottom: -10px;
+    }
+  ` : `
+    top: 100%;
+    margin-top: 20px;
+    &:after {
+      top: -10px;
+    }
+  `}
   z-index: 10000;
   left: 0;
   border: none;
@@ -66,7 +78,6 @@ const StyledPopup = styled.div`
   background: var(--bg-light-color);
   color: white;
   border-radius: var(--border-radius);
-  margin-bottom: 20px;
   width: 100%;
   padding: 5px;
   &:after {
@@ -114,6 +125,7 @@ interface Props<T> {
   value: T
   disabled?: boolean
   format?: (value: T) => string
+  align?: 'top' | 'bottom'
 }
 
 function useOnClickOutside(
@@ -141,7 +153,7 @@ function useOnClickOutside(
   )
 }
 
-export function Dropdown<T>({ label, options, onChange, value, disabled, format }: Props<T>) {
+export function Dropdown<T>({ label, options, onChange, value, disabled, format, align }: Props<T>) {
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const popup = usePopup()
@@ -186,7 +198,7 @@ export function Dropdown<T>({ label, options, onChange, value, disabled, format 
         </>
       </StyledDropdown>
       {popup.active && (
-        <StyledPopup ref={ref}>
+        <StyledPopup align={align} ref={ref}>
           {[...filteredOptions].reverse().map((option, i) => (
             <StyledOption
               key={i}

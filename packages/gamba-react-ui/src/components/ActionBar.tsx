@@ -1,7 +1,9 @@
-import { PropsWithChildren, useState } from 'react'
+import { useGamba, useGambaEvent } from 'gamba-react'
+import { PropsWithChildren, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { ProvablyFair, Svg } from '..'
 import { Button } from './Button'
+import { PreviousGame } from './ProvablyFair'
 
 const Container = styled.div`
   position: absolute;
@@ -18,7 +20,6 @@ const Wrapper = styled.div`
   padding: 20px;
   display: grid;
   grid-template-columns: 1fr auto auto;
-  min-width: 320px;
   gap: 20px;
   & > div {
     display: flex;
@@ -66,26 +67,42 @@ interface Props extends PropsWithChildren {
 export function ActionBar({ children }: Props) {
   const [proof, setProof] = useState(false)
   const toggleProof = () => setProof(!proof)
+  const gamba = useGamba()
+  const [previousGames, setPreviousGames] = useState<PreviousGame[]>([])
+  const [rngSeedHashed, setRngSeedHashed] = useState(gamba.user?.state.currentGame.rngSeedHashed)
+
+  useEffect(() => setRngSeedHashed(gamba.user?.state.currentGame.rngSeedHashed), [gamba.user?.state.currentGame.rngSeedHashed])
+
+  useGambaEvent(({ nonce, rngSeed, clientSeed, player }) => {
+    if (gamba.wallet?.publicKey?.equals(player)) {
+      const game = { nonce, clientSeed, rngSeedHashed: rngSeedHashed ?? 'abcd', rngSeed, options: gamba.user?.state.currentGame.options ?? [] }
+      setPreviousGames((games) => [game, ...games].slice(0, 5))
+      setRngSeedHashed(gamba.user?.state.currentGame.rngSeedHashed)
+    }
+  }, [rngSeedHashed, gamba.wallet])
+
   return (
-    <Container>
-      <Wrapper>
-        <div>
-          {children}
-        </div>
-        <div className="seperator" />
-        <div>
-          <div style={{ position: 'relative' }}>
-            <Button fill onClick={toggleProof}>
-              <Svg.GambaLogo />
-            </Button>
-            {proof && (
-              <StyledPopup>
-                <ProvablyFair />
-              </StyledPopup>
-            )}
+    <>
+      <Container>
+        <Wrapper>
+          <div>
+            {children}
           </div>
-        </div>
-      </Wrapper>
-    </Container>
+          <div className="seperator" />
+          <div>
+            <div style={{ position: 'relative' }}>
+              {proof && rngSeedHashed && (
+                <StyledPopup>
+                  <ProvablyFair nextSeedHashed={rngSeedHashed} games={previousGames} />
+                </StyledPopup>
+              )}
+              <Button disabled={!rngSeedHashed} fill onClick={toggleProof}>
+                <Svg.Fairness />
+              </Button>
+            </div>
+          </div>
+        </Wrapper>
+      </Container>
+    </>
   )
 }

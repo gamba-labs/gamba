@@ -2,7 +2,8 @@ import { ConnectionContext, WalletProvider, useConnection, useWallet } from '@so
 import { Connection, ConnectionConfig, PublicKey } from '@solana/web3.js'
 import { GambaProvider as GambaProviderCore } from 'gamba-core'
 import { createContext, useEffect, useMemo } from 'react'
-import { useGamba } from './hooks'
+import { useGamba, useSessionStore } from './hooks'
+import { randomSeed } from './utils'
 
 type GambaProviderProps = {
   creator?: PublicKey | string
@@ -20,10 +21,16 @@ export const GambaProviderContext = createContext<GambaProviderContext>({ provid
 
 /**
  * Automatically connects / disconnects web3 wallet to Gamba
+ * Also updates client seed when nonce advances
  */
-function WalletSideEffects() {
+function SideEffects() {
   const { wallet, connected } = useWallet()
   const gamba = useGamba()
+  const set = useSessionStore((state) => state.set)
+
+  useEffect(() => {
+    set({ seed: randomSeed() })
+  }, [gamba.user?.nonce])
 
   useEffect(() => {
     if (wallet && connected) {
@@ -52,7 +59,7 @@ export function GambaProvider({ children, creator }: React.PropsWithChildren<{ c
 
   return (
     <GambaProviderContext.Provider value={{ provider }}>
-      <WalletSideEffects />
+      <SideEffects />
       {children}
     </GambaProviderContext.Provider>
   )

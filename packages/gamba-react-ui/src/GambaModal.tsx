@@ -1,12 +1,14 @@
 import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react'
-import { solToLamports } from 'gamba-core'
+import { getTokenBalance } from 'gamba-core'
 import { useGamba } from 'gamba-react'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Button } from './components/Button'
 import { HexColor } from './components/HexColor'
 import { GambaUiContext, useGambaUi } from './context'
 import { formatLamports } from './utils'
+import { BonusChip, Refresh } from './Svg'
+import { StylelessButton } from '../../../apps/demo/src/games/Roulette/styles'
 
 function useCallbacks() {
   const {
@@ -244,6 +246,18 @@ function Account() {
     }
   }
 
+  const [bonusTokens, setBonusTokens] = useState(0)
+  const { connection } = useConnection()
+
+  useEffect(() => {
+    const fetchBonusTokens = async () => {
+      console.debug('Fetching bonus tokens')
+      const balance = await getTokenBalance(connection, gamba.wallet!.publicKey, gamba.house!.state!.bonusMint)
+      setBonusTokens(balance)
+    }
+    fetchBonusTokens()
+  }, [gamba.user])
+
   if (!gamba.user || !gamba.wallet) {
     return null
   }
@@ -262,16 +276,30 @@ function Account() {
           </HexColor>
         </Address>
         <div>
-          Status: {statusMapping[gamba.user.status]}
+          Status: {statusMapping[gamba.user.status]} <StylelessButton disabled={loading === 'refresh'} style={{ color: 'white' }} onClick={refreshAccount}><Refresh /></StylelessButton>
         </div>
+        {/* <div>
+          Bonus: {formatLamports(gamba.balances.bonus)} (+{formatLamports(bonusTokens, '')}) <BonusChip />
+        </div>
+        <div>
+          User: {formatLamports(gamba.balances.user)}
+        </div> */}
         {gamba.balances.user > 0 && (
           <Button loading={loading === 'withdraw'} onClick={withdraw}>
             Claim {formatLamports(gamba.balances.user)}
           </Button>
         )}
-        <Button loading={loading === 'refresh'} onClick={refreshAccount}>
+        {/* <Button onClick={() => gamba.approveBonusToken()}>
+          Approve Bonus
+        </Button> */}
+        {bonusTokens > 0 && (
+          <Button onClick={() => gamba.redeemBonusToken()}>
+            Redeem Bonus +{formatLamports(bonusTokens, '')} gSOL
+          </Button>
+        )}
+        {/* <Button loading={loading === 'refresh'} onClick={refreshAccount}>
           Refresh
-        </Button>
+        </Button> */}
         <Button loading={loading === 'close'} onClick={() => closeUserAccount()}>
           Close account
         </Button>

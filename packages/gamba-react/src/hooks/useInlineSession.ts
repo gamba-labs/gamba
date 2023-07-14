@@ -22,15 +22,6 @@ export function UNSAFE_useInlineSession() {
     if (!mainSession) throw new Error('NO_CREATE')
     const session = await inline.create(inlineWallet)
 
-    // await session.wallet.waitForState(
-    //   (state) => {
-    //     console.log(state)
-    //     if (state.info) {
-    //       return true
-    //     }
-    //   },
-    // )
-
     const inAcc = session.wallet.info?.lamports ?? 0
     if (inAcc < lamports) {
       const diff = lamports - inAcc

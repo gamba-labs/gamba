@@ -1,14 +1,8 @@
-import { useGamba, useGambaEvent } from 'gamba-react'
-import { useEffect, useState } from 'react'
-import { HexColor } from './HexColor'
+import { useGamba } from 'gamba-react'
 import styled from 'styled-components'
-import { Button } from './Button'
-
-const Game = styled.div`
-  color: white;
-  font-size: 12px;
-  width: 120px;
-`
+import { Button, Svg } from '..'
+import { HexColor } from './HexColor'
+import { StylelessButton } from '../../../../apps/demo/src/games/Roulette/styles'
 
 const Seed = ({ children, title }: {children: string, title?: string}) => {
   async function copyTextToClipboard() {
@@ -20,79 +14,104 @@ const Seed = ({ children, title }: {children: string, title?: string}) => {
   }
 
   return (
-    <div title={title} style={{ cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis' }} onClick={copyTextToClipboard}>
+    <span title={title} style={{ cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', verticalAlign: 'middle' }} onClick={copyTextToClipboard}>
       <HexColor>
         {children}
       </HexColor>
-    </div>
+    </span>
   )
 }
 
-export function ProvablyFair() {
-  const [rngSeedHashed, setRngSeedHashed] = useState<string>(null!)
-  const [previousGame, setPreviousGame] = useState<{
-    nonce: number,
-    clientSeed: string,
-    rngSeedHashed: string,
-    rngSeed: string,
-    options: number[]
-  }>()
+export interface PreviousGame {
+  nonce: number,
+  clientSeed: string,
+  rngSeedHashed: string,
+  rngSeed: string,
+  options: number[]
+}
+
+const PreviousGameLink = styled.a`
+  padding: 10px;
+  background: var(--bg-light-color);
+  border-radius: var(--border-radius);
+  display: block;
+  border: 1px solid #ffffff33;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+`
+
+export function ProvablyFair({ nextSeedHashed, games }: {nextSeedHashed: string, games: PreviousGame[]}) {
   const gamba = useGamba()
 
-  useGambaEvent(({ nonce, rngSeed, clientSeed, player }) => {
-    if (gamba.wallet?.publicKey?.equals(player)) {
-      setPreviousGame({ nonce, clientSeed, rngSeedHashed, rngSeed, options: gamba.user?.state.currentGame.options ?? [] })
-    }
-  }, [rngSeedHashed, gamba.wallet])
-
-  useEffect(() => {
-    if (gamba.user?.state.currentGame.rngSeedHashed) {
-      setRngSeedHashed(gamba.user.state.currentGame.rngSeedHashed)
-    }
-  }, [gamba.user?.state.currentGame.rngSeedHashed])
-
-  const link = previousGame && `https://verify.gamba.so/#${btoa(`${previousGame.nonce},${previousGame.clientSeed},${previousGame.rngSeedHashed},${previousGame.rngSeed},${previousGame.options.length}`)}`
+  const link = `http://localhost:7777?nonce=${gamba.user?.nonce}&client=${gamba.seed}&rng_hash=${nextSeedHashed}`
 
   return (
-    <>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <Game>
-          <h2>Next</h2>
-          {rngSeedHashed && (
-            <div>
-              <div title="Nonce">{gamba.user?.nonce}</div>
-              <Seed title="Client seed">{gamba.seed}</Seed>
-              <Seed title="Hashed RNG seed">{rngSeedHashed}</Seed>
-            </div>
-          )}
-        </Game>
-        <Game>
-          <h2>Previous</h2>
-          {previousGame && (
-            <div>
-              <div title="Nonce">
-                {previousGame.nonce}
-              </div>
-              <Seed title="Client Seed">{previousGame.clientSeed}</Seed>
-              <Seed title="Hashed RNG seed">{previousGame.rngSeedHashed}</Seed>
-              <Seed title="RNG seed">{previousGame.rngSeed}</Seed>
-              <div>
-                {previousGame.options.join(',')}
-              </div>
-            </div>
-          )}
-        </Game>
-      </div>
-      <div style={{ display: 'flex', gap: '10px' }}>
+    <div style={{ width: '320px' }}>
+      <h3 style={{ display: 'grid', gridTemplateColumns: '1fr auto', marginBottom: '10px' }}>
+        <div>
+          <span style={{ marginRight: '10px' }}>
+            <Svg.Fairness />
+          </span>
+          Provably Fair
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <StylelessButton style={{ color: 'white' }} onClick={gamba.updateSeed}>
+            <Svg.Refresh />
+          </StylelessButton>
+          <a target="_blank" href="https://gamba.so/docs/fair" rel="noreferrer">
+            <Svg.Info />
+          </a>
+        </div>
+      </h3>
+
+      <h4>Next</h4>
+
+      <PreviousGameLink target="_blank" href={link} rel="noreferrer">
+        <div>
+          {gamba.user?.nonce} - <Seed title="Client Seed">{gamba.seed}</Seed>
+        </div>
+        <div>
+          <Svg.ArrowRight />
+        </div>
+      </PreviousGameLink>
+
+      {games.length > 0 && (
+        <>
+          <h4>Previous</h4>
+          {games.map((game) => {
+            const link = `http://localhost:7777?nonce=${game.nonce}&client=${game.clientSeed}&rng_hash=${game.rngSeedHashed}&rng=${game.rngSeed}&options=${game.options.join(',')}`
+            return (
+              <PreviousGameLink target="_blank" href={link} rel="noreferrer" key={game.nonce}>
+                <div>
+                  {game.nonce} - <Seed title="Client Seed">{game.clientSeed}</Seed>
+                </div>
+                <div>
+                  <Svg.ArrowRight />
+                </div>
+              </PreviousGameLink>
+            )
+          })}
+        </>
+      )}
+      {/* {previousGame && (
+        <div>
+          <div title="Nonce">
+            {previousGame.nonce}
+          </div>
+          <Seed title="Client Seed">{previousGame.clientSeed}</Seed>
+          <Seed title="Hashed RNG seed">{previousGame.rngSeedHashed}</Seed>
+          <Seed title="RNG seed">{previousGame.rngSeed}</Seed>
+          <div>
+            {previousGame.options.join(',')}
+          </div>
+        </div>
+      )} */}
+      {/* <div style={{ display: 'flex', gap: '10px' }}>
         <Button fill onClick={gamba.updateSeed}>
           Seed
         </Button>
-        {link && (
-          <Button pulse fill onClick={() => window.open(link, '_blank')}>
-            Verify
-          </Button>
-        )}
-      </div>
-    </>
+      </div> */}
+    </div>
   )
 }

@@ -1,5 +1,12 @@
 # basic
 
+## 1.0.6
+
+### Patch Changes
+
+- gamba@0.7.2
+- gamba-react-ui@0.3.2
+
 ## 1.0.5
 
 ### Patch Changes

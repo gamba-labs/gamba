@@ -1,5 +1,12 @@
 # gamba-react
 
+## 0.2.2
+
+### Patch Changes
+
+- 60d19a3: Debug logs
+- 9c0b265: Added debug logs
+
 ## 0.2.1
 
 ### Patch Changes

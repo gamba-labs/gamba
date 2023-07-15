@@ -1,5 +1,11 @@
 # gamba-core
 
+## 0.3.1
+
+### Patch Changes
+
+- dfe52d5: Use a new PDA Seed for users
+
 ## 0.3.0
 
 ### Minor Changes

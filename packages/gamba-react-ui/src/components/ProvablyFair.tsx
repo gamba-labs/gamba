@@ -65,7 +65,7 @@ export function ProvablyFair({ nextSeedHashed, games }: {nextSeedHashed: string,
           Provably Fair
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
-          <StylelessButton style={{ color: 'white' }} onClick={gamba.updateSeed}>
+          <StylelessButton title="Randomize Seed" style={{ color: 'white' }} onClick={gamba.updateSeed}>
             <Svg.Refresh />
           </StylelessButton>
           <a target="_blank" href="https://gamba.so/docs/fair" rel="noreferrer">

@@ -18,7 +18,7 @@ function App() {
   const [rngHashed, setRngHashed] = useValueThing('rng_hash')
   const [options, setOptions] = useValueThing('options')
 
-  const [result, setResult] = useState<{multiplier: number}>()
+  const [result, setResult] = useState<{multiplier: number, index: number}>()
 
   const missing = !nonce || !client || !rng || !rngHashed || !options
 
@@ -26,9 +26,9 @@ function App() {
     if (!options) return
     const parsedOptions = options.split(',').map((x) => Number(x))
     const gameHash = await getGameHash(rng, client, Number(nonce))
-    const resultIndex = resultIndexFromGameHash(gameHash, parsedOptions)
-    const multiplier = parsedOptions[resultIndex]
-    setResult({ multiplier })
+    const index = resultIndexFromGameHash(gameHash, parsedOptions)
+    const multiplier = parsedOptions[index]
+    setResult({ multiplier, index })
   }
 
   return (
@@ -55,7 +55,7 @@ function App() {
       <small>RNG Seed</small>
       <input value={rng} onChange={(e) => setRng(e.target.value)}  />
       <br />
-      <small>Options</small>
+      <small>Outcomes</small>
       <textarea value={options} onChange={(e) => setOptions(e.target.value)}  />
       <br />
       <button onClick={generateResult} disabled={missing}>
@@ -63,7 +63,8 @@ function App() {
       </button>
       {result && (
         <div>
-          Multiplier: {result.multiplier / 1000}x
+          Multiplier: {result.multiplier / 1000}x<br />
+          Index: {result.index}
         </div>
       )}
     </div>

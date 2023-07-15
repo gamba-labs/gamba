@@ -1,5 +1,21 @@
 # gamba-react-ui
 
+## 1.0.0
+
+### Minor Changes
+
+- 203a3da: Use new algorithm for results
+- c35d59d: Use new algorithm for results
+
+### Patch Changes
+
+- 6b5b92f: Use new algorithm for results
+- Updated dependencies [203a3da]
+- Updated dependencies [6b5b92f]
+- Updated dependencies [c35d59d]
+  - gamba-core@0.3.0
+  - gamba-react@1.0.0
+
 ## 0.2.2
 
 ### Patch Changes

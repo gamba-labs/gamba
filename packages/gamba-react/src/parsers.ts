@@ -4,6 +4,7 @@ type UserStatus = keyof UserState['status']
 const parseStatus = (x: UserState['status']) => Object.keys(x)[0] as UserStatus
 
 export const parseUserAccount = (account: StateAccount<UserState | undefined> | undefined) => {
+  console.debug('User account', account)
   if (!account?.state || !account?.info) {
     return null
   }
@@ -21,6 +22,7 @@ export const parseUserAccount = (account: StateAccount<UserState | undefined> | 
 }
 
 export const parseHouseAccount = (account: StateAccount<HouseState | undefined> | undefined) => {
+  console.debug('House account', account)
   if (!account?.state || !account?.info) {
     return null
   }
@@ -41,6 +43,7 @@ export const parseHouseAccount = (account: StateAccount<HouseState | undefined> 
 }
 
 export const parseWalletAccount = (account: StateAccount<any> | undefined) => {
+  console.debug('Wallet account', account)
   if (!account?.info) {
     return null
   }

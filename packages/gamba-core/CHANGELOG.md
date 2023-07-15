@@ -1,5 +1,16 @@
 # gamba-core
 
+## 0.3.0
+
+### Minor Changes
+
+- 203a3da: Use new algorithm for results
+- c35d59d: Use new algorithm for results
+
+### Patch Changes
+
+- 6b5b92f: Use new algorithm for results
+
 ## 0.2.2
 
 ### Patch Changes

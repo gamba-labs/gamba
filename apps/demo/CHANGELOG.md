@@ -1,5 +1,11 @@
 # gamba-demo
 
+## 1.0.5
+
+### Patch Changes
+
+- gamba@0.7.1
+
 ## 1.0.4
 
 ### Patch Changes

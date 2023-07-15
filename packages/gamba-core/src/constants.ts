@@ -8,7 +8,7 @@ export const BET_UNIT = 1_000
 export const MIN_BET = 50_000_000 // 0.05 SOL
 
 export const HOUSE_SEED = Buffer.from('house')
-export const USER_SEED = Buffer.from('user')
+export const USER_SEED = Buffer.from('user2')
 
 export const LAMPORTS_PER_SOL = 1e9
 

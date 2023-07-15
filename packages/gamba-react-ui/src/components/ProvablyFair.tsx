@@ -1,8 +1,9 @@
 import { useGamba } from 'gamba-react'
 import styled from 'styled-components'
-import { Button, Svg } from '..'
+import { Svg } from '..'
 import { HexColor } from './HexColor'
-import { StylelessButton } from '../../../../apps/demo/src/games/Roulette/styles'
+
+const VERIFY_URL = 'http://verify.gamba.so/'
 
 const Seed = ({ children, title }: {children: string, title?: string}) => {
   async function copyTextToClipboard() {
@@ -30,6 +31,14 @@ export interface PreviousGame {
   options: number[]
 }
 
+const StylelessButton = styled.button`
+  border: none;
+  margin: 0;
+  outline: none;
+  padding: 0;
+  background: none;
+`
+
 const PreviousGameLink = styled.a`
   padding: 10px;
   background: var(--bg-light-color);
@@ -44,7 +53,7 @@ const PreviousGameLink = styled.a`
 export function ProvablyFair({ nextSeedHashed, games }: {nextSeedHashed: string, games: PreviousGame[]}) {
   const gamba = useGamba()
 
-  const link = `http://localhost:7777?nonce=${gamba.user?.nonce}&client=${gamba.seed}&rng_hash=${nextSeedHashed}`
+  const link = `${VERIFY_URL}?nonce=${gamba.user?.nonce}&client=${gamba.seed}&rng_hash=${nextSeedHashed}`
 
   return (
     <div style={{ width: '320px' }}>
@@ -80,7 +89,7 @@ export function ProvablyFair({ nextSeedHashed, games }: {nextSeedHashed: string,
         <>
           <h4>Previous</h4>
           {games.map((game) => {
-            const link = `http://localhost:7777?nonce=${game.nonce}&client=${game.clientSeed}&rng_hash=${game.rngSeedHashed}&rng=${game.rngSeed}&options=${game.options.join(',')}`
+            const link = `${VERIFY_URL}?nonce=${game.nonce}&client=${game.clientSeed}&rng_hash=${game.rngSeedHashed}&rng=${game.rngSeed}&options=${game.options.join(',')}`
             return (
               <PreviousGameLink target="_blank" href={link} rel="noreferrer" key={game.nonce}>
                 <div>

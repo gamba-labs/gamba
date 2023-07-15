@@ -5,7 +5,7 @@ import { BET_UNIT, GambaError, HOUSE_SEED, IDL, PROGRAM_ID, SYSTEM_PROGRAM, USER
 import { Gamba as GambaProgram } from './idl'
 import { GambaProvider } from './provider'
 import { UserState, Wallet } from './types'
-import { decodeUser, getGameResult, getPdaAddress } from './utils'
+import { decodeUser, getGameResult, getPdaAddress, getTokenBalance } from './utils'
 
 import {
   TOKEN_PROGRAM_ID,
@@ -222,10 +222,10 @@ export class GambaSession {
       this.wallet.publicKey,
     )
 
-    // const balance = await getTokenBalance(this.provider.connection, this.wallet.publicKey, mint)
+    const balance = await getTokenBalance(this.provider.connection, this.wallet.publicKey, mint)
 
     const instruction = await this.program.methods
-      .redeemBonusToken(new BN(1e9 * .1))
+      .redeemBonusToken(new BN(balance))
       .accounts({
         mint,
         tokenProgram: TOKEN_PROGRAM_ID,

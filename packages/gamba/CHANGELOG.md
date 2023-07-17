@@ -1,5 +1,13 @@
 # gamba
 
+## 0.7.3
+
+### Patch Changes
+
+- Updated dependencies [1adbb59]
+  - gamba-react-ui@0.3.3
+  - gamba-react@0.2.3
+
 ## 0.7.2
 
 ### Patch Changes

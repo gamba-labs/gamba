@@ -1,7 +1,7 @@
 {
   "name": "basic",
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "scripts": {
     "dev": "vite",

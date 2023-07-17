@@ -1,5 +1,15 @@
 # gamba-react-ui
 
+## 0.3.3
+
+### Patch Changes
+
+- 1adbb59: Modal improvements
+- 456b824: Improve UI Modal
+- Updated dependencies [1adbb59]
+- Updated dependencies [456b824]
+  - gamba-react@0.2.3
+
 ## 0.3.2
 
 ### Patch Changes

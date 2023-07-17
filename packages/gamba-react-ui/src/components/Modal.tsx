@@ -11,6 +11,7 @@ const Wrapper = styled.div`
   h1 {
     text-align: center;
   }
+  position: relative;
   box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   z-index: 1040;
   padding: 0;
@@ -27,30 +28,11 @@ const Wrapper = styled.div`
   &::-webkit-scrollbar-thumb {
     bg-color: #cccccc33;
   }
-  display: grid;
-  grid-template-rows: auto 1fr;
   animation ${appear} .1s;
   @media (min-height: 460px) {
     width: 320px;
     height: 420px;
     border-radius: 10px;
-  }
-
-  ::backdrop {
-    position: fixed;
-    background: red;
-  }
-
-  &::modal {
-    position: fixed;
-    inset-block-start: 0px;
-    inset-block-end: 0px;
-    max-width: calc((100% - 6px) - 2em);
-    max-height: calc((100% - 6px) - 2em);
-    user-select: text;
-    visibility: visible;
-    overflow: auto;
-    background: red;
   }
 `
 

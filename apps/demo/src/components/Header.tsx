@@ -67,8 +67,7 @@ function NavigationLink({ children, to }: React.PropsWithChildren<{to: string}>)
 
 export function Header() {
   const navigate = useNavigate()
-  const { shortName, ...rest } = useParams()
-  console.log(shortName, rest)
+  const { shortName } = useParams()
   return (
     <Wrapper>
       <div>
@@ -86,17 +85,11 @@ export function Header() {
           <a target="_blank" href="https://twitter.com/GambaLabs" rel="noreferrer">
             <FaTwitter />
           </a>
-          {/* {GAMES.map((g) => (
-            <NavLink key={g.short_name} to={'/' + g.short_name + ''}>
-              {g.name}
-            </NavLink>
-          ))} */}
         </Links>
         <div style={{ display: 'flex', gap: '10px' }}>
           <Dropdown
             value={shortName}
             align="top"
-            // format={(value) => formatLamports(value)}
             label="Game"
             onChange={(name) => navigate('/' + name)}
             options={GAMES.map((value) => ({

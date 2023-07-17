@@ -2,6 +2,7 @@ import { useGamba } from 'gamba-react'
 import styled from 'styled-components'
 import { Svg } from '..'
 import { HexColor } from './HexColor'
+import { StylelessButton } from '../styles'
 
 const VERIFY_URL = 'http://verify.gamba.so/'
 
@@ -30,14 +31,6 @@ export interface PreviousGame {
   rngSeed: string,
   options: number[]
 }
-
-const StylelessButton = styled.button`
-  border: none;
-  margin: 0;
-  outline: none;
-  padding: 0;
-  background: none;
-`
 
 const PreviousGameLink = styled.a`
   padding: 10px;

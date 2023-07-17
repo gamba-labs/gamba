@@ -138,7 +138,7 @@ export function useGamba() {
     house,
     session: mainSession.session,
     balances: {
-      total: userBalance + walletBalance,
+      total: userBalance + walletBalance + bonusBalance,
       bonus: bonusBalance,
       wallet: walletBalance,
       user: userBalance,

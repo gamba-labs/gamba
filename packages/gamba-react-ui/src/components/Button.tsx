@@ -22,11 +22,11 @@ const pulse = keyframes`
 `
 
 export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
-  padding: 0 10px;
+  padding: 0 20px;
   margin: 0;
-  border-radius: 5px;
+  border-radius: 10px;
   border: 1px solid currentColor;
-  transition: background .1s, color .1s;
+  transition: background .2s, color .2s, opacity .2s;
   text-transform: uppercase;
   line-height: 40px;
   height: 40px;
@@ -36,10 +36,10 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
   grid-template-columns: 1fr auto;
   cursor: pointer;
   &:disabled {
-    color: gray!important;
+    color: gray;
     cursor: default;
-    background: none!important;
-    border-color: currentColor!important;
+    background: none;
+    border-color: currentColor;
   }
   ${({ $pulse }) => $pulse && css`
     animation: ${pulse} 2s infinite;
@@ -60,6 +60,34 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
       border-color: white;
     }
   `}
+
+  &.primary {
+    background: linear-gradient(45deg,#FF6969 10%,#A088FF 90%);
+    background-size: 100% 100%;
+    color: white;
+    border: none;
+    &:disabled {
+      opacity: .5;
+    }
+  }
+
+  &.list {
+    border-radius: 0;
+    background: none;
+    border: none;
+    width: 100%;
+    margin: 0;
+    text-align: left;
+    color: inherit;
+    opacity: .8;
+    &:disabled {
+      opacity: .5;
+    }
+    &:hover:not(:disabled) {
+      opacity: 1;
+      background: #FFFFFF11;
+    }
+  }
 `
 
 export function Button({ children, fill, pulse, icon, loading, disabled, ...props }: ButtonProps) {

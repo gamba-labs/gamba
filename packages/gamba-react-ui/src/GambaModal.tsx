@@ -6,9 +6,10 @@ import styled from 'styled-components'
 import { Button } from './components/Button'
 import { HexColor } from './components/HexColor'
 import { GambaUiContext, useGambaUi } from './context'
+import { Info, Refresh } from './Svg'
 import { formatLamports } from './utils'
-import { BonusChip, Refresh } from './Svg'
-import { StylelessButton } from '../../../apps/demo/src/games/Roulette/styles'
+import { Flash } from './components/Flash'
+import { StylelessButton } from './styles'
 
 function useCallbacks() {
   const {
@@ -65,9 +66,10 @@ const Address = styled.button`
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
-  background: #00000033;
+  background: #FFFFFF11;
+  color: white;
   padding: 5px 10px;
-  border-radius: 2px;
+  border-radius: 10px;
 `
 
 const List = styled.div`
@@ -118,8 +120,8 @@ function ConnectWallet() {
             {wallet.adapter.name}
             <img
               src={wallet.adapter.icon}
-              width="30"
-              height="30"
+              width="20"
+              height="20"
             />
           </WalletButton>
         ))}
@@ -183,13 +185,15 @@ function CreateAccount() {
         <h1>Create Account</h1>
       </Content>
       <List>
-        <Button loading={loading} onClick={createAccountOrShowTnc}>
+        <Button className="primary" loading={loading} onClick={createAccountOrShowTnc}>
           Create account
         </Button>
-        <Button onClick={() => gamba.disconnect()}>
+      </List>
+      <>
+        <Button className="list" onClick={() => gamba.disconnect()}>
           Change wallet
         </Button>
-      </List>
+      </>
     </>
   )
 }
@@ -262,51 +266,75 @@ function Account() {
     return null
   }
 
+  const accountStatus = loading === 'refresh' ? 'Fetching' : statusMapping[gamba.user.status]
+
   return (
     <>
       <Content>
         <h1>
-          {formatLamports(gamba.balances.wallet)}
+          <Flash>
+            {formatLamports(gamba.balances.total - gamba.balances.user)}
+          </Flash>
         </h1>
       </Content>
+      <div style={{ display: 'flex', justifyContent: 'space-evenly', textAlign: 'center' }}>
+        {/* <div>
+          <Flash>
+            {formatLamports(gamba.balances.wallet)}
+          </Flash>
+          <div style={{ fontWeight: 'bold', textTransform: 'uppercase' }}>Wallet</div>
+        </div> */}
+        {gamba.balances.user > 0 && (
+          <div>
+            <Flash>
+              {formatLamports(gamba.balances.user)}
+            </Flash>
+            <div style={{ fontWeight: 'bold', textTransform: 'uppercase' }}>Claimable</div>
+          </div>
+        )}
+        {gamba.balances.bonus > 0 && (
+          <div>
+            <Flash>
+              {formatLamports(gamba.balances.bonus)}
+            </Flash>
+            <div style={{ fontWeight: 'bold', textTransform: 'uppercase' }}>Bonus</div>
+          </div>
+        )}
+      </div>
       <List>
         <Address onClick={() => copyTextToClipboard(gamba.wallet!.publicKey.toBase58())}>
           <HexColor>
             {gamba.wallet.publicKey.toBase58()}
           </HexColor>
         </Address>
-        <div>
-          Status: {statusMapping[gamba.user.status]} <StylelessButton disabled={loading === 'refresh'} style={{ color: 'white' }} onClick={refreshAccount}><Refresh /></StylelessButton>
-        </div>
-        {/* <div>
-          Bonus: {formatLamports(gamba.balances.bonus)} (+{formatLamports(bonusTokens, '')}) <BonusChip />
-        </div>
-        <div>
-          User: {formatLamports(gamba.balances.user)}
-        </div> */}
         {gamba.balances.user > 0 && (
-          <Button loading={loading === 'withdraw'} onClick={withdraw}>
+          <Button className="primary" loading={loading === 'withdraw'} onClick={withdraw}>
             Claim {formatLamports(gamba.balances.user)}
           </Button>
         )}
-        {/* <Button onClick={() => gamba.approveBonusToken()}>
-          Approve Bonus
-        </Button> */}
         {bonusTokens > 0 && (
-          <Button onClick={() => gamba.redeemBonusToken()}>
+          <Button className="primary" onClick={() => gamba.redeemBonusToken()}>
             Redeem Bonus +{formatLamports(bonusTokens, '')} gSOL
           </Button>
         )}
-        {/* <Button loading={loading === 'refresh'} onClick={refreshAccount}>
-          Refresh
-        </Button> */}
-        <Button loading={loading === 'close'} onClick={() => closeUserAccount()}>
-          Close account
-        </Button>
-        <Button onClick={() => gamba.disconnect()}>
-          Disconnect
-        </Button>
       </List>
+      <Button className="list" loading={loading === 'close'} onClick={() => closeUserAccount()}>
+        Close account
+      </Button>
+      <Button className="list" onClick={() => gamba.disconnect()}>
+        Switch wallet
+      </Button>
+      <div style={{ background: '#10141f', position: 'absolute', bottom: '0px', padding: '10px', display: 'flex', justifyContent: 'space-between', width: '100%', fontWeight: 'lighter', fontSize: '12px'  }}>
+        <div>Status: {accountStatus}</div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <StylelessButton disabled={loading === 'refresh'} style={{ color: 'white' }} onClick={refreshAccount}>
+            <Refresh />
+          </StylelessButton>
+          <a target="_blank" href="https://gamba.so/docs/account" rel="noreferrer">
+            <Info />
+          </a>
+        </div>
+      </div>
     </>
   )
 }

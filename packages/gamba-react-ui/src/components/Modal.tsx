@@ -10,6 +10,7 @@ const appear = keyframes`
 const Wrapper = styled.div`
   h1 {
     text-align: center;
+    padding: 40px 0 20px 0;
   }
   position: relative;
   box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);

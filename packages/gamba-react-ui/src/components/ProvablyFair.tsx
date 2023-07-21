@@ -1,22 +1,17 @@
 import { useGamba } from 'gamba-react'
 import styled from 'styled-components'
 import { Svg } from '..'
+import { Flex, StylelessButton } from '../styles'
+import { copyTextToClipboard } from '../utils'
 import { HexColor } from './HexColor'
-import { StylelessButton } from '../styles'
 
 const VERIFY_URL = 'http://verify.gamba.so/'
 
-const Seed = ({ children, title }: {children: string, title?: string}) => {
-  async function copyTextToClipboard() {
-    if ('clipboard' in navigator) {
-      return await navigator.clipboard.writeText(children)
-    } else {
-      return document.execCommand('copy', true, children)
-    }
-  }
+function Seed({ children, title }: {children: string, title?: string}) {
+  const click = () => copyTextToClipboard(children)
 
   return (
-    <span title={title} style={{ cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', verticalAlign: 'middle' }} onClick={copyTextToClipboard}>
+    <span title={title} onClick={click} style={{ cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', verticalAlign: 'middle' }}>
       <HexColor>
         {children}
       </HexColor>
@@ -50,22 +45,20 @@ export function ProvablyFair({ nextSeedHashed, games }: {nextSeedHashed: string,
 
   return (
     <div style={{ width: '320px' }}>
-      <h3 style={{ display: 'grid', gridTemplateColumns: '1fr auto', marginBottom: '10px' }}>
-        <div>
-          <span style={{ marginRight: '10px' }}>
-            <Svg.Fairness />
-          </span>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', marginBottom: '10px' }}>
+        <Flex>
+          <Svg.Fairness />
           Provably Fair
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        </Flex>
+        <Flex>
           <StylelessButton title="Randomize Seed" style={{ color: 'white' }} onClick={gamba.updateSeed}>
-            <Svg.Refresh />
+            <Svg.Shuffle />
           </StylelessButton>
           <a target="_blank" href="https://gamba.so/docs/fair" rel="noreferrer">
             <Svg.Info />
           </a>
-        </div>
-      </h3>
+        </Flex>
+      </div>
 
       <h4>Next</h4>
 
@@ -96,24 +89,6 @@ export function ProvablyFair({ nextSeedHashed, games }: {nextSeedHashed: string,
           })}
         </>
       )}
-      {/* {previousGame && (
-        <div>
-          <div title="Nonce">
-            {previousGame.nonce}
-          </div>
-          <Seed title="Client Seed">{previousGame.clientSeed}</Seed>
-          <Seed title="Hashed RNG seed">{previousGame.rngSeedHashed}</Seed>
-          <Seed title="RNG seed">{previousGame.rngSeed}</Seed>
-          <div>
-            {previousGame.options.join(',')}
-          </div>
-        </div>
-      )} */}
-      {/* <div style={{ display: 'flex', gap: '10px' }}>
-        <Button fill onClick={gamba.updateSeed}>
-          Seed
-        </Button>
-      </div> */}
     </div>
   )
 }

@@ -18,16 +18,18 @@ interface Props {
 export function ResponsiveSize({ children, maxScale = 1, ...props }: HTMLAttributes<HTMLDivElement> & Props) {
   const wrapper = useRef<HTMLDivElement>(null!)
   const inner = useRef<HTMLDivElement>(null!)
-  const okok = useRef<HTMLDivElement>(null!)
+  const content = useRef<HTMLDivElement>(null!)
+
   useLayoutEffect(() => {
     let timeout: any
     const resize = () => {
-      const ww = wrapper.current.clientWidth / (okok.current.scrollWidth + 40)
-      const hh = wrapper.current.clientHeight / (okok.current.clientHeight + 80)
+      const ww = wrapper.current.clientWidth / (content.current.scrollWidth + 40)
+      const hh = wrapper.current.clientHeight / (content.current.clientHeight + 80)
       const zoom = Math.min(maxScale, ww, hh)
       inner.current.style.transform = 'scale(' + zoom + ')'
     }
     resize()
+
     window.addEventListener('resize', () => {
       clearTimeout(timeout)
       timeout = setTimeout(() => {
@@ -36,10 +38,11 @@ export function ResponsiveSize({ children, maxScale = 1, ...props }: HTMLAttribu
       }, 250)
     })
   }, [])
+
   return (
     <Wrapper {...props} ref={wrapper}>
       <div ref={inner}>
-        <div ref={okok}>
+        <div ref={content}>
           {children}
         </div>
       </div>

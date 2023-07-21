@@ -24,6 +24,8 @@ const pulse = keyframes`
 export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
   padding: 0 20px;
   margin: 0;
+  position: relative;
+  overflow: hidden;
   border-radius: 10px;
   border: 1px solid currentColor;
   transition: background .2s, color .2s, opacity .2s;
@@ -35,12 +37,14 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
   align-items: center;
   grid-template-columns: 1fr auto;
   cursor: pointer;
+
   &:disabled {
     color: gray;
-    cursor: default;
+    cursor: default!important;
     background: none;
     border-color: currentColor;
   }
+
   ${({ $pulse }) => $pulse && css`
     animation: ${pulse} 2s infinite;
   `}
@@ -71,6 +75,13 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
     }
   }
 
+  & > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
   &.list {
     border-radius: 0;
     background: none;
@@ -80,6 +91,9 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
     text-align: left;
     color: inherit;
     opacity: .8;
+    & > div {
+      width: 100%;
+    }
     &:disabled {
       opacity: .5;
     }
@@ -93,7 +107,7 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
 export function Button({ children, fill, pulse, icon, loading, disabled, ...props }: ButtonProps) {
   return (
     <StyledButton $pulse={pulse} $fill={fill} disabled={disabled || loading} {...props}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div>
         {icon && <img width="20" height="20" src={icon} />}
         {children}
         {loading && <span><Loader small /></span>}

@@ -8,3 +8,9 @@ export const StylelessButton = styled.button`
   background: none;
   font-size: inherit;
 `
+
+export const Flex = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`

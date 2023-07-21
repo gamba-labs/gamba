@@ -13,6 +13,6 @@ export { RecentPlays } from './components/RecentPlays'
 export { ResponsiveSize } from './components/ResponsiveSize'
 export { useGambaUi } from './context'
 export * from './types'
-export * from './utils'
+export { formatLamports } from './utils'
 export { Svg }
 

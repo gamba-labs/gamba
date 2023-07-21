@@ -1,17 +1,16 @@
 import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react'
-import { getTokenBalance } from 'gamba-core'
-import { useGamba } from 'gamba-react'
-import { useContext, useEffect, useState } from 'react'
+import { useBonusBalance, useGamba } from 'gamba-react'
+import { useContext, useState } from 'react'
 import styled from 'styled-components'
 import { Button } from './components/Button'
+import { Flash } from './components/Flash'
 import { HexColor } from './components/HexColor'
 import { GambaUiContext, useGambaUi } from './context'
+import { Flex, StylelessButton } from './styles'
 import { Info, Refresh } from './Svg'
-import { formatLamports } from './utils'
-import { Flash } from './components/Flash'
-import { StylelessButton } from './styles'
+import { copyTextToClipboard, formatLamports } from './utils'
 
-function useCallbacks() {
+function useGambaUiCallbacks() {
   const {
     onError = () => null,
     onWithdraw = () => null,
@@ -25,37 +24,6 @@ const statusMapping = {
   seedRequested: 'Initializing Account',
   hashedSeedRequested: 'Generating Results',
 }
-
-const Content = styled.div`
-  width: 100%;
-  padding: 20px;
-  h1 {
-    font-size: 24px;
-    padding-top: 20px;
-    text-align: center;
-  }
-`
-
-const WalletButton = styled.button`
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
-  background: none;
-  border: none;
-  width: 100%;
-  margin: 0;
-  transition: background .2s, opacity .2s;
-  text-align: left;
-  color: white;
-  &:disabled {
-    opacity: .5;
-  }
-  &:hover:not(:disabled) {
-    background: #FFFFFF11;
-  }
-`
 
 const Address = styled.button`
   border: none;
@@ -72,7 +40,18 @@ const Address = styled.button`
   border-radius: 10px;
 `
 
-const List = styled.div`
+const ModalFooter = styled.div`
+  background: #10141f;
+  position: absolute;
+  bottom: 0px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-weight: lighter;
+`
+
+const Content = styled.div`
   width: 100%;
   overflow: hidden;
   padding: 20px;
@@ -81,8 +60,21 @@ const List = styled.div`
   gap: 10px;
 `
 
+const Balances = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  text-align: center;
+  & > div {
+    & > div:last-child {
+      font-weight: bold;
+      opacity: .5;
+      text-transform: uppercase;
+    }
+  }
+`
+
 function ConnectWallet() {
-  const { onError } = useCallbacks()
+  const { onError } = useGambaUiCallbacks()
   const { wallets, select } = useWallet()
   const [loading, setLoading] = useState(false)
 
@@ -102,9 +94,7 @@ function ConnectWallet() {
 
   return (
     <>
-      <Content>
-        <h1>Connect Wallet</h1>
-      </Content>
+      <h1>Connect Wallet</h1>
       <div>
         {wallets.length === 0 && (
           <>
@@ -112,8 +102,9 @@ function ConnectWallet() {
           </>
         )}
         {wallets.map((wallet, i) => (
-          <WalletButton
+          <Button
             key={i}
+            className="list"
             onClick={() => selectWallet(wallet)}
             disabled={loading}
           >
@@ -123,7 +114,7 @@ function ConnectWallet() {
               width="20"
               height="20"
             />
-          </WalletButton>
+          </Button>
         ))}
       </div>
     </>
@@ -131,7 +122,7 @@ function ConnectWallet() {
 }
 
 function CreateAccount() {
-  const { onError } = useCallbacks()
+  const { onError } = useGambaUiCallbacks()
   const { tos } = useGambaUi()
   const gamba = useGamba()
   const [loading, setLoading] = useState(false)
@@ -161,9 +152,7 @@ function CreateAccount() {
   if (tos && showTnc) {
     return (
       <>
-        <Content>
-          <h1>Terms of Service</h1>
-        </Content>
+        <h1>Terms of Service</h1>
         <div style={{ padding: 20, fontSize: '12px' }}>
           {tos}
         </div>
@@ -181,14 +170,12 @@ function CreateAccount() {
 
   return (
     <>
+      <h1>Create Account</h1>
       <Content>
-        <h1>Create Account</h1>
-      </Content>
-      <List>
         <Button className="primary" loading={loading} onClick={createAccountOrShowTnc}>
           Create account
         </Button>
-      </List>
+      </Content>
       <>
         <Button className="list" onClick={() => gamba.disconnect()}>
           Change wallet
@@ -197,20 +184,19 @@ function CreateAccount() {
     </>
   )
 }
-export async function copyTextToClipboard(text: string) {
-  if ('clipboard' in navigator) {
-    return await navigator.clipboard.writeText(text)
-  } else {
-    return document.execCommand('copy', true, text)
-  }
-}
+
 function Account() {
-  const { onError, onWithdraw } = useCallbacks()
+  const { onError, onWithdraw } = useGambaUiCallbacks()
+  const bonusBalance = useBonusBalance()
   const gamba = useGamba()
   const [loading, setLoading] = useState<string>()
 
   const closeUserAccount = async () => {
     try {
+      if (gamba.balances.bonus > 0) {
+        if (!confirm(`If you close your account you will lose your bonus balance (${formatLamports(gamba.balances.bonus, 'SOL')}). Are you sure?`))
+          return
+      }
       setLoading('close')
       const res = await gamba.closeAccount()
       const response = await res.result()
@@ -250,17 +236,17 @@ function Account() {
     }
   }
 
-  const [bonusTokens, setBonusTokens] = useState(0)
-  const { connection } = useConnection()
-
-  useEffect(() => {
-    const fetchBonusTokens = async () => {
-      console.debug('Fetching bonus tokens')
-      const balance = await getTokenBalance(connection, gamba.wallet!.publicKey, gamba.house!.state!.bonusMint)
-      setBonusTokens(balance)
+  const redeemBonus = async () => {
+    try {
+      setLoading('redeem')
+      await gamba.redeemBonusToken()
+    } catch (err) {
+      console.error('Modal Error', err)
+      onError(err)
+    } finally {
+      setLoading(undefined)
     }
-    fetchBonusTokens()
-  }, [gamba.user])
+  }
 
   if (!gamba.user || !gamba.wallet) {
     return null
@@ -270,26 +256,20 @@ function Account() {
 
   return (
     <>
-      <Content>
-        <h1>
-          <Flash>
-            {formatLamports(gamba.balances.total - gamba.balances.user)}
-          </Flash>
-        </h1>
-      </Content>
-      <div style={{ display: 'flex', justifyContent: 'space-evenly', textAlign: 'center' }}>
-        {/* <div>
-          <Flash>
-            {formatLamports(gamba.balances.wallet)}
-          </Flash>
-          <div style={{ fontWeight: 'bold', textTransform: 'uppercase' }}>Wallet</div>
-        </div> */}
+      <h1>
+        <Flash>
+          {formatLamports(gamba.balances.total - gamba.balances.user)}
+        </Flash>
+      </h1>
+      <Balances>
         {gamba.balances.user > 0 && (
           <div>
             <Flash>
               {formatLamports(gamba.balances.user)}
             </Flash>
-            <div style={{ fontWeight: 'bold', textTransform: 'uppercase' }}>Claimable</div>
+            <div>
+              Claimable
+            </div>
           </div>
         )}
         {gamba.balances.bonus > 0 && (
@@ -297,53 +277,56 @@ function Account() {
             <Flash>
               {formatLamports(gamba.balances.bonus)}
             </Flash>
-            <div style={{ fontWeight: 'bold', textTransform: 'uppercase' }}>Bonus</div>
+            <div>
+              Bonus
+            </div>
           </div>
         )}
-      </div>
-      <List>
+      </Balances>
+      <Content>
         <Address onClick={() => copyTextToClipboard(gamba.wallet!.publicKey.toBase58())}>
           <HexColor>
             {gamba.wallet.publicKey.toBase58()}
           </HexColor>
         </Address>
         {gamba.balances.user > 0 && (
-          <Button className="primary" loading={loading === 'withdraw'} onClick={withdraw}>
+          <Button className="primary" loading={loading === 'withdraw'} onClick={withdraw} disabled={gamba.user.status !== 'playing'}>
             Claim {formatLamports(gamba.balances.user)}
           </Button>
         )}
-        {bonusTokens > 0 && (
-          <Button className="primary" onClick={() => gamba.redeemBonusToken()}>
-            Redeem Bonus +{formatLamports(bonusTokens, '')} gSOL
+        {bonusBalance > 0 && (
+          <Button className="primary" loading={loading === 'redeem'} onClick={redeemBonus}>
+            Redeem Bonus ({formatLamports(bonusBalance, 'gSOL')})
           </Button>
         )}
-      </List>
+      </Content>
       <Button className="list" loading={loading === 'close'} onClick={() => closeUserAccount()}>
         Close account
       </Button>
       <Button className="list" onClick={() => gamba.disconnect()}>
         Switch wallet
       </Button>
-      <div style={{ background: '#10141f', position: 'absolute', bottom: '0px', padding: '10px', display: 'flex', justifyContent: 'space-between', width: '100%', fontWeight: 'lighter', fontSize: '12px'  }}>
-        <div>Status: {accountStatus}</div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+      <ModalFooter>
+        <div>
+          Status: <Flash>{accountStatus}</Flash>
+        </div>
+        <Flex>
           <StylelessButton disabled={loading === 'refresh'} style={{ color: 'white' }} onClick={refreshAccount}>
             <Refresh />
           </StylelessButton>
-          <a target="_blank" href="https://gamba.so/docs/account" rel="noreferrer">
+          <a target="_blank" href="https://gamba.so/docs/account#status" rel="noreferrer">
             <Info />
           </a>
-        </div>
-      </div>
+        </Flex>
+      </ModalFooter>
     </>
   )
 }
 
-export const GambaModal = () => {
+export function GambaModal() {
   const { session, user } = useGamba()
   const { connected } = useWallet()
   const { connection } = useConnection()
-
   return (
     <>
       {!connection ? (

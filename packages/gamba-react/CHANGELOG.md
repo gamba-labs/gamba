@@ -1,5 +1,11 @@
 # gamba-react
 
+## 0.2.4
+
+### Patch Changes
+
+- f441887: Minor UI tweaks
+
 ## 0.2.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # gamba-react-ui
 
+## 0.3.4
+
+### Patch Changes
+
+- f441887: Minor UI tweaks
+- Updated dependencies [f441887]
+  - gamba-react@0.2.4
+
 ## 0.3.3
 
 ### Patch Changes

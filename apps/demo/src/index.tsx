@@ -25,6 +25,10 @@ function Root() {
     , [],
   )
 
+  console.debug('RPC', import.meta.env.GAMBA_SOLANA_RPC)
+  console.debug('WS', import.meta.env.GAMBA_SOLANA_RPC_WS)
+  console.debug('Wallets', wallets)
+
   return (
     <ConnectionProvider
       endpoint={import.meta.env.GAMBA_SOLANA_RPC}

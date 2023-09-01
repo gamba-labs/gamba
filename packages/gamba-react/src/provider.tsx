@@ -50,6 +50,8 @@ export function GambaProvider({ children, creator, onError }: React.PropsWithChi
   const { connection } = useConnection()
   const { wallet, connected } = useWallet()
 
+  console.debug('Connection', connection)
+
   const client = React.useMemo(
     () => {
       const _wallet = (() => {

@@ -1,4 +1,4 @@
-import { ConnectionContext, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react'
+import { ConnectionContext, WalletProvider, WalletProviderProps, useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Connection, ConnectionConfig, PublicKey } from '@solana/web3.js'
 import { GambaClient, GambaError } from 'gamba-core'
 import React from 'react'
@@ -11,6 +11,7 @@ interface GambaProviderProps {
 }
 
 interface ConnectionProps {
+  wallet?: Omit<WalletProviderProps, 'children'>
   connection?: {
     endpoint: string
     config?: ConnectionConfig
@@ -75,7 +76,7 @@ export function GambaProvider({ children, creator, onError }: React.PropsWithChi
 /**
  * GambaProvider with ConnectionProvider and WalletProvider
  */
-export function Gamba({ children, connection: connectionProps, ...rest }: React.PropsWithChildren<GambaProviderProps & ConnectionProps>) {
+export function Gamba({ children, connection: connectionProps, wallet, ...rest }: React.PropsWithChildren<GambaProviderProps & ConnectionProps>) {
   const endpoint = connectionProps?.endpoint ?? ''
   const connectionParams: ConnectionConfig = {
     commitment: 'processed',
@@ -85,7 +86,7 @@ export function Gamba({ children, connection: connectionProps, ...rest }: React.
 
   return (
     <ConnectionContext.Provider value={{ connection }}>
-      <WalletProvider autoConnect wallets={[]}>
+      <WalletProvider autoConnect wallets={[]} {...wallet}>
         <GambaProvider {...rest}>
           {children}
         </GambaProvider>

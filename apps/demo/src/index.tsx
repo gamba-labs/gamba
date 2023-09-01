@@ -36,6 +36,7 @@ function Root() {
     // >
     //   <WalletProvider autoConnect wallets={wallets}>
     <Gamba
+      wallet={{ wallets }}
       connection={{
         endpoint: import.meta.env.GAMBA_SOLANA_RPC,
         config: { wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'processed' },

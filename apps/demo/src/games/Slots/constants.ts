@@ -5,16 +5,24 @@ export interface SlotItem {
   image: string
 }
 
+import IMAGE_2X from './slot-2x.png'
+import IMAGE_3X from './slot-3x.png'
+import IMAGE_5X from './slot-5x.png'
+import IMAGE_COOL from './slot-emoji-cool.png'
+import IMAGE_HEARTS from './slot-emoji-hearts.png'
+import IMAGE_UNICORN from './slot-unicorn.png'
+import IMAGE_WOJAK from './slot-wojak.png'
+
 const slotItem = (multiplier: number, ...icons: string[]): SlotItem[] =>
-  icons.map((image) => ({ multiplier, image: new URL('./' + image, import.meta.url).href }))
+  icons.map((image) => ({ multiplier, image }))
 
 export const SLOT_ITEMS = [
-  slotItem(7, 'slot-unicorn.png'),
-  slotItem(5, 'slot-5x.png'),
-  slotItem(3, 'slot-3x.png'),
-  slotItem(2, 'slot-2x.png'),
-  slotItem(1, 'slot-emoji-cool.png', 'slot-emoji-hearts.png'),
-  slotItem(.5, 'slot-wojak.png'),
+  slotItem(7, IMAGE_UNICORN),
+  slotItem(5, IMAGE_5X),
+  slotItem(3, IMAGE_3X),
+  slotItem(2, IMAGE_2X),
+  slotItem(1, IMAGE_COOL, IMAGE_HEARTS),
+  slotItem(.5, IMAGE_WOJAK),
 ].flat()
 
 export const WAGER_OPTIONS = [.05, .1, .25, .5, .75, 1].map(solToLamports)

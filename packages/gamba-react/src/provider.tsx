@@ -56,6 +56,7 @@ export function GambaProvider({ children, creator, onError }: React.PropsWithChi
         if (connected && wallet?.adapter?.publicKey)
           return wallet?.adapter as any
       })()
+      console.debug(connection, _wallet, connected)
       return new GambaClient(connection, _wallet)
     }
     , [connection, wallet, connected],

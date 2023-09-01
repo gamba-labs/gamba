@@ -38,8 +38,6 @@ export class StateAccount<T> {
 
   /** Listen for Account changes */
   listen(connection: Connection) {
-    console.debug(this._debugIdentifier, 'LISTEN')
-
     this.fetchState(connection)
 
     // const pollInterval = setInterval(() => {
@@ -50,7 +48,6 @@ export class StateAccount<T> {
     // }, 3000)
 
     const listener = connection.onAccountChange(this.publicKey, (info, context) => {
-      // console.log('💀', this._debugIdentifier, info, context)
       this.update(info)
     })
 

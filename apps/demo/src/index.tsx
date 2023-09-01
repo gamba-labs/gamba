@@ -1,7 +1,8 @@
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import '@solana/wallet-adapter-react-ui/styles.css'
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { GambaProvider } from 'gamba/react'
 import { GambaUi } from 'gamba/react-ui'
 import React from 'react'
@@ -12,37 +13,12 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ThemeProvider } from 'styled-components'
 import { App } from './App'
 import { GlobalStyle, theme } from './styles'
-import { PhantomWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
-
-// root.render(
-//   <BrowserRouter>
-//     <ThemeProvider theme={theme}>
-//       <GlobalStyle />
-//       <Gamba
-//         connection={{
-//           endpoint: import.meta.env.GAMBA_SOLANA_RPC,
-//           config: { wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS },
-//         }}
-//       >
-//         <GambaUi
-//           // Optional Terms of Service warning component (See Tos.tsx):
-//           // tos={<Tos />}
-//           onError={(err) => toast(err.message, { type: 'error' })}
-//           onWithdraw={() => toast('Claimed', { type: 'success' })}
-//         >
-//           <App />
-//         </GambaUi>
-//       </Gamba>
-//     </ThemeProvider>
-//   </BrowserRouter>,
-// )
 
 function Root() {
   const wallets = React.useMemo(
     () => [
-      new UnsafeBurnerWalletAdapter(),
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
     ]

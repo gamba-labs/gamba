@@ -1,5 +1,5 @@
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
-import { useBonusBalance, useGamba } from 'gamba/react'
+import { useBonusBalance, useGamba } from 'gamba-react'
 import { Button, formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'

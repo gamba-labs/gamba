@@ -1,4 +1,4 @@
-import { useGamba } from 'gamba/react'
+import { useGamba } from 'gamba-react'
 import { GambaConnectButton, GameBundle, GameView } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
 import QRCode from 'react-qr-code'

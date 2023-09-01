@@ -19,6 +19,7 @@
     "@solana/wallet-adapter-wallets": "^0.19.18",
     "assert": "^2.0.0",
     "gamba": "workspace:*",
+    "gamba-react": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",

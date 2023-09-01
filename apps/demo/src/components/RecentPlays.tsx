@@ -1,6 +1,6 @@
 import React from 'react'
 import { RecentPlayEvent, solToLamports } from 'gamba'
-import { useGamba, useRecentPlays } from 'gamba/react'
+import { useGamba, useRecentPlays } from 'gamba-react'
 import { Svg, formatLamports } from 'gamba/react-ui'
 import styled, { css, keyframes } from 'styled-components'
 import { Time } from './Time'

@@ -1,4 +1,4 @@
-import { useGamba } from 'gamba/react'
+import { useGamba } from 'gamba-react'
 import {
   ActionBar,
   Button,

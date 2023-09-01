@@ -1,7 +1,7 @@
 import { OrthographicCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { solToLamports } from 'gamba'
-import { useGamba } from 'gamba/react'
+import { useGamba } from 'gamba-react'
 import { ActionBar, Button, formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import styled from 'styled-components'

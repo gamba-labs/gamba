@@ -3,7 +3,7 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { GambaProvider } from 'gamba-react'
+import { Gamba, GambaProvider } from 'gamba/react'
 import { GambaUi } from 'gamba/react-ui'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -30,32 +30,39 @@ function Root() {
   console.debug('Wallets', wallets)
 
   return (
-    <ConnectionProvider
-      endpoint={import.meta.env.GAMBA_SOLANA_RPC}
-      config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'processed' }}
+    // <ConnectionProvider
+    //   endpoint={import.meta.env.GAMBA_SOLANA_RPC}
+    //   config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'processed' }}
+    // >
+    //   <WalletProvider autoConnect wallets={wallets}>
+    <Gamba
+      connection={{
+        endpoint: import.meta.env.GAMBA_SOLANA_RPC,
+        config: { wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'processed' },
+      }}
     >
-      <WalletProvider autoConnect wallets={wallets}>
-        <WalletModalProvider>
-          <ToastContainer />
-          <GambaProvider
-            creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV"
-            onError={(err) => toast(err.message, { type: 'error' })}
+      <WalletModalProvider>
+        <ToastContainer />
+        <GambaProvider
+          creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV"
+          onError={(err) => toast(err.message, { type: 'error' })}
+        >
+          <GambaUi
+            // onError={(err) => toast(err.message, { type: 'error' })}
+            onWithdraw={() => toast('Claimed', { type: 'success' })}
           >
-            <GambaUi
-              // onError={(err) => toast(err.message, { type: 'error' })}
-              onWithdraw={() => toast('Claimed', { type: 'success' })}
-            >
-              <ThemeProvider theme={theme}>
-                <GlobalStyle />
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-              </ThemeProvider>
-            </GambaUi>
-          </GambaProvider>
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
+            <ThemeProvider theme={theme}>
+              <GlobalStyle />
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </ThemeProvider>
+          </GambaUi>
+        </GambaProvider>
+      </WalletModalProvider>
+    </Gamba>
+    //   </WalletProvider>
+    // </ConnectionProvider>
   )
 }
 

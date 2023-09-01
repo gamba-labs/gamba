@@ -1,7 +1,7 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { GambaError2 } from 'gamba'
-import { GambaError, useGamba, useGambaError } from 'gamba-react'
+import { GambaError, useGamba, useGambaError } from 'gamba/react'
 import { Button, Modal } from 'gamba/react-ui'
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'

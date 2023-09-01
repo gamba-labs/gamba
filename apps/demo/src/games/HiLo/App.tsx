@@ -1,5 +1,5 @@
 import { solToLamports } from 'gamba'
-import { useGamba } from 'gamba-react'
+import { useGamba } from 'gamba/react'
 import { ActionBar, Button, ResponsiveSize, formatLamports } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import { FaHandPointDown, FaHandPointUp, FaEquals } from 'react-icons/fa'

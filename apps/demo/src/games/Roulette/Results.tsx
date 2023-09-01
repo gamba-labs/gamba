@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import { getNumberInfo } from './constants'
-import { useRoulette } from './store'
 import { Loader, numberColorToHex } from './styles'
 
 export const Wrapper = styled.div`
@@ -34,15 +33,15 @@ export const Result = styled.div<{$color: 'red' | 'black' | 'none'}>`
   }
 `
 
-export function Results({ loading }: {loading?: boolean}) {
-  const results = useRoulette((state) => state.results)
-  const [firstBet] = results
+export function Results({ loading, results }: {loading?: boolean, results: number[]}) {
+  const [firstResult] = results
+
   return (
     <Wrapper>
       <div>
-        <Result $color={typeof firstBet === 'number' ? getNumberInfo(firstBet).color : 'none'}>
+        <Result $color={typeof firstResult === 'number' ? getNumberInfo(firstResult).color : 'none'}>
           <div>
-            {loading ? <Loader /> : typeof firstBet === 'number' ? firstBet + 1 : '-'}
+            {loading ? <Loader /> : typeof firstResult === 'number' ? firstResult + 1 : '-'}
           </div>
         </Result>
         {results.slice(loading ? 0 : 1, loading ? 10 : 11).map((x, i) => {

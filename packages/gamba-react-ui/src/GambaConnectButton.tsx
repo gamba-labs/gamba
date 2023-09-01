@@ -1,5 +1,5 @@
 import { useWallet } from '@solana/wallet-adapter-react'
-import { GambaError, useGamba, useGambaError } from 'gamba-react'
+import { useGamba } from 'gamba-react'
 import { Button } from './components/Button'
 import { useGambaUi } from './context'
 import { formatLamports } from './utils'
@@ -18,12 +18,6 @@ export function GambaConnectButton() {
     }
     return 'Connect Wallet'
   })()
-
-  useGambaError((err) => {
-    if (err === GambaError.PLAY_WITHOUT_CONNECTED) {
-      setModal(true)
-    }
-  })
 
   return (
     <>

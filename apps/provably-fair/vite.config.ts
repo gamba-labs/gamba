@@ -3,8 +3,11 @@ import path from 'path'
 import Unfonts from 'unplugin-fonts/vite'
 import { defineConfig } from 'vite'
 
+const ENV_PREFIX = ['GAMBA_', 'VITE_']
+
 export default defineConfig(() => ({
-  server: { port: 7777, host: true },
+  envPrefix: ENV_PREFIX,
+  server: { port: 7778, host: true },
   resolve: { alias: { '@src': path.resolve(__dirname, './src') } },
   define: { 'process.env.ANCHOR_BROWSER': true },
   plugins: [

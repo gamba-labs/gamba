@@ -1,20 +1,19 @@
-import { useConnection } from '@solana/wallet-adapter-react'
 import { RecentPlayEvent, getRecentEvents } from 'gamba-core'
-import { useGamba, useGambaEvent } from 'gamba-react'
-import { useEffect, useRef, useState } from 'react'
+import React from 'react'
+import { useGamba } from './useGamba'
+import { useGambaEvent } from './useGambaClient'
 
 export function useRecentPlays() {
-  const { connection } = useConnection()
   const gamba = useGamba()
-  const [recentPlays, setRecentPlays] = useState<RecentPlayEvent[]>([])
-  const fetched = useRef(false)
+  const [recentPlays, setRecentPlays] = React.useState<RecentPlayEvent[]>([])
+  const fetched = React.useRef(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (fetched.current || !gamba.house?.state.rng) {
       return
     }
     fetched.current = true
-    getRecentEvents(connection, { signatureLimit: 20, rngAddress: gamba.house.state.rng }).then((events) => {
+    getRecentEvents(gamba.connection, { signatureLimit: 20, rngAddress: gamba.house.state.rng }).then((events) => {
       setRecentPlays(events)
     }).catch((err) => {
       console.error('Failed to get events', err)
@@ -25,7 +24,7 @@ export function useRecentPlays() {
     const isPlayer = gamba.wallet?.publicKey?.equals(event.player)
     setTimeout(() => {
       setRecentPlays((x) => [event, ...x])
-    }, isPlayer ? 5000 : 0)
+    }, isPlayer ? 3000 : 0)
   }, [gamba.wallet])
 
   return recentPlays

@@ -14,6 +14,7 @@ export const LAMPORTS_PER_SOL = 1e9
 
 export enum GambaError {
   PLAY_WITHOUT_CONNECTED = 'User not connected',
+  PLAY_BEFORE_INITIALIZED = 'User not initialized',
   USER_ACCOUNT_CLOSED_BEFORE_RESULT = 'User account was closed before a result was generated',
   FAILED_TO_GENERATE_RESULT = 'Failed to generate a result',
   INSUFFICIENT_BALANCE = 'Insufficient balance',

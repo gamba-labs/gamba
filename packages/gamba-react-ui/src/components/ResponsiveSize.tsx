@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useLayoutEffect, useRef } from 'react'
+import { HTMLAttributes, useLayoutEffect, useRef } from 'react'
 import styled from 'styled-components'
 
 const Wrapper = styled.div`
@@ -9,6 +9,9 @@ const Wrapper = styled.div`
   flex-direction: column;
   max-width: 100vw;
   height: 100%;
+  & > div {
+    // transition: transform .1s ease;
+  }
 `
 
 interface Props {
@@ -22,21 +25,32 @@ export function ResponsiveSize({ children, maxScale = 1, ...props }: HTMLAttribu
 
   useLayoutEffect(() => {
     let timeout: any
+
     const resize = () => {
       const ww = wrapper.current.clientWidth / (content.current.scrollWidth + 40)
       const hh = wrapper.current.clientHeight / (content.current.clientHeight + 80)
       const zoom = Math.min(maxScale, ww, hh)
       inner.current.style.transform = 'scale(' + zoom + ')'
     }
-    resize()
 
-    window.addEventListener('resize', () => {
+    const ro = new ResizeObserver(() => resize())
+
+    ro.observe(wrapper.current)
+
+    const resizeHandler = () => {
       clearTimeout(timeout)
       timeout = setTimeout(() => {
-        inner.current.style.transition = 'transform .1s'
         resize()
       }, 250)
-    })
+    }
+
+    window.addEventListener('resize', resizeHandler)
+
+    return () => {
+      window.removeEventListener('resize', resizeHandler)
+      ro.disconnect()
+      clearTimeout(timeout)
+    }
   }, [])
 
   return (

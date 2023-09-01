@@ -10,7 +10,7 @@ export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
   assetsInclude: ['**/*.glb'],
   server: {
-    port: 5000,
+    port: 7779,
     host: true,
   },
   define: { 'process.env.ANCHOR_BROWSER': true },

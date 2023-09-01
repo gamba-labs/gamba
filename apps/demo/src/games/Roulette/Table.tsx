@@ -1,6 +1,6 @@
 import React, { MouseEventHandler } from 'react'
-import { NAMED_BETS, NUMBERS, NUMBER_COLUMNS, getNumberInfo } from './constants'
-import { useRoulette } from './store'
+import { INITIAL_TABLE_BETS, NAMED_BETS, NUMBERS, NUMBER_COLUMNS, getNumberInfo } from './constants'
+// import { useRoulette } from './store'
 import { Chip, ChipWrapper, StyledBetButton, Relative, StylelessButton, TableSquare, TableWrapper } from './styles'
 import { NamedBet } from './types'
 import { lamportsToSol } from 'gamba'
@@ -16,10 +16,10 @@ function BetButton({
   children,
   value,
 }: React.PropsWithChildren<BetButtonProps>) {
-  const placeChip = useRoulette((state) => state.placeChip)
-  const removeChips = useRoulette((state) => state.removeChips)
-  const selectedBetAmount = useRoulette((state) => state.selectedBetAmount)
-  const setHighlightedSquares = useRoulette((state) => state.setHighlightedSquares)
+  const placeChip = () => null // useRoulette((state) => state.placeChip)
+  const removeChips = () => null // useRoulette((state) => state.removeChips)
+  const selectedBetAmount = () => null //useRoulette((state) => state.selectedBetAmount)
+  const setHighlightedSquares = () => null // useRoulette((state) => state.setHighlightedSquares)
 
   const hover = () => {
     if (typeof square.number !== 'undefined')
@@ -73,9 +73,9 @@ function BetButton({
   )
 }
 
-export function Table() {
-  const highlightedSquares = useRoulette((state) => state.highlightedSquares)
-  const tableBet = useRoulette((state) => state.tableBet)
+export function Table({ tableBet, onChange }: {tableBet: typeof INITIAL_TABLE_BETS, onChange: (tableBet: typeof INITIAL_TABLE_BETS) => void}) {
+  const highlightedSquares = [] //useRoulette((state) => state.highlightedSquares)
+  // const tableBet = useRoulette((state) => state.tableBet)
 
   return (
     <TableWrapper>

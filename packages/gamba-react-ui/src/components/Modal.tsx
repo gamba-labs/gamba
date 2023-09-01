@@ -3,8 +3,13 @@ import styled, { keyframes } from 'styled-components'
 import { Close } from '../Svg'
 
 const appear = keyframes`
-  0% { opacity: 0; transform: scale(.9); }
-  100% { opacity: 1; transform: scale(1); }
+  0% { opacity: 0;}
+  100% { opacity: 1;}
+`
+
+const appear2 = keyframes`
+  0% { transform: scale(.9); }
+  100% { transform: scale(1); }
 `
 
 const Wrapper = styled.div`
@@ -29,7 +34,7 @@ const Wrapper = styled.div`
   &::-webkit-scrollbar-thumb {
     bg-color: #cccccc33;
   }
-  animation ${appear} .1s;
+  animation ${appear} .3s, ${appear2} .1s;
   @media (min-height: 460px) {
     width: 320px;
     height: 420px;

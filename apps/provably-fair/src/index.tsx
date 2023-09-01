@@ -1,76 +1,67 @@
-import { getGameHash, resultIndexFromGameHash } from 'gamba-core'
-import { useState } from 'react'
+import { ConnectionProvider, useConnection } from '@solana/wallet-adapter-react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter, Route, Routes, useParams } from 'react-router-dom'
 import './index.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
-const useValueThing = (n: string) => {
-  const params = new URLSearchParams(window.location.search)
-  const defaultValue = params.get(n) ?? ''
-  return useState(defaultValue)
+function Dashboard() {
+  return (
+    <div>Welcome to the Gamba explorer</div>
+  )
+}
+
+function Transaction() {
+  const { connection } = useConnection()
+  const { txid } = useParams<{txid: string}>()
+  const [logs, setLogs] = React.useState<string[]>([])
+
+  React.useEffect(
+    () => {
+      connection.getParsedTransaction(txid!)
+        .then((x) => {
+          console.log(x)
+          setLogs(x?.meta?.logMessages ?? [])
+        })
+    }
+    , [txid])
+
+  return (
+    <>
+      <div>{txid}</div>
+      {logs.map((x, i) => (
+        <div key={i}>{x}</div>
+      ))}
+      <a target="_blank" href={`https://explorer.solana.com/tx/${txid}`} rel="noreferrer">
+        View in Solana Explorer
+      </a>
+    </>
+  )
 }
 
 function App() {
-  const [nonce, setNonce] = useValueThing('nonce')
-  const [client, setClient] = useValueThing('client')
-  const [rng, setRng] = useValueThing('rng')
-  const [rngHashed, setRngHashed] = useValueThing('rng_hash')
-  const [options, setOptions] = useValueThing('options')
-
-  const [result, setResult] = useState<{multiplier: number, index: number}>()
-
-  const missing = !nonce || !client || !rng || !rngHashed || !options
-
-  const generateResult = async () => {
-    if (!options) return
-    const parsedOptions = options.split(',').map((x) => Number(x))
-    const gameHash = await getGameHash(rng, client, Number(nonce))
-    const index = resultIndexFromGameHash(gameHash, parsedOptions)
-    const multiplier = parsedOptions[index]
-    setResult({ multiplier, index })
-  }
-
   return (
-    <div>
-      <h1>Provably Fair</h1>
-      <a target="_blank" href="https://gamba.so/docs/fair" rel="noreferrer">
-        How does it work
-      </a>
-      <br />
-      <a target="_blank" href="https://github.com/gamba-labs/gamba" rel="noreferrer">
-        Open source
-      </a>
-      <br />
-      <br />
-      <small>Nonce</small>
-      <input value={nonce} onChange={(e) => setNonce(e.target.value)} />
-      <br />
-      <small>Client Seed</small>
-      <input value={client} onChange={(e) => setClient(e.target.value)}  />
-      <br />
-      <small>Hashed RNG Seed</small>
-      <input value={rngHashed} onChange={(e) => setRngHashed(e.target.value)}  />
-      <br />
-      <small>RNG Seed</small>
-      <input value={rng} onChange={(e) => setRng(e.target.value)}  />
-      <br />
-      <small>Outcomes</small>
-      <textarea value={options} onChange={(e) => setOptions(e.target.value)}  />
-      <br />
-      <button onClick={generateResult} disabled={missing}>
-        Generate Result
-      </button>
-      {result && (
-        <div>
-          Multiplier: {result.multiplier / 1000}x<br />
-          Index: {result.index}
-        </div>
-      )}
-    </div>
+    <Routes>
+      <Route
+        path="/"
+        element={<Dashboard />}
+      />
+      <Route
+        path="/tx/:txid"
+        element={<Transaction />}
+      />
+    </Routes>
   )
 }
 
 root.render(
-  <App />,
+  <ConnectionProvider
+    endpoint={import.meta.env.GAMBA_SOLANA_RPC}
+    config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'confirmed' }}
+  >
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ConnectionProvider>,
 )

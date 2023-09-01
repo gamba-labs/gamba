@@ -122,6 +122,7 @@ function ConnectWallet() {
 }
 
 function CreateAccount() {
+  const wallet = useWallet()
   const { onError } = useGambaUiCallbacks()
   const { tos } = useGambaUi()
   const gamba = useGamba()
@@ -177,7 +178,7 @@ function CreateAccount() {
         </Button>
       </Content>
       <>
-        <Button className="list" onClick={() => gamba.disconnect()}>
+        <Button className="list" onClick={() => wallet.disconnect()}>
           Change wallet
         </Button>
       </>
@@ -188,6 +189,7 @@ function CreateAccount() {
 function Account() {
   const { onError, onWithdraw } = useGambaUiCallbacks()
   const bonusBalance = useBonusBalance()
+  const wallet = useWallet()
   const gamba = useGamba()
   const [loading, setLoading] = useState<string>()
 
@@ -303,8 +305,8 @@ function Account() {
       <Button className="list" loading={loading === 'close'} onClick={() => closeUserAccount()}>
         Close account
       </Button>
-      <Button className="list" onClick={() => gamba.disconnect()}>
-        Switch wallet
+      <Button className="list" onClick={() => wallet.disconnect()}>
+        Disconnect wallet
       </Button>
       <ModalFooter>
         <div>
@@ -324,14 +326,14 @@ function Account() {
 }
 
 export function GambaModal() {
-  const { session, user } = useGamba()
+  const { wallet, user } = useGamba()
   const { connected } = useWallet()
   const { connection } = useConnection()
   return (
     <>
       {!connection ? (
         <>No Connection...</>
-      ) : (!connected || !session?.wallet.publicKey) ? (
+      ) : (!connected || !wallet.publicKey) ? (
         <ConnectWallet />
       ) : !user?.created ? (
         <CreateAccount />

@@ -21,49 +21,68 @@ const pulse = keyframes`
   }
 `
 
-export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
-  padding: 0 20px;
-  margin: 0;
-  position: relative;
-  overflow: hidden;
-  border-radius: 10px;
-  border: 1px solid currentColor;
-  transition: background .2s, color .2s, opacity .2s;
-  text-transform: uppercase;
-  line-height: 40px;
-  height: 40px;
-  user-select: none;
-  text-align: left;
-  align-items: center;
-  grid-template-columns: 1fr auto;
-  cursor: pointer;
+const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
+  @keyframes button-shine1 {
+    0% {
+      left: -50%
+    }
+    to {
+      left: 100%
+    }
+  }
 
-  &:disabled {
-    color: gray;
-    cursor: default!important;
-    background: none;
-    border-color: currentColor;
+  @keyframes button-shine2 {
+    to {
+      opacity: 0;
+    }
+  }
+
+  border: none;
+  font-size: inherit;
+  font-weight: 700;
+  height: 40px;
+  overflow: hidden;
+  padding: 8px 16px;
+  position: relative;
+  transition: .3s;
+  text-align: left;
+
+  & > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
   }
 
   ${({ $pulse }) => $pulse && css`
-    animation: ${pulse} 2s infinite;
+    animation: ${pulse} 1s infinite;
   `}
-  ${({ $fill }) => $fill ? `
-    background: white;
-    color: black;
-    border-color: white;
+
+  border-radius: 6px;
+  min-width: 100px;
+
+  background: var(--primary-color);
+  &:hover {
+    background-color: #855ee6;
+  }
+  color: #151b54;
+  --disabled-color: #666;
+
+  &.yellow {
+    background-color: #fff2d9;
+    color: #f09300;
     &:hover {
-      color: var(--primary-color);
+      background-color: #ffdc99;
     }
-  ` : `
-    color: var(--primary-color);
-    background: transparent;
+  }
+
+  &.green {
+    background-color: #daffd9;
+    color: #007b1a;
     &:hover {
-      background: white;
-      color: black;
-      border-color: white;
+      background-color: #a2ffaf;
     }
-  `}
+  }
 
   &.primary {
     background: linear-gradient(45deg,#FF6969 10%,#A088FF 90%);
@@ -73,13 +92,6 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
     &:disabled {
       opacity: .5;
     }
-  }
-
-  & > div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
   }
 
   &.list {
@@ -101,6 +113,25 @@ export const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
       opacity: 1;
       background: #FFFFFF11;
     }
+  }
+
+  &:disabled {
+    background: var(--disabled-color);
+    cursor: default;
+  }
+
+  &:hover::after {
+    animation: button-shine1 .6s linear, button-shine2 .5s .2s forwards;
+    background: #fff;
+    content: " ";
+    display: block;
+    height: 200px;
+    opacity: .5;
+    position: absolute;
+    transform: rotate(40deg);
+    width: 35px;
+    left: -100%;
+    top: -100px;
   }
 `
 

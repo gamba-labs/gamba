@@ -1,11 +1,9 @@
-import { GambaConnectButton } from 'gamba/react-ui'
-import React from 'react'
-import { FaDiscord, FaGithub, FaTwitter } from 'react-icons/fa'
-import { NavLink, useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { useBonusBalance, useGamba } from 'gamba/react'
+import { Button, formatLamports } from 'gamba/react-ui'
+import React, { useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
-import { GAMES } from '../games'
-import { Dropdown } from './Dropdown'
 
 const Logo = styled.img`
   width: 2em;
@@ -14,13 +12,11 @@ const Logo = styled.img`
 
 const Wrapper = styled.div`
   width: 100%;
-  background: var(--header-bg-color);
-  backdrop-filter: blur(10px);
   z-index: 10;
   position: fixed;
   top: 0;
   left: 0;
-  padding: 10px 20px;
+  padding: 20px;
   .label {
     display: none;
     @media (min-width: 800px) {
@@ -29,11 +25,10 @@ const Wrapper = styled.div`
   }
   > div {
     margin: 0 auto;
-    max-width: 90rem;
     gap: 20px;
     display: grid;
     align-items: center;
-    grid-template-columns: auto 1fr max-content;
+    grid-template-columns: auto max-content;
   }
 `
 
@@ -47,16 +42,6 @@ const StyledNavigationLink = styled(NavLink)`
   text-transform: uppercase;
 `
 
-const Links = styled.div`
-  display: flex;
-  gap: 20px;
-  font-size: 20px;
-  align-items: center;
-  & > a > svg {
-    display: block;
-  }
-`
-
 function NavigationLink({ children, to }: React.PropsWithChildren<{to: string}>) {
   return (
     <StyledNavigationLink to={to}>
@@ -65,39 +50,77 @@ function NavigationLink({ children, to }: React.PropsWithChildren<{to: string}>)
   )
 }
 
+function usePromise<T>(pp: () => Promise<T>) {
+  const [loading, setLoading] = useState(false)
+
+  const func = async () => {
+    try {
+      setLoading(true)
+      await pp()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return [func, loading] as const
+}
+
+export function RedeemBonusButton() {
+  const gamba = useGamba()
+  const [redeemTokens, loading] = usePromise(gamba.redeemBonusToken)
+  const bonusBalance = useBonusBalance()
+
+  if (bonusBalance === 0) {
+    return null
+  }
+  // icon={<Svg.BonusChip />}
+
+  return (
+    <Button pulse loading={loading} className="yellow" onClick={redeemTokens}>
+      Redeem {formatLamports(bonusBalance, 'gSOL')}
+    </Button>
+  )
+}
+
+export function ClaimButton() {
+  const gamba = useGamba()
+  const [claim, loading] = usePromise(gamba.withdraw)
+
+  if (gamba.balances.user === 0) {
+    return null
+  }
+
+  return (
+    <Button pulse loading={loading} className="green" onClick={claim}>
+      Claim {formatLamports(gamba.balances.user)}
+    </Button>
+  )
+}
+
 export function Header() {
-  const navigate = useNavigate()
-  const { shortName } = useParams()
   return (
     <Wrapper>
       <div>
         <NavigationLink to="/">
           <Logo src="/logo.png" />
-          <div className="label">Gamba Demo</div>
         </NavigationLink>
-        <Links>
-          <a target="_blank" href="https://github.com/gamba-labs/gamba" rel="noreferrer">
-            <FaGithub />
-          </a>
-          <a target="_blank" href="http://discord.gg/xjBsW3e8fK" rel="noreferrer">
-            <FaDiscord />
-          </a>
-          <a target="_blank" href="https://twitter.com/GambaLabs" rel="noreferrer">
-            <FaTwitter />
-          </a>
-        </Links>
+
         <div style={{ display: 'flex', gap: '10px' }}>
-          <Dropdown
-            value={shortName}
+          <div style={{ display: 'inline-block' }}>
+            <WalletMultiButton />
+          </div>
+          {/* <GambaConnectButton /> */}
+          {/* <Dropdown
             align="top"
-            label="Game"
-            onChange={(name) => navigate('/' + name)}
-            options={GAMES.map((value) => ({
-              label: value.name,
-              value: value.short_name,
+            value="SOL"
+            // format={formatLamports}
+            label="Token"
+            onChange={() => null}
+            options={['SOL'].map((value) => ({
+              label: 'SOL',
+              value,
             }))}
-          />
-          <GambaConnectButton />
+          /> */}
         </div>
       </div>
     </Wrapper>

@@ -1,5 +1,5 @@
 import React from 'react'
-import image from './image.png'
+import image from './logo.png'
 
 export default {
   name: 'Roulette',
@@ -7,6 +7,6 @@ export default {
   description: '',
   creator: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
   image,
-  theme_color: '#ff6a6a',
+  theme_color: '#00da69',
   app: React.lazy(() => import('./App')),
 }

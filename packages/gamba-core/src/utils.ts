@@ -1,21 +1,13 @@
 import { BorshAccountsCoder, BorshCoder, EventParser } from '@coral-xyz/anchor'
+import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 import { AccountInfo, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
-import { Buffer } from 'buffer'
 import { IDL, PROGRAM_ID } from './constants'
 import { BetSettledEvent, GameResult, HouseState, RecentPlayEvent, UserState } from './types'
-import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 
-const sha256 = async (message: string) => {
-  const arrayBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message))
-  return Buffer.from(arrayBuffer).toString('hex')
-}
-
-// // https://stackoverflow.com/questions/49081874/i-have-to-hash-a-text-with-hmac-sha256-in-javascript
-export async function hmac256(secretKey: string, message: string, algorithm = 'SHA-256') {
+export const hmac256 = async (secretKey: string, message: string, algorithm = 'SHA-256') => {
   const encoder = new TextEncoder()
   const messageUint8Array = encoder.encode(message)
   const keyUint8Array = encoder.encode(secretKey)
-
   const cryptoKey = await window.crypto.subtle.importKey(
     'raw',
     keyUint8Array,
@@ -23,25 +15,28 @@ export async function hmac256(secretKey: string, message: string, algorithm = 'S
     false,
     ['sign'],
   )
-
   const signature = await window.crypto.subtle.sign(
     'HMAC',
     cryptoKey,
     messageUint8Array,
   )
-
   const hashArray = Array.from(new Uint8Array(signature))
   const hashHex = hashArray
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
-
   return hashHex
 }
 
+/**
+ * Converts Lamports to SOL
+ */
 export const lamportsToSol = (lamports: number) => {
   return lamports / LAMPORTS_PER_SOL
 }
 
+/**
+ * Converts SOL to Lamports
+ */
 export const solToLamports = (sol: number) => {
   return sol * LAMPORTS_PER_SOL
 }
@@ -53,19 +48,18 @@ export const getPdaAddress = (...seeds: (Uint8Array | Buffer)[]) => {
 
 export const decodeUser = (account: AccountInfo<Buffer> | null) => {
   if (!account?.data?.length)
-    return undefined
+    return
   return new BorshAccountsCoder(IDL).decode('user', account.data) as UserState
 }
 
 export const decodeHouse = (account: AccountInfo<Buffer> | null) => {
   if (!account?.data?.length)
-    return undefined
+    return
   return new BorshAccountsCoder(IDL).decode('house', account.data) as HouseState
 }
 
 export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
   return hmac256(rngSeed, [clientSeed, nonce].join('-'))
-  // return sha256([rngSeed, clientSeed, nonce].join('-'))
 }
 
 export const resultIndexFromGameHash = (gameHash: string, options: number[]) => {
@@ -99,6 +93,17 @@ export const getGameResult = async (previousState: UserState, currentState: User
     wager,
     payout,
   }
+}
+
+export const getTokenBalance = async (connection: Connection, wallet: PublicKey, token: PublicKey) => {
+  const associatedTokenAccount = await getAssociatedTokenAddressSync(
+    token,
+    wallet,
+  )
+
+  const tokenAccountBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
+
+  return Number(tokenAccountBalance.value.amount)
 }
 
 export const getRecentEvents = async (
@@ -157,13 +162,38 @@ export const getRecentEvents = async (
   })
 }
 
-export const getTokenBalance = async (connection: Connection, wallet: PublicKey, token: PublicKey) => {
-  const associatedTokenAccount = await getAssociatedTokenAddressSync(
-    token,
-    wallet,
+type ParsedSettledBetEvent = ReturnType<typeof parseSettledBetEvent>
+
+const parseSettledBetEvent = (data: BetSettledEvent, signature: string) => ({
+  creator: data.creator,
+  clientSeed: data.clientSeed,
+  wager: data.wager.toNumber(),
+  signature: signature,
+  estimatedTime: Date.now(),
+  resultIndex: data.resultIndex.toNumber(),
+  resultMultiplier: data.resultMultiplier.toNumber() / 1000,
+  rngSeed: data.rngSeed,
+  player: data.player,
+  nonce: data.nonce.toNumber(),
+})
+
+export const listenForPlayEvents = (connection: Connection, cb: (event: ParsedSettledBetEvent) => void) => {
+  const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
+
+  const logSubscription = connection.onLogs(
+    PROGRAM_ID,
+    (logs) => {
+      if (logs.err) {
+        return
+      }
+      for (const event of eventParser.parseLogs(logs.logs)) {
+        const data = event.data as BetSettledEvent
+        cb(parseSettledBetEvent(data, logs.signature))
+      }
+    },
   )
 
-  const tokenAccountBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
-
-  return Number(tokenAccountBalance.value.amount)
+  return () => {
+    connection.removeOnLogsListener(logSubscription)
+  }
 }

@@ -1,5 +1,3 @@
 export { useGamba, useGambaError } from './useGamba'
-export { useGambaEvent } from './useGambaProvider'
+export { useRecentPlays } from './useRecentPlays'
 export { useBonusBalance } from './useBonusBalance'
-export { useGambaSession, useSessionStore } from './useSession'
-export { UNSAFE_useInlineSession } from './useInlineSession'

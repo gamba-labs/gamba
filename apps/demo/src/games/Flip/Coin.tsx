@@ -21,10 +21,10 @@ function CoinModel() {
   return (
     <>
       <primitive object={coin.nodes.Coin}>
-        <meshToonMaterial
+        <meshStandardMaterial
           color={COIN_COLOR}
           emissive={COIN_COLOR}
-          emissiveIntensity={.1}
+          emissiveIntensity={.5}
           normalMap={coin.nodes.Coin.material.normalMap}
           map={coin.nodes.Coin.material.map}
         />
@@ -68,7 +68,7 @@ export function Coin({ flipping, result }: CoinFlipProps) {
     }
     group.current.scale.y += ((flipping ? 1.25 : 1) - group.current.scale.y) * .1
     group.current.scale.setScalar(group.current.scale.y * transition.current)
-    transition.current += (1 - transition.current) * .1
+    transition.current += (1 - transition.current) * .5
   })
 
   return (

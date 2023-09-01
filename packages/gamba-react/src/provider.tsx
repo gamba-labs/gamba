@@ -1,45 +1,43 @@
 import { ConnectionContext, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Connection, ConnectionConfig, PublicKey } from '@solana/web3.js'
-import { GambaProvider as GambaProviderCore } from 'gamba-core'
-import { createContext, useEffect, useMemo } from 'react'
-import { useGamba, useSessionStore } from './hooks'
+import { GambaClient, GambaError } from 'gamba-core'
+import React from 'react'
+import { useGamba } from './hooks'
 import { randomSeed } from './utils'
 
-type GambaProviderProps = {
+interface GambaProviderProps {
   creator?: PublicKey | string
+  onError?: (err: GambaError) => void
+}
+
+interface ConnectionProps {
   connection?: {
     endpoint: string
     config?: ConnectionConfig
   }
 }
 
-type GambaProviderContext = {
-  provider: GambaProviderCore
+interface GambaProviderContext {
+  creator?: PublicKey | string
+  client: GambaClient
+  seed: string
+  setSeed: (seed: string) => void
+  onError?: (err: GambaError) => void
 }
 
-export const GambaProviderContext = createContext<GambaProviderContext>({ provider: null! })
+export const GambaProviderContext = React.createContext<GambaProviderContext>(null!)
 
 /**
  * Automatically connects / disconnects web3 wallet to Gamba
  * Also updates client seed when nonce advances
  */
 function SideEffects() {
-  const { wallet, connected } = useWallet()
+  // const { wallet, connected } = useWallet()
   const gamba = useGamba()
-  const set = useSessionStore((state) => state.set)
 
-  useEffect(() => {
-    set({ seed: randomSeed() })
+  React.useEffect(() => {
+    gamba.updateSeed()
   }, [gamba.user?.nonce])
-
-  useEffect(() => {
-    if (wallet && connected) {
-      gamba.connect(wallet)
-    }
-    if (!connected && gamba.session?._wallet) {
-      gamba.disconnect()
-    }
-  }, [wallet, connected])
 
   return null
 }
@@ -47,18 +45,24 @@ function SideEffects() {
 /**
  *
  */
-export function GambaProvider({ children, creator }: React.PropsWithChildren<{ creator?: PublicKey | string }>) {
+export function GambaProvider({ children, creator, onError }: React.PropsWithChildren<GambaProviderProps>) {
+  const [seed, setSeed] = React.useState(randomSeed())
   const { connection } = useConnection()
+  const { wallet, connected } = useWallet()
 
-  const provider = useMemo(() => {
-    const _creator = typeof creator === 'undefined' ? undefined : new PublicKey(creator)
-    return new GambaProviderCore(connection, _creator)
-  }, [connection, creator])
-
-  useEffect(() => provider.listen(), [provider])
+  const client = React.useMemo(
+    () => {
+      const _wallet = (() => {
+        if (connected && wallet?.adapter?.publicKey)
+          return wallet?.adapter as any
+      })()
+      return new GambaClient(connection, _wallet)
+    }
+    , [connection, wallet, connected],
+  )
 
   return (
-    <GambaProviderContext.Provider value={{ provider }}>
+    <GambaProviderContext.Provider value={{ creator, client, onError, seed, setSeed }}>
       <SideEffects />
       {children}
     </GambaProviderContext.Provider>
@@ -68,18 +72,18 @@ export function GambaProvider({ children, creator }: React.PropsWithChildren<{ c
 /**
  * GambaProvider with ConnectionProvider and WalletProvider
  */
-export function Gamba({ children, connection: connectionProps, creator }: React.PropsWithChildren<GambaProviderProps>) {
+export function Gamba({ children, connection: connectionProps, ...rest }: React.PropsWithChildren<GambaProviderProps & ConnectionProps>) {
   const endpoint = connectionProps?.endpoint ?? ''
   const connectionParams: ConnectionConfig = {
     commitment: 'processed',
     ...connectionProps?.config,
   }
-  const connection = useMemo(() => new Connection(endpoint, connectionParams), [endpoint, connectionParams])
+  const connection = React.useMemo(() => new Connection(endpoint, connectionParams), [endpoint, connectionParams])
 
   return (
     <ConnectionContext.Provider value={{ connection }}>
       <WalletProvider autoConnect wallets={[]}>
-        <GambaProvider creator={creator}>
+        <GambaProvider {...rest}>
           {children}
         </GambaProvider>
       </WalletProvider>

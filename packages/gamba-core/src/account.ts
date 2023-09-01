@@ -1,5 +1,4 @@
 import { AccountInfo, Connection, PublicKey } from '@solana/web3.js'
-import { Signal } from '@hmans/signal'
 
 type NullableAccountInfo = AccountInfo<Buffer> | null
 
@@ -11,7 +10,9 @@ export class StateAccount<T> {
   private current: DecodedAccountInfo<T> = { info: null, decoded: null }
   private previous: DecodedAccountInfo<T> = { info: null, decoded: null }
   private decoder: (info: NullableAccountInfo) => T | null
-  private signal = new Signal<[current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>]>()
+
+  /** Registered callbacks */
+  private listeners = new Array<(payload: [current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>]) => void>()
 
   get state() {
     return this.current.decoded
@@ -19,6 +20,14 @@ export class StateAccount<T> {
 
   get info() {
     return this.current.info
+  }
+
+  constructor(
+    publicKey: PublicKey,
+    decoder: (info: NullableAccountInfo) => T | null,
+  ) {
+    this.publicKey = publicKey
+    this.decoder = decoder
   }
 
   /** Fetch and update state */
@@ -40,7 +49,10 @@ export class StateAccount<T> {
     //   })
     // }, 3000)
 
-    const listener = connection.onAccountChange(this.publicKey, (info) => this.update(info))
+    const listener = connection.onAccountChange(this.publicKey, (info, context) => {
+      // console.log('💀', this._debugIdentifier, info, context)
+      this.update(info)
+    })
 
     return () => {
       console.debug(this._debugIdentifier, 'STOP')
@@ -49,21 +61,22 @@ export class StateAccount<T> {
     }
   }
 
-
   onChange(callback: (current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>) => void) {
     const handler = ([current, previous]: [DecodedAccountInfo<T>, DecodedAccountInfo<T>]) => {
       console.debug(this._debugIdentifier, 'onChange')
       callback(current, previous)
     }
+
     callback(this.current, this.previous)
-    this.signal.add(handler)
+
+    const index = this.listeners.push(handler)
+
     return () => {
-      this.signal.remove(handler)
+      this.listeners.splice(index, 1)
     }
   }
   /**
    * Register a callback to be invoked whenever the account changes
-   *
    * @param callback Function to invoke whenever the account is changed
    * @return promise that resolves / rejects when the callback function returns a result object
    */
@@ -72,8 +85,6 @@ export class StateAccount<T> {
     // options = { timeout: 60000 },
   ) {
     return new Promise<U>((resolve, reject) => {
-      const { signal } = this
-
       const listener = ([current, previous]: [current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>]) => {
         try {
           const handled = callback(current, previous)
@@ -87,8 +98,9 @@ export class StateAccount<T> {
           reject(err)
         }
       }
+      const listenerIndex = this.listeners.push(listener)
 
-      const removeListener = () => signal.remove(listener)
+      const removeListener = () => this.listeners.splice(listenerIndex, 1)
 
       // run listener with current state
       listener([this.current, this.previous])
@@ -97,9 +109,6 @@ export class StateAccount<T> {
       //   removeListener()
       //   reject(GambaError.FAILED_CREATING_USER_ACCOUNT)
       // }, options.timeout)
-
-      // listen for future updates
-      signal.add(listener)
     })
   }
 
@@ -110,18 +119,14 @@ export class StateAccount<T> {
     }
     const decoded = this.decoder(info)
     this.current = { info, decoded }
-    this.signal.emit([
-      this.current,
-      this.previous,
-    ])
-    this.previous = this.current
-  }
 
-  constructor(
-    publicKey: PublicKey,
-    decoder: (info: NullableAccountInfo) => T | null,
-  ) {
-    this.publicKey = publicKey
-    this.decoder = decoder
+    for (const listener of this.listeners) {
+      listener([
+        this.current,
+        this.previous,
+      ])
+    }
+
+    this.previous = this.current
   }
 }

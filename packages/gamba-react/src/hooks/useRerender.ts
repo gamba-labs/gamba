@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react'
+import React from 'react'
 
 export function useRerender() {
-  const [, set] = useState({})
-  const rerender = useCallback(() => {
+  const [, set] = React.useState({})
+  const rerender = React.useCallback(() => {
     set({})
   }, [])
   return rerender

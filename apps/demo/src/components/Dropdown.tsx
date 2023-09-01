@@ -1,25 +1,5 @@
-import React, { RefObject, useEffect, useMemo, useRef } from 'react'
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { create } from 'zustand'
-
-interface PopupStore {
-  openId?: string
-  open: (id: string) => void
-  close: () => void
-}
-
-export const usePopupStore = create<PopupStore>((set) => ({
-  open: (openId) => set({ openId }),
-  close: () => set({ openId: undefined }),
-}))
-
-function usePopup() {
-  const id = useMemo(() => String(Math.random() * 1e9 | 0), [])
-  const active = usePopupStore((state) => state.openId === id)
-  const close = usePopupStore((state) => state.close)
-  const open = usePopupStore((state) => state.open)
-  return { active, close, open: () => open(id) }
-}
 
 const StyledWrapper = styled.div`
   position: relative;
@@ -29,15 +9,15 @@ const StyledWrapper = styled.div`
 const Label = styled.div`
   font-size: 12px;
   text-transform: uppercase;
-  color: #ccc;
+  color: #666;
   display: inline;
   margin-right: 1em;
 `
 
 const StyledDropdown = styled.button<{$active?: boolean}>`
-  background: var(--bg-light-color);
+  background: white;
   border-radius: var(--border-radius);
-  color: white;
+  color: black;
   border: none;
   margin: 0;
   text-align: left;
@@ -45,13 +25,13 @@ const StyledDropdown = styled.button<{$active?: boolean}>`
   height: 40px;
   padding: 10px 20px;
   ${({ $active }) => $active && `
-    background: #2e323f;
+    background: #d7d6e5;
   `}
   &:hover {
-    background: #2e323f;
+    background: #fafafa;
   }
   &:disabled {
-    background: #2e323f;
+    background: #d7d6e5;
     color: #CCCCCC;
   }
 `
@@ -75,17 +55,17 @@ const StyledPopup = styled.div<{align?: 'bottom' | 'top'}>`
   left: 0;
   border: none;
   max-width: 100%;
-  background: var(--bg-light-color);
+  background: white;
   color: white;
-  border-radius: var(--border-radius);
+  border-radius: 5px;
   width: 100%;
-  padding: 5px;
+  padding: 2.5px;
   &:after {
     content: "";
     width: 20px;
     height: 20px;
     transform: rotate(-45deg);
-    background: var(--bg-light-color);
+    background: white;
     position: absolute;
     z-index: -1;
     bottom: -10px;
@@ -97,23 +77,23 @@ const StyledOption = styled.button<{$selected?: boolean}>`
   display: block;
   border: none;
   margin: 0;
+  padding: 2.5px;
   width: 100%;
   text-align: left;
   background: none;
-  color: white;
-  padding: 5px;
+  color: black;
   & > div {
     padding: 10px 20px;
-    border-radius: var(--border-radius);
+    border-radius: 2.5px;
   }
   ${({ $selected }) => $selected && `
     & > div {
-      background: #1e2029;
+      background: #d7d6e599;
     }
   `}
   &:hover {
     & > div {
-      background: #2e323f;
+      background: #d7d6e566;
     }
   }
 `
@@ -156,26 +136,19 @@ function useOnClickOutside(
 export function Dropdown<T>({ label, options, onChange, value, disabled, format, align }: Props<T>) {
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const popup = usePopup()
+  // const popup = usePopup()
+  const [open, setOpen] = useState(false)
   const hideActive = false
 
   useOnClickOutside(ref, (e) => {
     if (!buttonRef.current?.contains(e.target)) {
-      popup.close()
+      setOpen(false)
     }
   })
 
-  const open = () => {
-    if (popup.active) {
-      popup.close()
-    } else {
-      popup.open()
-    }
-  }
-
   const change = (v: T) => {
     onChange(v)
-    popup.close()
+    setOpen(false)
   }
 
   const filteredOptions = useMemo(() => {
@@ -188,16 +161,16 @@ export function Dropdown<T>({ label, options, onChange, value, disabled, format,
     <StyledWrapper>
       <StyledDropdown
         ref={buttonRef}
-        $active={popup.active}
+        $active={open}
         disabled={disabled}
-        onClick={() => open()}
+        onClick={() => setOpen(!open)}
       >
         <>
           <Label>{label}</Label>
           {displayedValue}
         </>
       </StyledDropdown>
-      {popup.active && (
+      {open && (
         <StyledPopup align={align} ref={ref}>
           {[...filteredOptions].reverse().map((option, i) => (
             <StyledOption

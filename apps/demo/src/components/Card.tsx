@@ -1,76 +1,121 @@
 import React, { PropsWithChildren } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
-const StyledCard = styled.div<{width: number, height: number}>`
+const tileAnimation = keyframes`
+  0% {
+    background-position: -100px 200px;
+  }
+  100% {
+    background-position: 100px -200px;
+  }
+`
+
+const StyledCard = styled(NavLink)<{width: number, height: number}>`
   color: white;
   position: relative;
   background: #ffffff;
+  transform: scale(1);
+  cursor: pointer;
   &:hover {
+    transform: scale(1.02);
+    outline: var(--text-color) solid 1px;
+    outline-offset: 3px;
     & > .background {
-      transform: scale(1.1, 1.1)
+      transform: scale(1.1);
     }
-    & > div:last-child {
-      opacity: 1;
+    & > .logo {
+      transform: scale(1.15);
+    }
+    & > .content {
+      opacity: 0;
     }
   }
-  border-radius: var(--border-radius);
+  border-radius: 5px;
   display: flex;
-  flex-direction: column;
   justify-content: end;
-  ${({ width, height }) => `
-    width: ${width}px;
-    height: ${height}px;
-  `}
-  transition: height .25s ease;
+  width: 200px;
+  aspect-ratio: 2/1;
+  transition: height .25s ease, transform .2s ease, aspect-ratio .2s ease;
   max-height: 100%;
   overflow: hidden;
+  flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
-  & > .background {
+  & > .logo {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;
+    background-size: contain;
     background-position: center;
+    background-repeat: no-repeat;
+    z-index: 10;
     transition: transform .2s ease;
   }
-  & > div {
-    &:last-child {
-      transition: opacity .2s;
-      opacity: 0;
-      backdrop-filter: blur(50px);
-      padding: 10px;
-      text-align: center;
-      background: #000000CC;
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      transition-delay: .1s;
-      user-select: none;
-    }
+  & > .content {
+    background: #111111;
+    opacity: 1;
+    transition: opacity .2s;
+    padding: 10px;
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    user-select: none;
   }
+`
+
+const CardBackground = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ff4e80;
+  background-size: 50px;
+  background-position: center;
+  transition: transform .2s ease;
+  animation: ${tileAnimation} 10s linear infinite;
 `
 
 interface Props extends PropsWithChildren {
   backgroundImage?: string
   backgroundColor?: string
+  to: string
+  logo?: string
   width?: number
   height?: number
 }
 
-export function Card({ backgroundImage, backgroundColor, children, width = 150, height = 200 }: Props) {
+import ok from '../bomb.svg'
+import { NavLink } from 'react-router-dom'
+
+export function Card({ to, logo, backgroundImage, backgroundColor, children, width = 150, height = 200 }: Props) {
   return (
-    <StyledCard width={width} height={height} style={{ backgroundColor }}>
-      {backgroundImage && (
+    <StyledCard to={to} width={width} height={height} style={{ backgroundColor }}>
+      <CardBackground style={{ backgroundImage: 'url(' + ok + ')', backgroundColor }} />
+      {logo && (
+        <div
+          className="logo"
+          style={{ backgroundImage: 'url(' + logo + ')' }}
+        />
+      )}
+
+      {/* {backgroundImage && (
         <div
           className="background"
           style={{ backgroundImage: 'url(' + backgroundImage + ')' }}
         />
-      )}
-      <div className="content">{children}</div>
+      )} */}
+      <div className="content" style={{ backgroundColor }} />
     </StyledCard>
   )
 }

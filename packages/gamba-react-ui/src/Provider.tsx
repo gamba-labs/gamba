@@ -1,8 +1,8 @@
-import { GambaError, useGambaError } from 'gamba-react'
 import { PropsWithChildren } from 'react'
 import { GambaModal } from './GambaModal'
 import { Modal } from './components/Modal'
 import { GambaUiProvider, useGambaUi } from './context'
+import { GambaError, useGambaError } from 'gamba-react'
 
 export interface GambaUiProps {
   /**

@@ -1,5 +1,5 @@
 import React from 'react'
-import image from './image.png'
+import image from './logo.png'
 
 export default {
   name: 'Flip',
@@ -7,6 +7,6 @@ export default {
   description: '',
   creator: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
   image,
-  theme_color: '#ad6bff',
+  theme_color: '#ffe875',
   app: React.lazy(() => import('./App')),
 }

@@ -1,17 +1,18 @@
 import { OrthographicCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { GameResult, solToLamports } from 'gamba'
+import { solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
 import { ActionBar, Button, formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
-import { toast } from 'react-toastify'
 import styled from 'styled-components'
 import * as Tone from 'tone'
 import { Dropdown } from '../../components/Dropdown'
 import { Coin } from './Coin'
 import { SplashEffect } from './SplashEffect'
 import coinSrc from './coin.wav'
+import headsSrc from './heads.png'
 import loseSrc from './lose.wav'
+import tailsSrc from './tails.png'
 import winSrc from './win.wav'
 
 const WAGER_AMOUNTS = [
@@ -43,18 +44,22 @@ const CoinButton = styled.button<{selected: boolean}>`
     cursor: default;
     opacity: .5;
   }
+  & > div {
+    position: absolute;
+    width: 75%;
+    height: 75%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 `
 
 interface Result {
   win: boolean
   index: number
-}
-
-const notifyGameResult = (result: GameResult) => {
-  if (result.payout > 0) {
-    return toast(`🎉 You won ${formatLamports(result.payout)}`)
-  }
-  return toast('💀 You lost')
 }
 
 export default function Flip() {
@@ -71,21 +76,15 @@ export default function Flip() {
       soundPlay.start()
       setFlipping(heads ? 'heads' : 'tails')
       const result = await response.result()
-
       const win = result.payout > 0
-
       setResult({
         index: result.resultIndex,
         win,
       })
-
-      notifyGameResult(result)
-
-      if (win) {
+      if (win)
         soundWin.start()
-      } else {
+      else
         soundLose.start()
-      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -121,10 +120,10 @@ export default function Flip() {
             value,
           }))}
         />
-        <CoinButton disabled={!!flipping} selected={heads} onClick={() => setHeads(true)}>
+        <CoinButton disabled={flipping} selected={heads} onClick={() => setHeads(true)}>
           HEADS
         </CoinButton>
-        <CoinButton disabled={!!flipping} selected={!heads} onClick={() => setHeads(false)}>
+        <CoinButton disabled={flipping} selected={!heads} onClick={() => setHeads(false)} label={tailsSrc}>
           TAILS
         </CoinButton>
         <Button disabled={!!flipping} onClick={play}>

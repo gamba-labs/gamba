@@ -1,5 +1,5 @@
 import { useWallet } from '@solana/wallet-adapter-react'
-import { GambaConnectButton } from 'gamba-react-ui'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import React from 'react'
 import DoubleOrNothing from './DoubleOrNothing'
 
@@ -9,7 +9,7 @@ export function App() {
   return (
     <>
       <header>
-        <GambaConnectButton />
+        <WalletMultiButton />
       </header>
       <div className="content">
         {!connected ? (

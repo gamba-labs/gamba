@@ -16,7 +16,7 @@ export const theme: DefaultTheme = {
     background: '#080809',
     backgroundLight: '#1a1c24',
     textColor: '#ffffff',
-    primary: '#ff335c',
+    primary: '#a079ff',
   },
 }
 
@@ -26,7 +26,7 @@ export const GlobalStyle = createGlobalStyle`
   }
   :root {
     ${({ theme }) => `
-      --border-radius: 10px;
+      --border-radius: 5px;
       --text-color: ${theme.palette.textColor};
       --primary-color: ${theme.palette.primary};
       --header-bg-color: ${theme.palette.background};
@@ -93,11 +93,11 @@ export const Section = styled.div`
   padding: 10px;
   width: 100%;
   transition: width .25s ease;
-  @media (min-width: 800px) {
-    width: 720px;
+  @media (min-width: 900px) {
+    width: 800px;
   }
   @media (min-width: 1280px) {
-    width: 960px;
+    width: 1200px;
   }
   display: grid;
   gap: 10px;

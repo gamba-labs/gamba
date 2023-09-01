@@ -16,12 +16,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<{erro
       if (this.props.error) {
         return <>{this.props.error}</>
       }
-      return (
-        <div>
-          <h1>Error</h1>
-          An unexpected error occured!
-        </div>
-      )
+      return null
     }
     return this.props.children
   }

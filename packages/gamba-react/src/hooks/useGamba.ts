@@ -1,16 +1,16 @@
 import { Signal } from '@hmans/signal'
-import { Wallet, useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { GambaError, GambaPlayParams } from 'gamba-core'
-import { useEffect, useMemo } from 'react'
+import { PublicKey } from '@solana/web3.js'
+import { GambaError2 } from 'gamba-core'
+import React from 'react'
 import { parseHouseAccount, parseUserAccount } from '../parsers'
+import { GambaProviderContext } from '../provider'
 import { randomSeed } from '../utils'
-import { useGambaProvider } from './useGambaProvider'
-import { useGambaSession, useSessionStore } from './useSession'
+import { useGambaClient } from './useGambaClient'
 
-const errorSignal = new Signal<GambaError>()
+const errorSignal = new Signal<GambaError2>()
 
-export function useGambaError(callback: (err: GambaError) => void) {
-  useEffect(() => {
+export function useGambaError(callback: (err: GambaError2) => void) {
+  React.useEffect(() => {
     errorSignal.add(callback)
     return () => {
       errorSignal.remove(callback)
@@ -18,132 +18,93 @@ export function useGambaError(callback: (err: GambaError) => void) {
   }, [callback])
 }
 
+interface GambaPlayParams {
+  /** */
+  deductFees?: boolean
+  /** */
+  creator?: PublicKey | string
+}
+
 export function useGamba() {
-  const { connection } = useConnection()
-  const provider = useGambaProvider()
-  const mainSession = useGambaSession('main')
-  const seed = useSessionStore((state) => state.seed)
-  const set = useSessionStore((state) => state.set)
-  const web3Wallet = useWallet()
+  const { creator: defaultCreator, onError = () => null, seed, setSeed } = React.useContext(GambaProviderContext)
+  const client = useGambaClient()
+  const { connection } = client
 
-  const updateSeed = () => set({ seed: randomSeed() })
+  const updateSeed = (seed = randomSeed()) => setSeed(seed)
 
-  const wallet = mainSession.session?.wallet
-  const user = useMemo(() => parseUserAccount(mainSession.session?.user), [mainSession.session?.user?.state])
-  const house = useMemo(() => parseHouseAccount(provider.house), [provider.house.state])
+  const wallet = client.wallet
+  const user = React.useMemo(() => parseUserAccount(client.user), [client.user.state])
+  const house = React.useMemo(() => parseHouseAccount(client.house), [client.house.state])
 
   const userBalance = user?.balance ?? 0
   const walletBalance = wallet?.info?.lamports ?? 0
   const bonusBalance = user?.bonusBalance ?? 0
 
-  const connect = async (wallet: Wallet) => {
-    const session = await mainSession.create(wallet.adapter as any)
-    await session.user.waitForState((e) => {
-      if (e.info) {
-        return true
+  const methods = Object.entries(client.methods)
+    .reduce((methods, [methodName, method]) => {
+      return {
+        ...methods,
+        [methodName]: async (...args: (typeof method.arguments)[]) => {
+          const retry: any = async () => {
+            try {
+              return await (method as any)(...args)
+            } catch (err) {
+              if (err instanceof GambaError2) {
+                errorSignal.emit(err)
+                try {
+                  await err.waitForRetry()
+                } catch {
+                  throw err
+                }
+                return await retry()
+              } else {
+                throw err
+              }
+            }
+          }
+          return await retry()
+        },
       }
-    })
-    await session.wallet.waitForState((e) => {
-      if (e.info) {
-        return true
-      }
-    })
-    return session
-  }
+    }, {} as typeof client.methods)
 
-  const play = async (
+  const play = (
     config: number[],
     wager: number,
     params?: GambaPlayParams,
   ) => {
-    if (!mainSession.session || !user?.created) {
-      errorSignal.emit(GambaError.PLAY_WITHOUT_CONNECTED)
-      throw new Error(GambaError.PLAY_WITHOUT_CONNECTED)
-    }
-    const req = await mainSession.session.play(config, wager, seed, params)
-    return req
-  }
-
-  const withdraw = (amount?: number) => {
-    if (!mainSession.session) {
-      throw new Error('NO_SESSION')
-    }
-
-    const availableBalance = userBalance
-
-    const a = amount ?? availableBalance
-
-    if (a > availableBalance) {
-      throw new Error(GambaError.FAILED_TO_GENERATE_RESULT)
-    }
-
-    return mainSession.session.withdraw(a)
-  }
-
-  const createAccount = async () => {
-    if (!mainSession.session) {
-      throw new Error('NO_SESSION')
-    }
-    return mainSession.session.createUserAccount()
-  }
-
-  const closeAccount = async () => {
-    if (!mainSession.session) {
-      throw new Error('NO_SESSION')
-    }
-    return mainSession.session.closeUserAccount()
-  }
-
-  const approveBonusToken = async () => {
-    if (!mainSession.session) {
-      throw new Error('NO_SESSION')
-    }
-    return mainSession.session.approveBonusToken()
-  }
-
-  const redeemBonusToken = async () => {
-    if (!mainSession.session) {
-      throw new Error('NO_SESSION')
-    }
-    return mainSession.session.redeemBonusToken()
+    return methods.play({
+      seed,
+      wager,
+      gameConfig: config,
+      deductFees: params?.deductFees,
+      creator: params?.creator ?? defaultCreator!,
+    })
   }
 
   const refresh = async () => {
-    if (!mainSession.session) throw new Error('NO_SESSION')
-    await mainSession.session.user.fetchState(connection)
-    await mainSession.session.wallet.fetchState(connection)
-    await provider.house.fetchState(connection)
-  }
-
-  const disconnect = async () => {
-    await mainSession.destroy()
-    await web3Wallet.disconnect()
+    await client.user.fetchState(connection)
+    await client.wallet.fetchState(connection)
+    await client.house.fetchState(connection)
   }
 
   return {
-    creator: provider.creator,
+    connection,
+    creator: defaultCreator,
+    _client: client,
     updateSeed,
     wallet,
     user,
     seed,
-    withdraw,
-    createAccount,
-    closeAccount,
-
-    redeemBonusToken,
-    approveBonusToken,
-
+    ...methods,
+    methods,
+    play,
     refresh,
-    disconnect,
     house,
-    session: mainSession.session,
     balances: {
       total: userBalance + walletBalance + bonusBalance,
       bonus: bonusBalance,
       wallet: walletBalance,
       user: userBalance,
     },
-    connect,
-    play,
   }
 }

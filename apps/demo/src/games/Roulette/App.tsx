@@ -1,12 +1,11 @@
-import { lamportsToSol } from 'gamba'
+import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
 import { ActionBar, Button, ResponsiveSize, formatLamports } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import * as Tone from 'tone'
 import { Results } from './Results'
 import { Table } from './Table'
-import { CHIPS, NAMED_BETS } from './constants'
-import { useRoulette } from './store'
+import { CHIPS, INITIAL_TABLE_BETS, NAMED_BETS } from './constants'
 import { Chip, StylelessButton } from './styles'
 import { NamedBet } from './types'
 
@@ -24,11 +23,16 @@ export const soundWin = createSound(winSrc)
 
 export default function Roulette() {
   const gamba = useGamba()
-  const tableBet = useRoulette((state) => state.tableBet)
-  const clearChips = useRoulette((state) => state.clearChips)
-  const selectedBetAmount = useRoulette((state) => state.selectedBetAmount)
-  const setSelectedBetAmount = useRoulette((state) => state.setSelectedBetAmount)
-  const addResult = useRoulette((state) => state.addResult)
+  const [tableBet, setTableBet] = useState(INITIAL_TABLE_BETS)
+  const [selectedChip, setSelectedChip] = useState(solToLamports(0.01))
+  const [results, setResults] = useState<number[]>([])
+
+  const clearChips = () => {
+    setTableBet(INITIAL_TABLE_BETS)
+  }
+  const addResult = (result: number) => {
+    setResults((r) => [result, ...r])
+  }
   const [loading, setLoading] = useState(false)
 
   const distributedBet = useMemo(() =>
@@ -67,7 +71,7 @@ export default function Roulette() {
   return (
     <>
       <ResponsiveSize>
-        <div style={{ display: 'grid', gap: '20px', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gap: '20px', alignItems: 'center', padding: '50px' }}>
           <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
             <div>
               <div style={{ fontWeight: 'bold' }}>
@@ -94,17 +98,22 @@ export default function Roulette() {
               </div>
             </div>
           </div>
-          <Results loading={loading} />
+
+          <Results
+            results={results}
+            loading={loading}
+          />
+
           <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
             {CHIPS.map((value) => (
-              <StylelessButton key={value} onClick={() => setSelectedBetAmount(value)}>
-                <Chip inactive={value !== selectedBetAmount} value={lamportsToSol(value)}>
+              <StylelessButton key={value} onClick={() => setSelectedChip(value)}>
+                <Chip inactive={value !== selectedChip} value={lamportsToSol(value)}>
                   {lamportsToSol(value)}
                 </Chip>
               </StylelessButton>
             ))}
           </div>
-          <Table />
+          <Table tableBet={tableBet} onChange={setTableBet} />
         </div>
       </ResponsiveSize>
       <ActionBar>

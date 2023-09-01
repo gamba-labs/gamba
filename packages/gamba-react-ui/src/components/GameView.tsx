@@ -1,4 +1,3 @@
-import { Game } from 'gamba-react'
 import React from 'react'
 import { GameBundle } from '../types'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -8,6 +7,17 @@ const DefaultLoadScreen = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
       <Loader />
+    </div>
+  )
+}
+
+const DefaultError = () => {
+  return (
+    <div style={{ color: 'white', background: 'black', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', textAlign: 'center' }}>
+      <div>
+        <h1>Error</h1>
+        <p>An unexpected error occured!</p>
+      </div>
     </div>
   )
 }
@@ -26,11 +36,9 @@ interface Props {
 
 export function GameView({ game, loader, error }: Props) {
   return (
-    <ErrorBoundary error={error}>
+    <ErrorBoundary key={game.short_name} error={error ?? <DefaultError />}>
       <React.Suspense fallback={loader ?? <DefaultLoadScreen />}>
-        <Game creator={game.creator}>
-          <game.app />
-        </Game>
+        <game.app />
       </React.Suspense>
     </ErrorBoundary>
   )

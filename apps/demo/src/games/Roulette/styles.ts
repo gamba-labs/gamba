@@ -11,20 +11,28 @@ export const numberColorToHex = (numberColor: string) => {
 }
 
 const getChipColor = (value = 0) => {
-  if (value >= .5) {
+  if (value >= .75) {
     return '#d46bff'
   }
-  if (value >= .25) {
+  if (value >= .5) {
     return '#ffdf56'
   }
-  if (value >= .1) {
+  if (value >= .25) {
     return '#ff384b'
   }
-  if (value >= .05) {
+  if (value >= .1) {
     return '#5187ff'
   }
   return '#00ff61'
 }
+
+export const StylelessButton = styled.button`
+  border: none;
+  margin: 0;
+  outline: none;
+  padding: 0;
+  background: none;
+`
 
 export const TableWrapper = styled.div`
   display: inline-grid;
@@ -51,14 +59,6 @@ export const Relative = styled.div`
   position: relative;
 `
 
-export const StylelessButton = styled.button`
-  border: none;
-  margin: 0;
-  outline: none;
-  padding: 0;
-  background: none;
-`
-
 export const TableSquare = styled.div<{$color: 'red' | 'black' | 'none', $transparent?: boolean, $highlighted?: boolean}>`
   border-radius: 5px;
   width: 60px;
@@ -77,15 +77,16 @@ export const TableSquare = styled.div<{$color: 'red' | 'black' | 'none', $transp
 
 export const Chip = styled.div<{value?: number, inactive?: boolean}>`
   --chip-color: ${({ value, inactive }) => inactive ? '#ccc' : getChipColor(value)};
-  width: 30px;
+  width: 35px;
   border-radius: 5px;
   background: var(--chip-color);
   color: black;
   font-size: 12px;
   font-weight: bold;
-  border: 1px dashed #fff;
+  border: 2px dashed #fff;
+  padding: 0 2px;
   display: inline-block;
-  box-shadow: 0 0 0 1px var(--chip-color), 0 0 5px 5px ${({ value }) => getChipColor(value)}33, -4px 4px #00000033;
+  box-shadow: 0 0 0 2px var(--chip-color), 0 0 5px 5px ${({ value }) => getChipColor(value)}33, -4px 4px #00000033;
   text-align: center;
   user-select: none;
 `

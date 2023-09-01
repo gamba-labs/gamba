@@ -9,7 +9,7 @@ const Trail = ({ color }: {color: string}) => {
   const dots = useRef(Array.from({ length: 10 }).map((x, i) => ({ len: i / 10, size: i / 10 })))
   const llll  = useMemo(() => Math.random() * 2 + 1, [])
 
-  useFrame((_, dt) => {
+  useFrame((_) => {
     dots.current.forEach(({ len, size }, i) => {
       const tmp = new Object3D
       tmp.scale.setScalar(animation.current * .1 * size * (1 - animation.current))

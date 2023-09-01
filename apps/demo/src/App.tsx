@@ -1,4 +1,4 @@
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { GambaError, useGamba, useGambaError } from 'gamba/react'
 import { Button, Modal } from 'gamba/react-ui'
@@ -57,6 +57,10 @@ function Guide({ onDone, onCancel }: {onDone: () => void, onCancel: () => void})
 
 export function App() {
   const [error, setError] = React.useState<GambaError2>()
+  const { connection } = useConnection()
+  const wallet = useWallet()
+  console.debug('App Connection', connection)
+  console.debug('App Wallet', wallet)
 
   useGambaError(
     (err) => {

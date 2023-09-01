@@ -27,7 +27,7 @@ function Content({ children }: PropsWithChildren) {
   const { modal, setModal } = useGambaUi()
 
   useGambaError((err) => {
-    if (err === GambaError.PLAY_WITHOUT_CONNECTED) {
+    if (err.message === GambaError.PLAY_WITHOUT_CONNECTED) {
       setModal(true)
     }
   })

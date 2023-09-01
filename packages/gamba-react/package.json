@@ -23,7 +23,7 @@
     "@coral-xyz/anchor": "^0.27.0",
     "@hmans/signal": "^0.2.2",
     "@solana/wallet-adapter-react": "^0.15.32",
-    "@solana/web3.js": "^1.75.0",
+    "@solana/web3.js": "^1.77.3",
     "buffer": "^6.0.3",
     "esbuild-plugin-polyfill-node": "^0.2.0",
     "gamba-core": "workspace:*",

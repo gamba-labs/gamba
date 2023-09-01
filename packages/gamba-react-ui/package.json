@@ -35,6 +35,9 @@
   },
   "peerDependencies": {
     "@solana/wallet-adapter-react": "*",
+    "@solana/wallet-adapter-base": "*",
+    "@coral-xyz/anchor": "*",
+    "@solana/web3.js": "*",
     "gamba-core": "*",
     "gamba-react": "*",
     "react": "*",

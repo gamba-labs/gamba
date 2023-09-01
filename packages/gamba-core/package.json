@@ -21,7 +21,7 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
     "@solana/spl-token": "^0.3.8",
-    "@solana/web3.js": "^1.75.0"
+    "@solana/web3.js": "^1.77.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.56.0",
@@ -30,6 +30,10 @@
     "eslint": "^8.36.0",
     "tsup": "^5.10.1",
     "typescript": "^4.5.3"
+  },
+  "peerDependencies": {
+    "@solana/web3.js": "*",
+    "@coral-xyz/anchor": "*"
   },
   "keywords": [],
   "author": "",

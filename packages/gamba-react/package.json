@@ -38,9 +38,18 @@
   },
   "peerDependencies": {
     "@solana/wallet-adapter-react": "*",
-    "@coral-xyz/anchor": "^0.27.0",
-    "@solana/web3.js": "^1.75.0",
+    "@solana/wallet-adapter-base": "*",
+    "@coral-xyz/anchor": "*",
+    "@solana/web3.js": "*",
     "gamba-core": "*",
     "react": "*"
+  },
+  "peerDependenciesMeta": {
+    "@solana/wallet-adapter-base": {
+      "optional": true
+    },
+    "@solana/wallet-adapter-react": {
+      "optional": true
+    }
   }
 }

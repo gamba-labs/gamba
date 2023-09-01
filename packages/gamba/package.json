@@ -44,7 +44,7 @@
   },
   "peerDependencies": {
     "@solana/wallet-adapter-react": "*",
-    "@coral-xyz/anchor": "^0.27.0",
+    "@coral-xyz/anchor": "*",
     "gamba-core": "*",
     "gamba-react": "*",
     "gamba-react-ui": "*",
@@ -52,6 +52,9 @@
   },
   "peerDependenciesMeta": {
     "react": {
+      "optional": true
+    },
+    "@solana/wallet-adapter-react": {
       "optional": true
     }
   }

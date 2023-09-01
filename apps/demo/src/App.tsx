@@ -1,12 +1,12 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { GambaError2 } from 'gamba'
 import { GambaError, useGamba, useGambaError } from 'gamba/react'
 import { Button, Modal } from 'gamba/react-ui'
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import View from './View'
 import ScrollToTop from './components/ScrollToTop'
-import { GambaError2 } from 'gamba'
 
 function Guide({ onDone, onCancel }: {onDone: () => void, onCancel: () => void}) {
   const wallet = useWallet()

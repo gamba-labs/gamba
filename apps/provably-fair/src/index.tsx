@@ -3,6 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Route, Routes, useParams } from 'react-router-dom'
 import './index.css'
+import { Legacy } from './Legacy'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
@@ -45,7 +46,7 @@ function App() {
     <Routes>
       <Route
         path="/"
-        element={<Dashboard />}
+        element={<Legacy />}
       />
       <Route
         path="/tx/:txid"

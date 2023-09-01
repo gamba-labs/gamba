@@ -15,9 +15,9 @@ body {
   color: white;
   margin: 0;
   padding: 20px;
-  /* display: flex;
+  display: flex;
   justify-content: center;
-  align-items: center; */
+  align-items: center;
 }
 
 body, input, textarea, button {

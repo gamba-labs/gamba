@@ -43,6 +43,7 @@
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
+    "@solana/wallet-adapter-react": "*",
     "@coral-xyz/anchor": "^0.27.0",
     "gamba-core": "*",
     "gamba-react": "*",

@@ -108,11 +108,11 @@ interface Props<T> {
   align?: 'top' | 'bottom'
 }
 
-function useOnClickOutside(
+export function useOnClickOutside(
   ref: RefObject<HTMLDivElement>,
   handler: (event: MouseEvent | TouchEvent) => void,
 ) {
-  useEffect(
+  React.useEffect(
     () => {
       const listener = (event: MouseEvent | TouchEvent) => {
         if (!ref.current || ref.current.contains(event.target)) {

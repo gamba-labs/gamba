@@ -1,12 +1,11 @@
-import { useGamba } from 'gamba/react'
-import { GambaConnectButton, GameBundle, GameView } from 'gamba/react-ui'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { GameBundle, GameView } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
-import QRCode from 'react-qr-code'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Card } from './components/Card'
 import { Footer } from './components/Footer'
-import { ClaimButton, Header, RedeemBonusButton } from './components/Header'
+import { Header } from './components/Header'
 import { RecentPlays } from './components/RecentPlays'
 import { Slider } from './components/Slider'
 import { GAMES } from './games'
@@ -23,7 +22,6 @@ const StyledFrame = styled.div<{$viewHeight: number}>`
 `
 
 function Frame({ game }: {game?: GameBundle}) {
-  const gamba = useGamba()
   return (
     <StyledFrame $viewHeight={game ? 75 : 50}>
       {game && <GameView game={game} />}
@@ -31,10 +29,17 @@ function Frame({ game }: {game?: GameBundle}) {
         <Section style={{ height: '100%' }}>
           <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div>
-              <QRCode value={gamba.wallet.publicKey.toBase58()} />
-              <br />
-              <RedeemBonusButton />
-              <ClaimButton />
+              {/* <QRCode value={gamba.wallet.publicKey.toBase58()} /> */}
+              {/* <br /> */}
+              {/* <div style={{ display: 'inline-block' }}>
+                <WalletMultiButton />
+              </div> */}
+              <h2>Featured Games</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '30px' }}>
+                {GAMES.map((game) => (
+                  <Card key={game.short_name} to={'/' + game.short_name} logo={game.image} backgroundColor={game.theme_color} />
+                ))}
+              </div>
             </div>
           </div>
         </Section>
@@ -54,9 +59,7 @@ export default function View() {
       <Section>
         <Slider title={<h2>Casino Games</h2>}>
           {GAMES.map((game) => (
-            <Card key={game.short_name} to={'/' + game.short_name} logo={game.image} backgroundColor={game.theme_color}>
-              {game.name}
-            </Card>
+            <Card key={game.short_name} to={'/' + game.short_name} logo={game.image} backgroundColor={game.theme_color} />
           ))}
         </Slider>
       </Section>
@@ -67,7 +70,6 @@ export default function View() {
       <Section>
         <Footer />
       </Section>
-      <GambaConnectButton />
     </>
   )
 }

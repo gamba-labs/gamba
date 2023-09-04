@@ -23,7 +23,8 @@
     "gamba-core": "workspace:*",
     "gamba-react": "workspace:*",
     "react": "^18.2.0",
-    "styled-components": "^5.3.11"
+    "styled-components": "^5.3.11",
+    "tone": "^14.7.77"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
@@ -34,9 +35,9 @@
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
-    "@solana/wallet-adapter-react": "*",
-    "@solana/wallet-adapter-base": "*",
     "@coral-xyz/anchor": "*",
+    "@solana/wallet-adapter-base": "*",
+    "@solana/wallet-adapter-react": "*",
     "@solana/web3.js": "*",
     "gamba-core": "*",
     "gamba-react": "*",

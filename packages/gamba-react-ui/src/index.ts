@@ -12,7 +12,7 @@ export { Modal } from './components/Modal'
 export { ResponsiveSize } from './components/ResponsiveSize'
 export { useGambaUi } from './context'
 export * from './types'
-export { formatLamports } from './utils'
+export { formatLamports, copyTextToClipboard } from './utils'
 export { Svg }
 
 /**

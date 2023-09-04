@@ -24,13 +24,13 @@ const StyledCard = styled(NavLink)<{width: number, height: number}>`
       transform: scale(1.1);
     }
     & > .logo {
-      transform: scale(1.15);
+      transform: scale(1.1);
     }
     & > .content {
       opacity: 0;
     }
   }
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   display: flex;
   justify-content: end;
   width: 200px;
@@ -86,7 +86,7 @@ const CardBackground = styled.div`
   animation: ${tileAnimation} 10s linear infinite;
 `
 
-interface Props extends PropsWithChildren {
+interface Props {
   backgroundImage?: string
   backgroundColor?: string
   to: string
@@ -95,26 +95,18 @@ interface Props extends PropsWithChildren {
   height?: number
 }
 
-import ok from '../bomb.svg'
 import { NavLink } from 'react-router-dom'
 
-export function Card({ to, logo, backgroundImage, backgroundColor, children, width = 150, height = 200 }: Props) {
+export function Card({ to, logo, backgroundColor, width = 150, height = 200 }: Props) {
   return (
     <StyledCard to={to} width={width} height={height} style={{ backgroundColor }}>
-      <CardBackground style={{ backgroundImage: 'url(' + ok + ')', backgroundColor }} />
+      <CardBackground style={{ backgroundImage: 'url(/logo.svg)', backgroundColor }} />
       {logo && (
         <div
           className="logo"
           style={{ backgroundImage: 'url(' + logo + ')' }}
         />
       )}
-
-      {/* {backgroundImage && (
-        <div
-          className="background"
-          style={{ backgroundImage: 'url(' + backgroundImage + ')' }}
-        />
-      )} */}
       <div className="content" style={{ backgroundColor }} />
     </StyledCard>
   )

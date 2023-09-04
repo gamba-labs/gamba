@@ -70,7 +70,7 @@ function Mines() {
   const claim = async () => {
     try {
       setLoading('claiming')
-      await gamba.withdraw()
+      await gamba.methods.withdraw()
       reset()
     } finally {
       setLoading(null)
@@ -98,11 +98,11 @@ function Mines() {
 
       setSelected(cellIndex)
 
-      const res = await gamba.play(
+      const res = await gamba.methods.play({
         bet,
-        firstBet ? config.wager : config.wager + totalGain,
-        { deductFees: !firstBet },
-      )
+        wager: firstBet ? config.wager : config.wager + totalGain,
+        deductFees: !firstBet,
+      })
 
       soundTick.playbackRate = 1.5
       // soundTick.loop = true

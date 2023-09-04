@@ -35,12 +35,14 @@ function Dice() {
         }
         return 0
       })
-      const wagerLamports = solToLamports(wager)
-      const response = await gamba.play(bet, wagerLamports)
+      const res = await gamba.methods.play({
+        bet,
+        wager: solToLamports(wager),
+      })
 
       setLoading(true)
 
-      const result = await response.result()
+      const result = await res.result()
       const resultnr = result.resultIndex + 1
 
       setResultIndex(resultnr)

@@ -32,7 +32,7 @@ export const generateBetArray = (
 /**
  * Picks a random slot item combination based on the result
  */
-export const getSlotCombination = (count: number, multiplier: number) => {
+export const getSlotCombination = (count: number, multiplier: number, bet: number[]) => {
   // When we win, all slots are the same
   if (multiplier > 0) {
     const items = SLOT_ITEMS.filter((x) => x.multiplier === multiplier)
@@ -41,21 +41,23 @@ export const getSlotCombination = (count: number, multiplier: number) => {
   }
 
   // Simulate a random roll
+  const availableSlotItems = SLOT_ITEMS.filter((x) => bet.includes(x.multiplier))
+
   const { items } = Array.from({ length: count })
     .reduce<{items: SlotItem[], previous: SlotItem}>(
     ({ previous, items }, _, i) => {
       const item = (() => {
         // Make sure we don't pick one that has been selected
         if (i === count - 1)
-          return pickRandom(SLOT_ITEMS.filter((x) => !items.includes(x)))
+          return pickRandom(availableSlotItems.filter((x) => !items.includes(x)))
 
         // Pick a random one
-        return Math.random() < .75 ? previous : pickRandom(SLOT_ITEMS)
+        return Math.random() < .75 ? previous : pickRandom(availableSlotItems)
       })()
 
       return { previous: item, items: [...items, item] }
     }
-    , { previous: pickRandom(SLOT_ITEMS), items: [] })
+    , { previous: pickRandom(availableSlotItems), items: [] })
 
   return items
 }

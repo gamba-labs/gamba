@@ -1,4 +1,3 @@
-import { useGamba } from 'gamba-react'
 import { PropsWithChildren } from 'react'
 import styled from 'styled-components'
 
@@ -36,7 +35,6 @@ interface Props extends PropsWithChildren {
 }
 
 export function ActionBar({ children }: Props) {
-  const gamba = useGamba()
   return (
     <>
       <Container>
@@ -44,8 +42,8 @@ export function ActionBar({ children }: Props) {
           <div>
             {children}
           </div>
-          <div className="seperator"></div>
-          <input value={gamba.seed} onChange={(evt) => gamba.updateSeed(evt.target.value)} />
+          {/* <div className="seperator"></div> */}
+          {/* <input value={gamba.seed} onChange={(evt) => gamba.updateSeed(evt.target.value)} /> */}
         </Wrapper>
       </Container>
     </>

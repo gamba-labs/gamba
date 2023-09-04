@@ -132,7 +132,7 @@ function CreateAccount() {
   const createAccount = async () => {
     try {
       setLoading(true)
-      const res = await gamba.createAccount()
+      const res = await gamba.methods.createAccount()
       const response = await res.result()
       return response
     } catch (err) {
@@ -200,7 +200,7 @@ function Account() {
           return
       }
       setLoading('close')
-      const res = await gamba.closeAccount()
+      const res = await gamba.methods.closeAccount()
       const response = await res.result()
       return response
     } catch (err) {
@@ -214,7 +214,7 @@ function Account() {
   const withdraw = async () => {
     try {
       setLoading('withdraw')
-      const res = await gamba.withdraw()
+      const res = await gamba.methods.withdraw()
       const response = await res.result()
       onWithdraw(response.status)
       return response
@@ -229,7 +229,7 @@ function Account() {
   const refreshAccount = async () => {
     try {
       setLoading('refresh')
-      await gamba.refresh()
+      // await gamba.refresh()
     } catch (err) {
       console.error('Modal Error', err)
       onError(err)
@@ -241,7 +241,7 @@ function Account() {
   const redeemBonus = async () => {
     try {
       setLoading('redeem')
-      await gamba.redeemBonusToken()
+      await gamba.methods.redeemBonusToken()
     } catch (err) {
       console.error('Modal Error', err)
       onError(err)
@@ -292,12 +292,12 @@ function Account() {
           </HexColor>
         </Address>
         {gamba.balances.user > 0 && (
-          <Button className="primary" loading={loading === 'withdraw'} onClick={withdraw} disabled={gamba.user.status !== 'playing'}>
+          <Button className="green shine" loading={loading === 'withdraw'} onClick={withdraw} disabled={gamba.user.status !== 'playing'}>
             Claim {formatLamports(gamba.balances.user)}
           </Button>
         )}
         {bonusBalance > 0 && (
-          <Button className="primary" loading={loading === 'redeem'} onClick={redeemBonus}>
+          <Button className="yellow shine" loading={loading === 'redeem'} onClick={redeemBonus}>
             Redeem Bonus ({formatLamports(bonusBalance, 'gSOL')})
           </Button>
         )}

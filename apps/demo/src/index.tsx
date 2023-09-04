@@ -25,10 +25,6 @@ function Root() {
     , [],
   )
 
-  console.debug('RPC', import.meta.env.GAMBA_SOLANA_RPC)
-  console.debug('WS', import.meta.env.GAMBA_SOLANA_RPC_WS)
-  console.debug('Wallets', wallets)
-
   return (
     <ConnectionProvider
       endpoint={import.meta.env.GAMBA_SOLANA_RPC}
@@ -41,10 +37,7 @@ function Root() {
             creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV"
             onError={(err) => toast(err.message, { type: 'error' })}
           >
-            <GambaUi
-              // onError={(err) => toast(err.message, { type: 'error' })}
-              onWithdraw={() => toast('Claimed', { type: 'success' })}
-            >
+            <GambaUi>
               <ThemeProvider theme={theme}>
                 <GlobalStyle />
                 <BrowserRouter>

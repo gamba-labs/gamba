@@ -2,45 +2,77 @@ import { BN } from '@coral-xyz/anchor'
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token'
 import { PublicKey, SYSVAR_CLOCK_PUBKEY } from '@solana/web3.js'
 import { GambaClient } from './client'
-import { BET_UNIT, GambaError, HOUSE_SEED, SYSTEM_PROGRAM } from './constants'
+import { BET_UNIT, GambaError, HOUSE_SEED, SYSTEM_PROGRAM, USER_SEED } from './constants'
 import { GambaError2 } from './error'
+import { GambaProgram } from './types'
 import { getGameResult, getPdaAddress, getTokenBalance } from './utils'
 
-export interface PlayOptions {
+export interface GambaPlayParams {
   creator: PublicKey | string
   wager: number
   seed: string
-  gameConfig: number[]
+  bet: number[]
   deductFees?: boolean
 }
 
 export type GambaMethods = ReturnType<typeof createMethods>
 
+export const createAccountMethod = (
+  program: GambaProgram,
+  owner: PublicKey,
+) => {
+  return program.methods
+    .initializeUser(
+      owner,
+    )
+    .accounts({
+      user: getPdaAddress(USER_SEED, owner.toBytes()),
+      owner,
+      systemProgram: SYSTEM_PROGRAM,
+    })
+    .remainingAccounts([
+      { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
+    ])
+}
+
+export const playMethod = (
+  program: GambaProgram,
+  owner: PublicKey,
+  _wager: number,
+  bet: number[],
+  clientSeed: string,
+  creator: PublicKey,
+) => {
+  return program.methods
+    .play(
+      new BN(_wager),
+      bet.map((x) => x * BET_UNIT),
+      clientSeed,
+    )
+    .accounts({
+      owner,
+      house: getPdaAddress(HOUSE_SEED),
+      user: getPdaAddress(USER_SEED, owner.toBytes()),
+      creator,
+    })
+}
+
 export function createMethods(
   client: GambaClient,
 ) {
   return {
+    /**
+     * Testingtest
+     * @param opts
+     * @returns
+     */
     createAccount: async () => {
-      const instruction = await client.program.methods
-        .initializeUser(
-          client.wallet.publicKey,
-        )
-        .accounts({
-          user: client.user.publicKey,
-          owner: client.wallet.publicKey,
-          systemProgram: SYSTEM_PROGRAM,
-        })
-        .remainingAccounts([
-          { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
-        ])
-        .instruction()
-
+      const instruction = await createAccountMethod(client.program, client.wallet.publicKey).instruction()
       const { txId } = await client._createAndSendTransaction(instruction)
-
       return {
         txId,
-        result: () => {
-          return client.user.waitForState(
+        result: () =>
+          client.user.waitForState(
             (current) => {
               // if (current.decoded?.created) {
               //   return true
@@ -49,12 +81,15 @@ export function createMethods(
                 return true
               }
             },
-          )
-        },
+          ),
       }
     },
-
-    play: async (opts: PlayOptions) => {
+    /**
+     * Testing
+     * @param opts
+     * @returns
+     */
+    play: async (opts: GambaPlayParams) => {
       if (!client.user.state?.created) {
         throw new GambaError2(GambaError.PLAY_BEFORE_INITIALIZED, 'play', [opts])
       }
@@ -65,12 +100,22 @@ export function createMethods(
 
       const _wager = opts?.deductFees ? Math.ceil(opts.wager / (1 + totalFee)) : opts.wager
 
-      const gameConfig = opts.gameConfig.map((x) => x * BET_UNIT)
+      // const instruction = await playMethod(
+      //   client.program,
+      //   client.wallet.publicKey,
+      //   _wager,
+      //   opts.bet,
+      //   opts.seed,
+      //   new PublicKey(opts.creator),
+      // )
+      //   .instruction()
+
+      const bet = opts.bet.map((x) => x * BET_UNIT)
 
       const instruction = await client.program.methods
         .play(
           new BN(_wager),
-          gameConfig,
+          bet,
           opts.seed,
         )
         .accounts({
@@ -81,7 +126,6 @@ export function createMethods(
         })
         .instruction()
 
-      console.log(instruction)
 
       const { txId } = await client._createAndSendTransaction(instruction)
 
@@ -101,7 +145,7 @@ export function createMethods(
                 const currentNonce = current.decoded.nonce.toNumber()
                 if (currentNonce === previousNonce + 1)
                   return getGameResult(previous.decoded, current.decoded)
-                // nonce skipped
+                // Nonce skipped
                 if (currentNonce > previousNonce + 1)
                   throw new Error(GambaError.FAILED_TO_GENERATE_RESULT)
               }

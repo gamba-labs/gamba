@@ -64,17 +64,17 @@ interface Result {
 
 export default function Flip() {
   const gamba = useGamba()
-  const [heads, setHeads] = useState(true)
+  const [side, setSide] = useState<'heads' | 'tails'>('heads')
   const [flipping, setFlipping] = useState<'heads' | 'tails'>()
   const [result, setResult] = useState<Result>()
   const [wager, setWager] = useState(WAGER_AMOUNTS[0])
 
   const play = async () => {
     try {
-      const bet = heads ? [2, 0] : [0, 2]
-      const response = await gamba.play(bet, wager)
+      const bet = side === 'heads' ? [2, 0] : [0, 2]
+      const response = await gamba.methods.play({ bet, wager })
       soundPlay.start()
-      setFlipping(heads ? 'heads' : 'tails')
+      setFlipping(side)
       const result = await response.result()
       const win = result.payout > 0
       setResult({
@@ -120,12 +120,15 @@ export default function Flip() {
             value,
           }))}
         />
-        <CoinButton disabled={flipping} selected={heads} onClick={() => setHeads(true)}>
-          HEADS
-        </CoinButton>
-        <CoinButton disabled={flipping} selected={!heads} onClick={() => setHeads(false)} label={tailsSrc}>
-          TAILS
-        </CoinButton>
+        <Dropdown
+          value={side}
+          label="Side"
+          onChange={setSide}
+          options={[
+            { value: 'heads', label: 'Heads' },
+            { value: 'tails', label: 'Tails' },
+          ]}
+        />
         <Button disabled={!!flipping} onClick={play}>
           Flip
         </Button>

@@ -1,13 +1,12 @@
 import { ConnectionContext, WalletProvider, WalletProviderProps, useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Connection, ConnectionConfig, PublicKey } from '@solana/web3.js'
-import { GambaClient, GambaError } from 'gamba-core'
+import { GambaClient } from 'gamba-core'
 import React from 'react'
 import { useGamba } from './hooks'
 import { randomSeed } from './utils'
 
 interface GambaProviderProps {
   creator?: PublicKey | string
-  onError?: (err: GambaError) => void
 }
 
 interface ConnectionProps {
@@ -23,7 +22,6 @@ interface GambaProviderContext {
   client: GambaClient
   seed: string
   setSeed: (seed: string) => void
-  onError?: (err: GambaError) => void
 }
 
 export const GambaProviderContext = React.createContext<GambaProviderContext>(null!)
@@ -46,12 +44,10 @@ function SideEffects() {
 /**
  *
  */
-export function GambaProvider({ children, creator, onError }: React.PropsWithChildren<GambaProviderProps>) {
+export function GambaProvider({ children, creator }: React.PropsWithChildren<GambaProviderProps>) {
   const [seed, setSeed] = React.useState(randomSeed())
   const { connection } = useConnection()
   const { wallet, connected } = useWallet()
-
-  console.debug('Connection', connection)
 
   const client = React.useMemo(
     () => {
@@ -59,14 +55,13 @@ export function GambaProvider({ children, creator, onError }: React.PropsWithChi
         if (connected && wallet?.adapter?.publicKey)
           return wallet?.adapter as any
       })()
-      console.debug(connection, _wallet, connected)
       return new GambaClient(connection, _wallet)
     }
     , [connection, wallet, connected],
   )
 
   return (
-    <GambaProviderContext.Provider value={{ creator, client, onError, seed, setSeed }}>
+    <GambaProviderContext.Provider value={{ creator, client, seed, setSeed }}>
       <SideEffects />
       {children}
     </GambaProviderContext.Provider>

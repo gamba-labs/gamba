@@ -54,7 +54,7 @@ export default function Roulette() {
 
   const play = async () => {
     try {
-      const res = await gamba.play(bet, wager)
+      const res = await gamba.methods.play({ bet, wager })
       soundDice.start()
       setLoading(true)
       const result = await res.result()

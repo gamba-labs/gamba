@@ -8,11 +8,19 @@ export const parseUserAccount = (account: StateAccount<UserState | undefined> | 
     return null
   }
   const { state, info } = account
+
+  const subtractedUserBalance = (() => {
+    if (state.status.hashedSeedRequested) {
+      return state.currentGame.wager.toNumber() as number
+    }
+    return 0
+  })()
+
   return {
     publicKey: account.publicKey,
     created: state.created,
     status: parseStatus(state.status),
-    balance: state.balance.toNumber() as number,
+    balance: (state.balance.toNumber() as number) - subtractedUserBalance,
     bonusBalance: state.bonusBalance.toNumber() as number,
     nonce: state.nonce.toNumber() as number,
     _accountBalance: info.lamports,

@@ -1,7 +1,7 @@
 import { ConnectionProvider, useConnection } from '@solana/wallet-adapter-react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Route, Routes, useParams } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import './index.css'
 import { Legacy } from './Legacy'
 
@@ -14,6 +14,7 @@ function Dashboard() {
 }
 
 function Transaction() {
+  const navigate = useNavigate()
   const { connection } = useConnection()
   const { txid } = useParams<{txid: string}>()
   const [logs, setLogs] = React.useState<string[]>([])
@@ -22,8 +23,9 @@ function Transaction() {
     () => {
       connection.getParsedTransaction(txid!)
         .then((x) => {
-          console.log(x)
           setLogs(x?.meta?.logMessages ?? [])
+          // !nonce || !client || !rng || !rngHashed || !options
+          navigate(`/?nonce=${100}&options=1,2,3&rng_hash=1&client=321&rng=10`)
         })
     }
     , [txid])
@@ -31,9 +33,11 @@ function Transaction() {
   return (
     <>
       <div>{txid}</div>
-      {logs.map((x, i) => (
-        <div key={i}>{x}</div>
-      ))}
+      <pre>
+        {logs.map((x, i) => (
+          <div key={i}>{x}</div>
+        ))}
+      </pre>
       <a target="_blank" href={`https://explorer.solana.com/tx/${txid}`} rel="noreferrer">
         View in Solana Explorer
       </a>

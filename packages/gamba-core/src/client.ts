@@ -3,16 +3,17 @@ import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
 import { Connection, Keypair, PublicKey, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 import { StateAccount } from './account'
 import { HOUSE_SEED, PROGRAM_ID, USER_SEED } from './constants'
+import { GambaError2 } from './error'
 import { Gamba as GambaProgram, IDL } from './idl'
 import { GambaMethods, createMethods } from './methods'
 import { HouseState, UserState, Wallet } from './types'
 import { decodeHouse, decodeUser, getPdaAddress } from './utils'
 
-export interface PlayOptions {
+export interface GambaPlayParams {
   creator: PublicKey | string
   wager: number
   seed: string
-  gameConfig: number[]
+  bet: number[]
   deductFees?: boolean
 }
 
@@ -28,6 +29,8 @@ export class GambaClient {
   house: StateAccount<HouseState | undefined>
 
   methods: GambaMethods
+
+  errorListeners: Array<(error: GambaError2) => void> = []
 
   /**
    * If the used wallet is an inline burner wallet
@@ -60,7 +63,7 @@ export class GambaClient {
     const anchorProvider = new AnchorProvider(
       connection,
       this._wallet,
-      { preflightCommitment: 'processed' },
+      { preflightCommitment: connection.commitment },
     )
 
     this.program = new Program(IDL, PROGRAM_ID, anchorProvider)
@@ -84,7 +87,43 @@ export class GambaClient {
     this.house.listen(connection)
     this.wallet.listen(connection)
 
-    this.methods = createMethods(this)
+    const methods = createMethods(this)
+
+    this.methods = Object.entries(methods)
+      .reduce((methods, [methodName, method]) => {
+        return {
+          ...methods,
+          [methodName]: async (...args: (typeof method.arguments)[]) => {
+            const retry: any = async () => {
+              try {
+                return await (method as any)(...args)
+              } catch (error) {
+                if (error instanceof GambaError2) {
+                  this.emitError(error)
+                  await error.waitForRetry()
+                  return await retry()
+                } else {
+                  throw error
+                }
+              }
+            }
+            return await retry()
+          },
+        }
+      }, {} as typeof methods)
+  }
+
+  private emitError(error: GambaError2) {
+    for (const listener of this.errorListeners) {
+      listener(error)
+    }
+  }
+
+  onError(callback: (error: GambaError2) => void) {
+    const index = this.errorListeners.push(callback)
+    return () => {
+      this.errorListeners.splice(index, 1)
+    }
   }
 
   async _createAndSendTransaction(instruction: TransactionInstruction) {
@@ -96,7 +135,6 @@ export class GambaClient {
     }).compileToV0Message()
     const transaction = new VersionedTransaction(messageV0)
     const signedTransaction = await this._wallet.signTransaction(transaction)
-    console.log(signedTransaction)
     const txId = await this.connection.sendTransaction(signedTransaction)
     return { txId, blockhash }
   }

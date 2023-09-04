@@ -345,7 +345,7 @@ importers:
         version: 0.2.2
       '@solana/wallet-adapter-base':
         specifier: '*'
-        version: 0.1.0(@solana/web3.js@1.77.3)
+        version: 0.9.23(@solana/web3.js@1.77.3)
       '@solana/wallet-adapter-react':
         specifier: ^0.15.32
         version: 0.15.32(@solana/web3.js@1.77.3)(bs58@4.0.1)(react-native@0.72.4)(react@18.2.0)
@@ -364,6 +364,9 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.2.0
+      zustand:
+        specifier: ^4.3.7
+        version: 4.3.7(react@18.2.0)
     devDependencies:
       '@changesets/cli':
         specifier: ^2.26.0
@@ -388,7 +391,7 @@ importers:
         version: 0.27.0
       '@solana/wallet-adapter-base':
         specifier: '*'
-        version: 0.1.0(@solana/web3.js@1.77.3)
+        version: 0.9.23(@solana/web3.js@1.77.3)
       '@solana/web3.js':
         specifier: '*'
         version: 1.77.3
@@ -404,6 +407,9 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(@babel/core@7.22.11)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+      tone:
+        specifier: ^14.7.77
+        version: 14.7.77
     devDependencies:
       '@changesets/cli':
         specifier: ^2.26.0

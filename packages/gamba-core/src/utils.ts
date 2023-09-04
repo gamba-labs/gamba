@@ -81,7 +81,8 @@ export const getGameResult = async (previousState: UserState, currentState: User
   const resultIndex = resultIndexFromGameHash(gameHash, options)
   const multiplier = options[resultIndex]
   const wager = previousState.currentGame.wager.toNumber()
-  const payout = (wager * multiplier / 1000 - wager)
+  const profit = (wager * multiplier / 1000)
+  const payout = (profit - wager)
   return {
     player: currentState.owner,
     rngSeedHashed,
@@ -92,6 +93,7 @@ export const getGameResult = async (previousState: UserState, currentState: User
     resultIndex,
     wager,
     payout,
+    profit,
   }
 }
 

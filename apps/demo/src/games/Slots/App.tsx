@@ -38,7 +38,7 @@ export default function Slots() {
     Array.from({ length: NUM_SLOTS }).map(() => ({ spinning: false, item: SLOT_ITEMS[0] })),
   )
   const maxPayout = gamba.house?.maxPayout ?? 0
-  const betArray = useMemo(
+  const bet = useMemo(
     () => generateBetArray(maxPayout, wager),
     [maxPayout, wager, gamba.user?.nonce],
   )
@@ -55,12 +55,15 @@ export default function Slots() {
 
     soundSelect.start()
 
+    const allSame = combination.slice(0, slot + 1).every((item, index, arr) => !index || item === arr[index - 1])
+
     if (combination[slot].multiplier >= LEGENDARY_THRESHOLD) {
-      soundSelectLegendary.start()
+      if (allSame) {
+        soundSelectLegendary.start()
+      }
     }
 
     if (slot === slots.length - 1) {
-      const allSame = combination.every((x, i, arr) => !i || x === arr[i - 1])
       setTimeout(() => {
         if (allSame) {
           setGood(true)
@@ -80,7 +83,10 @@ export default function Slots() {
     try {
       setSpinning(true)
 
-      const res = await gamba.play(betArray, wager)
+      const res = await gamba.methods.play({
+        wager,
+        bet,
+      })
 
       setGood(false)
 
@@ -92,12 +98,15 @@ export default function Slots() {
       soundSpinStart.playbackRate = 1.2
 
       const result = await res.result()
+
+      gamba.suspense(result.profit, SPIN_DELAY + REVEAL_SLOT_DELAY * NUM_SLOTS)
+
       const multiplier = result.options[result.resultIndex] / 1000
       // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
       const resultDelay = Date.now() - startTime
       const revealDelay = Math.max(0, SPIN_DELAY - resultDelay)
 
-      const combination = getSlotCombination(slots.length, multiplier)
+      const combination = getSlotCombination(slots.length, multiplier, bet)
 
       setResult(result.payout + wager)
 
@@ -115,7 +124,7 @@ export default function Slots() {
       <ResponsiveSize maxScale={1.25}>
         <Perspective>
           <div>
-            <ItemPreview betArray={betArray} />
+            <ItemPreview betArray={bet} />
             <SlotContainer>
               {slots.map((slot, i) => (
                 <Slot

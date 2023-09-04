@@ -19,13 +19,14 @@ export class GambaError2 extends Error {
     this.methodArgs = methodArgs
   }
 
+  private invokeListeners() {
+    for (const listener of this.listeners) {
+      listener()
+    }
+  }
+
   waitForRetry() {
-    //
-    setTimeout(() => {
-      for (const listener of this.listeners) {
-        listener()
-      }
-    })
+    setTimeout(() => this.invokeListeners())
     return new Promise((resolve, reject) => {
       const listener = () => {
         if (this.status === 'ignored' || this.status === 'rejected') {
@@ -40,21 +41,16 @@ export class GambaError2 extends Error {
   }
 
   handle() {
-    //
     this.status = 'handling'
   }
 
   resolve() {
     this.status = 'resolved'
-    for (const listener of this.listeners) {
-      listener()
-    }
+    this.invokeListeners()
   }
 
   reject() {
     this.status = 'rejected'
-    for (const listener of this.listeners) {
-      listener()
-    }
+    this.invokeListeners()
   }
 }

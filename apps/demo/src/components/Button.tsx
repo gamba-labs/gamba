@@ -1,8 +1,8 @@
-import React, { ButtonHTMLAttributes } from 'react'
+import React, { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 import { Loader } from './Loader'
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
   fill?: boolean
   pulse?: boolean
   loading?: boolean
@@ -21,7 +21,7 @@ const pulse = keyframes`
   }
 `
 
-const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
+const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
   @keyframes button-shine1 {
     0% {
       left: -50%
@@ -39,7 +39,8 @@ const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
 
   border: none;
   font-size: inherit;
-  font-weight: 700;
+  // font-weight: 700;
+  display: block;
   height: 40px;
   overflow: hidden;
   padding: 8px 16px;
@@ -55,7 +56,7 @@ const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
   }
 
   ${({ $pulse }) => $pulse && css`
-    // animation: ${pulse} 1s infinite;
+    animation: ${pulse} 1s infinite;
   `}
 
   border-radius: 6px;
@@ -94,24 +95,31 @@ const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
     }
   }
 
+  &.transparent {
+    color: inherit;
+    background: transparent;
+    &:hover {
+      background: #ffffff11;
+    }
+  }
+
   &.list {
     border-radius: 0;
-    background: none;
     border: none;
     width: 100%;
     margin: 0;
     text-align: left;
-    color: inherit;
-    opacity: .8;
+
+    opacity: 1;
     & > div {
       width: 100%;
     }
     &:disabled {
-      opacity: .5;
+      opacity: .8;
     }
     &:hover:not(:disabled) {
       opacity: 1;
-      background: #FFFFFF11;
+      // background: #FFFFFF11;
     }
   }
 
@@ -120,29 +128,51 @@ const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
     cursor: default;
   }
 
-  &:hover::after {
-    animation: button-shine1 .6s linear, button-shine2 .5s .2s forwards;
-    background: #fff;
-    content: " ";
-    display: block;
-    height: 200px;
-    opacity: .5;
-    position: absolute;
-    transform: rotate(40deg);
-    width: 35px;
-    left: -100%;
-    top: -100px;
+  &.shine {
+    &:hover::after {
+      animation: button-shine1 .6s linear, button-shine2 .5s .2s forwards;
+      background: #fff;
+      content: " ";
+      display: block;
+      height: 200px;
+      opacity: .5;
+      position: absolute;
+      transform: rotate(40deg);
+      width: 35px;
+      left: -100%;
+      top: -100px;
+    }
   }
 `
 
-export function Button({ children, fill, pulse, icon, loading, disabled, ...props }: ButtonProps) {
+const StyledButton = styled.button`
+  ${StyledButtonCSS}
+`
+
+const StyledButtonLink = styled.a`
+  ${StyledButtonCSS}
+`
+
+export function Button({ children, fill, pulse, icon, loading, disabled, ...props }: ButtonProps & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <StyledButton $pulse={pulse} $fill={fill} disabled={disabled || loading} {...props}>
       <div>
         {icon && <img width="20" height="20" src={icon} />}
         {children}
-        {loading && <span><Loader small /></span>}
+        {loading && <span><Loader size={1} /></span>}
       </div>
     </StyledButton>
+  )
+}
+
+export function ButtonLink({ children, fill, pulse, icon, loading, ...props }: ButtonProps & AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return (
+    <StyledButtonLink $pulse={pulse} $fill={fill} {...props}>
+      <div>
+        {icon && <img width="20" height="20" src={icon} />}
+        {children}
+        {loading && <span><Loader size={1} /></span>}
+      </div>
+    </StyledButtonLink>
   )
 }

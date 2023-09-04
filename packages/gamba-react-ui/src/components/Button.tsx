@@ -39,7 +39,7 @@ const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
 
   border: none;
   font-size: inherit;
-  font-weight: 700;
+  // font-weight: 700;
   height: 40px;
   overflow: hidden;
   padding: 8px 16px;
@@ -94,24 +94,31 @@ const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
     }
   }
 
+  &.transparent {
+    color: inherit;
+    background: transparent;
+    &:hover {
+      background: #ffffff11;
+    }
+  }
+
   &.list {
     border-radius: 0;
-    background: none;
     border: none;
     width: 100%;
     margin: 0;
     text-align: left;
-    color: inherit;
-    opacity: .8;
+
+    opacity: 1;
     & > div {
       width: 100%;
     }
     &:disabled {
-      opacity: .5;
+      opacity: .8;
     }
     &:hover:not(:disabled) {
       opacity: 1;
-      background: #FFFFFF11;
+      // background: #FFFFFF11;
     }
   }
 
@@ -120,18 +127,20 @@ const StyledButton = styled.button<{$fill?: boolean, $pulse?: boolean}>`
     cursor: default;
   }
 
-  &:hover::after {
-    animation: button-shine1 .6s linear, button-shine2 .5s .2s forwards;
-    background: #fff;
-    content: " ";
-    display: block;
-    height: 200px;
-    opacity: .5;
-    position: absolute;
-    transform: rotate(40deg);
-    width: 35px;
-    left: -100%;
-    top: -100px;
+  &.shine {
+    &:hover::after {
+      animation: button-shine1 .6s linear, button-shine2 .5s .2s forwards;
+      background: #fff;
+      content: " ";
+      display: block;
+      height: 200px;
+      opacity: .5;
+      position: absolute;
+      transform: rotate(40deg);
+      width: 35px;
+      left: -100%;
+      top: -100px;
+    }
   }
 `
 

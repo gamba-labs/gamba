@@ -111,7 +111,7 @@ export class StateAccount<T> {
 
   private update(info: NullableAccountInfo) {
     if (JSON.stringify(info) === JSON.stringify(this.current?.info)) {
-      console.debug(this._debugIdentifier, 'Recevied same state')
+      console.debug(this._debugIdentifier, 'Received same state')
       return
     }
     const decoded = this.decoder(info)

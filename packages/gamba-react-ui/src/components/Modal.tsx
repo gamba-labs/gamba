@@ -12,6 +12,19 @@ const appear2 = keyframes`
   100% { transform: scale(1); }
 `
 
+const Container = styled.div`
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background: #00000099;
+`
+
 const Wrapper = styled.div`
   h1 {
     text-align: center;
@@ -57,19 +70,6 @@ const CloseButton = styled.button`
   &:hover {
     opacity: 1;
   }
-`
-
-const Container = styled.div`
-  position: fixed;
-  left: 0;
-  top: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1000;
-  background: #00000099;
 `
 
 function useLockBodyScroll() {

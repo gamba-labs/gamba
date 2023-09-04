@@ -102,9 +102,8 @@ export class GambaClient {
                   this.emitError(error)
                   await error.waitForRetry()
                   return await retry()
-                } else {
-                  throw error
                 }
+                throw error
               }
             }
             return await retry()

@@ -9,6 +9,7 @@ export const parseUserAccount = (account: StateAccount<UserState | undefined> | 
   }
   const { state, info } = account
 
+  // Exclude active wagered balance from user balance
   const subtractedUserBalance = (() => {
     if (state.status.hashedSeedRequested) {
       return state.currentGame.wager.toNumber() as number

@@ -1,5 +1,6 @@
 import { GambaError2, GambaPlayParams } from 'gamba-core'
 import React from 'react'
+import { create } from 'zustand'
 import { parseHouseAccount, parseUserAccount } from '../parsers'
 import { GambaProviderContext } from '../provider'
 import { randomSeed } from '../utils'
@@ -11,8 +12,6 @@ export function useGambaError(callback: (err: GambaError2) => void) {
 }
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
-
-import { create } from 'zustand'
 
 const useSuspended = create<{add:(x: number) => void, remove:(x: number) => void, suspended: number}>((set) => ({
   suspended: 0,

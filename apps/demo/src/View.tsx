@@ -1,4 +1,3 @@
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { GameBundle, GameView } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
@@ -13,7 +12,7 @@ import { Section } from './styles'
 
 const StyledFrame = styled.div<{$viewHeight: number}>`
   height: 100vh;
-  height: -webkit-fill-available;
+  max-height: -webkit-fill-available;
   @media (min-height: 800px) {
     height: ${({ $viewHeight }) => $viewHeight}vh;
   }

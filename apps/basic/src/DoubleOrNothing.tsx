@@ -1,5 +1,5 @@
 import { GameResult, lamportsToSol, solToLamports } from 'gamba'
-import { useGamba } from 'gamba/react'
+import { useGamba, useGambaError } from 'gamba/react'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -14,6 +14,12 @@ export default function DoubleOrNothing() {
   const [status, setStatus] = useState('none')
   const gamba = useGamba()
 
+  useGambaError(
+    (err) => {
+      toast(err.message, { type: 'error' })
+    },
+  )
+
   const play = async () => {
     try {
       //
@@ -24,7 +30,7 @@ export default function DoubleOrNothing() {
       const wager = Math.max(solToLamports(0.01), balance)
 
       // Initiate the request
-      const req = await gamba.play([2, 0], wager)
+      const req = await gamba.methods.play({ bet: [2, 0], wager })
 
       setStatus('flipping')
 
@@ -39,9 +45,7 @@ export default function DoubleOrNothing() {
         autoClose: 5000,
         icon: win ? '🎉' : '💀',
       })
-    } catch (err: any) {
-      // Show an error message
-      toast(err.message, { type: 'error' })
+    } catch (err) {
       console.error(err)
     } finally {
       setStatus('none')

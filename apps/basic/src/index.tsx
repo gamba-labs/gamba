@@ -1,10 +1,9 @@
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import { GambaUi } from 'gamba-react-ui'
-import { GambaProvider } from 'gamba/react'
+import { Gamba } from 'gamba/react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { ToastContainer, toast } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import { App } from './App'
 
 import '@solana/wallet-adapter-react-ui/styles.css'
@@ -21,13 +20,9 @@ root.render(
     <WalletProvider autoConnect wallets={[]}>
       <WalletModalProvider>
         <ToastContainer />
-        <GambaProvider creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
-          <GambaUi
-            onError={(err) => toast(err.message, { type: 'error' })}
-          >
-            <App />
-          </GambaUi>
-        </GambaProvider>
+        <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
+          <App />
+        </Gamba>
       </WalletModalProvider>
     </WalletProvider>
   </ConnectionProvider>,

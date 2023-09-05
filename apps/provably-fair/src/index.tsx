@@ -25,7 +25,7 @@ function Transaction() {
         .then((x) => {
           setLogs(x?.meta?.logMessages ?? [])
           // !nonce || !client || !rng || !rngHashed || !options
-          navigate(`/?nonce=${100}&options=1,2,3&rng_hash=1&client=321&rng=10`)
+          // navigate(`/?nonce=${100}&options=1,2,3&rng_hash=1&client=321&rng=10`)
         })
     }
     , [txid])

@@ -54,7 +54,7 @@ header {
 
 button.play {
   --border-size: -1px;
-  --border-radius: 5px;
+  --border-radius: 50px;
 
   position: relative;
   padding: 20px;

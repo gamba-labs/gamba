@@ -1,9 +1,9 @@
 import { RecentPlayEvent, getRecentEvents } from 'gamba-core'
 import React from 'react'
-import { GambaProviderContext } from '../provider'
+import { GambaContext } from '../provider'
 
 export function useRecentPlays(callback: (recentPlays: RecentPlayEvent[]) => void) {
-  const { client } = React.useContext(GambaProviderContext)
+  const { client } = React.useContext(GambaContext)
   const fetched = React.useRef(false)
 
   const _callback = React.useCallback(callback, [])

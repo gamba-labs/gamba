@@ -3,8 +3,7 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 // import '@solana/wallet-adapter-react-ui/styles.css'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { GambaProvider } from 'gamba/react'
-import { GambaUi } from 'gamba/react-ui'
+import { Gamba } from 'gamba/react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
@@ -31,16 +30,14 @@ function Root() {
     >
       <WalletProvider autoConnect wallets={wallets}>
         <WalletModalProvider>
-          <GambaProvider creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
-            <GambaUi>
-              <ThemeProvider theme={theme}>
-                <GlobalStyle />
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-              </ThemeProvider>
-            </GambaUi>
-          </GambaProvider>
+          <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
+            <ThemeProvider theme={theme}>
+              <GlobalStyle />
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </ThemeProvider>
+          </Gamba>
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

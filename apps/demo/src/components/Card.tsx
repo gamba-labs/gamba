@@ -1,5 +1,7 @@
-import React, { PropsWithChildren } from 'react'
+import React from 'react'
+import { NavLink } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
+
 
 const tileAnimation = keyframes`
   0% {
@@ -94,8 +96,6 @@ interface Props {
   width?: number
   height?: number
 }
-
-import { NavLink } from 'react-router-dom'
 
 export function Card({ to, logo, backgroundColor, width = 150, height = 200 }: Props) {
   return (

@@ -8,10 +8,10 @@ const ENV_PREFIX = ['GAMBA_', 'VITE_']
 
 export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
-  assetsInclude: ['**/*.glb'],
+  // assetsInclude: ['**/*.glb'],
   server: {
     port: 7779,
-    host: true,
+    // host: true,
   },
   define: { 'process.env.ANCHOR_BROWSER': true },
   build: {

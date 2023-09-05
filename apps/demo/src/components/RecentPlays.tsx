@@ -98,6 +98,7 @@ function RecentPlay({ event }: {event: RecentPlayEvent}) {
         </span>
         <span className="flares">
           {isWhale && '🐳'}
+          {isRekt && '💀'}
           {'🔥'.repeat(Math.floor(Math.max(0, multiplier - 1)))}
         </span>
       </div>
@@ -114,7 +115,7 @@ export function RecentPlays() {
   useRecentPlays(
     (newEvents) => {
       console.log(newEvents)
-      setRecentPlays((events) => [...events, ...newEvents])
+      setRecentPlays((events) => [...newEvents, ...events])
     },
   )
 

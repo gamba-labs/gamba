@@ -98,15 +98,18 @@ export class GambaClient {
               try {
                 return await (method as any)(...args)
               } catch (error) {
-                // console.log('What', error?.message)
                 const _err = new GambaError2(
                   error as any,
                   methodName as keyof GambaMethods,
                   args,
                 )
                 this.emitError(_err)
-                await _err.waitForRetry()
-                return await runMethod()
+                try {
+                  await _err.waitForRetry()
+                  return await runMethod()
+                } catch (err) {
+                  throw error
+                }
               }
             }
             return await runMethod()

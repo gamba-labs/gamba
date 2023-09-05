@@ -1,6 +1,6 @@
 import { RecentPlayEvent } from 'gamba-core'
 import React from 'react'
-import { GambaProviderContext } from '../provider'
+import { GambaContext } from '../provider'
 import { useRerender } from './useRerender'
 
 export function useGambaEvent(callback: (event: RecentPlayEvent) => void, deps: React.DependencyList = []) {
@@ -9,7 +9,7 @@ export function useGambaEvent(callback: (event: RecentPlayEvent) => void, deps: 
 }
 
 export function useGambaClient() {
-  const { client } = React.useContext(GambaProviderContext)
+  const { client } = React.useContext(GambaContext)
   const rerender = useRerender()
 
   React.useEffect(() => client.user.onChange(rerender), [client])

@@ -9,9 +9,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   max-width: 100vw;
   height: 100%;
-  & > div {
-    // transition: transform .1s ease;
-  }
 `
 
 interface Props {

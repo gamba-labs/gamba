@@ -40,7 +40,7 @@ export class StateAccount<T> {
   }
 
   private log(...args: any[]) {
-    console.debug(this._debugIdentifier, ...args)
+    // console.debug(this._debugIdentifier, ...args)
   }
 
   /** Listen for account changes */

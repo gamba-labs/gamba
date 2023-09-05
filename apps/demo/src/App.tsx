@@ -1,5 +1,5 @@
 import { useWallet } from '@solana/wallet-adapter-react'
-import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui'
+import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaError2 } from 'gamba'
 import { GambaError, useGamba, useGambaError } from 'gamba/react'
 import React from 'react'
@@ -10,7 +10,6 @@ import { Modal } from './components/Modal'
 import ScrollToTop from './components/ScrollToTop'
 
 function InitializeAccountModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => void}) {
-  // const walletModal = useWalletModal()
   const [creating, setCreating] = React.useState(false)
   const [initUser, setInitUser] = React.useState(false)
   const gamba = useGamba()
@@ -49,7 +48,7 @@ function InitializeAccountModal({ onDone, onCancel }: {onDone: () => void, onCan
 export function App() {
   const wallet = useWallet()
   const walletModal = useWalletModal()
-  const [error, setError] = React.useState<GambaError2>()
+  const [error, setError] = React.useState<GambaError2 | null>(null)
 
   useGambaError(
     (err) => {
@@ -71,11 +70,11 @@ export function App() {
         <InitializeAccountModal
           onDone={() => {
             error.resolve()
-            setError(undefined)
+            setError(null)
           }}
           onCancel={() => {
             error.reject()
-            setError(undefined)
+            setError(null)
           }}
         />
       )}

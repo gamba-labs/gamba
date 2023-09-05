@@ -24,21 +24,22 @@ export interface GambaUiProps {
 type GambaUiProviderProps = React.PropsWithChildren<GambaUiProps>
 
 function Content({ children }: PropsWithChildren) {
-  const { modal, setModal } = useGambaUi()
+  // const { modal, setModal } = useGambaUi()
 
-  useGambaError((err) => {
-    if (err.message === GambaError.PLAY_WITHOUT_CONNECTED) {
-      setModal(true)
-    }
-  })
+  // useGambaError((err) => {
+  //   console.log('Uuug heeerlo?????', err)
+  //   if (err.message === GambaError.PLAY_WITHOUT_CONNECTED) {
+  //     setModal(true)
+  //   }
+  // })
 
   return (
     <>
-      {modal && (
+      {/* {modal && (
         <Modal onClose={() => setModal(false)}>
           <GambaModal />
         </Modal>
-      )}
+      )} */}
       {children}
     </>
   )

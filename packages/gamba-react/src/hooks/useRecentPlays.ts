@@ -1,31 +1,38 @@
 import { RecentPlayEvent, getRecentEvents } from 'gamba-core'
 import React from 'react'
-import { useGamba } from './useGamba'
-import { useGambaEvent } from './useGambaClient'
+import { GambaProviderContext } from '../provider'
 
-export function useRecentPlays() {
-  const gamba = useGamba()
-  const [recentPlays, setRecentPlays] = React.useState<RecentPlayEvent[]>([])
+export function useRecentPlays(callback: (recentPlays: RecentPlayEvent[]) => void) {
+  const { client } = React.useContext(GambaProviderContext)
   const fetched = React.useRef(false)
 
-  React.useEffect(() => {
-    if (fetched.current || !gamba.house?.state.rng) {
-      return
+  const _callback = React.useCallback(callback, [])
+
+  React.useEffect(
+    () => {
+      if (!fetched.current && client.house.state?.rng) {
+        fetched.current = true
+        getRecentEvents(client.connection, {
+          signatureLimit: 20,
+          rngAddress: client.house.state.rng,
+        }).then((events) => {
+          _callback(events)
+        }).catch((err) => {
+          console.error('Failed to get events', err)
+        })
+      }
     }
-    fetched.current = true
-    getRecentEvents(gamba.connection, { signatureLimit: 20, rngAddress: gamba.house.state.rng }).then((events) => {
-      setRecentPlays(events)
-    }).catch((err) => {
-      console.error('Failed to get events', err)
-    })
-  }, [gamba.house])
+    , [client.house.state?.rng, _callback],
+  )
 
-  useGambaEvent((event) => {
-    const isPlayer = gamba.wallet?.publicKey?.equals(event.player)
-    setTimeout(() => {
-      setRecentPlays((x) => [event, ...x])
-    }, isPlayer ? 3000 : 0)
-  }, [gamba.wallet])
-
-  return recentPlays
+  React.useEffect(
+    () =>
+      client.onGameResult(
+        (event) => {
+          _callback([event])
+        },
+      )
+    ,
+    [_callback, client],
+  )
 }

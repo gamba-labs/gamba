@@ -48,6 +48,9 @@ export interface GameResult {
    * The index that the bet landed on
    */
   resultIndex: number
+  /**
+   *
+   */
   profit: number
 }
 

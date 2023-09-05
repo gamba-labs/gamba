@@ -1,12 +1,12 @@
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useBonusBalance, useGamba } from 'gamba/react'
-import { Svg, formatLamports, useGambaUi, copyTextToClipboard, Modal } from 'gamba/react-ui'
+import { Svg, copyTextToClipboard, formatLamports, useGambaUi } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
-import { useOnClickOutside } from './Dropdown'
 import { Button, ButtonLink } from './Button'
+import { useOnClickOutside } from './Dropdown'
 import { Loader } from './Loader'
 import { Value } from './Value'
 
@@ -98,7 +98,7 @@ export function ClaimButton() {
   }
 
   return (
-    <Button loading={loading} className="green list" onClick={claim}>
+    <Button loading={loading} className="green list shine" onClick={claim}>
       Claim {formatLamports(gamba.balances.user)}
     </Button>
   )
@@ -156,6 +156,12 @@ const Button2 = styled.button`
     display: flex;
     gap: 5px;
   }
+  & img {
+    margin-right: 10px;
+  }
+  & .badges {
+    margin-top: 5px;
+  }
   & .badge {
     background: #87ff8c;
     color: green;
@@ -191,12 +197,14 @@ function CopyAddressButton() {
 export function MenuButton() {
   const walletModal = useWalletModal()
   const gamba = useGamba()
+  const gambaUi = useGambaUi()
   const wallet = useWallet()
   const ref = React.useRef<HTMLDivElement>(null!)
   const [visible, setVisible] = useState(false)
   const bonusBalance = useBonusBalance()
 
   useOnClickOutside(ref, (e) => setVisible(false))
+
   const anchor = React.useMemo(
     () => {
       if (!ref.current) return 'bottom'
@@ -204,6 +212,19 @@ export function MenuButton() {
       return yy > 0 ? 'bottom' : 'top'
     }
     , [visible])
+
+  // if (!wallet.connected) {
+  //   return (
+  //     <WalletMultiButton />
+  //   )
+  // }
+
+  const connect = () => {
+    if (wallet.wallet)
+      wallet.connect()
+    else
+      walletModal.setVisible(true)
+  }
 
   return (
     <>
@@ -239,13 +260,16 @@ export function MenuButton() {
                   Disconnect
                 </Button>
               )}
+              <Button onClick={() => gambaUi.setModal(true)} className="transparent list">
+                Old Modal
+              </Button>
               <ButtonLink href="https://account.gamba.so" target="_blank" className="transparent list">
                 More Options <Svg.ArrowRight />
               </ButtonLink>
             </div>
           </>
         ) : (
-          <Button2 style={{ width: '100%' }} onClick={() => walletModal.setVisible(true)}>
+          <Button2 style={{ width: '100%' }} onClick={connect}>
             {wallet.connecting ? 'Connecting...' : 'Connect'}
           </Button2>
         )}

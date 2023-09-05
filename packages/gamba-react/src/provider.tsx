@@ -60,6 +60,8 @@ export function GambaProvider({ children, creator }: React.PropsWithChildren<Gam
     , [connection, wallet, connected],
   )
 
+  React.useEffect(() => client.listen(), [client])
+
   return (
     <GambaProviderContext.Provider value={{ creator, client, seed, setSeed }}>
       <SideEffects />

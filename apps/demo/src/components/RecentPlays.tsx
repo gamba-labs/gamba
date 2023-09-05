@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { RecentPlayEvent, solToLamports } from 'gamba'
 import { useGamba, useRecentPlays } from 'gamba/react'
 import { Svg, formatLamports } from 'gamba/react-ui'
@@ -109,7 +109,14 @@ function RecentPlay({ event }: {event: RecentPlayEvent}) {
 }
 
 export function RecentPlays() {
-  const recentPlays = useRecentPlays()
+  const [recentPlays, setRecentPlays] = useState<RecentPlayEvent[]>([])
+
+  useRecentPlays(
+    (newEvents) => {
+      console.log(newEvents)
+      setRecentPlays((events) => [...events, ...newEvents])
+    },
+  )
 
   return (
     <Container>

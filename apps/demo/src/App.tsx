@@ -2,20 +2,18 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaError2 } from 'gamba'
 import { GambaError, useGamba, useGambaError } from 'gamba/react'
-import { Button, Modal } from 'gamba/react-ui'
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import View from './View'
+import { Button } from './components/Button'
+import { Modal } from './components/Modal'
 import ScrollToTop from './components/ScrollToTop'
 
-function Guide({ onDone, onCancel }: {onDone: () => void, onCancel: () => void}) {
-  const wallet = useWallet()
-  const walletModal = useWalletModal()
+function InitializeAccountModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => void}) {
+  // const walletModal = useWalletModal()
   const [creating, setCreating] = React.useState(false)
   const [initUser, setInitUser] = React.useState(false)
   const gamba = useGamba()
-
-  // useOnClickOutside(dialog, () => onCancel())
 
   const create = async () => {
     try {
@@ -28,40 +26,20 @@ function Guide({ onDone, onCancel }: {onDone: () => void, onCancel: () => void})
     }
   }
 
-  // React.useEffect(
-  //   () => {
-  //     if (!wallet.connected)
-  //       walletModal.setVisible(true)
-  //   }
-  //   , [wallet.connected])
-
-  // React.useEffect(
-  //   () => {
-  //     if (wallet.connected && gamba.user?.created && gamba.user?.status === 'playing') {
-  //       onDone()
-  //     }
-  //   }
-  //   , [wallet.connected, gamba.user])
-
-  // if (!wallet.connected) return null
-
   return (
     <Modal onClose={onCancel}>
-      {!wallet.connected ? (
-        <WalletMultiButton />
+      <h1>Wecome!</h1>
+      {initUser ? (
+        'Initializing user...'
       ) : (
         <>
-          {initUser ? (
-            'Initializing user!'
-          ) : (
-            <>
-              In order to play you need to create an account to interract with the Solana program.<br />
-              This only needs to be done once.<br />
-              <Button loading={creating} pulse onClick={create}>
-                Initialize Account
-              </Button>
-            </>
-          )}
+          In order to play you need to create an account to interract with the Solana program.<br />
+          This only needs to be done once.
+          <br />
+          <br />
+          <Button loading={creating} pulse onClick={create}>
+            Initialize Account
+          </Button>
         </>
       )}
     </Modal  >
@@ -69,13 +47,19 @@ function Guide({ onDone, onCancel }: {onDone: () => void, onCancel: () => void})
 }
 
 export function App() {
+  const wallet = useWallet()
+  const walletModal = useWalletModal()
   const [error, setError] = React.useState<GambaError2>()
 
   useGambaError(
     (err) => {
       if (err.message === GambaError.PLAY_BEFORE_INITIALIZED) {
-        err.handle()
-        setError(err)
+        if (wallet.connected) {
+          err.handle()
+          setError(err)
+        } else {
+          walletModal.setVisible(true)
+        }
       }
     },
   )
@@ -84,7 +68,7 @@ export function App() {
     <>
       <ScrollToTop />
       {error && (
-        <Guide
+        <InitializeAccountModal
           onDone={() => {
             error.resolve()
             setError(undefined)

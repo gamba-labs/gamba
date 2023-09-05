@@ -104,7 +104,7 @@ function ConnectWallet() {
         {wallets.map((wallet, i) => (
           <Button
             key={i}
-            className="list"
+            className="list transparent"
             onClick={() => selectWallet(wallet)}
             disabled={loading}
           >
@@ -178,7 +178,7 @@ function CreateAccount() {
         </Button>
       </Content>
       <>
-        <Button className="list" onClick={() => wallet.disconnect()}>
+        <Button className="list transparent" onClick={() => wallet.disconnect()}>
           Change wallet
         </Button>
       </>
@@ -302,10 +302,10 @@ function Account() {
           </Button>
         )}
       </Content>
-      <Button className="list" loading={loading === 'close'} onClick={() => closeUserAccount()}>
+      <Button className="list transparent" loading={loading === 'close'} onClick={() => closeUserAccount()}>
         Close account
       </Button>
-      <Button className="list" onClick={() => wallet.disconnect()}>
+      <Button className="list transparent" onClick={() => wallet.disconnect()}>
         Disconnect wallet
       </Button>
       <ModalFooter>

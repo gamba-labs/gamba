@@ -67,7 +67,6 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
     background-color: #855ee6;
   }
   color: #151b54;
-  --disabled-color: #666;
 
   &.yellow {
     background-color: #fff2d9;
@@ -114,9 +113,6 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
     & > div {
       width: 100%;
     }
-    &:disabled {
-      opacity: .8;
-    }
     &:hover:not(:disabled) {
       opacity: 1;
       // background: #FFFFFF11;
@@ -124,7 +120,7 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
   }
 
   &:disabled {
-    background: var(--disabled-color);
+    opacity: .8;
     cursor: default;
   }
 

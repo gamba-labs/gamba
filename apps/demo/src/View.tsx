@@ -34,12 +34,12 @@ function Frame({ game }: {game?: GameBundle}) {
               {/* <div style={{ display: 'inline-block' }}>
                 <WalletMultiButton />
               </div> */}
-              <h2>Featured Games</h2>
+              {/* <h2>Featured Games</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '30px' }}>
                 {GAMES.map((game) => (
                   <Card key={game.short_name} to={'/' + game.short_name} logo={game.image} backgroundColor={game.theme_color} />
                 ))}
-              </div>
+              </div> */}
             </div>
           </div>
         </Section>

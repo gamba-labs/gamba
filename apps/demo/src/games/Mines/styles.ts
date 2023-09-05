@@ -33,7 +33,6 @@ export const Cell = styled.button<CellProps>`
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
-  outline: none;
   aspect-ratio: 1;
   width: 50px;
   transition: background 0.3s, opacity .3s;

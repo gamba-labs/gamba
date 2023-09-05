@@ -10,9 +10,7 @@ import { Dropdown } from '../../components/Dropdown'
 import { Coin } from './Coin'
 import { SplashEffect } from './SplashEffect'
 import coinSrc from './coin.wav'
-import headsSrc from './heads.png'
 import loseSrc from './lose.wav'
-import tailsSrc from './tails.png'
 import winSrc from './win.wav'
 
 const WAGER_AMOUNTS = [
@@ -69,14 +67,24 @@ export default function Flip() {
   const [result, setResult] = useState<Result>()
   const [wager, setWager] = useState(WAGER_AMOUNTS[0])
 
+  // const _play = gamba.usePlay({
+  //   bet,
+  // })
+
   const play = async () => {
     try {
       const bet = side === 'heads' ? [2, 0] : [0, 2]
-      const response = await gamba.methods.play({ bet, wager })
-      soundPlay.start()
+
       setFlipping(side)
+
+      soundPlay.start()
+
+      const response = await gamba.methods.play({ bet, wager })
+
       const result = await response.result()
+
       const win = result.payout > 0
+
       setResult({
         index: result.resultIndex,
         win,

@@ -6,6 +6,9 @@ import { GambaProviderContext } from '../provider'
 import { randomSeed } from '../utils'
 import { useGambaClient } from './useGambaClient'
 
+/**
+ * Catch Gamba method call errors and resolve them in order to automatically re-execute them.
+ */
 export function useGambaError(callback: (err: GambaError2) => void) {
   const client = useGambaClient()
   React.useEffect(() => client.onError(callback), [callback])
@@ -34,14 +37,19 @@ export function useGamba() {
 
   const [_userBalance, setUserBalance] = React.useState(user?.balance ?? 0)
 
+  const balanceDebounce = React.useRef<any>(null!)
+
   React.useEffect(
     () => {
-      const debounce = setTimeout(() => {
-        setUserBalance(user?.balance ?? 0)
+      console.log('Balance', user?.balance, suspended.suspended)
+      clearTimeout(balanceDebounce.current)
+      balanceDebounce.current = setTimeout(() => {
+        if (suspended.suspended === 0)
+          setUserBalance(user?.balance ?? 0)
       }, 250)
-      return () => void clearTimeout(debounce)
+      return () => void clearTimeout(balanceDebounce.current)
     }
-    , [user?.balance],
+    , [user?.balance, suspended.suspended],
   )
 
   const userBalance = Math.max(0, _userBalance - suspended.suspended)

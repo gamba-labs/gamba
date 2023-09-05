@@ -6,7 +6,8 @@ type DecodedAccountInfo<T> = { info: NullableAccountInfo, decoded: T | null }
 
 export class StateAccount<T> {
   publicKey: PublicKey
-  _debugIdentifier = '-'
+  private _debugIdentifier: string
+
   private current: DecodedAccountInfo<T> = { info: null, decoded: null }
   private previous: DecodedAccountInfo<T> = { info: null, decoded: null }
   private decoder: (info: NullableAccountInfo) => T | null
@@ -25,9 +26,11 @@ export class StateAccount<T> {
   constructor(
     publicKey: PublicKey,
     decoder: (info: NullableAccountInfo) => T | null,
+    debugIdentifier = '-',
   ) {
     this.publicKey = publicKey
     this.decoder = decoder
+    this._debugIdentifier = `${debugIdentifier}-${String(Math.random() * 1000 | 0)}`
   }
 
   /** Fetch and update state */
@@ -36,7 +39,11 @@ export class StateAccount<T> {
     this.update(info)
   }
 
-  /** Listen for Account changes */
+  private log(...args: any[]) {
+    console.debug(this._debugIdentifier, ...args)
+  }
+
+  /** Listen for account changes */
   listen(connection: Connection) {
     this.fetchState(connection)
 
@@ -47,12 +54,14 @@ export class StateAccount<T> {
     //   })
     // }, 3000)
 
-    const listener = connection.onAccountChange(this.publicKey, (info, context) => {
+    this.log('Start listening')
+
+    const listener = connection.onAccountChange(this.publicKey, (info) => {
       this.update(info)
     })
 
     return () => {
-      console.debug(this._debugIdentifier, 'STOP')
+      this.log('❌ Stop listening')
       connection.removeAccountChangeListener(listener)
       // clearTimeout(pollInterval)
     }
@@ -60,18 +69,21 @@ export class StateAccount<T> {
 
   onChange(callback: (current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>) => void) {
     const handler = ([current, previous]: [DecodedAccountInfo<T>, DecodedAccountInfo<T>]) => {
-      console.debug(this._debugIdentifier, 'onChange')
       callback(current, previous)
     }
 
     callback(this.current, this.previous)
 
-    const index = this.listeners.push(handler)
+    this.listeners.push(handler)
+
+    this.log('onChange', this.listeners.length)
 
     return () => {
-      this.listeners.splice(index, 1)
+      this.log('❌ onChange', this.listeners.length)
+      this.listeners.splice(this.listeners.indexOf(handler), 1)
     }
   }
+
   /**
    * Register a callback to be invoked whenever the account changes
    * @param callback Function to invoke whenever the account is changed
@@ -85,37 +97,46 @@ export class StateAccount<T> {
       const listener = ([current, previous]: [current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>]) => {
         try {
           const handled = callback(current, previous)
-          if (handled) {
+          if (handled !== undefined) {
             removeListener()
             resolve(handled)
           }
         } catch (err) {
           removeListener()
-          console.error('State error', err)
           reject(err)
         }
       }
-      const listenerIndex = this.listeners.push(listener)
 
-      const removeListener = () => this.listeners.splice(listenerIndex, 1)
+      this.listeners.push(listener)
+
+      this.log('waitForState', this.listeners.length)
+
+      const removeListener = () => {
+        const removed = this.listeners.splice(this.listeners.indexOf(listener), 1)
+        this.log('❌ waitForState', removed, this.listeners.length)
+      }
 
       // run listener with current state
       listener([this.current, this.previous])
 
       // setTimeout(() => {
       //   removeListener()
-      //   reject(GambaError.FAILED_CREATING_USER_ACCOUNT)
+      //   reject()
       // }, options.timeout)
     })
   }
 
   private update(info: NullableAccountInfo) {
-    if (JSON.stringify(info) === JSON.stringify(this.current?.info)) {
-      console.debug(this._debugIdentifier, 'Received same state')
-      return
-    }
+    // if (JSON.stringify(info) === JSON.stringify(this.current?.info)) {
+    //   console.debug(this._debugIdentifier, 'Received same state')
+    //   return
+    // }
+
     const decoded = this.decoder(info)
+
     this.current = { info, decoded }
+
+    this.log('Listeners', this.listeners.length)
 
     for (const listener of this.listeners) {
       listener([

@@ -1,6 +1,6 @@
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-import '@solana/wallet-adapter-react-ui/styles.css'
+// import '@solana/wallet-adapter-react-ui/styles.css'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { GambaProvider } from 'gamba/react'
@@ -8,11 +8,10 @@ import { GambaUi } from 'gamba/react-ui'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import { ThemeProvider } from 'styled-components'
 import { App } from './App'
 import { GlobalStyle, theme } from './styles'
+import './wallet-adapter-styles.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
@@ -32,11 +31,7 @@ function Root() {
     >
       <WalletProvider autoConnect wallets={wallets}>
         <WalletModalProvider>
-          <ToastContainer />
-          <GambaProvider
-            creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV"
-            onError={(err) => toast(err.message, { type: 'error' })}
-          >
+          <GambaProvider creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
             <GambaUi>
               <ThemeProvider theme={theme}>
                 <GlobalStyle />

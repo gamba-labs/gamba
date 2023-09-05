@@ -48,13 +48,13 @@ export const getPdaAddress = (...seeds: (Uint8Array | Buffer)[]) => {
 
 export const decodeUser = (account: AccountInfo<Buffer> | null) => {
   if (!account?.data?.length)
-    return
+    return null
   return new BorshAccountsCoder(IDL).decode('user', account.data) as UserState
 }
 
 export const decodeHouse = (account: AccountInfo<Buffer> | null) => {
   if (!account?.data?.length)
-    return
+    return null
   return new BorshAccountsCoder(IDL).decode('house', account.data) as HouseState
 }
 
@@ -67,11 +67,10 @@ export const resultIndexFromGameHash = (gameHash: string, options: number[]) => 
   return result % options.length
 }
 
-export const getGameResult = async (previousState: UserState, currentState: UserState): Promise<GameResult> => {
-  if (!previousState.owner.equals(currentState.owner)) {
-    console.error('⛔️ This should never happen', previousState.owner.toBase58(), currentState.owner.toBase58())
-    throw new Error('Players don\'t match')
-  }
+export const getGameResult = async (
+  previousState: UserState,
+  currentState: UserState,
+): Promise<GameResult> => {
   const clientSeed = previousState.currentGame.clientSeed
   const options = previousState.currentGame.options
   const nonce = previousState.nonce.toNumber()
@@ -81,8 +80,9 @@ export const getGameResult = async (previousState: UserState, currentState: User
   const resultIndex = resultIndexFromGameHash(gameHash, options)
   const multiplier = options[resultIndex]
   const wager = previousState.currentGame.wager.toNumber()
-  const profit = (wager * multiplier / 1000)
-  const payout = (profit - wager)
+  const payout = (wager * multiplier / 1000)
+  const profit = (payout - wager)
+
   return {
     player: currentState.owner,
     rngSeedHashed,
@@ -102,9 +102,7 @@ export const getTokenBalance = async (connection: Connection, wallet: PublicKey,
     token,
     wallet,
   )
-
   const tokenAccountBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
-
   return Number(tokenAccountBalance.value.amount)
 }
 
@@ -164,9 +162,9 @@ export const getRecentEvents = async (
   })
 }
 
-type ParsedSettledBetEvent = ReturnType<typeof parseSettledBetEvent>
+export type ParsedSettledBetEvent = ReturnType<typeof parseSettledBetEvent>
 
-const parseSettledBetEvent = (data: BetSettledEvent, signature: string) => ({
+export const parseSettledBetEvent = (data: BetSettledEvent, signature: string) => ({
   creator: data.creator,
   clientSeed: data.clientSeed,
   wager: data.wager.toNumber(),
@@ -181,6 +179,7 @@ const parseSettledBetEvent = (data: BetSettledEvent, signature: string) => ({
 
 export const listenForPlayEvents = (connection: Connection, cb: (event: ParsedSettledBetEvent) => void) => {
   const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
+  console.debug('🛜 Listen for events')
 
   const logSubscription = connection.onLogs(
     PROGRAM_ID,
@@ -196,6 +195,7 @@ export const listenForPlayEvents = (connection: Connection, cb: (event: ParsedSe
   )
 
   return () => {
+    console.debug('🛜❌ Remove listener')
     connection.removeOnLogsListener(logSubscription)
   }
 }

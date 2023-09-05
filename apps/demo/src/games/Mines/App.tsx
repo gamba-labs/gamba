@@ -63,9 +63,9 @@ function Mines() {
     }
     , [gameFinished])
 
-  const unrevealed = GRID_SIZE - currentLevel
-  const multiplier = unrevealed / (unrevealed - config.mines)
-  const nextGain = ((config.wager + totalGain) * multiplier) - config.wager
+  // const unrevealed = GRID_SIZE - currentLevel
+  // const multiplier = unrevealed / (unrevealed - config.mines)
+  // const nextGain = ((config.wager + totalGain) * multiplier) - config.wager
 
   const claim = async () => {
     try {
@@ -87,16 +87,17 @@ function Mines() {
 
   const playCell = async (cellIndex: number) => {
     setLoading('playing')
+    setSelected(cellIndex)
+    setGameState('playing')
 
     try {
       const firstBet = currentLevel === 0
 
-      const bet = Array.from({ length: remainingCells })
-        .map((_, i, arr) =>
-          i < config.mines ? 0 : arr.length / (arr.length - config.mines),
-        )
-
-      setSelected(cellIndex)
+      const bet = Array
+        .from({ length: remainingCells })
+        .map((_, i, arr) => {
+          return i < config.mines ? 0 : arr.length / (arr.length - config.mines)
+        })
 
       const res = await gamba.methods.play({
         bet,
@@ -107,8 +108,6 @@ function Mines() {
       soundTick.playbackRate = 1.5
       // soundTick.loop = true
       soundTick.start()
-
-      setGameState('playing')
 
       const result = await res.result()
 

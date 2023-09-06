@@ -14,12 +14,6 @@ export const StyledHeader = styled.div`
   @media (min-height: 800px) {
     padding: 10px 20px;
   }
-  .label {
-    display: none;
-    @media (min-width: 800px) {
-      display: block;
-    }
-  }
   > div {
     margin: 0 auto;
     display: flex;
@@ -40,6 +34,12 @@ export const Logo = styled(NavLink)`
   &:hover {
     background: #ffffff11;
   }
+  & .label {
+    display: none;
+    @media (min-width: 800px) {
+      display: block;
+    }
+  }
   & > img {
     height: 30px;
   }
@@ -47,17 +47,20 @@ export const Logo = styled(NavLink)`
 
 export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
-    <Header>
+    <StyledHeader>
       <div>
         <div>
           <Logo to="/">
             <img src="/logo.png" />
+            <span className="label">
+              Gamba Demo
+            </span>
           </Logo>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           {children}
         </div>
       </div>
-    </Header>
+    </StyledHeader>
   )
 }

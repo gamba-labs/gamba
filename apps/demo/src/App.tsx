@@ -2,7 +2,7 @@ import { GameView } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
 import { Route, Routes, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { Button } from './components/Button'
+import { Button, ButtonLink } from './components/Button'
 import { Card } from './components/Card'
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
@@ -97,8 +97,10 @@ export function App() {
             <Section>
               <div>
                 <h1>Welcome</h1>
-                <p>How are you</p>
-                <Button pulse>Do something</Button>
+                <p>Nothing to see here</p>
+                <ButtonLink href="https://gamba.so" target="_blank" pulse>
+
+                </ButtonLink>
               </div>
             </Section>
           </Banner>

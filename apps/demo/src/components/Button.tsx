@@ -36,7 +36,6 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
 
   border: none;
   font-size: inherit;
-  // font-weight: 700;
   display: block;
   height: 40px;
   overflow: hidden;

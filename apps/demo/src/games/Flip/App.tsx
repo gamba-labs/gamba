@@ -29,32 +29,6 @@ const soundPlay = createSound(coinSrc)
 const soundWin = createSound(winSrc)
 const soundLose = createSound(loseSrc)
 
-const CoinButton = styled.button<{selected: boolean}>`
-  background: #ccc;
-  border: none;
-  margin: 0;
-  position: relative;
-  border-radius: var(--border-radius);
-  ${({ selected }) => selected && `
-    background: #42ff78;
-  `}
-  &:disabled {
-    cursor: default;
-    opacity: .5;
-  }
-  & > div {
-    position: absolute;
-    width: 75%;
-    height: 75%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-size: auto 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-`
-
 interface Result {
   win: boolean
   index: number
@@ -77,11 +51,15 @@ export default function Flip() {
 
       setFlipping(side)
 
+      soundPlay.playbackRate = .5
       soundPlay.start()
 
-      const response = await gamba.methods.play({ bet, wager })
+      await gamba.play({ bet, wager })
 
-      const result = await response.result()
+      soundPlay.playbackRate = 1
+      soundPlay.start()
+
+      const result = await gamba.awaitResult()
 
       const win = result.payout > 0
 

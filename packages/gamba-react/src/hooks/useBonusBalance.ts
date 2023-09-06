@@ -8,11 +8,11 @@ export function useBonusBalance() {
 
   React.useEffect(() => {
     const fetchBonusTokens = async () => {
-      if (!gamba.wallet || !gamba.house) {
+      if (!gamba.wallet || !gamba.house.bonusMint) {
         setBonusTokens(0)
         return
       }
-      const balance = await getTokenBalance(gamba.connection, gamba.wallet.publicKey, gamba.house.state.bonusMint)
+      const balance = await getTokenBalance(gamba.connection, gamba.wallet.publicKey, gamba.house.bonusMint)
       setBonusTokens(balance)
     }
     fetchBonusTokens()

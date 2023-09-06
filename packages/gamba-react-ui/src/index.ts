@@ -1,6 +1,5 @@
 import * as Svg from './Svg'
 export { GambaConnectButton, GambaModalButton } from './GambaConnectButton'
-export { GambaModal } from './GambaModal'
 export { GambaUi } from './Provider'
 export { ActionBar } from './components/ActionBar'
 export { Button } from './components/Button'
@@ -13,3 +12,4 @@ export { useGambaUi } from './context'
 export * from './types'
 export { copyTextToClipboard, formatLamports } from './utils'
 export { Svg }
+

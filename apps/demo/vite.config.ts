@@ -11,7 +11,7 @@ export default defineConfig(() => ({
   assetsInclude: ['**/*.glb'],
   server: {
     port: 3000,
-    host: true,
+    // host: true,
   },
   define: { 'process.env.ANCHOR_BROWSER': true },
   build: {

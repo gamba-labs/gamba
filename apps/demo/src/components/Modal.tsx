@@ -1,6 +1,6 @@
-import { Svg } from 'gamba/react-ui'
-import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
+import { useOnClickOutside } from '../hooks/useOnClickOutside'
 
 const appear = keyframes`
   0% { opacity: 0;}
@@ -29,11 +29,12 @@ const Wrapper = styled.div`
   h1 {
     text-align: center;
     padding: 40px 0 20px 0;
+    font-size: 24px;
   }
   position: relative;
   box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   z-index: 1040;
-  padding: 0;
+  padding-bottom: 20px;
   border: none;
   background: #10141f;
   color: white;
@@ -41,7 +42,6 @@ const Wrapper = styled.div`
   height: 100vh;
   max-width: 100vw;
   overflow-y: auto;
-  padding: 30px;
   &::-webkit-scrollbar {
     width: .4em;
   }
@@ -57,19 +57,26 @@ const Wrapper = styled.div`
 `
 
 const CloseButton = styled.button`
-  background: none;
   margin: 0;
-  font-size: 18px;
-  color: white;
   position: absolute;
   right: 10px;
   top: 10px;
   border: none;
   z-index: 11;
   opacity: .75;
-  transition: opacity .2s;
+  transition: opacity .2s, background .2s;
+  background: #ffffff00;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
   &:hover {
     opacity: 1;
+    background: #ffffff11;
+  }
+  & svg {
+    color: white;
+    width: 75%;
+    height: 75%;
   }
 `
 
@@ -83,26 +90,6 @@ function useLockBodyScroll() {
   }, [])
 }
 
-function useOnClickOutside(ref: any, handler: (event: MouseEvent | TouchEvent) => void) {
-  useEffect(
-    () => {
-      const listener = (event: MouseEvent | TouchEvent) => {
-        if (!ref.current || ref.current.contains(event.target)) {
-          return
-        }
-        handler(event)
-      }
-      document.addEventListener('mousedown', listener)
-      document.addEventListener('touchstart', listener)
-      return () => {
-        document.removeEventListener('mousedown', listener)
-        document.removeEventListener('touchstart', listener)
-      }
-    },
-    [ref, handler],
-  )
-}
-
 export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: () => void}>) {
   const ref = useRef<HTMLDivElement>(null!)
 
@@ -113,7 +100,9 @@ export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: (
     <Container className="gamba-connect-modal-container">
       <Wrapper className="gamba-connect-modal" ref={ref}>
         <CloseButton onClick={onClose}>
-          <Svg.Close />
+          <svg width="242" height="242" viewBox="0 0 242 242" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M241.208 29.0759L212.924 0.791748L121 92.7156L29.076 0.791748L0.79187 29.0762L92.7157 121L0.791748 212.924L29.076 241.208L121 149.284L212.924 241.208L241.208 212.924L149.284 121L241.208 29.0759Z" fill="currentColor" />
+          </svg>
         </CloseButton>
         {children}
       </Wrapper>

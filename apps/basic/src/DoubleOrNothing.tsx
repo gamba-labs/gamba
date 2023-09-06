@@ -25,12 +25,15 @@ export default function DoubleOrNothing() {
       //
       setStatus('requested')
 
-      // Either wager balance or 0.01 SOL
-      const balance = gamba.user?.balance ?? 0
-      const wager = Math.max(solToLamports(0.01), balance)
+      // Wager 0.05 SOL
+      const wager = solToLamports(0.05)
 
       // Initiate the request
-      const req = await gamba.methods.play({ bet: [2, 0], wager })
+      const req = await gamba.methods.play({
+        bet: [2, 0],
+        wager,
+        // deductFees: true,
+      })
 
       setStatus('flipping')
 

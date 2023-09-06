@@ -19,7 +19,7 @@ const StyledCard = styled(NavLink)<{width: number, height: number}>`
   transform: scale(1);
   cursor: pointer;
   &:hover {
-    transform: scale(1.02);
+    // transform: scale(1.02);
     outline: var(--text-color) solid 1px;
     outline-offset: 3px;
     & > .background {
@@ -32,7 +32,7 @@ const StyledCard = styled(NavLink)<{width: number, height: number}>`
       opacity: 0;
     }
   }
-  border-radius: var(--border-radius);
+  border-radius: 5px;
   display: flex;
   justify-content: end;
   width: 200px;

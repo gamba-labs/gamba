@@ -1,8 +1,5 @@
 import { PropsWithChildren } from 'react'
-import { GambaModal } from './GambaModal'
-import { Modal } from './components/Modal'
-import { GambaUiProvider, useGambaUi } from './context'
-import { GambaError, useGambaError } from 'gamba-react'
+import { GambaUiProvider } from './context'
 
 export interface GambaUiProps {
   /**
@@ -27,7 +24,6 @@ function Content({ children }: PropsWithChildren) {
   // const { modal, setModal } = useGambaUi()
 
   // useGambaError((err) => {
-  //   console.log('Uuug heeerlo?????', err)
   //   if (err.message === GambaError.PLAY_WITHOUT_CONNECTED) {
   //     setModal(true)
   //   }

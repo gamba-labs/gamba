@@ -1,4 +1,4 @@
-import { HTMLAttributes, useLayoutEffect, useRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const Wrapper = styled.div`
@@ -15,13 +15,13 @@ interface Props {
   maxScale?: number
 }
 
-export function ResponsiveSize({ children, maxScale = 1, ...props }: HTMLAttributes<HTMLDivElement> & Props) {
-  const wrapper = useRef<HTMLDivElement>(null!)
-  const inner = useRef<HTMLDivElement>(null!)
-  const content = useRef<HTMLDivElement>(null!)
+export function ResponsiveSize({ children, maxScale = 1, ...props }: React.HTMLAttributes<HTMLDivElement> & Props) {
+  const wrapper = React.useRef<HTMLDivElement>(null!)
+  const inner = React.useRef<HTMLDivElement>(null!)
+  const content = React.useRef<HTMLDivElement>(null!)
 
-  useLayoutEffect(() => {
-    let timeout: any
+  React.useLayoutEffect(() => {
+    let timeout: NodeJS.Timeout
 
     const resize = () => {
       const ww = wrapper.current.clientWidth / (content.current.scrollWidth + 40)
@@ -30,7 +30,7 @@ export function ResponsiveSize({ children, maxScale = 1, ...props }: HTMLAttribu
       inner.current.style.transform = 'scale(' + zoom + ')'
     }
 
-    const ro = new ResizeObserver(() => resize())
+    const ro = new ResizeObserver(resize)
 
     ro.observe(wrapper.current)
 

@@ -1,18 +1,6 @@
-import { useEffect, useState } from 'react'
+import React from 'react'
 
-export const Time = ({ time: _time }: {time: number}) => {
-  const [time, setTime] = useState(_time)
-  const [elapsed, setElapsed] = useState(0)
-
-  useEffect(() => {
-    const tick = setInterval(() => {
-      setElapsed((x) => x + 1000)
-    }, 1000)
-    return () => {
-      clearTimeout(tick)
-    }
-  }, [_time])
-
+export const Time: React.FC<{time: number}> = ({ time }) => {
   const diff = (Date.now() - time)
 
   const d = (() => {

@@ -1,89 +1,132 @@
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { GambaError2 } from 'gamba'
-import { GambaError, useGamba, useGambaError } from 'gamba/react'
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
-import View from './View'
+import { GameView } from 'gamba/react-ui'
+import React, { useMemo } from 'react'
+import { Route, Routes, useParams } from 'react-router-dom'
+import styled from 'styled-components'
 import { Button } from './components/Button'
-import { Modal } from './components/Modal'
-import ScrollToTop from './components/ScrollToTop'
+import { Card } from './components/Card'
+import { Footer } from './components/Footer'
+import { Header } from './components/Header'
+import { Section } from './components/Section'
+import { Slider } from './components/Slider'
+import { GAMES } from './games'
+import { InitializeAccountModal } from './ui/InitializeUserModal'
+import { PoolButton } from './ui/PoolButton'
+import { RecentPlays } from './ui/RecentPlays'
+import { UserButton } from './ui/UserButton'
 
-function InitializeAccountModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => void}) {
-  const [creating, setCreating] = React.useState(false)
-  const [initUser, setInitUser] = React.useState(false)
-  const gamba = useGamba()
+const Banner = styled.div`
+  width: 100%;
+  background-size: cover;
+  background-image: url(/banner.png);
+  padding: 50px;
+  position: relative;
 
-  const create = async () => {
-    try {
-      setCreating(true)
-      const req = await gamba.methods.createAccount()
-      await req.result()
-      onDone()
-    } finally {
-      setCreating(false)
-    }
+  @media (min-height: 800px) {
+    height: auto;
   }
 
+  &::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    pointer-events: none;
+    background-image: linear-gradient(0deg,var(--bg-color) 0%,#04051700 100%);
+  }
+  transition: height .25s ease;
+
+  @keyframes appearappear {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  animation: appearappear .5s;
+`
+
+const GameWrapper = styled.div`
+  height: 100vh;
+  max-height: -webkit-fill-available;
+  @media (min-height: 800px) {
+    height: 80vh;
+  }
+  position: relative;
+  transition: height .2s ease;
+
+  @keyframes appearappear {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  animation: appearappear .5s;
+`
+
+function Game() {
+  const { shortName } = useParams()
+  const game = useMemo(() => GAMES.find((x) => x.short_name === shortName), [shortName])
+
+  if (!game) return null
+
   return (
-    <Modal onClose={onCancel}>
-      <h1>Wecome!</h1>
-      {initUser ? (
-        'Initializing user...'
-      ) : (
-        <>
-          In order to play you need to create an account to interract with the Solana program.<br />
-          This only needs to be done once.
-          <br />
-          <br />
-          <Button loading={creating} pulse onClick={create}>
-            Initialize Account
-          </Button>
-        </>
-      )}
-    </Modal  >
+    <GameWrapper key={game.short_name}>
+      <GameView game={game} />
+    </GameWrapper>
   )
 }
 
 export function App() {
-  const wallet = useWallet()
-  const walletModal = useWalletModal()
-  const [error, setError] = React.useState<GambaError2 | null>(null)
-
-  useGambaError(
-    (err) => {
-      if (err.message === GambaError.PLAY_BEFORE_INITIALIZED) {
-        if (wallet.connected) {
-          err.handle()
-          setError(err)
-        } else {
-          walletModal.setVisible(true)
-        }
-      }
-    },
-  )
-
   return (
     <>
-      <ScrollToTop />
-      {error && (
-        <InitializeAccountModal
-          onDone={() => {
-            error.resolve()
-            setError(null)
-          }}
-          onCancel={() => {
-            error.reject()
-            setError(null)
-          }}
-        />
-      )}
+      <InitializeAccountModal />
+
+      <Header>
+        <PoolButton />
+        <UserButton />
+      </Header>
+
       <Routes>
-        <Route
-          path="/:shortName?"
-          element={<View />}
-        />
+        <Route path="/" element={
+          <Banner>
+            <Section>
+              <div>
+                <h1>Welcome</h1>
+                <p>How are you</p>
+                <Button pulse>Do something</Button>
+              </div>
+            </Section>
+          </Banner>
+        } />
+        <Route path="/:shortName" element={<Game />} />
       </Routes>
+
+      <Section>
+        <Slider title={<h2>Casino Games</h2>}>
+          {GAMES.map((game) => (
+            <Card
+              key={game.short_name}
+              to={'/' + game.short_name}
+              logo={game.image}
+              backgroundColor={game.theme_color}
+            />
+          ))}
+        </Slider>
+      </Section>
+
+      <Section>
+        <h2>Recent Plays</h2>
+        <RecentPlays />
+      </Section>
+
+      <Section>
+        <Footer />
+      </Section>
     </>
   )
 }

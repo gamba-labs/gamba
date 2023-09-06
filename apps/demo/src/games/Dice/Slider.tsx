@@ -33,56 +33,12 @@ const SliderInput = styled.input`
   outline: none;
   position: relative;
   z-index: 2;
-
-  &::-webkit-slider-runnable-track {
-    height: 8px;
-    background: transparent;
-    border-radius: 4px;
-  }
-
-  &::-moz-range-track {
-    height: 8px;
-    background: transparent;
-    border-radius: 4px;
-  }
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 30px;
-    height: 30px;
-    border: none;
-    background: #4CAF50;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background .3s;
-  }
-
-  &::-moz-range-thumb {
-    -moz-appearance: none;
-    appearance: none;
-    width: 30px;
-    height: 30px;
-    border: none;
-    background: #4CAF50;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background .3s;
-  }
-
-  &:hover::-webkit-slider-thumb {
-    background: #45a049;
-  }
-
-  &:hover::-moz-range-thumb {
-    background: #45a049;
-  }
 `
 
 const Track = styled.div`
   background: #00bf57;
   position: absolute;
-  height: 8px;
+  height: 20px;
   border-radius: 4px;
   top: 14px;
   z-index: 1;
@@ -126,7 +82,10 @@ interface SliderProps {
 const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, resultIndex, disabled }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = Number(event.target.value)
+
     if (newValue <= 95) {
+      soundTick.start()
+
       onChange(newValue)
     }
   }
@@ -143,14 +102,8 @@ const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, resultIndex,
       <SliderInput
         disabled={disabled}
         type="range"
-        min={min.toString()}
-        max={max.toString()}
-        onPointerDown={() => {
-          soundTick.start()
-        }}
-        onPointerUp={() => {
-          soundTick.start()
-        }}
+        min={min}
+        max={max}
         value={value}
         onChange={handleChange}
       />

@@ -13,11 +13,8 @@ const pulse = keyframes`
   0% {
     box-shadow: 0 0 0 0 #ffffff77;
   }
-  70% {
-    box-shadow: 0 0 0 10px #ffffff00;
-  }
   100% {
-    box-shadow: 0 0 0 0 #ffffff00;
+    box-shadow: 0 0 0 10px #ffffff00;
   }
 `
 
@@ -56,17 +53,25 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
   }
 
   ${({ $pulse }) => $pulse && css`
-    animation: ${pulse} 1s infinite;
+    animation: ${pulse} 1s 1s infinite;
   `}
 
   border-radius: 6px;
   min-width: 100px;
 
-  background: var(--primary-color);
+  background: #a079ff;
   &:hover {
     background-color: #855ee6;
   }
   color: #151b54;
+
+  &.dark {
+    background: #1a1c24;
+    color: white;
+    &:hover {
+      background: #292c39;
+    }
+  }
 
   &.yellow {
     background-color: #fff2d9;

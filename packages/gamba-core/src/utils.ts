@@ -2,7 +2,23 @@ import { BorshAccountsCoder, BorshCoder, EventParser } from '@coral-xyz/anchor'
 import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 import { AccountInfo, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
 import { IDL, PROGRAM_ID } from './constants'
+import { ParsedSettledBetEvent, parseSettledBetEvent } from './parsers'
 import { BetSettledEvent, GameResult, HouseState, RecentPlayEvent, UserState } from './types'
+// import BN from 'bn.js'
+
+/**
+ * Return zero if provided number is undefined
+ */
+export const zeroUnless = (num: number | undefined) => {
+  if (num === undefined) return 0
+  return num
+}
+
+// ....
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const bnToNumber = (bn: any) => {
+  return bn.toNumber() as number
+}
 
 export const hmac256 = async (secretKey: string, message: string, algorithm = 'SHA-256') => {
   const encoder = new TextEncoder()
@@ -73,13 +89,13 @@ export const getGameResult = async (
 ): Promise<GameResult> => {
   const clientSeed = previousState.currentGame.clientSeed
   const options = previousState.currentGame.options
-  const nonce = previousState.nonce.toNumber()
+  const nonce = bnToNumber(previousState.nonce)
   const rngSeedHashed = previousState.currentGame.rngSeedHashed
   const rngSeed = currentState.previousRngSeed
   const gameHash = await getGameHash(rngSeed, clientSeed, nonce)
   const resultIndex = resultIndexFromGameHash(gameHash, options)
   const multiplier = options[resultIndex]
-  const wager = previousState.currentGame.wager.toNumber()
+  const wager = bnToNumber(previousState.currentGame.wager)
   const payout = (wager * multiplier / 1000)
   const profit = (payout - wager)
 
@@ -98,7 +114,7 @@ export const getGameResult = async (
 }
 
 export const getTokenBalance = async (connection: Connection, wallet: PublicKey, token: PublicKey) => {
-  const associatedTokenAccount = await getAssociatedTokenAddressSync(
+  const associatedTokenAccount = getAssociatedTokenAddressSync(
     token,
     wallet,
   )
@@ -145,10 +161,10 @@ export const getRecentEvents = async (
               estimatedTime: tx.blockTime ? (tx.blockTime * 1000) : Date.now(),
               creator: data.creator,
               clientSeed: data.clientSeed,
-              wager: data.wager.toNumber(),
-              nonce: data.nonce.toNumber(),
-              resultIndex: data.resultIndex.toNumber(),
-              resultMultiplier: data.resultMultiplier.toNumber() / 1000,
+              wager: bnToNumber(data.wager),
+              nonce: bnToNumber(data.nonce),
+              resultIndex: bnToNumber(data.resultIndex),
+              resultMultiplier: bnToNumber(data.resultMultiplier) / 1000,
               rngSeed: data.rngSeed,
               player: data.player,
             })
@@ -161,21 +177,6 @@ export const getRecentEvents = async (
     resolve(parsedEvents)
   })
 }
-
-export type ParsedSettledBetEvent = ReturnType<typeof parseSettledBetEvent>
-
-export const parseSettledBetEvent = (data: BetSettledEvent, signature: string) => ({
-  creator: data.creator,
-  clientSeed: data.clientSeed,
-  wager: data.wager.toNumber(),
-  signature: signature,
-  estimatedTime: Date.now(),
-  resultIndex: data.resultIndex.toNumber(),
-  resultMultiplier: data.resultMultiplier.toNumber() / 1000,
-  rngSeed: data.rngSeed,
-  player: data.player,
-  nonce: data.nonce.toNumber(),
-})
 
 export const listenForPlayEvents = (connection: Connection, cb: (event: ParsedSettledBetEvent) => void) => {
   const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))

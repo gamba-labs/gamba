@@ -7,7 +7,7 @@ const ENV_PREFIX = ['GAMBA_', 'VITE_']
 
 export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
-  server: { port: 7778, host: true },
+  server: { port: 7778 },
   resolve: { alias: { '@src': path.resolve(__dirname, './src') } },
   define: { 'process.env.ANCHOR_BROWSER': true },
   plugins: [

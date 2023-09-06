@@ -15,9 +15,6 @@ const Links = styled.div`
 export function Footer() {
   return (
     <Links>
-      <div>
-        Gamba
-      </div>
       <a target="_blank" href="https://github.com/gamba-labs/gamba" rel="noreferrer">
         <FaGithub />
       </a>

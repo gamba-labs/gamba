@@ -32,7 +32,7 @@
     "@vitejs/plugin-react": "^3.1.0",
     "buffer": "^6.0.3",
     "rollup-plugin-polyfill-node": "^0.12.0",
-    "tsup": "^6.7.0",
+    "tsup": "^7.2.0",
     "unplugin-fonts": "^1.0.3",
     "vite": "^4.2.1",
     "vite-plugin-pwa": "^0.14.7"

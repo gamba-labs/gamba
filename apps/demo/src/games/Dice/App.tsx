@@ -9,6 +9,8 @@ import { GameContainer, SemiCircleContainer, StatContainer, StatContainerWrapper
 import loseSrc from './lose.mp3'
 import winSrc from './win.mp3'
 
+const MAX_PAYOUT = 6
+
 const createSound = (url: string) => new Tone.Player({ url }).toDestination()
 
 const soundWin = createSound(winSrc)
@@ -20,8 +22,6 @@ function Dice() {
   const [loading, setLoading] = useState(false)
   const [resultIndex, setResultIndex] = useState(-1)
   const [odds, setOdds] = useState(50)
-
-  const MAX_PAYOUT = 6
 
   const multiplier = 100 / odds
   const maxBet = Math.min(lamportsToSol(gamba.balances.total), MAX_PAYOUT * (odds / 100))
@@ -35,14 +35,15 @@ function Dice() {
         }
         return 0
       })
-      const res = await gamba.methods.play({
+
+      await gamba.play({
         bet,
         wager: solToLamports(wager),
       })
 
       setLoading(true)
 
-      const result = await res.result()
+      const result = await gamba.awaitResult()
       const resultnr = result.resultIndex + 1
 
       setResultIndex(resultnr)
@@ -73,10 +74,6 @@ function Dice() {
                 <div>{odds}%</div>
                 <div>Win odds</div>
               </StatItem>
-              {/* <StatItem>
-                <div>{wager.toFixed(2)} SOL</div>
-                <div>Wager</div>
-              </StatItem> */}
               <StatItem>
                 <div>{multiplier.toFixed(2)}x</div>
                 <div>Multiplier</div>

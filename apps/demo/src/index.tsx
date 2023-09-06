@@ -7,9 +7,9 @@ import { Gamba } from 'gamba/react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { ThemeProvider } from 'styled-components'
 import { App } from './App'
-import { GlobalStyle, theme } from './styles'
+
+import './styles.css'
 import './wallet-adapter-styles.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
@@ -31,12 +31,9 @@ function Root() {
       <WalletProvider autoConnect wallets={wallets}>
         <WalletModalProvider>
           <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
-            <ThemeProvider theme={theme}>
-              <GlobalStyle />
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </ThemeProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
           </Gamba>
         </WalletModalProvider>
       </WalletProvider>

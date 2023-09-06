@@ -1,38 +1,53 @@
-import { RecentPlayEvent, getRecentEvents } from 'gamba-core'
+import { useConnection } from '@solana/wallet-adapter-react'
+import { RecentPlayEvent, getRecentEvents, listenForPlayEvents } from 'gamba-core'
 import React from 'react'
-import { GambaContext } from '../provider'
+import { useGambaClient } from './useGambaClient'
 
-export function useRecentPlays(callback: (recentPlays: RecentPlayEvent[]) => void) {
-  const { client } = React.useContext(GambaContext)
+export function useRecentPlays(callback?: (newEvents: RecentPlayEvent[]) => void) {
+  const { connection } = useConnection()
+  const client = useGambaClient()
   const fetched = React.useRef(false)
+  const [plays, setPlays] = React.useState<RecentPlayEvent[]>([])
 
-  const _callback = React.useCallback(callback, [])
+  const handler = React.useCallback(
+    (newEvents: RecentPlayEvent[]) => {
+      if (callback) {
+        callback(newEvents)
+      }
+
+      setPlays(
+        (prev) => [...newEvents, ...prev],
+      )
+    },
+    [callback],
+  )
 
   React.useEffect(
     () => {
-      if (!fetched.current && client.house.state?.rng) {
+      if (!fetched.current && client.house.rng) {
         fetched.current = true
-        getRecentEvents(client.connection, {
+        getRecentEvents(connection, {
           signatureLimit: 20,
-          rngAddress: client.house.state.rng,
+          rngAddress: client.house.rng,
         }).then((events) => {
-          _callback(events)
+          handler(events)
         }).catch((err) => {
           console.error('Failed to get events', err)
         })
       }
     }
-    , [client.house.state?.rng, _callback],
+    , [handler, connection, client.house.rng],
   )
 
   React.useEffect(
     () =>
-      client.onGameResult(
-        (event) => {
-          _callback([event])
-        },
+      listenForPlayEvents(
+        connection,
+        (event) => handler([event]),
       )
     ,
-    [_callback, client],
+    [handler, client],
   )
+
+  return plays
 }

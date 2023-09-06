@@ -1,21 +1,18 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
-import { MenuButton } from './Menu'
 
-const Logo = styled.img`
-  height: 40px;
-`
-
-const Wrapper = styled.div`
+export const StyledHeader = styled.div`
   width: 100%;
   z-index: 10;
   position: fixed;
   top: 0;
   left: 0;
-  padding: 5px;
+  padding: 10px;
+  background: #000000CC;
+  backdrop-filter: blur(50px);
   @media (min-height: 800px) {
-    padding: 20px;
+    padding: 10px 20px;
   }
   .label {
     display: none;
@@ -31,33 +28,36 @@ const Wrapper = styled.div`
   }
 `
 
-const StyledNavigationLink = styled(NavLink)`
+export const Logo = styled(NavLink)`
   color: var(--text-color);
   display: flex;
   align-items: center;
   gap: 1em;
-  transition: color .1s, border .1s;
+  transition: background .2s;
   white-space: nowrap;
-  text-transform: uppercase;
+  border-radius: 5px;
+  padding: 5px 10px;
+  &:hover {
+    background: #ffffff11;
+  }
+  & > img {
+    height: 30px;
+  }
 `
 
-function NavigationLink({ children, to }: React.PropsWithChildren<{to: string}>) {
+export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
-    <StyledNavigationLink to={to}>
-      {children}
-    </StyledNavigationLink>
-  )
-}
-
-export function Header() {
-  return (
-    <Wrapper>
+    <Header>
       <div>
-        <NavigationLink to="/">
-          <Logo src="/logo.png" />
-        </NavigationLink>
-        <MenuButton />
+        <div>
+          <Logo to="/">
+            <img src="/logo.png" />
+          </Logo>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {children}
+        </div>
       </div>
-    </Wrapper>
+    </Header>
   )
 }

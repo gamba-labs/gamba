@@ -83,7 +83,7 @@ export default function Slots() {
     try {
       setSpinning(true)
 
-      const res = await gamba.methods.play({
+      const res = await gamba.play({
         wager,
         bet,
       })
@@ -97,9 +97,9 @@ export default function Slots() {
       soundSpinStart.start()
       soundSpinStart.playbackRate = 1.2
 
-      const result = await res.result()
+      const result = await gamba.awaitResult()
 
-      gamba.suspense(result.profit, SPIN_DELAY + REVEAL_SLOT_DELAY * NUM_SLOTS)
+      // gamba.suspense(result.profit, SPIN_DELAY + REVEAL_SLOT_DELAY * NUM_SLOTS)
 
       const multiplier = result.options[result.resultIndex] / 1000
       // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
@@ -108,7 +108,7 @@ export default function Slots() {
 
       const combination = getSlotCombination(slots.length, multiplier, bet)
 
-      setResult(result.payout + wager)
+      setResult(result.payout)
 
       setTimeout(() => revealSlot(combination), revealDelay)
     } catch (err) {

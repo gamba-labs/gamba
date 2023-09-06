@@ -1,0 +1,64 @@
+#root, html, body {
+  height: 100%;
+}
+
+:root {
+  --border-radius: 5px;
+  --text-color: #ffffff;
+  --primary-color: #a079ff;
+  --header-bg-color: #080809;
+  --gamba-modal-bg: #10141f;
+  --gamba-modal-text: #ffffff;
+  --bg-color: #080809;
+  --bg-light-color: #1a1c24;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*::selection {}*/
+
+button {
+  user-select: none;
+}
+
+body {
+  margin: 0;
+  color: var(--text-color);
+  background: var(--bg-color);
+  cursor: default;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: .4em;
+  }
+  &::-webkit-scrollbar-thumb {
+    bg-color: #cccccc33;
+  }
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 700;
+}
+
+body, input, button, textarea, pre {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+button, a {
+  cursor: pointer;
+}
+
+a:not([href^="https://"]) {
+  text-decoration: none;
+}
+
+a {
+  color: unset;
+}

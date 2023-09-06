@@ -99,17 +99,16 @@ function Mines() {
           return i < config.mines ? 0 : arr.length / (arr.length - config.mines)
         })
 
-      const res = await gamba.methods.play({
+      await gamba.play({
         bet,
         wager: firstBet ? config.wager : config.wager + totalGain,
         deductFees: !firstBet,
       })
 
       soundTick.playbackRate = 1.5
-      // soundTick.loop = true
       soundTick.start()
 
-      const result = await res.result()
+      const result = await gamba.awaitResult()
 
       if (result.payout > 0) {
         soundTick.stop()

@@ -48,6 +48,11 @@ const RecentPlayLink = styled.a`
   }
 `
 
+const Wrapper = styled.div`
+  display: grid;
+  gap: 10px;
+`
+
 function RecentPlay({ event, isSelf }: {event: RecentPlayEvent, isSelf: boolean}) {
   const wager = event.wager
   const multiplier = event.resultMultiplier
@@ -86,7 +91,7 @@ export function RecentPlays() {
   const recentPlays = useRecentPlays()
 
   return (
-    <>
+    <Wrapper>
       {recentPlays.map((event, i) => (
         <RecentPlay
           key={i}
@@ -94,6 +99,6 @@ export function RecentPlays() {
           isSelf={event.player.equals(wallet.publicKey)}
         />
       ))}
-    </>
+    </Wrapper>
   )
 }

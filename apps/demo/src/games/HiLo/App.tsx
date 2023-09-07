@@ -1,13 +1,11 @@
 import { solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ActionBar, Button, ResponsiveSize, formatLamports } from 'gamba/react-ui'
+import { ResponsiveSize } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
-import { FaHandPointDown, FaHandPointUp, FaEquals } from 'react-icons/fa'
-import { Dropdown } from '../../components/Dropdown'
-import { RANKS } from './constants'
-import { Card, Container, Option, Overlay, OverlayText } from './styles'
 import * as Tone from 'tone'
 import cardSrc from './card.mp3'
+import { RANKS } from './constants'
+import { Card, Container, Option, Overlay, OverlayText } from './styles'
 import winSrc from './win.wav'
 
 const createSound = (url: string) =>
@@ -116,7 +114,7 @@ export default function HiLo() {
               $selected={option === 'lo'}
               onClick={() => setOption('lo')}
             >
-              <div><FaHandPointDown /></div>
+              {/* <div><FaHandPointDown /></div> */}
               <div>(x{Math.max(...betLo).toFixed(2)})</div>
             </Option>
           ) : (
@@ -124,7 +122,7 @@ export default function HiLo() {
               $selected={option === 'same'}
               onClick={() => setOption('same')}
             >
-              <div><FaEquals /></div>
+              {/* <div><FaEquals /></div> */}
               <div>(x{Math.max(...betSame).toFixed(2)})</div>
             </Option>
           )}
@@ -137,7 +135,7 @@ export default function HiLo() {
               $selected={option === 'hi'}
               onClick={() => setOption('hi')}
             >
-              <div><FaHandPointUp /></div>
+              {/* <div><FaHandPointUp /></div> */}
               <div>(x{Math.max(...betHi).toFixed(2)})</div>
             </Option>
           ) : (
@@ -145,7 +143,7 @@ export default function HiLo() {
               $selected={option === 'same'}
               onClick={() => setOption('same')}
             >
-              <div><FaEquals /></div>
+              {/* <div><FaEquals /></div> */}
               <div>(x{Math.max(...betSame).toFixed(2)})</div>
             </Option>
           )}
@@ -158,7 +156,7 @@ export default function HiLo() {
           )}
         </Container>
       </ResponsiveSize>
-      <ActionBar>
+      {/* <ActionBar>
         {gameState === 'lost' ? (
           <Button onClick={reset}>Reset</Button>
         ) : (
@@ -188,7 +186,7 @@ export default function HiLo() {
             </Button>
           </>
         )}
-      </ActionBar>
+      </ActionBar> */}
 
     </>
   )

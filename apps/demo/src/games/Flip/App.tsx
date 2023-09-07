@@ -1,17 +1,15 @@
 import { OrthographicCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { solToLamports } from 'gamba'
-import { useGamba } from 'gamba/react'
-import { ActionBar, Button, formatLamports } from 'gamba/react-ui'
+import { useGameControls } from 'gamba/react-ui'
 import React, { useState } from 'react'
-import styled from 'styled-components'
 import * as Tone from 'tone'
-import { Dropdown } from '../../components/Dropdown'
 import { Coin } from './Coin'
 import { SplashEffect } from './SplashEffect'
 import coinSrc from './coin.wav'
 import loseSrc from './lose.wav'
 import winSrc from './win.wav'
+import { useGamba } from 'gamba/react'
 
 const WAGER_AMOUNTS = [
   0.05,
@@ -41,14 +39,27 @@ export default function Flip() {
   const [result, setResult] = useState<Result>()
   const [wager, setWager] = useState(WAGER_AMOUNTS[0])
 
-  // const _play = gamba.usePlay({
-  //   bet,
-  // })
+  const bet = React.useMemo(
+    () => side === 'heads' ? [2, 0] : [0, 2],
+    [side],
+  )
+
+  useGameControls({
+    wager: {
+      type: 'wager',
+      onChange: setWager,
+      value: wager,
+    },
+
+    play: {
+      type: 'button',
+      disabled: !!flipping,
+      onClick: () => play(),
+    },
+  })
 
   const play = async () => {
     try {
-      const bet = side === 'heads' ? [2, 0] : [0, 2]
-
       setFlipping(side)
 
       soundPlay.playbackRate = .5
@@ -87,38 +98,36 @@ export default function Flip() {
           position={[0, 0, 100]}
         />
         <Coin result={result?.index ?? 0} flipping={!!flipping} />
-        {flipping && (
-          <SplashEffect color="white" />
-        )}
-        {!flipping && result !== null && result?.win && <SplashEffect color="#42ff78" />}
+        {flipping && <SplashEffect color="white" />}
+        {!flipping && result?.win && <SplashEffect color="#42ff78" />}
         <ambientLight color="#ffffff" intensity={.5} />
         <directionalLight position={[0, 5, 5]} intensity={.5} />
         <hemisphereLight color="black" groundColor="red" intensity={1} />
       </Canvas>
-      <ActionBar>
-        <Dropdown
-          value={wager}
-          format={(value) => formatLamports(value)}
-          label="Wager"
-          onChange={setWager}
-          options={WAGER_AMOUNTS.map((value) => ({
-            label: formatLamports(value),
-            value,
-          }))}
-        />
-        <Dropdown
-          value={side}
-          label="Side"
-          onChange={setSide}
-          options={[
-            { value: 'heads', label: 'Heads' },
-            { value: 'tails', label: 'Tails' },
-          ]}
-        />
-        <Button disabled={!!flipping} onClick={play}>
-          Flip
-        </Button>
-      </ActionBar>
     </>
   )
 }
+
+// params: {
+//   wager,
+//   bet,
+// },
+// onStart: () => {
+//   soundPlay.playbackRate = 1
+//   soundPlay.start()
+// },
+// onResult: (result) => {
+//   const win = result.payout > 0
+
+//   setResult({
+//     index: result.resultIndex,
+//     win,
+//   })
+//   if (win) {
+//     soundWin.start()
+//   } else {
+//     soundLose.start()
+//   }
+
+//   setFlipping(undefined)
+// },

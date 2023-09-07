@@ -1,21 +1,20 @@
 import React from 'react'
-import styled from 'styled-components'
 
-const Wrapper = styled.div`
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  max-width: 100vw;
-  height: 100%;
-`
+const style: React.CSSProperties = {
+  justifyContent: 'center',
+  alignItems: 'center',
+  display: 'flex',
+  width: '100%',
+  flexDirection: 'column',
+  maxWidth: '100vw',
+  height: '100%',
+}
 
-interface Props {
+interface Props extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {
   maxScale?: number
 }
 
-export function ResponsiveSize({ children, maxScale = 1, ...props }: React.HTMLAttributes<HTMLDivElement> & Props) {
+export function ResponsiveSize({ children, maxScale = 1, ...props }: Props) {
   const wrapper = React.useRef<HTMLDivElement>(null!)
   const inner = React.useRef<HTMLDivElement>(null!)
   const content = React.useRef<HTMLDivElement>(null!)
@@ -48,15 +47,15 @@ export function ResponsiveSize({ children, maxScale = 1, ...props }: React.HTMLA
       ro.disconnect()
       clearTimeout(timeout)
     }
-  }, [])
+  }, [maxScale])
 
   return (
-    <Wrapper {...props} ref={wrapper}>
+    <div {...props} ref={wrapper} style={style}>
       <div ref={inner}>
         <div ref={content}>
           {children}
         </div>
       </div>
-    </Wrapper>
+    </div>
   )
 }

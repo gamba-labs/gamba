@@ -1,16 +1,17 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ActionBar, Button, ResponsiveSize, formatLamports } from 'gamba/react-ui'
-import React, { useEffect, useState } from 'react'
+import { ResponsiveSize, formatLamports, useClaim, useGameControls } from 'gamba/react-ui'
+import React from 'react'
 import * as Tone from 'tone'
-import { Dropdown } from '../../components/Dropdown'
 import { Bomb } from './Svg'
-import { Cell, Container, Grid, MultiplierCurrent, MultiplierWrapper, PulsingText } from './styles'
+import { Cell, Grid, MultiplierCurrent, MultiplierWrapper, PulsingText } from './styles'
 
 import finishSrc from './finish.mp3'
 import loseSrc from './lose.mp3'
 import tickSrc from './tick.mp3'
 import winSrc from './win.mp3'
+
+import styles from './test.module.css'
 
 const GRID_SIZE = 25
 const PITCH_INCREASE_FACTOR = 1.06
@@ -38,13 +39,13 @@ const soundFinish = createSound(finishSrc)
 
 function Mines() {
   const gamba = useGamba()
-  const [grid, setGrid] = useState(generateGrid())
-  const [currentLevel, setLevel] = useState(0)
-  const [selected, setSelected] = useState(-1)
-  const [totalGain, setTotalGain] = useState(0)
-  const [loadingState, setLoading] = useState<LoadState | null>(null)
-  const [gameState, setGameState] = useState<MinesStatus>('idle')
-  const [config, setConfig] = useState({
+  const [grid, setGrid] = React.useState(generateGrid())
+  const [currentLevel, setLevel] = React.useState(0)
+  const [selected, setSelected] = React.useState(-1)
+  const [totalGain, setTotalGain] = React.useState(0)
+  const [loadingState, setLoading] = React.useState<LoadState | null>(null)
+  const [gameState, setGameState] = React.useState<MinesStatus>('idle')
+  const [config, setConfig] = React.useState({
     wager: WAGER_AMOUNTS[0],
     mines: MINE_SELECT[2],
   })
@@ -55,26 +56,12 @@ function Mines() {
   const needsReset = gameState === 'lost' || gameFinished
   const loading = loadingState !== null
 
-  useEffect(
-    () => {
-      if (gameFinished) {
-        soundFinish.start()
-      }
-    }
-    , [gameFinished])
+  const [claim, claiming] = useClaim()
 
-  // const unrevealed = GRID_SIZE - currentLevel
-  // const multiplier = unrevealed / (unrevealed - config.mines)
-  // const nextGain = ((config.wager + totalGain) * multiplier) - config.wager
-
-  const claim = async () => {
-    try {
-      setLoading('claiming')
-      await gamba.methods.withdraw()
-      reset()
-    } finally {
-      setLoading(null)
-    }
+  const endGame = async () => {
+    await claim()
+    reset()
+    setLoading(null)
   }
 
   const reset = async () => {
@@ -85,6 +72,76 @@ function Mines() {
     setTotalGain(0)
   }
 
+  const canPlay = !loading && !claiming && !needsReset
+
+  const bet = React.useMemo(
+    () => Array
+      .from({ length: remainingCells })
+      .map((_, i, arr) => {
+        return i < config.mines ? 0 : arr.length / (arr.length - config.mines)
+      }),
+    [remainingCells, config],
+  )
+
+  const customControls = (
+    <>
+      {gameState === 'idle' && (
+        <>
+          <select
+            value={config.wager}
+            onChange={(evt) => setConfig({ ...config, wager: Number(evt.target.value) })}
+          >
+            {WAGER_AMOUNTS.map((value, i) => (
+              <option key={i} value={value}>
+                {formatLamports(value)}
+              </option>
+            ))}
+          </select>
+          <select
+            value={config.mines}
+            onChange={(evt) => setConfig({ ...config, mines: Number(evt.target.value) })}
+          >
+            {MINE_SELECT.map((value, i) => (
+              <option key={i} value={value}>
+                {value} Mines
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+
+      {gameState === 'playing' && (
+        <div>
+          <button disabled={loading || claiming} onClick={endGame}>
+                Claim {formatLamports(gamba.balances.user)}
+          </button>
+        </div>
+      )}
+
+      {needsReset && (
+        <button disabled={loading} onClick={reset}>
+              Reset
+        </button>
+      )}
+    </>
+  )
+
+  useGameControls({
+    custom: {
+      type: 'custom',
+      element: customControls,
+    },
+  })
+
+  React.useEffect(
+    () => {
+      if (gameFinished) {
+        soundFinish.start()
+      }
+    },
+    [gameFinished],
+  )
+
   const playCell = async (cellIndex: number) => {
     setLoading('playing')
     setSelected(cellIndex)
@@ -92,12 +149,6 @@ function Mines() {
 
     try {
       const firstBet = currentLevel === 0
-
-      const bet = Array
-        .from({ length: remainingCells })
-        .map((_, i, arr) => {
-          return i < config.mines ? 0 : arr.length / (arr.length - config.mines)
-        })
 
       await gamba.play({
         bet,
@@ -167,106 +218,59 @@ function Mines() {
   }
 
   return (
-    <>
-      <ResponsiveSize maxScale={1.25}>
-        <Container>
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', color: 'white' }}>
-            <div>
-              +{formatLamports(totalGain)}
-            </div>
-            {needsReset && !loading && (
-              <PulsingText onClick={reset}>
-                {gameFinished ? 'a winner is you!' : 'Reset!'}
-              </PulsingText>
-            )}
+    <ResponsiveSize maxScale={1.25}>
+      <div className={styles.container}>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', color: 'white' }}>
+          <div>
+            +{formatLamports(totalGain)}
           </div>
-          <MultiplierWrapper>
-            {Array.from({ length: 4 })
-              .map((_, i) => {
-                const level = currentLevel + i
-                if (level >= GRID_SIZE - config.mines) {
-                  return (
-                    <MultiplierCurrent key={i}>
-                      -
-                    </MultiplierCurrent>
-                  )
-                }
-                const unrevealed = GRID_SIZE - level
-                const multiplier = unrevealed / (unrevealed - config.mines)
+          {needsReset && !loading && (
+            <PulsingText onClick={reset}>
+              {gameFinished ? 'a winner is you!' : 'Reset!'}
+            </PulsingText>
+          )}
+        </div>
+        <MultiplierWrapper>
+          {Array.from({ length: 4 })
+            .map((_, i) => {
+              const level = currentLevel + i
+              if (level >= GRID_SIZE - config.mines) {
                 return (
-                  <MultiplierCurrent key={i} isCurrent={i === 0}>
-                    {parseFloat(multiplier.toFixed(3))}x
+                  <MultiplierCurrent key={i}>
+                      -
                   </MultiplierCurrent>
                 )
-              })}
-          </MultiplierWrapper>
-          <Grid>
-            {grid.map((cell, index) => (
-              <Cell
-                className={cell.status}
-                key={index}
-                status={cell.status}
-                onClick={() => playCell(index)}
-                selected={selected === index}
-                disabled={loading || needsReset || cell.status !== 'hidden'}
-              >
-                {(cell.status === 'hidden' || cell.status === 'mine') && <Bomb />}
-                {(cell.status === 'gold') && (
-                  <div>
-                    +{parseFloat(lamportsToSol(cell.profit).toFixed(3))}
-                  </div>
-                )}
-              </Cell>
-            ))}
-          </Grid>
-        </Container>
-      </ResponsiveSize>
-      <ActionBar>
-        {gameState === 'idle' ? (
-          <>
-            <Dropdown
-              value={config.wager}
-              format={(value) => formatLamports(value)}
-              label="Wager"
-              onChange={(wager) => setConfig({ ...config, wager })}
-              options={WAGER_AMOUNTS.map((value) => ({
-                label: formatLamports(value),
-                value,
-              }))}
-            />
-            <Dropdown
-              value={config.mines}
-              format={(value) => value + ' Mines'}
-              label="Mines"
-              onChange={(mines) => setConfig({ ...config, mines })}
-              options={MINE_SELECT.map((value) => ({
-                label: value + ' SOL',
-                value,
-              }))}
-            />
-          </>
-        ) : gameState === 'playing' ? (
-          <div>
-            <Button
-              loading={loadingState === 'claiming'}
-              disabled={loading}
-              onClick={claim}
+              }
+              const unrevealed = GRID_SIZE - level
+              const multiplier = unrevealed / (unrevealed - config.mines)
+              return (
+                <MultiplierCurrent key={i} isCurrent={i === 0}>
+                  {parseFloat(multiplier.toFixed(3))}x
+                </MultiplierCurrent>
+              )
+            })}
+        </MultiplierWrapper>
+        <Grid>
+          {grid.map((cell, index) => (
+            <Cell
+              className={cell.status}
+              key={index}
+              status={cell.status}
+              onClick={() => playCell(index)}
+              selected={selected === index}
+              disabled={!canPlay || cell.status !== 'hidden'}
             >
-              Claim {formatLamports(gamba.balances.user)}
-            </Button>
-          </div>
-        ) : null}
-        {gameState === 'lost' ? (
-          <Button
-            disabled={!needsReset || loading}
-            onClick={reset}
-          >
-            Reset
-          </Button>
-        ) : null}
-      </ActionBar>
-
-    </>
+              {(cell.status === 'hidden' || cell.status === 'mine') && <Bomb />}
+              {(cell.status === 'gold') && (
+                <div>
+                    +{parseFloat(lamportsToSol(cell.profit).toFixed(3))}
+                </div>
+              )}
+            </Cell>
+          ))}
+        </Grid>
+      </div>
+    </ResponsiveSize>
   )
 }
 

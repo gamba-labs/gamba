@@ -1,3 +1,5 @@
-export { useGamba, useGambaError } from './useGamba'
-export { useRecentPlays } from './useRecentPlays'
+export { useBalances } from './useBalances'
 export { useBonusBalance } from './useBonusBalance'
+export { useGamba, useGambaError } from './useGamba'
+export { useGambaClient } from './useGambaClient'
+export { useRecentPlays } from './useRecentPlays'

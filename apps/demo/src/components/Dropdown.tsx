@@ -10,7 +10,9 @@ const StyledDropdown = styled.div`
   position: absolute;
 
   background: #222233 ;
-  border-radius: 10px;
+  border-radius: var(--border-radius);
+
+  visibility: hidden;
 
   &.top {
     top: 100%;
@@ -26,22 +28,24 @@ const StyledDropdown = styled.div`
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0px);
+    visibility: visible;
   }
 `
 
-export function Dropdown({ visible, children }: React.PropsWithChildren<{visible: boolean}>) {
+export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWithChildren<{visible: boolean, anchor?: 'bottom' | 'top'}>) {
   const ref = React.useRef<HTMLDivElement>(null!)
 
   const anchor = React.useMemo(
     () => {
+      if (_anchor) return _anchor
       if (!ref.current) return 'bottom'
       return ref.current.getBoundingClientRect().y > window.innerHeight / 2 ? 'bottom' : 'top'
     }
-    , [children, visible],
+    , [children, visible, _anchor],
   )
 
   return (
-    <StyledDropdown ref={ref} className={'menu ' + (visible ? 'visible ' :  '') + anchor}>
+    <StyledDropdown tabIndex={-1} ref={ref} className={'menu ' + (visible ? 'visible ' :  '') + anchor}>
       {children}
     </StyledDropdown>
   )

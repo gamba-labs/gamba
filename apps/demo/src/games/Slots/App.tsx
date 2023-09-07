@@ -1,16 +1,14 @@
 import { useGamba } from 'gamba/react'
 import {
-  ActionBar,
-  Button,
   ResponsiveSize,
   formatLamports,
+  useGameControls,
 } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import * as Tone from 'tone'
-import { Dropdown } from '../../components/Dropdown'
 import { ItemPreview } from './components/ItemPreview'
 import { Slot } from './components/Slot'
-import { FINAL_DELAY, INITIAL_WAGER, LEGENDARY_THRESHOLD, NUM_SLOTS, REVEAL_SLOT_DELAY, SLOT_ITEMS, SPIN_DELAY, SlotItem, WAGER_OPTIONS } from './constants'
+import { FINAL_DELAY, INITIAL_WAGER, LEGENDARY_THRESHOLD, NUM_SLOTS, REVEAL_SLOT_DELAY, SLOT_ITEMS, SPIN_DELAY, SlotItem } from './constants'
 import { Perspective, Result, SlotContainer } from './styles'
 import { generateBetArray, getSlotCombination } from './utils'
 
@@ -30,10 +28,10 @@ const soundSelectLegendary = createSound(unicornSelectSrc)
 
 export default function Slots() {
   const gamba = useGamba()
+  const [spinning, setSpinning] = useState(false)
   const [result, setResult] = useState(0)
   const [wager, setWager] = useState(INITIAL_WAGER)
   const [good, setGood] = useState(false)
-  const [spinning, setSpinning] = useState(false)
   const [slots, setSlots] = useState<{spinning: boolean, item?: SlotItem}[]>(
     Array.from({ length: NUM_SLOTS }).map(() => ({ spinning: false, item: SLOT_ITEMS[0] })),
   )
@@ -42,6 +40,15 @@ export default function Slots() {
     () => generateBetArray(maxPayout, wager),
     [maxPayout, wager, gamba.user?.nonce],
   )
+
+  useGameControls({
+    wager: { type: 'wager', value: wager, onChange: setWager },
+    play: {
+      type: 'button',
+      disabled: spinning,
+      onClick: () => play(),
+    },
+  })
 
   const updateSlot = (index: number, value: typeof slots[0]) => {
     setSlots(
@@ -65,6 +72,7 @@ export default function Slots() {
 
     if (slot === slots.length - 1) {
       setTimeout(() => {
+        setSpinning(false)
         if (allSame) {
           setGood(true)
           soundWin.start()
@@ -83,7 +91,7 @@ export default function Slots() {
     try {
       setSpinning(true)
 
-      const res = await gamba.play({
+      await gamba.play({
         wager,
         bet,
       })
@@ -99,8 +107,6 @@ export default function Slots() {
 
       const result = await gamba.awaitResult()
 
-      // gamba.suspense(result.profit, SPIN_DELAY + REVEAL_SLOT_DELAY * NUM_SLOTS)
-
       const multiplier = result.options[result.resultIndex] / 1000
       // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
       const resultDelay = Date.now() - startTime
@@ -114,57 +120,39 @@ export default function Slots() {
     } catch (err) {
       console.error(err)
       setSlots(slots.map((cell) => ({ ...cell, spinning: false })))
-    } finally {
       setSpinning(false)
     }
   }
 
   return (
-    <>
-      <ResponsiveSize maxScale={1.25}>
-        <Perspective>
-          <div>
-            <ItemPreview betArray={bet} />
-            <SlotContainer>
-              {slots.map((slot, i) => (
-                <Slot
-                  key={i}
-                  index={i}
-                  spinning={slot.spinning}
-                  item={slot.item}
-                  good={good}
-                />
-              ))}
-            </SlotContainer>
-            <Result>
-              {good ? (
-                <>
-                  Payout: {formatLamports(result)}
-                </>
-              ) : (
-                <>
-                  FEELING LUCKY?
-                </>
-              )}
-            </Result>
-          </div>
-        </Perspective>
-      </ResponsiveSize>
-      <ActionBar>
-        <Dropdown
-          value={wager}
-          format={formatLamports}
-          label="Wager"
-          onChange={setWager}
-          options={WAGER_OPTIONS.map((value) => ({
-            label: formatLamports(value),
-            value,
-          }))}
-        />
-        <Button loading={spinning} onClick={play}>
-          Spin
-        </Button>
-      </ActionBar>
-    </>
+    <ResponsiveSize maxScale={1.25}>
+      <Perspective>
+        <div>
+          <ItemPreview betArray={bet} />
+          <SlotContainer>
+            {slots.map((slot, i) => (
+              <Slot
+                key={i}
+                index={i}
+                spinning={slot.spinning}
+                item={slot.item}
+                good={good}
+              />
+            ))}
+          </SlotContainer>
+          <Result>
+            {good ? (
+              <>
+                Payout: {formatLamports(result)}
+              </>
+            ) : (
+              <>
+                FEELING LUCKY?
+              </>
+            )}
+          </Result>
+        </div>
+      </Perspective>
+    </ResponsiveSize>
   )
 }

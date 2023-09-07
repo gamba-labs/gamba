@@ -2,6 +2,7 @@ import { GambaError, GambaError2, GambaPlayParams, getGameResult, zeroUnless } f
 import React from 'react'
 import { GambaContext } from '../GambaProvider'
 import { randomSeed } from '../utils'
+import { useBalances } from './useBalances'
 import { useGambaClient } from './useGambaClient'
 
 /**
@@ -16,23 +17,17 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 export function useGamba() {
   const { creator: defaultCreator, seed, setSeed } = React.useContext(GambaContext)
+  const client = useGambaClient()
+  const balances = useBalances()
 
-  const _client = useGambaClient()
-
-  // const { methods, ...client } = _client
-
-  const { connection } = _client
+  const { connection } = client
 
   const updateSeed = (seed = randomSeed()) => setSeed(seed)
-
-  const userBalance = Math.max(0, zeroUnless(_client.user?.balance))
-  const walletBalance = zeroUnless(_client.owner?.balance)
-  const bonusBalance = zeroUnless(_client.user?.bonusBalance)
 
   const play = (
     params: Optional<GambaPlayParams, 'creator' | 'seed'>,
   ) => {
-    return _client.play({
+    return client.play({
       seed,
       creator: defaultCreator!,
       ...params,
@@ -40,8 +35,8 @@ export function useGamba() {
   }
 
   const awaitResult = async () => {
-    const nonce = zeroUnless(_client.user?.nonce)
-    return await _client.userAccount.waitForState(
+    const nonce = zeroUnless(client.user?.nonce)
+    return await client.userAccount.waitForState(
       (current, previous) => {
         if (!current?.decoded?.created) {
           throw new Error(GambaError.USER_ACCOUNT_CLOSED_BEFORE_RESULT)
@@ -70,20 +65,15 @@ export function useGamba() {
 
   return {
     connection,
-    _client,
+    client,
     creator: defaultCreator,
     updateSeed,
-    wallet: _client.owner,
-    user: _client.user,
-    house: _client.house,
+    wallet: client.owner,
+    user: client.user,
+    house: client.house,
     seed,
     awaitResult,
     play,
-    balances: {
-      total: userBalance + walletBalance + bonusBalance,
-      bonus: bonusBalance,
-      wallet: walletBalance,
-      user: userBalance,
-    },
+    balances,
   }
 }

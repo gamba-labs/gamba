@@ -1,11 +1,12 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
-import { GambaClient } from 'gamba-core'
+import { Event, GambaClient, GambaError2 } from 'gamba-core'
 import React from 'react'
 import { randomSeed } from './utils'
 
 interface GambaProviderProps {
   creator?: PublicKey | string
+  onError?: (error: GambaError2, handler: Event) => void
 }
 
 interface GambaContext {
@@ -38,7 +39,6 @@ function Inner({ children }: React.PropsWithChildren) {
     , [client.user],
   )
 
-
   return (
     <>{children}</>
   )
@@ -52,16 +52,24 @@ export function Gamba({ children, creator }: React.PropsWithChildren<GambaProvid
   const { wallet, connected } = useWallet()
   const { connection } = useConnection()
 
+  const walletAdapter = React.useMemo(
+    () => {
+      if (connected && wallet?.adapter)
+        return wallet?.adapter
+    }
+    , [wallet, connected],
+  )
+
   const client = React.useMemo(
     () => {
-      const _wallet = (() => {
-        if (connected && wallet?.adapter?.publicKey)
-          return wallet?.adapter
-      })()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return new GambaClient(connection, _wallet as any)
-    }
-    , [connection, wallet, connected],
+      return new GambaClient(
+        connection,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        walletAdapter as any,
+        // onError,
+      )
+    },
+    [connection, walletAdapter],
   )
 
   React.useEffect(() => client.userAccount.listen(connection), [connection, client.userAccount])

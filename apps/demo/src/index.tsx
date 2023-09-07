@@ -24,23 +24,21 @@ function Root() {
   )
 
   return (
-    <ConnectionProvider
-      endpoint={import.meta.env.GAMBA_SOLANA_RPC}
-      config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'processed' }}
-    >
-      <WalletProvider autoConnect wallets={wallets}>
-        <WalletModalProvider>
-          <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
-            <BrowserRouter>
+    <BrowserRouter>
+      <ConnectionProvider
+        endpoint={import.meta.env.GAMBA_SOLANA_RPC}
+        config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'processed' }}
+      >
+        <WalletProvider autoConnect wallets={wallets}>
+          <WalletModalProvider>
+            <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
               <App />
-            </BrowserRouter>
-          </Gamba>
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
+            </Gamba>
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+    </BrowserRouter>
   )
 }
 
-root.render(
-  <Root />,
-)
+root.render(<Root />)

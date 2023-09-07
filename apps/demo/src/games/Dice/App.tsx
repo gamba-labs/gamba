@@ -1,6 +1,6 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ActionBar, Button, ResponsiveSize } from 'gamba/react-ui'
+import { ResponsiveSize, useGameControls } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import * as Tone from 'tone'
 import Slider from './Slider'
@@ -23,25 +23,39 @@ function Dice() {
   const [resultIndex, setResultIndex] = useState(-1)
   const [odds, setOdds] = useState(50)
 
-  const multiplier = 100 / odds
   const maxBet = Math.min(lamportsToSol(gamba.balances.total), MAX_PAYOUT * (odds / 100))
   const wager = Math.min(maxBet, _wager)
 
-  const play = async () => {
-    try {
-      const bet = Array.from({ length: 100 }).map((_, i) => {
+  const multiplier = 100 / odds
+
+  const bet = React.useMemo(
+    () => {
+      return Array.from({ length: 100 }).map((_, i) => {
         if (i < odds) {
           return +multiplier.toFixed(4)
         }
         return 0
       })
+    }
+    , [odds],
+  )
+
+  useGameControls({
+    play: {
+      type: 'button',
+      disabled: loading,
+      onClick: () => play(),
+    },
+  })
+
+  const play = async () => {
+    try {
+      setLoading(true)
 
       await gamba.play({
         bet,
         wager: solToLamports(wager),
       })
-
-      setLoading(true)
 
       const result = await gamba.awaitResult()
       const resultnr = result.resultIndex + 1
@@ -62,7 +76,7 @@ function Dice() {
 
   return (
     <>
-      <ResponsiveSize>
+      <ResponsiveSize maxScale={1.25}>
         <GameContainer>
           <StatContainerWrapper>
             <SemiCircleContainer>
@@ -151,11 +165,6 @@ function Dice() {
 
         </GameContainer>
       </ResponsiveSize>
-      <ActionBar>
-        <Button loading={loading} onClick={play}>
-          Spin
-        </Button>
-      </ActionBar>
     </>
   )
 }

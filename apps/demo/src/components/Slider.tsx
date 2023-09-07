@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useRef } from 'react'
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
 import styled from 'styled-components'
+import { Svg } from './Svg'
 
 const Header = styled.div`
   display: flex;
@@ -49,10 +49,10 @@ export function Slider({ children, title }: PropsWithChildren<{title: any}>) {
         {title}
         <div className="arrows">
           <button onClick={() => scrll(-1)}>
-            <FaArrowLeft />
+            <Svg.ArrowLeft />
           </button>
           <button onClick={() => scrll(1)}>
-            <FaArrowRight />
+            <Svg.ArrowRight />
           </button>
         </div>
       </Header>

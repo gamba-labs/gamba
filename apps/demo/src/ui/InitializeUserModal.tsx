@@ -14,9 +14,9 @@ function InnerModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => v
   const create = async () => {
     try {
       setCreating(true)
-      await gamba._client.initializeAccount()
+      await gamba.client.initializeAccount()
 
-      await gamba._client.userAccount.waitForState(
+      await gamba.client.userAccount.waitForState(
         (current) => {
           if (current.decoded?.created) {
             //
@@ -27,7 +27,7 @@ function InnerModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => v
 
       setInitUser(true)
 
-      await gamba._client.userAccount.waitForState(
+      await gamba.client.userAccount.waitForState(
         (current) => {
           if (current.decoded?.status?.playing) {
             //

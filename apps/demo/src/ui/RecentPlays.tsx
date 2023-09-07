@@ -1,8 +1,9 @@
 import { RecentPlayEvent, solToLamports } from 'gamba'
 import { useGamba, useRecentPlays } from 'gamba/react'
-import { Svg, formatLamports } from 'gamba/react-ui'
+import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
 import styled from 'styled-components'
+import { Svg } from '../components/Svg'
 import { Time } from '../components/Time'
 
 const VERIFY_URL = 'http://localhost:7778/tx'
@@ -74,7 +75,7 @@ function RecentPlay({ event, isSelf }: {event: RecentPlayEvent, isSelf: boolean}
         </span>
       </div>
       <span className="time">
-        <Time time={event.estimatedTime} /> ago <Svg.ArrowRight />
+        <Time time={event.estimatedTime} /> ago <Svg.ExternalLink />
       </span>
     </RecentPlayLink>
   )

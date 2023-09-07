@@ -1,53 +1,26 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useBonusBalance, useGamba } from 'gamba/react'
-import { Svg, copyTextToClipboard, formatLamports } from 'gamba/react-ui'
+import { formatLamports, useClaim, useCloseAccount, useCreateAccount, useRedeemBonus } from 'gamba/react-ui'
 import React, { useState } from 'react'
-import styled from 'styled-components'
 import { Button, ButtonLink } from '../components/Button'
 import { Dropdown } from '../components/Dropdown'
 import { Loader } from '../components/Loader'
 import { Modal } from '../components/Modal'
+import { Svg } from '../components/Svg'
 import { Value } from '../components/Value'
 import { useOnClickOutside } from '../hooks/useOnClickOutside'
 
-function usePromise<T>(fn: () => Promise<T>) {
-  const [loading, setLoading] = useState(false)
-
-  const func = async () => {
-    try {
-      setLoading(true)
-      await fn()
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return [func, loading] as const
-}
-
 function RedeemBonusButton() {
-  const gamba = useGamba()
+  const [redeemBonus, loading] = useRedeemBonus()
   const bonusBalance = useBonusBalance()
-
-  const [redeemTokens, loading] = usePromise(
-    async () => {
-      await gamba._client.redeemBonusToken(1000000)
-
-      await gamba._client.userAccount.waitForState((curr, prev) => {
-        if (curr.decoded?.bonusBalance > prev.decoded?.bonusBalance) {
-          return true
-        }
-      })
-    },
-  )
 
   if (bonusBalance === 0) {
     return null
   }
 
   return (
-    <Button loading={loading} className="yellow list shine" onClick={redeemTokens}>
+    <Button onClick={() => redeemBonus(bonusBalance)} loading={loading} className="yellow list shine">
       Redeem {formatLamports(bonusBalance, 'gSOL')}
     </Button>
   )
@@ -55,35 +28,25 @@ function RedeemBonusButton() {
 
 function ClaimButton() {
   const gamba = useGamba()
-  const [claim, loading] = usePromise(
-    async () => {
-      await gamba._client.withdraw()
-      // await res.result()
-    },
-  )
+  const [claim, loading] = useClaim()
 
   if (gamba.balances.user === 0) {
     return null
   }
 
   return (
-    <Button loading={loading} className="green list shine" onClick={claim}>
+    <Button onClick={() => claim()} loading={loading} className="green list shine">
       Claim {formatLamports(gamba.balances.user)}
     </Button>
   )
 }
 
-const Menu = styled.div`
-  position: relative;
-  min-width: 180px;
-`
-
 function CopyAddressButton() {
   const gamba = useGamba()
   const [copied, setCopied] = React.useState(false)
 
-  const copy = () => {
-    copyTextToClipboard(gamba.wallet.publicKey.toBase58())
+  const copy = async () => {
+    await navigator.clipboard.writeText(gamba.wallet.publicKey.toBase58())
     setCopied(true)
     setTimeout(() => setCopied(false), 500)
   }
@@ -99,41 +62,27 @@ function ShuffleSeedButton() {
   const gamba = useGamba()
 
   const shuffle = () => {
-    const nextSeed = prompt('Enter a seed', gamba.seed)
-    if (nextSeed)
-      gamba.updateSeed(nextSeed)
+    gamba.updateSeed()
   }
 
   return (
     <Button onClick={shuffle} className="list transparent">
       SEED: {gamba.seed}
+      <Svg.Shuffle />
     </Button>
   )
 }
 
 function CloseAccountButton({ onClosed }: {onClosed?: () => void}) {
   const gamba = useGamba()
-
-  const [closeAccount, loading] = usePromise(
-    async () => {
-      await gamba._client.closeAccount()
-
-      await gamba._client.userAccount.waitForState(
-        (current) => {
-          if (!current.decoded?.created) {
-            return true
-          }
-        },
-      )
-    },
-  )
+  const [closeAccount, loading] = useCloseAccount()
 
   const close = async () => {
     await closeAccount()
     onClosed && onClosed()
   }
 
-  if (!gamba.user?.created) return null
+  if (!gamba.user.created) return null
 
   return (
     <Button loading={loading} onClick={close} className="list transparent">
@@ -144,21 +93,9 @@ function CloseAccountButton({ onClosed }: {onClosed?: () => void}) {
 
 function CreateAccountButton() {
   const gamba = useGamba()
+  const [createAccount, loading] = useCreateAccount()
 
-  const [createAccount, loading] = usePromise(
-    async () => {
-      await gamba._client.initializeAccount()
-      await gamba._client.userAccount.waitForState(
-        (current) => {
-          if (current.decoded?.created) {
-            return true
-          }
-        },
-      )
-    },
-  )
-
-  if (gamba.user?.created) return null
+  if (gamba.user.created) return null
 
   return (
     <Button loading={loading} onClick={createAccount} className="list transparent">
@@ -178,10 +115,11 @@ export function UserButton() {
   useOnClickOutside(ref, () => setVisible(false))
 
   const connect = () => {
-    if (wallet.wallet)
+    if (wallet.wallet) {
       wallet.connect()
-    else
+    } else {
       walletModal.setVisible(true)
+    }
   }
 
   return (
@@ -193,11 +131,11 @@ export function UserButton() {
           <CloseAccountButton onClosed={() => setModal(false)} />
           <CreateAccountButton />
           <ButtonLink className="list transparent" href="https://gamba.so/" target="_blank">
-            More info <Svg.ArrowRight />
+            More info <Svg.ExternalLink />
           </ButtonLink>
         </Modal>
       )}
-      <Menu ref={ref}>
+      <div style={{ position: 'relative', minWidth: '180px' }} ref={ref}>
         {wallet.connected ? (
           <>
             <Button className="dark" style={{ width: '100%' }} onClick={() => setVisible(!visible)}>
@@ -226,7 +164,7 @@ export function UserButton() {
             {wallet.connecting ? 'Connecting...' : 'Connect'}
           </Button>
         )}
-      </Menu>
+      </div>
     </>
   )
 }

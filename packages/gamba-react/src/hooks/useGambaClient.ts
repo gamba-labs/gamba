@@ -1,12 +1,6 @@
-import { RecentPlayEvent } from 'gamba-core'
 import React from 'react'
 import { GambaContext } from '../GambaProvider'
 import { useRerender } from './useRerender'
-
-export function useGambaEvent(callback: (event: RecentPlayEvent) => void, deps: React.DependencyList = []) {
-  // const client = useGambaClient()
-  // React.useEffect(() => client.onGameResult(callback),  [client, ...deps])
-}
 
 export function useGambaClient() {
   const { client } = React.useContext(GambaContext)

@@ -19,7 +19,6 @@ const StyledCard = styled(NavLink)<{width: number, height: number}>`
   transform: scale(1);
   cursor: pointer;
   &:hover {
-    // transform: scale(1.02);
     outline: var(--text-color) solid 1px;
     outline-offset: 3px;
     & > .background {
@@ -35,9 +34,12 @@ const StyledCard = styled(NavLink)<{width: number, height: number}>`
   border-radius: 5px;
   display: flex;
   justify-content: end;
-  width: 200px;
   aspect-ratio: 2/1;
-  transition: height .25s ease, transform .2s ease, aspect-ratio .2s ease;
+  width: 150px;
+  @media (min-height: 900px) {
+    width: 200px;
+  }
+  transition: width .25s ease, transform .2s ease, aspect-ratio .2s ease;
   max-height: 100%;
   overflow: hidden;
   flex-direction: column;

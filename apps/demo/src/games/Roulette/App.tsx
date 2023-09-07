@@ -1,6 +1,6 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ActionBar, Button, ResponsiveSize, formatLamports } from 'gamba/react-ui'
+import { ResponsiveSize, formatLamports } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import * as Tone from 'tone'
 import { Results } from './Results'
@@ -30,6 +30,7 @@ export default function Roulette() {
   const clearChips = () => {
     setTableBet(INITIAL_TABLE_BETS)
   }
+
   const addResult = (result: number) => {
     setResults((r) => [result, ...r])
   }
@@ -54,10 +55,10 @@ export default function Roulette() {
 
   const play = async () => {
     try {
-      const res = await gamba.methods.play({ bet, wager })
+      await gamba.play({ bet, wager })
       soundDice.start()
       setLoading(true)
-      const result = await res.result()
+      const result = await gamba.awaitResult()
       addResult(result.resultIndex)
       if (result.payout > 0)
         soundWin.start()
@@ -71,7 +72,7 @@ export default function Roulette() {
   return (
     <>
       <ResponsiveSize>
-        <div style={{ display: 'grid', gap: '20px', alignItems: 'center', padding: '50px' }}>
+        <div style={{ display: 'grid', gap: '20px', alignItems: 'center' }}>
           <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
             <div>
               <div style={{ fontWeight: 'bold' }}>
@@ -116,14 +117,14 @@ export default function Roulette() {
           <Table tableBet={tableBet} onChange={setTableBet} />
         </div>
       </ResponsiveSize>
-      <ActionBar>
+      {/* <ActionBar>
         <Button disabled={!wager} onClick={clearChips}>
           Clear
         </Button>
         <Button disabled={loading || maxPayoutExceeded || !wager} onClick={play}>
           Spin
         </Button>
-      </ActionBar>
+      </ActionBar> */}
     </>
   )
 }

@@ -22,7 +22,6 @@
     "gamba": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.8.0",
     "react-router-dom": "^6.10.0",
     "styled-components": "^5.3.11",
     "three": "^0.151.3",

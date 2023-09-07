@@ -1,12 +1,11 @@
 import React from 'react'
-import { GameBundle } from '../types'
+import { GameBundle } from './types'
 import { ErrorBoundary } from './ErrorBoundary'
-import { Loader } from './Loader'
 
 const DefaultLoadScreen = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-      <Loader />
+      Loading..
     </div>
   )
 }
@@ -34,11 +33,19 @@ interface Props {
   error?: JSX.Element
 }
 
-export function GameView({ game, loader, error }: Props) {
+export interface GameContext {
+  game: GameBundle
+}
+
+export const GameContext = React.createContext<GameContext>(null!)
+
+export function GameProvider({ children, game, loader, error }: React.PropsWithChildren<Props>) {
   return (
     <ErrorBoundary key={game.short_name} error={error ?? <DefaultError />}>
       <React.Suspense fallback={loader ?? <DefaultLoadScreen />}>
-        <game.app />
+        <GameContext.Provider value={{ game }}>
+          {children}
+        </GameContext.Provider>
       </React.Suspense>
     </ErrorBoundary>
   )

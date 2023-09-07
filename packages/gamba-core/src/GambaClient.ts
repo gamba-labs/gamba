@@ -46,6 +46,8 @@ export class GambaClient {
   private errorEvent = new Event<[GambaError2]>
   onError = (listener: (error: GambaError2) => void) => this.errorEvent.subscribe(listener)
 
+  // private onError2?: (error: GambaError2) => void
+
   /**
    * If the used wallet is an inline burner wallet
    */
@@ -66,6 +68,9 @@ export class GambaClient {
             methodName,
             args,
           )
+          // if (this.onError2) {
+          //   this.onError2(_err)
+          // }
           this.errorEvent.emit(_err)
           const resolution = await _err.wait()
           if (resolution === 'resolved') {

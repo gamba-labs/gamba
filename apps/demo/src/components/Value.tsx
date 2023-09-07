@@ -1,4 +1,3 @@
-import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -25,27 +24,6 @@ export function Value({ children }: React.PropsWithChildren) {
   return (
     <Wrapper $flash={flash}>
       {children}
-    </Wrapper>
-  )
-}
-
-interface MoneyProps {
-  value: number
-}
-
-export function Money({ value }: MoneyProps) {
-  const [flash, set] = React.useState(false)
-
-  React.useEffect(() => {
-    set(true)
-    setTimeout(() => {
-      set(false)
-    }, 250)
-  }, [value])
-
-  return (
-    <Wrapper $flash={flash}>
-      {formatLamports(value)}
     </Wrapper>
   )
 }

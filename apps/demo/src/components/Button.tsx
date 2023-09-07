@@ -7,6 +7,7 @@ interface ButtonProps {
   pulse?: boolean
   loading?: boolean
   icon?: string
+  label?: React.ReactNode
 }
 
 const pulse = keyframes`
@@ -34,10 +35,18 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
     }
   }
 
+  & .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #666;
+    display: inline;
+    margin-right: 1em;
+  }
+
   border: none;
   font-size: inherit;
-  display: block;
-  height: 40px;
+  display: inline-block;
+  min-height: 40px;
   overflow: hidden;
   padding: 8px 16px;
   position: relative;
@@ -55,14 +64,22 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
     animation: ${pulse} 1s 1s infinite;
   `}
 
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   min-width: 100px;
 
   background: #a079ff;
   &:hover {
     background-color: #855ee6;
   }
-  color: #151b54;
+  color: white;
+
+  &.white {
+    background: #ffffff;
+    color: black;
+    &:hover {
+      background: #fafafa;
+    }
+  }
 
   &.dark {
     background: #1a1c24;
@@ -102,7 +119,7 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
     color: inherit;
     background: transparent;
     &:hover {
-      background: #ffffff11;
+      background: #ffffff22;
     }
   }
 
@@ -151,12 +168,14 @@ const StyledButton = styled.button`
 
 const StyledButtonLink = styled.a`
   ${StyledButtonCSS}
+  text-decoration: none;
 `
 
-export function Button({ children, fill, pulse, icon, loading, disabled, ...props }: ButtonProps & ButtonHTMLAttributes<HTMLButtonElement>) {
+export function Button({ children, label, fill, pulse, icon, loading, disabled, ...props }: ButtonProps & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <StyledButton $pulse={pulse} $fill={fill} disabled={disabled || loading} {...props}>
+    <StyledButton  $pulse={pulse} $fill={fill} disabled={disabled || loading} {...props}>
       <div>
+        {label && <div className="label">{label}</div>}
         {icon && <img width="20" height="20" src={icon} />}
         {children}
         {loading && <span><Loader size={1} /></span>}
@@ -165,10 +184,11 @@ export function Button({ children, fill, pulse, icon, loading, disabled, ...prop
   )
 }
 
-export function ButtonLink({ children, fill, pulse, icon, loading, ...props }: ButtonProps & AnchorHTMLAttributes<HTMLAnchorElement>) {
+export function ButtonLink({ children, label, fill, pulse, icon, loading, ...props }: ButtonProps & AnchorHTMLAttributes<HTMLAnchorElement>) {
   return (
     <StyledButtonLink $pulse={pulse} $fill={fill} {...props}>
       <div>
+        {label && <div className="label">{label}</div>}
         {icon && <img width="20" height="20" src={icon} />}
         {children}
         {loading && <span><Loader size={1} /></span>}

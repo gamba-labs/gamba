@@ -23,14 +23,13 @@
     "gamba-core": "workspace:*",
     "gamba-react": "workspace:*",
     "react": "^18.2.0",
-    "styled-components": "^5.3.11",
-    "tone": "^14.7.77"
+    "tone": "^14.7.77",
+    "zustand": "^4.4.1"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
     "@solana/wallet-adapter-react": "^0.15.32",
     "@types/react": "^18.0.33",
-    "@types/styled-components": "^5.1.26",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   },
@@ -41,13 +40,9 @@
     "@solana/web3.js": "*",
     "gamba-core": "*",
     "gamba-react": "*",
-    "react": "*",
-    "styled-components": "^5.3.0"
+    "react": "*"
   },
   "peerDependenciesMeta": {
-    "styled-components": {
-      "optional": true
-    },
     "@solana/wallet-adapter-react": {
       "optional": true
     }

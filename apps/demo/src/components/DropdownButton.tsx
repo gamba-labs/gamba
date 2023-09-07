@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { useOnClickOutside } from '../hooks/useOnClickOutside'
 import { Button } from './Button'
@@ -27,9 +27,8 @@ interface Props<T> {
 }
 
 export function DropdownButton<T>({ label, options, onChange, value, disabled, format }: Props<T>) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [open, setOpen] = useState(false)
-  const hideActive = false
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [open, setOpen] = React.useState(false)
 
   useOnClickOutside(ref, () => setOpen(false))
 
@@ -37,10 +36,6 @@ export function DropdownButton<T>({ label, options, onChange, value, disabled, f
     onChange(v)
     setOpen(false)
   }
-
-  const filteredOptions = useMemo(() => {
-    return !hideActive ? options : options.filter((x) => x.value !== value)
-  }, [options, value])
 
   const displayedValue = useMemo(() => format ? format(value) : value, [format, value])
 
@@ -57,7 +52,7 @@ export function DropdownButton<T>({ label, options, onChange, value, disabled, f
         </>
       </Button>
       <Dropdown visible={open}>
-        {[...filteredOptions].reverse().map((option, i) => (
+        {options.map((option, i) => (
           <Button
             key={i}
             disabled={disabled}

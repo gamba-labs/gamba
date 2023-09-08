@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './Section.module.css'
-import { Button2 } from './Button/Button'
+import { Button } from './Button'
 import { Icon } from './Icon'
 
 interface SectionProps extends React.PropsWithChildren {
@@ -40,12 +40,12 @@ export function SlideSection({ stuff, children, ...rest }: SectionProps) {
         <>
           {stuff}
           <div className={styles.sliderArrows}>
-            <Button2 size="small" variant="ghost" onClick={() => scroll(-1)}>
+            <Button size="small" variant="ghost" onClick={() => scroll(-1)}>
               <Icon.ArrowLeft />
-            </Button2>
-            <Button2 size="small" variant="ghost" onClick={() => scroll(1)}>
+            </Button>
+            <Button size="small" variant="ghost" onClick={() => scroll(1)}>
               <Icon.ArrowRight />
-            </Button2>
+            </Button>
           </div>
         </>
       }

@@ -2,7 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styles from './Header.module.css'
 
-export const Header2: React.FC<React.PropsWithChildren> = ({ children }) => {
+export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <div className={styles.wrapper}>
       <div>

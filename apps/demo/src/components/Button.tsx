@@ -1,6 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { cx } from '../../utils'
+import { cx } from '../utils'
 import styles from './Button.module.css'
 
 type ButtonSize = 'small' | 'medium' | 'large'
@@ -26,7 +25,7 @@ interface ButtonProps<E extends Element> {
   loading?: boolean
 }
 
-export function Button2<E extends Element>(
+export function Button<E extends Element>(
   props: ButtonProps<E> & ElementProps[E],
 ) {
   const {
@@ -73,6 +72,6 @@ export function Button2<E extends Element>(
 export function NavButton(props: ButtonProps<'button'> & Omit<ElementProps['button'], 'onClick'> & {to: string}) {
   const navigate = useNavigate()
   return (
-    <Button2 {...props} onClick={() => navigate(props.to)} />
+    <Button {...props} onClick={() => navigate(props.to)} />
   )
 }

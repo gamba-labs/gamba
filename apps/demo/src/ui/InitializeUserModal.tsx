@@ -3,8 +3,8 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaError2 } from 'gamba'
 import { GambaError, useGamba, useGambaError } from 'gamba/react'
 import React from 'react'
-import { Modal2 } from '../components/Modal/Modal'
-import { Button2 } from '../components/Button/Button'
+import { Modal } from '../components/Modal'
+import { Button } from '../components/Button'
 
 function InnerModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => void}) {
   const [creating, setCreating] = React.useState(false)
@@ -45,16 +45,16 @@ function InnerModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => v
   }
 
   return (
-    <Modal2 onClose={onCancel}>
+    <Modal onClose={onCancel}>
       <h1>Wecome!</h1>
       In order to play you need to create an account to interract with the Solana program.<br />
       This only needs to be done once.
       <br />
       <br />
-      <Button2 loading={creating} pulse onClick={create}>
+      <Button loading={creating} pulse onClick={create}>
         {!initUser ? 'Initialize Account' : 'Initializing user...'}
-      </Button2>
-    </Modal2>
+      </Button>
+    </Modal>
   )
 }
 

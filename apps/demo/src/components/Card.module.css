@@ -43,7 +43,7 @@
   flex-shrink: 0;
 }
 
-@media (min-height: 900px) {
+@media (min-width: 900px) {
   .card {
     width: 200px;
   }

@@ -1,9 +1,9 @@
 import React from 'react'
-import { useOnClickOutside } from '../../hooks/useOnClickOutside'
-import { Icon } from '../Icon'
+import { useOnClickOutside } from '../hooks/useOnClickOutside'
+import { Icon } from './Icon'
 import styles from './Modal.module.css'
 
-export function Modal2({ children, onClose }: React.PropsWithChildren<{onClose: () => void}>) {
+export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: () => void}>) {
   const ref = React.useRef<HTMLDivElement>(null!)
 
   useOnClickOutside(ref, onClose)

@@ -1,8 +1,8 @@
 import { GameView, useControlsStore } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button2 } from '../components/Button/Button'
-import { Modal2 } from '../components/Modal/Modal'
+import { Button } from '../components/Button'
+import { Modal } from '../components/Modal'
 import { GAMES } from '../games'
 import styles from './Game.module.css'
 import { Home } from './Home'
@@ -15,9 +15,9 @@ function PlayButton() {
   if (!button) return null
 
   return (
-    <Button2 disabled={controls.scheme.disabled} onClick={() => button.onClick()}>
+    <Button disabled={controls.scheme.disabled} onClick={() => button.onClick()}>
       {button.label ?? 'Play'}
-    </Button2>
+    </Button>
   )
 }
 
@@ -29,21 +29,21 @@ function Controls() {
   return (
     <>
       {showInfo && (
-        <Modal2 onClose={() => setShowInfo(false)}>
+        <Modal onClose={() => setShowInfo(false)}>
           <h1 style={{ textAlign: 'center' }}>
             <img height="100" src={game.image} alt={game.name} />
           </h1>
           {game.description || 'No information available'}
-        </Modal2>
+        </Modal>
       )}
       <div className={styles.controls}>
-        <Button2
+        <Button
           variant="ghost"
           style={{ padding: 0 }}
           onClick={() => setShowInfo(true)}
         >
           <img src={game.image} height="40px" />
-        </Button2>
+        </Button>
         <div>
           <WagerInput />
         </div>

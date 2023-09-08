@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button2 } from '../components/Button/Button'
+import { Button } from '../components/Button'
 import { Section } from '../components/Section'
 import { Icon } from '../components/Icon'
 import styles from './Home.module.css'
@@ -14,7 +14,7 @@ export function Home() {
         <p>
           A decentralized, provably-fair casino built on gamba.
         </p>
-        <Button2
+        <Button
           as="a"
           color="white"
           href="https://gamba.so"
@@ -22,7 +22,7 @@ export function Home() {
           icon={<Icon.ExternalLink />}
         >
           Learn More
-        </Button2>
+        </Button>
       </Section>
     </div>
   )

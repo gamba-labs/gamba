@@ -1,6 +1,6 @@
 import React from 'react'
-import { Button2 } from '../components/Button/Button'
-import { Modal2 } from '../components/Modal/Modal'
+import { Button } from '../components/Button'
+import { Modal } from '../components/Modal'
 
 interface Pool {
   ticker: string
@@ -23,7 +23,7 @@ export function PoolButton() {
   return (
     <>
       {poolModal && (
-        <Modal2 onClose={() => setPoolModal(false)}>
+        <Modal onClose={() => setPoolModal(false)}>
           <h1>
             Select Token
           </h1>
@@ -31,19 +31,19 @@ export function PoolButton() {
             Custom tokens and liquidity pools coming soon!
             <br />
             <br />
-            <Button2 variant="ghost" onClick={() => setPoolModal(false)}>
+            <Button variant="ghost" onClick={() => setPoolModal(false)}>
               Close
-            </Button2>
+            </Button>
           </p>
-        </Modal2>
+        </Modal>
       )}
-      <Button2
+      <Button
         onClick={() => setPoolModal(true)}
         className="dark"
         icon={<img height="20" src={selectedPool.image} />}
       >
         {selectedPool.ticker}
-      </Button2>
+      </Button>
     </>
   )
 }

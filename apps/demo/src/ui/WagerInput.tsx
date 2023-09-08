@@ -2,7 +2,7 @@ import { MIN_BET, lamportsToSol, solToLamports } from 'gamba'
 import { useBalances } from 'gamba/react'
 import { formatLamports, useControlsStore, useWagerUtils } from 'gamba/react-ui'
 import React from 'react'
-import { Button2 } from '../components/Button/Button'
+import { Button } from '../components/Button'
 
 export function WagerInput() {
   const balances = useBalances()
@@ -24,7 +24,7 @@ export function WagerInput() {
 
   return (
     <div style={{ position: 'relative' }}>
-      <Button2
+      <Button
         style={{ width: '100%' }}
         onClick={
           () => {
@@ -36,7 +36,7 @@ export function WagerInput() {
         }
       >
         {formatLamports(controls.wager)}
-      </Button2>
+      </Button>
       <div>
         <input
           type="range"
@@ -48,18 +48,18 @@ export function WagerInput() {
         />
       </div>
       <div style={{ display: 'flex', gap: '5px' }}>
-        <Button2 variant="ghost" size="small" onClick={() => set(MIN_BET)}>
+        <Button variant="ghost" size="small" onClick={() => set(MIN_BET)}>
           MIN
-        </Button2>
-        <Button2 variant="ghost" size="small" onClick={() => set(wager.max())}>
+        </Button>
+        <Button variant="ghost" size="small" onClick={() => set(wager.max())}>
           MAX
-        </Button2>
-        <Button2 variant="ghost" size="small" onClick={() => set(wager.times(controls.wager, .5))}>
+        </Button>
+        <Button variant="ghost" size="small" onClick={() => set(wager.times(controls.wager, .5))}>
           / 2
-        </Button2>
-        <Button2 variant="ghost" size="small" onClick={() => set(wager.times(controls.wager, 2))}>
+        </Button>
+        <Button variant="ghost" size="small" onClick={() => set(wager.times(controls.wager, 2))}>
           x2
-        </Button2>
+        </Button>
       </div>
     </div>
   )

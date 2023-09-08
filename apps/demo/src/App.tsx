@@ -1,5 +1,8 @@
 import React from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
+import { Card } from './components/Card'
+import { Header } from './components/Header'
+import { Section, SlideSection } from './components/Section'
 import { GAMES } from './games'
 import { Game } from './ui/Game'
 import { Home } from './ui/Home'
@@ -7,9 +10,6 @@ import { InitializeAccountModal } from './ui/InitializeUserModal'
 import { PoolButton } from './ui/PoolButton'
 import { RecentPlays } from './ui/RecentPlays'
 import { UserButton } from './ui/UserButton'
-import { Card } from './components/Card'
-import { Header2 } from './components/Header/Header'
-import { Section, SlideSection } from './components/Section'
 
 export function App() {
   const location = useLocation()
@@ -25,10 +25,10 @@ export function App() {
     <>
       <InitializeAccountModal />
 
-      <Header2>
+      <Header>
         <PoolButton />
         <UserButton />
-      </Header2>
+      </Header>
 
       <Routes>
         <Route path="/" element={<Home />} />

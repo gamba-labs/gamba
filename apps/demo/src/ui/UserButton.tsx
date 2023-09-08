@@ -4,9 +4,9 @@ import { useBonusBalance, useGamba } from 'gamba/react'
 import { formatLamports, useClaim, useCloseAccount, useCreateAccount, useRedeemBonus } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import { useOnClickOutside } from '../hooks/useOnClickOutside'
-import { Button2 } from '../components/Button/Button'
+import { Button } from '../components/Button'
 import { Dropdown } from '../components/Dropdown'
-import { Modal2 } from '../components/Modal/Modal'
+import { Modal } from '../components/Modal'
 import { Icon } from '../components/Icon'
 
 function RedeemBonusButton() {
@@ -18,9 +18,9 @@ function RedeemBonusButton() {
   }
 
   return (
-    <Button2 onClick={() => redeemBonus(bonusBalance)} loading={loading}>
+    <Button onClick={() => redeemBonus(bonusBalance)} loading={loading}>
       Redeem {formatLamports(bonusBalance, 'gSOL')}
-    </Button2>
+    </Button>
   )
 }
 
@@ -34,9 +34,9 @@ export function ClaimButton() {
 
 
   return (
-    <Button2 onClick={() => claim()} loading={loading}>
+    <Button onClick={() => claim()} loading={loading}>
       Claim {formatLamports(gamba.balances.user)}
-    </Button2>
+    </Button>
   )
 }
 
@@ -51,9 +51,9 @@ function CopyAddressButton() {
   }
 
   return (
-    <Button2 onClick={copy}>
+    <Button onClick={copy}>
       {copied ? 'Copied' : 'Copy Address'}
-    </Button2>
+    </Button>
   )
 }
 
@@ -65,9 +65,9 @@ function ShuffleSeedButton() {
   }
 
   return (
-    <Button2 onClick={shuffle} icon={<Icon.Shuffle />}>
+    <Button onClick={shuffle} icon={<Icon.Shuffle />}>
       SEED: {gamba.seed}
-    </Button2>
+    </Button>
   )
 }
 
@@ -83,9 +83,9 @@ function CloseAccountButton({ onClosed }: {onClosed?: () => void}) {
   if (!gamba.user.created) return null
 
   return (
-    <Button2 loading={loading} onClick={close}>
+    <Button loading={loading} onClick={close}>
       Close Account
-    </Button2>
+    </Button>
   )
 }
 
@@ -96,9 +96,9 @@ function CreateAccountButton() {
   if (gamba.user.created) return null
 
   return (
-    <Button2 loading={loading} onClick={createAccount}>
+    <Button loading={loading} onClick={createAccount}>
       Create Account
-    </Button2>
+    </Button>
   )
 }
 
@@ -114,41 +114,41 @@ function ConnectedButton() {
   return (
     <>
       {modal && (
-        <Modal2 onClose={() => setModal(false)}>
+        <Modal onClose={() => setModal(false)}>
           <h1>More Options</h1>
           <ShuffleSeedButton />
           <CloseAccountButton onClosed={() => setModal(false)} />
           <CreateAccountButton />
-          <Button2
+          <Button
             as="a"
             icon={<Icon.ExternalLink />}
             href="https://gamba.so/"
             target="_blank"
           >
             More info
-          </Button2>
-        </Modal2>
+          </Button>
+        </Modal>
       )}
       <div style={{ position: 'relative' }} ref={ref}>
-        <Button2
+        <Button
           onClick={() => setVisible(!visible)}
           icon={<img src={wallet.wallet?.adapter.icon} height="20px" />}
           loading={gamba.user.created && gamba.user.status !== 'playing'}
         >
           {formatLamports(gamba.balances.total)}
-        </Button2>
+        </Button>
         <Dropdown visible={visible}>
           <CopyAddressButton />
           <ClaimButton />
           <RedeemBonusButton />
           {wallet.connected && (
-            <Button2 onClick={() => wallet.disconnect()}>
+            <Button onClick={() => wallet.disconnect()}>
               Disconnect
-            </Button2>
+            </Button>
           )}
-          <Button2 onClick={() => setModal(true)}>
+          <Button onClick={() => setModal(true)}>
             More Options <Icon.ArrowRight />
-          </Button2>
+          </Button>
         </Dropdown>
       </div>
     </>
@@ -170,9 +170,9 @@ export function UserButton() {
   return (
     <>
       {wallet.connected ? <ConnectedButton /> : (
-        <Button2 onClick={connect}>
+        <Button onClick={connect}>
           {wallet.connecting ? 'Connecting...' : 'Connect'}
-        </Button2>
+        </Button>
       )}
     </>
   )

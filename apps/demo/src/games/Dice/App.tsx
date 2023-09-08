@@ -1,15 +1,15 @@
 import { useGamba } from 'gamba/react'
-import { ResponsiveSize, formatLamports, useGameControls, useSounds } from 'gamba/react-ui'
+import { Fullscreen, formatLamports, useGameControls, useSounds } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import Slider from './Slider'
 import styles from './styles.module.css'
 
-import diceSrc from './dice.wav'
-import loseSrc from './lose.mp3'
-import tickSrc from './tick.wav'
-import winSrc from './win.mp3'
+import SOUND_LOSE from './lose.mp3'
+import SOUND_PLAY from './play.mp3'
+import SOUND_TICK from './tick.wav'
+import SOUND_WIN from './win.mp3'
 
-const SIZE = 100
+const SIZE = 25
 
 function Dice() {
   const gamba = useGamba()
@@ -18,10 +18,10 @@ function Dice() {
   const [rollUnder, setRollUnder] = React.useState(Math.floor(SIZE / 2))
 
   const sounds = useSounds({
-    win: winSrc,
-    dice: diceSrc,
-    lose: loseSrc,
-    tick: tickSrc,
+    win: SOUND_WIN,
+    dice: SOUND_PLAY,
+    lose: SOUND_LOSE,
+    tick: SOUND_TICK,
   })
 
   const multiplier = SIZE / rollUnder
@@ -69,37 +69,45 @@ function Dice() {
       } else {
         sounds.lose.play()
       }
-    } catch (err) {
-      console.error(err)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <>
-      <ResponsiveSize maxScale={1.5}>
-        <div className={styles.container}>
-          <div className={styles.rollUnder}>
-            <div>{rollUnder}</div>
-            <div>Roll Under</div>
+    <Fullscreen maxScale={1.5}>
+      <div className={styles.container}>
+        <div className={styles.rollUnder}>
+          <div>{rollUnder}</div>
+          <div>Roll Under</div>
+        </div>
+        <div className={styles.stats}>
+          <div>
+            <div>{(winChange * 100).toFixed(1)}%</div>
+            <div>Win Chance</div>
           </div>
-          <div className={styles.stats}>
-            <div>
-              <div>{(winChange * 100).toFixed(1)}%</div>
-              <div>Win Chance</div>
-            </div>
-            <div>
-              <div>{multiplier.toFixed(2)}x</div>
-              <div>Multiplier</div>
-            </div>
-            <div>
-              <div>{formatLamports(wager * multiplier - wager)}</div>
-              <div>Payout</div>
-            </div>
+          <div>
+            <div>{multiplier.toFixed(2)}x</div>
+            <div>Multiplier</div>
           </div>
+          <div>
+            <div>{formatLamports(wager * multiplier - wager)}</div>
+            <div>Payout</div>
+          </div>
+        </div>
+        <div className={styles.sliderContainer}>
+          {resultIndex > -1 &&
+            <div
+              key={resultIndex}
+              className={styles.result}
+              style={{ left: `${resultIndex}%` }}
+            >
+              <div>
+                {resultIndex}
+              </div>
+            </div>
+          }
           <Slider
-            resultIndex={resultIndex}
             disabled={loading}
             min={0}
             max={SIZE}
@@ -107,8 +115,8 @@ function Dice() {
             onChange={updateRollUnder}
           />
         </div>
-      </ResponsiveSize>
-    </>
+      </div>
+    </Fullscreen>
   )
 }
 

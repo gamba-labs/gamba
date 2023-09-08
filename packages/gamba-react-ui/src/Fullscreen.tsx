@@ -17,7 +17,7 @@ interface Props extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElem
   maxScale?: number
 }
 
-export function ResponsiveSize({ children, maxScale = 1, ...props }: Props) {
+export function Fullscreen({ children, maxScale = 1, ...props }: Props) {
   const wrapper = React.useRef<HTMLDivElement>(null!)
   const inner = React.useRef<HTMLDivElement>(null!)
   const content = React.useRef<HTMLDivElement>(null!)

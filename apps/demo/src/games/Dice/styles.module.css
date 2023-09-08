@@ -58,9 +58,8 @@
 }
 
 .label {
-  margin-top: 25px;
+  margin-top: 10px;
   position: absolute;
-  opacity: .9;
   transform: translateX(-50%);
   text-align: center;
   background: #32294333;
@@ -78,9 +77,18 @@
   box-shadow: 0 0 0px 2px #32294333;
   transition: box-shadow .2s ease;
   cursor: pointer;
-  &:hover {
-    box-shadow: 0 0 0px 11px #32294355;
+
+  &:not([aria-disabled="true"]) {
+    &:hover {
+      box-shadow: 0 0 0px 11px #32294355;
+    }
   }
+
+  &[aria-disabled="true"] {
+    opacity: .7;
+    cursor: default;
+  }
+
   & > div {
     background: #a079ff;
     height: 100%;
@@ -90,10 +98,10 @@
 
 @keyframes result-appear {
   from {
-    transform: scale(0), translateX(-50%);
+    transform: scale(0) translateX(-50%);
   }
   to {
-    transform: scale(1), translateX(-50%);
+    transform: scale(1) translateX(-50%);
   }
 }
 
@@ -101,26 +109,28 @@
   transform: scale(1) translateX(-50%);
   transform-origin: bottom;
   position: absolute;
-  top: -10px;
-  background: #ffffffCC;
-  backdrop-filter: blur(50px);
-  border-radius: 5px;
-  padding: 5px;
-  font-size: 18px;
-  font-weight: bold;
-  width: 50px;
-  text-align: center;
+  top: -5px;
   transition: left .25 cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  color: black;
   animation: result-appear .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  &::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -10px;
-    border-width: 10px 10px 0px 10px;
-    border-style: solid;
-    border-color: #ffffffCC transparent transparent transparent;
+  & > div {
+    background: #ffffffCC;
+    backdrop-filter: blur(50px);
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    width: 50px;
+    text-align: center;
+    color: black;
+    &::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -10px;
+      border-width: 10px 10px 0px 10px;
+      border-style: solid;
+      border-color: #ffffffCC transparent transparent transparent;
+    }
   }
 }

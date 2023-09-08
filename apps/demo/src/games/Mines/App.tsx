@@ -1,6 +1,6 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ResponsiveSize, formatLamports, useClaim, useGameControls, useSounds } from 'gamba/react-ui'
+import { Fullscreen, formatLamports, useClaim, useGameControls, useSounds } from 'gamba/react-ui'
 import React from 'react'
 import { Bomb } from './Svg'
 import styles from './styles.module.css'
@@ -212,7 +212,7 @@ function Mines() {
   }
 
   return (
-    <ResponsiveSize maxScale={1.25}>
+    <Fullscreen maxScale={1.25}>
       <div className={styles.container}>
         <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', color: 'white' }}>
           <div>
@@ -264,7 +264,7 @@ function Mines() {
           ))}
         </div>
       </div>
-    </ResponsiveSize>
+    </Fullscreen>
   )
 }
 

@@ -6,11 +6,10 @@ interface SliderProps {
   max: number
   value: number
   onChange: (value: number) => void
-  resultIndex: number
   disabled?: boolean
 }
 
-const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, resultIndex, disabled }) => {
+const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, disabled }) => {
   const labels = Array.from({ length: 5 }).map((_, i, arr) => min + Math.floor(i / (arr.length - 1) * (max - min)))
   const [isDragging, setIsDragging] = React.useState(false)
 
@@ -30,24 +29,18 @@ const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, resultIndex,
     const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
     const { width, left } = track.current.getBoundingClientRect()
     const xx = Math.min(1, Math.max(0, (clientX - left) / width))
-    onChange(
-      Math.max(min, Math.min(max, Math.round(xx * max))),
-    )
+    const newValue = Math.max(min, Math.min(max, Math.round(xx * max)))
+    if (newValue !== value)
+      onChange(newValue)
   }
 
   return (
     <div
-      className={styles.sliderContainer}
       onMouseDown={handleDragStart}
       onMouseUp={handleDragEnd}
       onMouseMove={handleDrag}
     >
-      {resultIndex > -1 &&
-        <div key={resultIndex} className={styles.result} style={{ left: `${resultIndex}%` }}>
-          {resultIndex}
-        </div>
-      }
-      <div ref={track} className={styles.slider}>
+      <div ref={track} className={styles.slider} aria-disabled={disabled}>
         <div style={{ width: `${value / max * 100}%` }} />
       </div>
       {labels.map((label, i) => (

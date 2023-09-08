@@ -1,6 +1,6 @@
 import { solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ResponsiveSize } from 'gamba/react-ui'
+import { Fullscreen } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import * as Tone from 'tone'
 import cardSrc from './card.mp3'
@@ -107,7 +107,7 @@ export default function HiLo() {
 
   return (
     <>
-      <ResponsiveSize maxScale={1.25}>
+      <Fullscreen maxScale={1.25}>
         <Container>
           {currentRank !== 0 ? (
             <Option
@@ -155,7 +155,7 @@ export default function HiLo() {
             </Overlay>
           )}
         </Container>
-      </ResponsiveSize>
+      </Fullscreen>
       {/* <ActionBar>
         {gameState === 'lost' ? (
           <Button onClick={reset}>Reset</Button>

@@ -1,6 +1,6 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ResponsiveSize, formatLamports } from 'gamba/react-ui'
+import { Fullscreen, formatLamports } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import * as Tone from 'tone'
 import { Results } from './Results'
@@ -71,7 +71,7 @@ export default function Roulette() {
 
   return (
     <>
-      <ResponsiveSize>
+      <Fullscreen>
         <div style={{ display: 'grid', gap: '20px', alignItems: 'center' }}>
           <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
             <div>
@@ -116,7 +116,7 @@ export default function Roulette() {
           </div>
           <Table tableBet={tableBet} onChange={setTableBet} />
         </div>
-      </ResponsiveSize>
+      </Fullscreen>
       {/* <ActionBar>
         <Button disabled={!wager} onClick={clearChips}>
           Clear

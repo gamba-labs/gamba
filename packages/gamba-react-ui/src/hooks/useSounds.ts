@@ -13,11 +13,12 @@ class GambaSound {
     this.player.load(url)
       .then((x) => {
         this.ready = x.loaded
+        this.player.toDestination()
       })
       .catch((err) => console.error('Failed to load audio', err))
   }
 
-  play({ playbackRate = 0 }: PlaySoundParams = {}) {
+  play({ playbackRate = 1 }: PlaySoundParams = {}) {
     try {
       this.player.playbackRate = playbackRate
       this.player.start()

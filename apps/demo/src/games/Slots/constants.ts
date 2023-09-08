@@ -1,17 +1,22 @@
-import { solToLamports } from 'gamba'
-
 export interface SlotItem {
   multiplier: number
   image: string
 }
 
-import IMAGE_2X from './slot-2x.png'
-import IMAGE_3X from './slot-3x.png'
-import IMAGE_5X from './slot-5x.png'
-import IMAGE_COOL from './slot-emoji-cool.png'
-import IMAGE_HEARTS from './slot-emoji-hearts.png'
-import IMAGE_UNICORN from './slot-unicorn.png'
-import IMAGE_WOJAK from './slot-wojak.png'
+export { default as SOUND_PLAY } from './assets/play.mp3'
+export { default as SOUND_WIN } from './assets/win.mp3'
+export { default as SOUND_LOSE } from './assets/lose.mp3'
+export { default as SOUND_SPIN } from './assets/spin.mp3'
+export { default as SOUND_REVEAL } from './assets/reveal.mp3'
+export { default as SOUND_REVEAL_LEGENDARY } from './assets/reveal-legendary.mp3'
+
+import IMAGE_2X from './assets/slot-2x.png'
+import IMAGE_3X from './assets/slot-3x.png'
+import IMAGE_5X from './assets/slot-5x.png'
+import IMAGE_COOL from './assets/slot-emoji-cool.png'
+import IMAGE_HEARTS from './assets/slot-emoji-hearts.png'
+import IMAGE_UNICORN from './assets/slot-unicorn.png'
+import IMAGE_WOJAK from './assets/slot-wojak.png'
 
 const slotItem = (multiplier: number, ...icons: string[]): SlotItem[] =>
   icons.map((image) => ({ multiplier, image }))
@@ -25,8 +30,6 @@ export const SLOT_ITEMS = [
   slotItem(.5, IMAGE_WOJAK),
 ].flat()
 
-export const WAGER_OPTIONS = [.05, .1, .25, .5, .75, 1].map(solToLamports)
-export const INITIAL_WAGER = solToLamports(.05)
 export const NUM_SLOTS = 3
 /** MS that it takes for spin to finish and reveal to start */
 export const SPIN_DELAY = 1000

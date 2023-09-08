@@ -24,17 +24,17 @@ function RedeemBonusButton() {
   )
 }
 
-function ClaimButton() {
+export function ClaimButton() {
   const gamba = useGamba()
   const [claim, loading] = useClaim()
 
-  if (gamba.balances.user === 0) {
+  if (gamba.balances.user < 1000) {
     return null
   }
 
 
   return (
-    <Button onClick={() => claim()} loading={loading} className="green list shine">
+    <Button onClick={() => claim()} loading={loading} className="green">
       Claim {formatLamports(gamba.balances.user)}
     </Button>
   )

@@ -1,7 +1,7 @@
 import { OrbitControls, OrthographicCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { useGamba } from 'gamba/react'
-import { ResponsiveSize, useGameControls, useSounds } from 'gamba/react-ui'
+import { Fullscreen, useGameControls, useSounds } from 'gamba/react-ui'
 import React from 'react'
 import { Coin } from './Coin'
 import { Effect } from './Effect'
@@ -59,8 +59,6 @@ export default function Flip() {
       } else {
         sounds.lose.play()
       }
-    } catch (err) {
-      console.error(err)
     } finally {
       setFlipping(false)
     }
@@ -75,7 +73,7 @@ export default function Flip() {
         {flipping && <Effect color="white" />}
         {win && <Effect color="#42ff78" />}
       </Canvas>
-      <ResponsiveSize style={{ pointerEvents: 'none' }} maxScale={1.5}>
+      <Fullscreen style={{ pointerEvents: 'none' }} maxScale={1.5}>
         <div className={[styles.container, flipping && styles.flipping].join(' ')}>
           {Object.entries(SIDES).map(([label, _bet], i) => (
             <button
@@ -87,7 +85,7 @@ export default function Flip() {
             </button>
           ))}
         </div>
-      </ResponsiveSize>
+      </Fullscreen>
     </>
   )
 }

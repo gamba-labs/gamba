@@ -1,7 +1,7 @@
 
 export { ErrorBoundary } from './ErrorBoundary'
 export { GameContext, GameProvider } from './GameProvider'
-export { ResponsiveSize } from './ResponsiveSize'
+export { Fullscreen } from './Fullscreen'
 export * from './hooks'
 export * from './types'
 export { formatLamports } from './utils'

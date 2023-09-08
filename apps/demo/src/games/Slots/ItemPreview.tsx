@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
-import styles from './styles.module.css'
+import styles from './App.module.css'
 
 const itemsByMultiplier = Object.entries(
   SLOT_ITEMS.reduce<Record<string, SlotItem[]>>(
@@ -19,23 +19,17 @@ const itemsByMultiplier = Object.entries(
 
 
 export function ItemPreview({ betArray }: {betArray: number[]}) {
-  const [rotation, setRotation] = useState(0)
-
-  // Rotate slot images
-  // Todo: can probably do with CSS animations
-  useEffect(() => {
-    const interval = setInterval(() => setRotation((ci) => ci + 1), 2000)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <div className={styles.items}>
         {itemsByMultiplier.map(({ items, multiplier }, i) => (
-          <div className={!betArray.includes(multiplier) ? 'hidden' : ''} key={i}>
+          <div className={!betArray.includes(multiplier) ? styles.hidden : ''} key={i}>
             <div className={styles.multiplier}>{multiplier}x</div>
             {items.map((item, i) => (
-              <div key={i} className={styles.icon + ' ' + ((rotation % items.length === i) ? styles.visible : '')}>
+              <div
+                key={i}
+                className={styles.icon}
+              >
                 <img className={styles.slotImage} src={item.image} />
               </div>
             ))}

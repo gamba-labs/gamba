@@ -1,11 +1,3 @@
-/* // styles.ts
-import styled from 'styled-components'
-
-interface CellProps {
-  status: 'hidden' | 'gold' | 'mine'
-  selected: boolean
-} */
-
 @keyframes selected-animation {
   0%, 100% {
     transform: scale(1);
@@ -45,6 +37,40 @@ interface CellProps {
   }
 }
 
+@keyframes reset-button-shine {
+  0%, 100% {
+    color: white;
+  }
+  50% {
+    color: #ff0066;
+  }
+}
+
+.statusBar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  & > div:first-child {
+    display: flex;
+    color: #ffffffCC;
+    gap: 20px;
+  }
+}
+
+button.reset {
+  color: #ff0066;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  animation: reset-button-shine 1s infinite;
+  &:disabled {
+    color: #cccccc99!important;
+    cursor: default;
+  }
+}
+
 .container {
   display: grid;
   align-items: center;
@@ -52,6 +78,7 @@ interface CellProps {
   gap: 10px;
   padding: 50px;
   font-size: 14px;
+  user-select: none;
 }
 
 .grid {

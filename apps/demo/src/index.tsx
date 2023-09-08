@@ -1,6 +1,6 @@
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
-// import '@solana/wallet-adapter-react-ui/styles.css'
+import '@solana/wallet-adapter-react-ui/styles.css'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { Gamba } from 'gamba/react'
@@ -10,7 +10,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { App } from './App'
 
 import './styles.css'
-import './wallet-adapter-styles.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 

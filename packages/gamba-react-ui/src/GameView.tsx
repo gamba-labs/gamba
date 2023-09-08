@@ -33,19 +33,11 @@ interface Props {
   error?: JSX.Element
 }
 
-export interface GameContext {
-  game: GameBundle
-}
-
-export const GameContext = React.createContext<GameContext>(null!)
-
-export function GameProvider({ children, game, loader, error }: React.PropsWithChildren<Props>) {
+export function GameView({ game, loader, error }: Props) {
   return (
     <ErrorBoundary key={game.short_name} error={error ?? <DefaultError />}>
       <React.Suspense fallback={loader ?? <DefaultLoadScreen />}>
-        <GameContext.Provider value={{ game }}>
-          {children}
-        </GameContext.Provider>
+        <game.app />
       </React.Suspense>
     </ErrorBoundary>
   )

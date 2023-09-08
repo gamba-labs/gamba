@@ -1,6 +1,7 @@
 .container {
   color: white;
   user-select: none;
+  width: min(100vw, 400px);
 }
 
 .rollUnder {
@@ -27,9 +28,9 @@
   color: white;
   background: #32294333;
   border-radius: 50px;
-  width: 300px;
   max-width: 100%;
   padding: 5px;
+  text-wrap: nowrap;
   & > div {
     display: flex;
     flex-direction: column;
@@ -57,62 +58,23 @@
   padding: 50px 0;
 }
 
-.label {
-  margin-top: 10px;
-  position: absolute;
-  transform: translateX(-50%);
-  text-align: center;
-  background: #32294333;
-  padding: 5px;
-  border-radius: 10px;
-  min-width: 30px;
-}
-
-.slider {
-  background: #322943;
-  height: 20px;
-  border-radius: 10px;
-  overflow: hidden;
-  z-index: 1;
-  box-shadow: 0 0 0px 2px #32294333;
-  transition: box-shadow .2s ease;
-  cursor: pointer;
-
-  &:not([aria-disabled="true"]) {
-    &:hover {
-      box-shadow: 0 0 0px 11px #32294355;
-    }
-  }
-
-  &[aria-disabled="true"] {
-    opacity: .7;
-    cursor: default;
-  }
-
-  & > div {
-    background: #a079ff;
-    height: 100%;
-    border-radius: 10px 0 0 10px;
-  }
-}
-
 @keyframes result-appear {
   from {
-    transform: scale(0) translateX(-50%);
+    transform: scale(0);
   }
   to {
-    transform: scale(1) translateX(-50%);
+    transform: scale(1);
   }
 }
 
 .result {
-  transform: scale(1) translateX(-50%);
-  transform-origin: bottom;
+  transform: translateX(-50%);
   position: absolute;
   top: -5px;
-  transition: left .25 cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  animation: result-appear .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  transition: left .3s ease;
   & > div {
+    animation: result-appear .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    transform-origin: bottom;
     background: #ffffffCC;
     backdrop-filter: blur(50px);
     border-radius: 5px;

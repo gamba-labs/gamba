@@ -1,64 +1,17 @@
 import { MIN_BET, lamportsToSol, solToLamports } from 'gamba'
-import { ErrorBoundary, formatLamports, useControlsStore, useWagerUtils } from 'gamba/react-ui'
+import { useBalances } from 'gamba/react'
+import { GameView, formatLamports, useControlsStore, useWagerUtils } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import { Button } from '../components/Button'
-import { Modal } from '../components/Modal'
-import { Section } from '../components/Section'
+import { Button2 } from '../components/Button/Button'
+import { Modal2 } from '../components/Modal/Modal'
 import { GAMES } from '../games'
-import { Banner } from './Home'
-import { ClaimButton } from './UserButton'
-
-const GameWrapper1 = styled.div`
-  height: 100vh;
-  max-height: -webkit-fill-available;
-  display: grid;
-  grid-template-rows: 1fr max-content;
-  @media (min-height: 800px) {
-    height: 90vh;
-  }
-  @media (min-height: 1200px) {
-    height: max(960px, min(1600px, 60vh));
-  }
-  position: relative;
-  transition: height .2s ease;
-
-  background: #0c0c11;
-`
-
-const GameWrapper = styled.div`
-  height: 100%;
-  position: relative;
-  transition: height .2s ease;
-
-  @keyframes appearappear {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-  animation: appearappear .5s;
-  background: #0c0c11;
-`
-
-const StyledControls = styled.div`
-  width: 100%;
-  z-index: 1;
-  background: #000000CC;
-  backdrop-filter: blur(50px);
-  & > div {
-    padding: 10px;
-    display: flex;
-    gap: 10px;
-  }
-`
+import styles from './Game.module.css'
+import { Home } from './Home'
 
 function WagerInput() {
+  const balances = useBalances()
   const controls = useControlsStore()
-  const wager2 = useWagerUtils({ })
   const wager = useWagerUtils({ bet: controls.scheme.wagerInput?.bet })
 
   const set = (value: number) => {
@@ -69,13 +22,14 @@ function WagerInput() {
     () => {
       controls.setWager(wager.set(controls.wager))
     }
-    , [controls.scheme.wagerInput],
+    , [controls.scheme],
   )
+
+  if (!controls.scheme.wagerInput) return null
 
   return (
     <div style={{ position: 'relative' }}>
-      <Button
-        className="dark"
+      <Button2
         style={{ width: '100%' }}
         onClick={
           () => {
@@ -87,30 +41,30 @@ function WagerInput() {
         }
       >
         {formatLamports(controls.wager)}
-      </Button>
+      </Button2>
       <div>
         <input
           type="range"
           min={wager.min()}
           style={{ width: '100%' }}
-          max={wager2.max()}
+          max={balances.total}
           value={controls.wager}
           onChange={(e) => controls.setWager(Number(e.target.value))}
         />
       </div>
       <div style={{ display: 'flex', gap: '5px' }}>
-        <Button size="small" onClick={() => set(MIN_BET)} className="dark">
+        <Button2 variant="ghost" size="small" onClick={() => set(MIN_BET)}>
           MIN
-        </Button>
-        <Button size="small" onClick={() => set(wager.max())} className="dark">
+        </Button2>
+        <Button2 variant="ghost" size="small" onClick={() => set(wager.max())}>
           MAX
-        </Button>
-        <Button size="small" onClick={() => set(wager.times(controls.wager, .5))} className="dark">
+        </Button2>
+        <Button2 variant="ghost" size="small" onClick={() => set(wager.times(controls.wager, .5))}>
           / 2
-        </Button>
-        <Button size="small" onClick={() => set(wager.times(controls.wager, 2))} className="dark">
+        </Button2>
+        <Button2 variant="ghost" size="small" onClick={() => set(wager.times(controls.wager, 2))}>
           x2
-        </Button>
+        </Button2>
       </div>
     </div>
   )
@@ -123,9 +77,9 @@ function PlayButton() {
   if (!button) return null
 
   return (
-    <Button disabled={controls.scheme.disabled} onClick={() => button.onClick()}>
+    <Button2 disabled={controls.scheme.disabled} onClick={() => button.onClick()}>
       {button.label ?? 'Play'}
-    </Button>
+    </Button2>
   )
 }
 
@@ -133,32 +87,32 @@ function Controls() {
   const { shortName } = useParams()
   const game = useMemo(() => GAMES.find((x) => x.short_name === shortName)!, [shortName])
   const [showInfo, setShowInfo] = React.useState(false)
-  const ref = React.useRef<HTMLDivElement>(null!)
 
   return (
     <>
       {showInfo && (
-        <Modal onClose={() => setShowInfo(false)}>
+        <Modal2 onClose={() => setShowInfo(false)}>
           <h1 style={{ textAlign: 'center' }}>
             <img height="100" src={game.image} alt={game.name} />
           </h1>
           {game.description || 'No information available'}
-        </Modal>
+        </Modal2>
       )}
-      <StyledControls>
-        <Section ref={ref}>
-          <Button
-            className="transparent"
-            style={{ padding: 0 }}
-            onClick={() => setShowInfo(true)}
-          >
-            <img src={game.image} height="40px" />
-          </Button>
+      <div className={styles.controls}>
+        <Button2
+          variant="ghost"
+          style={{ padding: 0 }}
+          onClick={() => setShowInfo(true)}
+        >
+          <img src={game.image} height="40px" />
+        </Button2>
+        <div>
           <WagerInput />
-          <ClaimButton />
+        </div>
+        <div style={{ height: '100%', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
           <PlayButton />
-        </Section>
-      </StyledControls>
+        </div>
+      </div>
     </>
   )
 }
@@ -167,26 +121,16 @@ export function Game() {
   const { shortName } = useParams()
   const game = useMemo(() => GAMES.find((x) => x.short_name === shortName), [shortName])
 
-  if (!game) return (
-    <>
-      <Banner>
-        <h1>Game Not found!</h1>
-      </Banner>
-    </>
-  )
+  if (!game) return (<Home />)
 
   return (
     <>
-      <GameWrapper1>
-        <GameWrapper key={game.short_name}>
-          <ErrorBoundary error={<>In game error</>}>
-            <React.Suspense fallback={<>Loading...</>}>
-              <game.app />
-            </React.Suspense>
-          </ErrorBoundary>
-        </GameWrapper>
+      <div className={styles.container}>
+        <div key={game.short_name} className={styles.wrapper}>
+          <GameView game={game} />
+        </div>
         <Controls />
-      </GameWrapper1>
+      </div>
     </>
 
   )

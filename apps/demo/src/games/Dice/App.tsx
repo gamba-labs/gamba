@@ -2,20 +2,20 @@ import { useGamba } from 'gamba/react'
 import { Fullscreen, formatLamports, useGameControls, useSounds } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import Slider from './Slider'
-import styles from './styles.module.css'
+import styles from './App.module.css'
 
 import SOUND_LOSE from './lose.mp3'
 import SOUND_PLAY from './play.mp3'
 import SOUND_TICK from './tick.wav'
 import SOUND_WIN from './win.mp3'
 
-const SIZE = 25
+const DICE_SIDES = 100
 
 function Dice() {
   const gamba = useGamba()
   const [loading, setLoading] = useState(false)
   const [resultIndex, setResultIndex] = useState(-1)
-  const [rollUnder, setRollUnder] = React.useState(Math.floor(SIZE / 2))
+  const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(DICE_SIDES / 2))
 
   const sounds = useSounds({
     win: SOUND_WIN,
@@ -24,28 +24,27 @@ function Dice() {
     tick: SOUND_TICK,
   })
 
-  const multiplier = SIZE / rollUnder
-  const winChange = rollUnder / SIZE
-
   const bet = React.useMemo(
-    () =>
-      Array.from({ length: SIZE }).map((_, i) =>
-        i >= rollUnder ? 0 : +multiplier.toFixed(4),
-      )
-    , [rollUnder],
+    () => Array
+      .from({ length: DICE_SIDES })
+      .map((_, i) => i >= rollUnderIndex ? 0 : +(DICE_SIDES / rollUnderIndex).toFixed(4)),
+    [rollUnderIndex],
   )
 
   const { wager } = useGameControls({
     disabled: loading,
     wagerInput: { bet },
     playButton: {
-      label: 'Start',
+      label: 'Roll',
       onClick: () => play(),
     },
   })
 
-  const updateRollUnder = (x: number) => {
-    setRollUnder(x)
+  const multiplier = DICE_SIDES / rollUnderIndex
+  const winChange = rollUnderIndex / DICE_SIDES
+
+  const updateRollUnderIndex = (x: number) => {
+    setRollUnderIndex(x)
     sounds.tick.play()
   }
 
@@ -78,7 +77,7 @@ function Dice() {
     <Fullscreen maxScale={1.5}>
       <div className={styles.container}>
         <div className={styles.rollUnder}>
-          <div>{rollUnder}</div>
+          <div>{rollUnderIndex + 1}</div>
           <div>Roll Under</div>
         </div>
         <div className={styles.stats}>
@@ -97,22 +96,19 @@ function Dice() {
         </div>
         <div className={styles.sliderContainer}>
           {resultIndex > -1 &&
-            <div
-              key={resultIndex}
-              className={styles.result}
-              style={{ left: `${resultIndex}%` }}
-            >
-              <div>
-                {resultIndex}
+            <div className={styles.result} style={{ left: `${resultIndex}%` }}>
+              <div key={resultIndex}>
+                {resultIndex + 1}
               </div>
             </div>
           }
           <Slider
             disabled={loading}
-            min={0}
-            max={SIZE}
-            value={rollUnder}
-            onChange={updateRollUnder}
+            range={[1, DICE_SIDES]}
+            min={1}
+            max={DICE_SIDES - 5}
+            value={rollUnderIndex}
+            onChange={updateRollUnderIndex}
           />
         </div>
       </div>

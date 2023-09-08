@@ -5,12 +5,7 @@
 :root {
   --border-radius: 8px;
   --text-color: #ffffff;
-  --primary-color: #a079ff;
-  --header-bg-color: #080809;
-  --gamba-modal-bg: #10141f;
-  --gamba-modal-text: #ffffff;
   --bg-color: #080809;
-  --bg-light-color: #1a1c24;
 }
 
 html, body {

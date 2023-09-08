@@ -1,0 +1,48 @@
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.container {
+  height: 100vh;
+  max-height: -webkit-fill-available;
+  display: grid;
+  grid-template-rows: 1fr max-content;
+  position: relative;
+  transition: height .2s ease;
+  background: #0c0c11;
+  @media (min-height: 800px) {
+    height: 90vh;
+  }
+  @media (min-height: 1200px) {
+    height: max(960px, min(1600px, 60vh));
+  }
+}
+
+.wrapper {
+  height: 100%;
+  position: relative;
+  transition: height .2s ease;
+  animation: fade-in .5s;
+  background: #0c0c11;
+}
+
+.controls {
+  width: 100%;
+  padding: 20px 10px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 10px;
+  @media (min-width: 960px) {
+    padding: 20px;
+    width: 800px;
+  }
+  @media (min-width: 1280px) {
+    width: 1000px;
+  }
+}

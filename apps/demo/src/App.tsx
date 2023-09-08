@@ -1,10 +1,5 @@
 import React from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { Card } from './components/Card'
-import { Footer } from './components/Footer'
-import { Header } from './components/Header'
-import { Section2 } from './components/Section'
-import { Slider } from './components/Slider'
 import { GAMES } from './games'
 import { Game } from './ui/Game'
 import { Home } from './ui/Home'
@@ -12,6 +7,9 @@ import { InitializeAccountModal } from './ui/InitializeUserModal'
 import { PoolButton } from './ui/PoolButton'
 import { RecentPlays } from './ui/RecentPlays'
 import { UserButton } from './ui/UserButton'
+import { Card } from './components/Card'
+import { Header2 } from './components/Header/Header'
+import { Section, SlideSection } from './components/Section'
 
 export function App() {
   const location = useLocation()
@@ -27,17 +25,17 @@ export function App() {
     <>
       <InitializeAccountModal />
 
-      <Header>
+      <Header2>
         <PoolButton />
         <UserButton />
-      </Header>
+      </Header2>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/:shortName" element={<Game />} />
       </Routes>
 
-      <Slider title="Casino Games">
+      <SlideSection title="Casino Games">
         {GAMES.map((game) => (
           <Card
             key={game.short_name}
@@ -46,15 +44,11 @@ export function App() {
             backgroundColor={game.theme_color}
           />
         ))}
-      </Slider>
+      </SlideSection>
 
-      <Section2 title="Recent Games">
+      <Section title="Recent Games">
         <RecentPlays />
-      </Section2>
-
-      <Section2>
-        <Footer />
-      </Section2>
+      </Section>
     </>
   )
 }

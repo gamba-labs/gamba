@@ -17,7 +17,7 @@ export function useWagerUtils(constaints: WagerConstraints) {
   const totalFee = houseFee + creatorFee
 
   const maxMultiplier = React.useMemo(
-    () => constaints.bet ? Math.max(...constaints.bet) : 2,
+    () => constaints.bet ? Math.max(...constaints.bet) : 1,
     [constaints.bet],
   )
 

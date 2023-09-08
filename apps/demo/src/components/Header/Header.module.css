@@ -1,8 +1,4 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
-import styled from 'styled-components'
-
-const StyledHeader = styled.div`
+.wrapper {
   width: 100%;
   z-index: 10;
   position: fixed;
@@ -20,9 +16,9 @@ const StyledHeader = styled.div`
     justify-content: space-between;
     align-items: start;
   }
-`
+}
 
-const Logo = styled(NavLink)`
+.logo {
   color: var(--text-color);
   display: flex;
   align-items: center;
@@ -43,21 +39,4 @@ const Logo = styled(NavLink)`
   & > img {
     height: 30px;
   }
-`
-
-export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
-  return (
-    <StyledHeader>
-      <div>
-        <div>
-          <Logo to="/">
-            <img src="/logo.png" height="20px" />
-          </Logo>
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {children}
-        </div>
-      </div>
-    </StyledHeader>
-  )
 }

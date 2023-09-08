@@ -1,0 +1,38 @@
+.slider {
+  background: #322943;
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 0 0px 2px #32294333;
+  transition: box-shadow .2s ease;
+  cursor: pointer;
+
+  &:not([aria-disabled="true"]) {
+    &:hover {
+      box-shadow: 0 0 0px 11px #32294355;
+    }
+  }
+
+  &[aria-disabled="true"] {
+    opacity: .7;
+    cursor: default;
+  }
+
+  & > div {
+    background: #a079ff;
+    height: 100%;
+    border-radius: 10px 0 0 10px;
+  }
+}
+
+.label {
+  margin-top: 10px;
+  position: absolute;
+  transform: translateX(-50%);
+  text-align: center;
+  background: #32294333;
+  padding: 5px;
+  border-radius: 10px;
+  min-width: 30px;
+}

@@ -1,44 +1,56 @@
 import React from 'react'
-import styled from 'styled-components'
+import styles from './Section.module.css'
+import { Button2 } from './Button/Button'
+import { Icon } from './Icon'
 
-export const Section = styled.div`
-  width: 100%;
-  transition: width .25s ease;
-  @media (min-width: 960px) {
-    width: 800px;
-  }
-  @media (min-width: 1280px) {
-    width: 1000px;
-  }
-  margin: 0 auto;
-`
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  & > .arrows {
-    display: flex;
-  }
-`
-
-interface Section2Props {
-  title: JSX.Element | string
+interface SectionProps extends React.PropsWithChildren {
+  title?: JSX.Element | string
   stuff?: JSX.Element | string
 }
 
-export function Section2({ title, stuff, children }: React.PropsWithChildren<Section2Props>) {
+export function Section({ title, stuff, children }: SectionProps) {
   return (
-    <Section>
-      <Header>
-        <h2>
-          {title}
-        </h2>
-        <div>
-          {stuff}
+    <section className={styles.section}>
+      {(title || stuff) && (
+        <div className={styles.header}>
+          <h2>
+            {title}
+          </h2>
+          <div>
+            {stuff}
+          </div>
         </div>
-      </Header>
-      <div>
+      )}
+      {children}
+    </section>
+  )
+}
+
+export function SlideSection({ stuff, children, ...rest }: SectionProps) {
+  const ref = React.useRef<HTMLDivElement>(null!)
+
+  const scroll = (x: number) => {
+    ref.current.scrollBy({ left: 1 * x, behavior: 'smooth' })
+  }
+
+  return (
+    <Section
+      {...rest}
+      stuff={
+        <>
+          {stuff}
+          <div className="arrows">
+            <Button2 size="small" variant="ghost" onClick={() => scroll(-1)}>
+              <Icon.ArrowLeft />
+            </Button2>
+            <Button2 size="small" variant="ghost" onClick={() => scroll(1)}>
+              <Icon.ArrowRight />
+            </Button2>
+          </div>
+        </>
+      }
+    >
+      <div className={styles.slideContent} ref={ref}>
         {children}
       </div>
     </Section>

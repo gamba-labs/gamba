@@ -8,8 +8,10 @@ interface PlaySoundParams {
 class GambaSound {
   player = new Tone.Player
   ready = false
+  private url?: string
 
   constructor(url: string) {
+    this.url = url
     this.player.load(url)
       .then((x) => {
         this.ready = x.loaded
@@ -23,7 +25,7 @@ class GambaSound {
       this.player.playbackRate = playbackRate
       this.player.start()
     } catch (err) {
-      console.warn('Failed to play sound', err)
+      console.warn('Failed to play sound', this.url, err)
     }
   }
 }

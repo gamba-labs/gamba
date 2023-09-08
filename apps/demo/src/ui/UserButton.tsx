@@ -3,11 +3,11 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useBonusBalance, useGamba } from 'gamba/react'
 import { formatLamports, useClaim, useCloseAccount, useCreateAccount, useRedeemBonus } from 'gamba/react-ui'
 import React, { useState } from 'react'
-import { Button, ButtonLink } from '../components/Button'
-import { Dropdown } from '../components/Dropdown'
-import { Modal } from '../components/Modal'
-import { Svg } from '../components/Svg'
 import { useOnClickOutside } from '../hooks/useOnClickOutside'
+import { Button2 } from '../components/Button/Button'
+import { Dropdown } from '../components/Dropdown'
+import { Modal2 } from '../components/Modal/Modal'
+import { Icon } from '../components/Icon'
 
 function RedeemBonusButton() {
   const [redeemBonus, loading] = useRedeemBonus()
@@ -18,9 +18,9 @@ function RedeemBonusButton() {
   }
 
   return (
-    <Button onClick={() => redeemBonus(bonusBalance)} loading={loading} className="yellow list shine">
+    <Button2 onClick={() => redeemBonus(bonusBalance)} loading={loading}>
       Redeem {formatLamports(bonusBalance, 'gSOL')}
-    </Button>
+    </Button2>
   )
 }
 
@@ -34,9 +34,9 @@ export function ClaimButton() {
 
 
   return (
-    <Button onClick={() => claim()} loading={loading} className="green">
+    <Button2 onClick={() => claim()} loading={loading}>
       Claim {formatLamports(gamba.balances.user)}
-    </Button>
+    </Button2>
   )
 }
 
@@ -51,9 +51,9 @@ function CopyAddressButton() {
   }
 
   return (
-    <Button onClick={copy} className="transparent list">
+    <Button2 onClick={copy}>
       {copied ? 'Copied' : 'Copy Address'}
-    </Button>
+    </Button2>
   )
 }
 
@@ -65,9 +65,9 @@ function ShuffleSeedButton() {
   }
 
   return (
-    <Button onClick={shuffle} className="list transparent" icon={<Svg.Shuffle />}>
+    <Button2 onClick={shuffle} icon={<Icon.Shuffle />}>
       SEED: {gamba.seed}
-    </Button>
+    </Button2>
   )
 }
 
@@ -83,9 +83,9 @@ function CloseAccountButton({ onClosed }: {onClosed?: () => void}) {
   if (!gamba.user.created) return null
 
   return (
-    <Button loading={loading} onClick={close} className="list transparent">
+    <Button2 loading={loading} onClick={close}>
       Close Account
-    </Button>
+    </Button2>
   )
 }
 
@@ -96,9 +96,9 @@ function CreateAccountButton() {
   if (gamba.user.created) return null
 
   return (
-    <Button loading={loading} onClick={createAccount} className="list transparent">
+    <Button2 loading={loading} onClick={createAccount}>
       Create Account
-    </Button>
+    </Button2>
   )
 }
 
@@ -114,42 +114,41 @@ function ConnectedButton() {
   return (
     <>
       {modal && (
-        <Modal onClose={() => setModal(false)}>
+        <Modal2 onClose={() => setModal(false)}>
           <h1>More Options</h1>
           <ShuffleSeedButton />
           <CloseAccountButton onClosed={() => setModal(false)} />
           <CreateAccountButton />
-          <ButtonLink
-            icon={<Svg.ExternalLink />}
-            className="list transparent"
+          <Button2
+            as="a"
+            icon={<Icon.ExternalLink />}
             href="https://gamba.so/"
             target="_blank"
           >
             More info
-          </ButtonLink>
-        </Modal>
+          </Button2>
+        </Modal2>
       )}
       <div style={{ position: 'relative' }} ref={ref}>
-        <Button
-          className="dark"
+        <Button2
           onClick={() => setVisible(!visible)}
           icon={<img src={wallet.wallet?.adapter.icon} height="20px" />}
           loading={gamba.user.created && gamba.user.status !== 'playing'}
         >
           {formatLamports(gamba.balances.total)}
-        </Button>
+        </Button2>
         <Dropdown visible={visible}>
           <CopyAddressButton />
           <ClaimButton />
           <RedeemBonusButton />
           {wallet.connected && (
-            <Button onClick={() => wallet.disconnect()} className="transparent list">
+            <Button2 onClick={() => wallet.disconnect()}>
               Disconnect
-            </Button>
+            </Button2>
           )}
-          <Button onClick={() => setModal(true)} className="transparent list">
-            More Options <Svg.ArrowRight />
-          </Button>
+          <Button2 onClick={() => setModal(true)}>
+            More Options <Icon.ArrowRight />
+          </Button2>
         </Dropdown>
       </div>
     </>
@@ -171,9 +170,9 @@ export function UserButton() {
   return (
     <>
       {wallet.connected ? <ConnectedButton /> : (
-        <Button className="dark" style={{ width: '100%' }} onClick={connect}>
+        <Button2 onClick={connect}>
           {wallet.connecting ? 'Connecting...' : 'Connect'}
-        </Button>
+        </Button2>
       )}
     </>
   )

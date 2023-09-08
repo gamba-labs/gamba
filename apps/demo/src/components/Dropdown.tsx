@@ -1,35 +1,6 @@
 import React from 'react'
-import styled from 'styled-components'
-
-const StyledDropdown = styled.div<{visible: boolean}>`
-  opacity: 0;
-  transition: transform .2s ease, opacity .2s;
-  position: absolute;
-  visibility: hidden;
-  z-index: 10;
-  right: 0;
-  & > div {
-    display: grid;
-    background: #222233;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-  }
-  &.top {
-    top: 100%;
-    margin-top: 10px;
-    transform: translateY(-10px);
-  }
-  &.bottom {
-    bottom: 100%;
-    margin-bottom: 10px;
-    transform: translateY(10px);
-  }
-  ${({ visible }) => visible && `
-    opacity: 1;
-    transform: translateY(0px)!important;
-    visibility: visible;
-  `}
-`
+import styles from './Dropdown.module.css'
+import { cx } from '../utils'
 
 export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWithChildren<{visible: boolean, anchor?: 'bottom' | 'top'}>) {
   const ref = React.useRef<HTMLDivElement>(null!)
@@ -44,10 +15,19 @@ export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWith
   )
 
   return (
-    <StyledDropdown ref={ref} visible={visible} className={anchor}>
+    <div
+      ref={ref}
+      className={
+        cx(
+          styles.container,
+          visible && styles['visible'],
+          styles[anchor],
+        )
+      }
+    >
       <div>
         {children}
       </div>
-    </StyledDropdown>
+    </div>
   )
 }

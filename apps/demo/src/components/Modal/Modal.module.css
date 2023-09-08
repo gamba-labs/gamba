@@ -1,0 +1,69 @@
+
+@keyframes appear {
+  0% { opacity: 0;}
+  100% { opacity: 1;}
+}
+
+@keyframes appear2 {
+  0% { transform: scale(.9); }
+  100% { transform: scale(1); }
+}
+
+.container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background: #00000099;
+  padding: 10px;
+}
+
+.modal {
+  position: relative;
+  box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  z-index: 1040;
+  padding-bottom: 20px;
+  border: none;
+  background: #10141f;
+  color: white;
+  overflow-y: auto;
+  animation: appear .3s, appear2 .1s;
+  max-width: 400px;
+  height: auto;
+  border-radius: 10px;
+  min-width: 400px;
+}
+
+.modal h1 {
+  text-align: center;
+  padding: 40px 0 20px 0;
+  font-size: 24px;
+}
+
+button.close {
+  margin: 0;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: none;
+  z-index: 11;
+  opacity: .75;
+  transition: opacity .2s, background .2s;
+  background: transparent;
+  border-radius: 50%;
+  width: 2em;
+  height: 2em;
+  &:hover {
+    opacity: 1;
+    background: #ffffff33;
+  }
+  & svg {
+    color: white;
+    vertical-align: middle;
+  }
+}

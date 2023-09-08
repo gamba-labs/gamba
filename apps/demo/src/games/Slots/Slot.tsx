@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { REVEAL_SLOT_DELAY, SLOT_ITEMS, SlotItem } from './constants'
-import styles from './styles.module.css'
+import styles from './App.module.css'
 
 interface SlotProps {
   spinning:boolean

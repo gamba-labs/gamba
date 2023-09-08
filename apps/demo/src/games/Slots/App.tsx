@@ -15,15 +15,15 @@ import {
   REVEAL_SLOT_DELAY,
   SLOT_ITEMS,
   SOUND_LOSE,
+  SOUND_PLAY,
   SOUND_REVEAL,
-  SOUND_SPIN,
   SOUND_REVEAL_LEGENDARY,
+  SOUND_SPIN,
   SOUND_WIN,
   SPIN_DELAY,
   SlotItem,
-  SOUND_PLAY,
 } from './constants'
-import styles from './styles.module.css'
+import styles from './App.module.css'
 import { generateBetArray, getSlotCombination } from './utils'
 
 export default function Slots() {

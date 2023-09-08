@@ -23,16 +23,13 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0",
-    "styled-components": "^5.3.11",
     "three": "^0.151.3",
-    "tone": "^14.7.77",
     "url": "^0.11.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
-    "@types/styled-components": "^5.1.26",
     "@types/three": "^0.150.2",
     "@vitejs/plugin-react": "^3.1.0",
     "buffer": "^6.0.3",

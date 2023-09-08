@@ -1,14 +1,14 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { Fullscreen, formatLamports, useClaim, useGameControls, useSounds } from 'gamba/react-ui'
+import { Fullscreen, formatLamports, useClaim, useSounds } from 'gamba/react-ui'
 import React from 'react'
-import { Bomb } from './Svg'
-import styles from './styles.module.css'
+import styles from './App.module.css'
 
-import finishSrc from './finish.mp3'
-import loseSrc from './lose.mp3'
-import tickSrc from './tick.mp3'
-import winSrc from './win.mp3'
+import SOUND_FINISH from './finish.mp3'
+import SOUND_LOSE from './lose.mp3'
+import ICON_MINE from './mine.svg'
+import SOUND_TICK from './tick.mp3'
+import SOUND_WIN from './win.mp3'
 
 const GRID_SIZE = 25
 const PITCH_INCREASE_FACTOR = 1.06
@@ -29,10 +29,10 @@ const generateGrid = () =>
 function Mines() {
   const gamba = useGamba()
   const sounds = useSounds({
-    tick: tickSrc,
-    win: winSrc,
-    lose: loseSrc,
-    finish: finishSrc,
+    tick: SOUND_TICK,
+    win: SOUND_WIN,
+    lose: SOUND_LOSE,
+    finish: SOUND_FINISH,
   })
 
   const [grid, setGrid] = React.useState(generateGrid())
@@ -41,7 +41,8 @@ function Mines() {
   const [totalGain, setTotalGain] = React.useState(0)
   const [loadingState, setLoading] = React.useState<LoadState | null>(null)
   const [gameState, setGameState] = React.useState<MinesStatus>('idle')
-  const [config, setConfig] = React.useState({
+
+  const [config] = React.useState({
     wager: WAGER_AMOUNTS[0],
     mines: MINE_SELECT[2],
   })
@@ -214,14 +215,24 @@ function Mines() {
   return (
     <Fullscreen maxScale={1.25}>
       <div className={styles.container}>
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', color: 'white' }}>
+        <div className={styles.statusBar}>
           <div>
-            +{formatLamports(totalGain)}
+            <span>
+              +{formatLamports(totalGain)}
+            </span>
+            <span>
+              Mines: {config.mines}
+            </span>
           </div>
+          {gameState === 'playing' && (
+            <button className={styles.reset} disabled={loading || claiming} onClick={endGame}>
+              Cashout
+            </button>
+          )}
           {needsReset && !loading && (
-            <div className={styles.pulsing} onClick={reset}>
-              {gameFinished ? 'a winner is you!' : 'Reset!'}
-            </div>
+            <button className={styles.reset} onClick={reset}>
+              {gameFinished ? 'a winner is you!' : 'Restart'}
+            </button>
           )}
         </div>
         <div className={styles.levels}>
@@ -248,13 +259,13 @@ function Mines() {
           {grid.map((cell, index) => (
             <button
               key={index}
+              className={styles.cell}
               data-status={cell.status}
               data-selected={selected === index}
-              className={styles.cell}
               onClick={() => play(index)}
               disabled={!canPlay || cell.status !== 'hidden'}
             >
-              {(cell.status === 'hidden' || cell.status === 'mine') && <Bomb />}
+              {(cell.status === 'hidden' || cell.status === 'mine') && <img src={ICON_MINE} />}
               {(cell.status === 'gold') && (
                 <div>
                   +{parseFloat(lamportsToSol(cell.profit).toFixed(3))}

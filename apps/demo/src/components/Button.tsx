@@ -1,6 +1,7 @@
 import React from 'react'
 import { cx } from '../utils'
 import styles from './Button.module.css'
+import { useNavigate } from 'react-router-dom'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 

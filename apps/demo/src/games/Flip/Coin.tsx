@@ -1,14 +1,15 @@
-import { useTexture } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useLoader } from '@react-three/fiber'
 import React from 'react'
-import { Group } from 'three'
-import headsSrc from './heads.png'
-import tailsSrc from './tails.png'
+import { Group, TextureLoader } from 'three'
+
+import TEXTURE_HEADS from './heads.png'
+import TEXTURE_TAILS from './tails.png'
 
 const COIN_COLOR = '#ffd630'
 
 function CoinModel() {
-  const [heads, tails] = useTexture([headsSrc, tailsSrc])
+  const [heads, tails] = useLoader(TextureLoader, [TEXTURE_HEADS, TEXTURE_TAILS])
+
   return (
     <>
       <mesh rotation-x={-Math.PI / 2}>

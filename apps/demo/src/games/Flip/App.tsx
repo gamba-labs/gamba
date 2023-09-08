@@ -1,4 +1,3 @@
-import { OrbitControls, OrthographicCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { useGamba } from 'gamba/react'
 import { Fullscreen, useGameControls, useSounds } from 'gamba/react-ui'
@@ -66,9 +65,14 @@ export default function Flip() {
 
   return (
     <>
-      <Canvas linear flat>
-        <OrthographicCamera makeDefault zoom={80} position={[0, 0, 100]} />
-        <OrbitControls />
+      <Canvas
+        linear
+        flat
+        camera={{
+          fov: 45,
+          position: [0, 0, 10],
+        }}
+      >
         <Coin result={resultIndex} flipping={flipping} />
         {flipping && <Effect color="white" />}
         {win && <Effect color="#42ff78" />}

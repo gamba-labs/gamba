@@ -1,4 +1,4 @@
-import { GameResult } from 'gamba-core'
+// import { GameResult } from 'gamba-core'
 import React from 'react'
 
 export interface GameBundle {
@@ -12,37 +12,50 @@ export interface GameBundle {
   app: (() => JSX.Element) | React.LazyExoticComponent<() => JSX.Element>
 }
 
-export interface WagerGameControl {
-  type: 'wager'
-  onChange: (wager: number) => void
-  value: number
-}
-
-export interface ButtonGameControl {
-  type: 'button'
+export interface GameControlsSceme {
   disabled?: boolean
-  onClick: () => void
-}
-
-export interface PlayGameControl {
-  type: 'play'
-
-  params: {
-    bet: number[]
-    wager: number
+  wagerInput?: {
+    bet?: number[]
   }
-
-  onClick?: () => void
-  onStart?: () => void
-  onResult?: (result: GameResult) => void
-  onError?: (err: unknown) => void
+  playButton?: {
+    label?: string
+    onClick: () => void
+  }
 }
 
-export interface CustomGameControl {
-  type: 'custom'
-  element: JSX.Element
-}
+// export interface WagerGameControl {
+//   type: 'wager'
+//   onChange: (wager: number) => void
+//   value: number
 
-export type GameControl = WagerGameControl | PlayGameControl | ButtonGameControl | CustomGameControl
+//   bet?: number[]
+// }
 
-export type GameControlDefinition = {[s: string]: GameControl}
+// export interface ButtonGameControl {
+//   type: 'button'
+//   disabled?: boolean
+//   onClick: () => void
+// }
+
+// export interface PlayGameControl {
+//   type: 'play'
+
+//   params: {
+//     bet: number[]
+//     wager: number
+//   }
+
+//   onClick?: () => void
+//   onStart?: () => void
+//   onResult?: (result: GameResult) => void
+//   onError?: (err: unknown) => void
+// }
+
+// export interface CustomGameControl {
+//   type: 'custom'
+//   element: JSX.Element
+// }
+
+// export type GameControl = WagerGameControl | PlayGameControl | ButtonGameControl | CustomGameControl
+
+// export type GameControlDefinition = {[s: string]: GameControl}

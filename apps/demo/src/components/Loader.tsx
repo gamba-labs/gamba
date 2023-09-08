@@ -5,7 +5,7 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `
 
-export const Loader = styled.div<{small?: boolean, size?: number}>`
+export const Loader = styled.div<{size?: number}>`
   ${({ size = 5 }) => `
     --border-size: ${size / 6 + 'em'};
     --size: ${size + 'em'};

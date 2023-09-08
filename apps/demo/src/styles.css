@@ -21,8 +21,6 @@ html, body {
   box-sizing: border-box;
 }
 
-/*::selection {}*/
-
 button {
   user-select: none;
 }
@@ -33,9 +31,13 @@ body {
   background: var(--bg-color);
   cursor: default;
   overflow-y: auto;
+
+  -webkit-tap-highlight-color: transparent;
+
   &::-webkit-scrollbar {
     width: .4em;
   }
+
   &::-webkit-scrollbar-thumb {
     bg-color: #cccccc33;
   }
@@ -55,7 +57,7 @@ button, a {
   cursor: pointer;
 }
 
-a:not([href^="https://"]) {
+a:not([href^="https://"]):not([href^="http://"]) {
   text-decoration: none;
 }
 

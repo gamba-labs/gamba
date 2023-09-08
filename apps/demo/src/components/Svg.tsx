@@ -95,4 +95,10 @@ export const Svg = {
       </defs>
     </StyledSvg>
   ),
+
+  Close2: () => (
+    <StyledSvg width="242" height="242" viewBox="0 0 242 242" xmlns="http://www.w3.org/2000/svg">
+      <path fillRule="evenodd" clipRule="evenodd" d="M241.208 29.0759L212.924 0.791748L121 92.7156L29.076 0.791748L0.79187 29.0762L92.7157 121L0.791748 212.924L29.076 241.208L121 149.284L212.924 241.208L241.208 212.924L149.284 121L241.208 29.0759Z" fill="currentColor" />
+    </StyledSvg>
+  ),
 }

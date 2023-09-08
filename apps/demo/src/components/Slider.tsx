@@ -1,25 +1,12 @@
-import React, { PropsWithChildren, useRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
+import { Button } from './Button'
 import { Svg } from './Svg'
+import { Section2 } from './Section'
 
-const Header = styled.div`
+const ScrollWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  & > .arrows {
-    display: flex;
-    & > button {
-      width: 40px;
-      color: white;
-      background: transparent;
-      margin: 0;
-      padding: 0;
-      border: none;
-    }
-  }
-`
-const Wrapper = styled.div`
-  display: flex;
   gap: 15px;
   padding: 10px;
   width: 100%;
@@ -37,28 +24,30 @@ const Wrapper = styled.div`
   }
 `
 
-export function Slider({ children, title }: PropsWithChildren<{title: any}>) {
-  const ref = useRef<HTMLDivElement>(null!)
-  const scrll = (x: number) => {
+export function Slider({ children, title }: React.PropsWithChildren<{title: JSX.Element | string}>) {
+  const ref = React.useRef<HTMLDivElement>(null!)
+
+  const scroll = (x: number) => {
     ref.current.scrollBy({ left: 1 * x, behavior: 'smooth' })
   }
 
   return (
-    <>
-      <Header>
-        {title}
+    <Section2
+      title={title}
+      stuff={
         <div className="arrows">
-          <button onClick={() => scrll(-1)}>
+          <Button size="small" className="transparent" onClick={() => scroll(-1)}>
             <Svg.ArrowLeft />
-          </button>
-          <button onClick={() => scrll(1)}>
+          </Button>
+          <Button size="small" className="transparent" onClick={() => scroll(1)}>
             <Svg.ArrowRight />
-          </button>
+          </Button>
         </div>
-      </Header>
-      <Wrapper ref={ref}>
+      }
+    >
+      <ScrollWrapper ref={ref}>
         {children}
-      </Wrapper>
-    </>
+      </ScrollWrapper>
+    </Section2>
   )
 }

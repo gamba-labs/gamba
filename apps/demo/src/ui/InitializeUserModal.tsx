@@ -65,6 +65,7 @@ export function InitializeAccountModal() {
 
   useGambaError(
     (err) => {
+      console.error(err)
       if (err.message === GambaError.PLAY_BEFORE_INITIALIZED) {
         if (wallet.connected) {
           err.handle()

@@ -1,25 +1,37 @@
 import React, { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react'
+import { NavLink, NavLinkProps } from 'react-router-dom'
 import styled, { css, keyframes } from 'styled-components'
 import { Loader } from './Loader'
 
+type ButtonSize = 'medium' | 'small'
+
 interface ButtonProps {
-  fill?: boolean
   pulse?: boolean
   loading?: boolean
-  icon?: string
+  icon?: React.ReactNode
   label?: React.ReactNode
+  size?: ButtonSize
 }
 
-const pulse = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 #ffffff77;
-  }
-  100% {
-    box-shadow: 0 0 0 10px #ffffff00;
-  }
+const pulseAnimation = keyframes`
+0% {
+  box-shadow: 0 0 0 0 #ffffff77;
+}
+100% {
+  box-shadow: 0 0 0 10px #ffffff00;
+}
 `
 
-const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
+const StyledButtonCSS = css<{pulse?: boolean, size?: ButtonSize}>`
+  ${({ size = 'medium' }) => `
+    padding: ${size === 'medium' && '10px 16px'};
+    padding: ${size === 'small' && '2px 8px'};
+  `}
+
+  ${({ pulse }) => pulse && css`
+    animation: ${pulseAnimation} 1s 1s infinite;
+  `}
+
   @keyframes button-shine1 {
     0% {
       left: -50%
@@ -46,98 +58,66 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
   border: none;
   font-size: inherit;
   display: inline-block;
-  min-height: 40px;
-  overflow: hidden;
-  padding: 8px 16px;
   position: relative;
-  transition: .3s;
-  text-align: left;
-
-  & > div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  ${({ $pulse }) => $pulse && css`
-    animation: ${pulse} 1s 1s infinite;
-  `}
+  transition: background .25s, opacity .25s;
+  text-align: center;
+  text-wrap: nowrap;
+  max-width: 100%;
 
   border-radius: var(--border-radius);
-  min-width: 100px;
 
-  background: #a079ff;
-  &:hover {
-    background-color: #855ee6;
+  --button-bg: #a079ff;
+  --button-bg-hover: #855ee6;
+  --button-col: white;
+
+  &.transparent {
+    --button-bg: transparent;
+    --button-bg-hover: #ffffff22;
+    --button-col: inherit;
   }
-  color: white;
 
   &.white {
-    background: #ffffff;
-    color: black;
-    &:hover {
-      background: #fafafa;
-    }
+    --button-bg: #fffffff0;
+    --button-bg-hover: #ffffff;
+    --button-col: black;
   }
 
   &.dark {
-    background: #1a1c24;
-    color: white;
-    &:hover {
-      background: #292c39;
-    }
+    --button-bg: #1a1c24;
+    --button-bg-hover: #292c39;
+    --button-col: white;
   }
 
   &.yellow {
-    background-color: #fff2d9;
-    color: #f09300;
-    &:hover {
-      background-color: #ffdc99;
-    }
+    --button-bg: #fff2d9;
+    --button-bg-hover: #ffdc99;
+    --button-col: #f09300;
   }
 
   &.green {
-    background-color: #daffd9;
-    color: #007b1a;
+    --button-bg: #daffd9;
+    --button-bg-hover: #a2ffaf;
+    --button-col: #007b1a;
+  }
+
+  background: var(--button-bg);
+  color: var(--button-col);
+
+  @media (hover: hover) {
     &:hover {
-      background-color: #a2ffaf;
+      background: var(--button-bg-hover);
     }
   }
 
-  &.primary {
-    background: linear-gradient(45deg,#FF6969 10%,#A088FF 90%);
-    background-size: 100% 100%;
-    color: white;
-    border: none;
-    &:disabled {
-      opacity: .5;
-    }
-  }
-
-  &.transparent {
-    color: inherit;
-    background: transparent;
-    &:hover {
-      background: #ffffff22;
-    }
+  &:active {
+    background: var(--button-bg-hover);
+    outline: none;
   }
 
   &.list {
-    border-radius: 0;
-    border: none;
     width: 100%;
-    margin: 0;
     text-align: left;
-
-    opacity: 1;
-    & > div {
-      width: 100%;
-    }
-    &:hover:not(:disabled) {
-      opacity: 1;
-      // background: #FFFFFF11;
-    }
+    border-radius: 0px;
   }
 
   &:disabled {
@@ -146,6 +126,7 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
   }
 
   &.shine {
+    overflow: hidden;
     &:hover::after {
       animation: button-shine1 .6s linear, button-shine2 .5s .2s forwards;
       background: #fff;
@@ -160,6 +141,11 @@ const StyledButtonCSS = css<{$fill?: boolean, $pulse?: boolean}>`
       top: -100px;
     }
   }
+
+  & .icon {
+    vertical-align: middle;
+    margin-left: .5em;
+  }
 `
 
 const StyledButton = styled.button`
@@ -171,28 +157,37 @@ const StyledButtonLink = styled.a`
   text-decoration: none;
 `
 
-export function Button({ children, label, fill, pulse, icon, loading, disabled, ...props }: ButtonProps & ButtonHTMLAttributes<HTMLButtonElement>) {
+const StyledButtonNavLink = styled(NavLink)`
+  ${StyledButtonCSS}
+`
+
+export function Button({ children, icon, label, pulse, loading, disabled, ...props }: ButtonProps & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <StyledButton  $pulse={pulse} $fill={fill} disabled={disabled || loading} {...props}>
-      <div>
-        {label && <div className="label">{label}</div>}
-        {icon && <img width="20" height="20" src={icon} />}
-        {children}
-        {loading && <span><Loader size={1} /></span>}
-      </div>
+    <StyledButton pulse={pulse} disabled={disabled || loading} {...props}>
+      {label && <div className="label">{label}</div>}
+      {children}
+      {loading ? <span><Loader size={1} /></span> : icon && <span className="icon">{icon}</span>}
     </StyledButton>
   )
 }
 
-export function ButtonLink({ children, label, fill, pulse, icon, loading, ...props }: ButtonProps & AnchorHTMLAttributes<HTMLAnchorElement>) {
+export function ButtonLink({ children, icon, label, pulse, loading, ...props }: ButtonProps & AnchorHTMLAttributes<HTMLAnchorElement>) {
   return (
-    <StyledButtonLink $pulse={pulse} $fill={fill} {...props}>
-      <div>
-        {label && <div className="label">{label}</div>}
-        {icon && <img width="20" height="20" src={icon} />}
-        {children}
-        {loading && <span><Loader size={1} /></span>}
-      </div>
+    <StyledButtonLink pulse={pulse} {...props}>
+      {label && <div className="label">{label}</div>}
+      {children}
+      {loading ? <span><Loader size={1} /></span> : icon && <span className="icon">{icon}</span>}
     </StyledButtonLink>
   )
 }
+
+export function ButtonNavLink({ children, icon, label, pulse, loading, ...props }: ButtonProps & Omit<NavLinkProps, 'children'> & React.PropsWithChildren) {
+  return (
+    <StyledButtonNavLink pulse={pulse} {...props}>
+      {label && <div className="label">{label}</div>}
+      {children}
+      {loading ? <span><Loader size={1} /></span> : icon && <span className="icon">{icon}</span>}
+    </StyledButtonNavLink>
+  )
+}
+

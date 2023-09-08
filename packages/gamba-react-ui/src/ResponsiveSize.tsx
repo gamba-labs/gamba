@@ -1,6 +1,7 @@
 import React from 'react'
 
 const style: React.CSSProperties = {
+  position: 'absolute',
   justifyContent: 'center',
   alignItems: 'center',
   display: 'flex',
@@ -8,6 +9,8 @@ const style: React.CSSProperties = {
   flexDirection: 'column',
   maxWidth: '100vw',
   height: '100%',
+  left: '0',
+  top: '0',
 }
 
 interface Props extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {

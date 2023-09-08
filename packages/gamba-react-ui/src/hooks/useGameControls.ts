@@ -1,17 +1,22 @@
 import React from 'react'
-import { GameControlDefinition } from '../types'
+import { GameControlsSceme } from '../types'
 import { useControlsStore } from './useControlsStore'
 
-export function useGameControls<T extends GameControlDefinition>(controls: T) {
-  const setGameControls = useControlsStore((s) => s.setGameControls)
+/**
+ * To be used inside games
+ * @param controls
+ * @returns
+ */
+export function useGameControls(scheme: GameControlsSceme) {
+  const setScheme = useControlsStore((s) => s.setScheme)
+  const wager = useControlsStore((s) => s.wager)
 
   React.useEffect(
     () => {
-      setGameControls(controls)
-      return () => setGameControls({})
+      setScheme(scheme)
+      return () => setScheme({})
     },
-    [controls],
+    [scheme],
   )
-
-  return controls
+  return { wager }
 }

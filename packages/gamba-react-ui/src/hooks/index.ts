@@ -2,6 +2,9 @@ import { useGambaClient } from 'gamba-react'
 import React from 'react'
 
 export { useGameControls } from './useGameControls'
+export { useControlsStore } from './useControlsStore'
+export { useSounds } from './useSounds'
+export { useWagerUtils } from './useWagerUtils'
 
 function usePromise<T, Args extends unknown[]>(fn: (...args: Args) => Promise<T>) {
   const [loading, setLoading] = React.useState(false)

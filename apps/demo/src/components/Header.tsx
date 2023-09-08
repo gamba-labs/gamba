@@ -2,7 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 
-export const StyledHeader = styled.div`
+const StyledHeader = styled.div`
   width: 100%;
   z-index: 10;
   position: fixed;
@@ -10,7 +10,7 @@ export const StyledHeader = styled.div`
   left: 0;
   padding: 10px;
   background: #000000CC;
-  backdrop-filter: blur(50px);
+  backdrop-filter: blur(20px);
   @media (min-height: 800px) {
     padding: 10px 20px;
   }
@@ -22,7 +22,7 @@ export const StyledHeader = styled.div`
   }
 `
 
-export const Logo = styled(NavLink)`
+const Logo = styled(NavLink)`
   color: var(--text-color);
   display: flex;
   align-items: center;
@@ -51,10 +51,7 @@ export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
       <div>
         <div>
           <Logo to="/">
-            <img src="/logo.png" />
-            <span className="label">
-              Gamba Demo
-            </span>
+            <img src="/logo.png" height="20px" />
           </Logo>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>

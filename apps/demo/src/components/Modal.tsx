@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react'
+import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { useOnClickOutside } from '../hooks/useOnClickOutside'
 
@@ -23,6 +23,7 @@ const Container = styled.div`
   height: 100vh;
   z-index: 1000;
   background: #00000099;
+  padding: 10px;
 `
 
 const Wrapper = styled.div`
@@ -80,21 +81,10 @@ const CloseButton = styled.button`
   }
 `
 
-function useLockBodyScroll() {
-  useLayoutEffect(() => {
-    const originalStyle = window.getComputedStyle(document.body).overflow
-    // document.body.style.overflow = 'scroll'
-    return () => {
-      document.body.style.overflow = originalStyle
-    }
-  }, [])
-}
-
 export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: () => void}>) {
-  const ref = useRef<HTMLDivElement>(null!)
+  const ref = React.useRef<HTMLDivElement>(null!)
 
   useOnClickOutside(ref, onClose)
-  useLockBodyScroll()
 
   return (
     <Container className="gamba-connect-modal-container">

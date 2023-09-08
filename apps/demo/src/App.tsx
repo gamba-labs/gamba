@@ -3,15 +3,15 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 import { Card } from './components/Card'
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
-import { Section } from './components/Section'
+import { Section2 } from './components/Section'
 import { Slider } from './components/Slider'
 import { GAMES } from './games'
 import { Game } from './ui/Game'
 import { Home } from './ui/Home'
+import { InitializeAccountModal } from './ui/InitializeUserModal'
 import { PoolButton } from './ui/PoolButton'
 import { RecentPlays } from './ui/RecentPlays'
 import { UserButton } from './ui/UserButton'
-import { InitializeAccountModal } from './ui/InitializeUserModal'
 
 export function App() {
   const location = useLocation()
@@ -37,27 +37,24 @@ export function App() {
         <Route path="/:shortName" element={<Game />} />
       </Routes>
 
-      <Section>
-        <Slider title={<h2>Casino Games</h2>}>
-          {GAMES.map((game) => (
-            <Card
-              key={game.short_name}
-              to={'/' + game.short_name}
-              logo={game.image}
-              backgroundColor={game.theme_color}
-            />
-          ))}
-        </Slider>
-      </Section>
+      <Slider title="Casino Games">
+        {GAMES.map((game) => (
+          <Card
+            key={game.short_name}
+            to={'/' + game.short_name}
+            logo={game.image}
+            backgroundColor={game.theme_color}
+          />
+        ))}
+      </Slider>
 
-      <Section>
-        <h2>Recent Plays</h2>
+      <Section2 title="Recent Games">
         <RecentPlays />
-      </Section>
+      </Section2>
 
-      <Section>
+      <Section2>
         <Footer />
-      </Section>
+      </Section2>
     </>
   )
 }

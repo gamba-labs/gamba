@@ -1,133 +1,93 @@
-import { OrthographicCamera } from '@react-three/drei'
+import { OrbitControls, OrthographicCamera } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { solToLamports } from 'gamba'
-import { useGameControls } from 'gamba/react-ui'
-import React, { useState } from 'react'
-import * as Tone from 'tone'
+import { useGamba } from 'gamba/react'
+import { ResponsiveSize, useGameControls, useSounds } from 'gamba/react-ui'
+import React from 'react'
 import { Coin } from './Coin'
-import { SplashEffect } from './SplashEffect'
+import { Effect } from './Effect'
+import styles from './styles.module.css'
+
 import coinSrc from './coin.wav'
 import loseSrc from './lose.wav'
 import winSrc from './win.wav'
-import { useGamba } from 'gamba/react'
 
-const WAGER_AMOUNTS = [
-  0.05,
-  0.1,
-  0.25,
-  .5,
-  1,
-  3,
-].map(solToLamports)
-
-const createSound = (url: string) =>
-  new Tone.Player({ url }).toDestination()
-
-const soundPlay = createSound(coinSrc)
-const soundWin = createSound(winSrc)
-const soundLose = createSound(loseSrc)
-
-interface Result {
-  win: boolean
-  index: number
+const SIDES = {
+  Heads: [0, 2],
+  Tails: [2, 0],
 }
 
 export default function Flip() {
   const gamba = useGamba()
-  const [side, setSide] = useState<'heads' | 'tails'>('heads')
-  const [flipping, setFlipping] = useState<'heads' | 'tails'>()
-  const [result, setResult] = useState<Result>()
-  const [wager, setWager] = useState(WAGER_AMOUNTS[0])
+  const [flipping, setFlipping] = React.useState(false)
+  const [win, setWin] = React.useState(false)
+  const [resultIndex, setResultIndex] = React.useState(-1)
+  const [bet, setBet] = React.useState(SIDES.Heads)
 
-  const bet = React.useMemo(
-    () => side === 'heads' ? [2, 0] : [0, 2],
-    [side],
-  )
+  const sounds = useSounds({
+    coin: coinSrc,
+    win: winSrc,
+    lose: loseSrc,
+  })
 
-  useGameControls({
-    wager: {
-      type: 'wager',
-      onChange: setWager,
-      value: wager,
-    },
-
-    play: {
-      type: 'button',
-      disabled: !!flipping,
-      onClick: () => play(),
-    },
+  const { wager } = useGameControls({
+    disabled: flipping,
+    wagerInput: { bet },
+    playButton: { onClick: () => play() },
   })
 
   const play = async () => {
     try {
-      setFlipping(side)
+      setWin(false)
+      setFlipping(true)
 
-      soundPlay.playbackRate = .5
-      soundPlay.start()
+      sounds.coin.play({ playbackRate: .5 })
 
-      await gamba.play({ bet, wager })
+      const res = await gamba.play({ bet, wager })
 
-      soundPlay.playbackRate = 1
-      soundPlay.start()
+      sounds.coin.play()
 
-      const result = await gamba.awaitResult()
+      const result = await res.result()
 
       const win = result.payout > 0
 
-      setResult({
-        index: result.resultIndex,
-        win,
-      })
-      if (win)
-        soundWin.start()
-      else
-        soundLose.start()
+      setResultIndex(result.resultIndex)
+
+      setWin(win)
+
+      if (win) {
+        sounds.win.play()
+      } else {
+        sounds.lose.play()
+      }
     } catch (err) {
       console.error(err)
     } finally {
-      setFlipping(undefined)
+      setFlipping(false)
     }
   }
 
   return (
     <>
-      <Canvas linear flat onContextMenu={(e) => e.preventDefault()}>
-        <OrthographicCamera
-          makeDefault
-          zoom={80}
-          position={[0, 0, 100]}
-        />
-        <Coin result={result?.index ?? 0} flipping={!!flipping} />
-        {flipping && <SplashEffect color="white" />}
-        {!flipping && result?.win && <SplashEffect color="#42ff78" />}
-        <ambientLight color="#ffffff" intensity={.5} />
-        <directionalLight position={[0, 5, 5]} intensity={.5} />
-        <hemisphereLight color="black" groundColor="red" intensity={1} />
+      <Canvas linear flat>
+        <OrthographicCamera makeDefault zoom={80} position={[0, 0, 100]} />
+        <OrbitControls />
+        <Coin result={resultIndex} flipping={flipping} />
+        {flipping && <Effect color="white" />}
+        {win && <Effect color="#42ff78" />}
       </Canvas>
+      <ResponsiveSize style={{ pointerEvents: 'none' }} maxScale={1.5}>
+        <div className={[styles.container, flipping && styles.flipping].join(' ')}>
+          {Object.entries(SIDES).map(([label, _bet], i) => (
+            <button
+              key={i}
+              onClick={() => setBet(_bet)}
+              className={[styles.button, bet === _bet && styles.selected].join(' ')}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </ResponsiveSize>
     </>
   )
 }
-
-// params: {
-//   wager,
-//   bet,
-// },
-// onStart: () => {
-//   soundPlay.playbackRate = 1
-//   soundPlay.start()
-// },
-// onResult: (result) => {
-//   const win = result.payout > 0
-
-//   setResult({
-//     index: result.resultIndex,
-//     win,
-//   })
-//   if (win) {
-//     soundWin.start()
-//   } else {
-//     soundLose.start()
-//   }
-
-//   setFlipping(undefined)
-// },

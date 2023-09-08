@@ -37,8 +37,12 @@ export function PoolButton() {
           </p>
         </Modal>
       )}
-      <Button onClick={() => setPoolModal(true)} className="dark">
-        {selectedPool.ticker} <img height="20" src={selectedPool.image} />
+      <Button
+        onClick={() => setPoolModal(true)}
+        className="dark"
+        icon={<img height="20" src={selectedPool.image} />}
+      >
+        {selectedPool.ticker}
       </Button>
     </>
   )

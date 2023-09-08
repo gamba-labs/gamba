@@ -1,0 +1,44 @@
+.button {
+  pointer-events: auto;
+  border: none;
+  background: #ffffffcc;
+  border-radius: 40px;
+  padding: 10px;
+  margin: 10px;
+  backdrop-filter: blur(10px);
+  opacity: .9;
+
+  transition: opacity .2s, transform .5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  transform: scale(.9);
+
+  &.selected {
+    opacity: 1;
+    transform: scale(1);
+    color: #ff0066;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transition: opacity .2s, transform .1s ease;
+    transform: scale(.95);
+    opacity: 1;
+  }
+}
+
+.container {
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  transform: scale(1, 1) translateY(0%);
+  opacity: 1;
+  transition-delay: .5s;
+  text-align: center;
+  &.flipping {
+    transform: scale(.8, .8) translateY(200%);
+    opacity: .5;
+    pointer-events: none;
+  }
+}

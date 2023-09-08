@@ -68,9 +68,6 @@ export class GambaClient {
             methodName,
             args,
           )
-          // if (this.onError2) {
-          //   this.onError2(_err)
-          // }
           this.errorEvent.emit(_err)
           const resolution = await _err.wait()
           if (resolution === 'resolved') {

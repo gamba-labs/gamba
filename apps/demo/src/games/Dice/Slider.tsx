@@ -1,74 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
-import * as Tone from 'tone'
-import tickSrc from './tick.wav'
-
-const createSound = (url: string) =>
-  new Tone.Player({ url }).toDestination()
-
-const soundTick = createSound(tickSrc)
-
-const SliderWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  margin: 50px 0;
-`
-
-const SliderLabels = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 25px;
-  & > div {
-    opacity: .9;
-    width: 50px;
-    text-align: center;
-  }
-`
-
-const SliderInput = styled.input`
-  -webkit-appearance: none;
-  width: 100%;
-  height: 8px;
-  background: transparent;
-  outline: none;
-  position: relative;
-  z-index: 2;
-`
-
-const Track = styled.div`
-  background: #00bf57;
-  position: absolute;
-  height: 20px;
-  border-radius: 4px;
-  top: 14px;
-  z-index: 1;
-`
-
-const ResultLabel = styled.div`
-  position: absolute;
-  top: -40px;
-  background: #ffffffCC;
-  backdrop-filter: blur(50px);
-  border-radius: 3px;
-  padding: 5px;
-  font-size: 18px;
-  font-weight: bold;
-  transform: translateX(-50%);
-  width: 50px;
-  text-align: center;
-  transition: left 0.3s ease-in-out;
-  color:black;
-  &::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -10px;
-    border-width: 10px 10px 0px 10px;
-    border-style: solid;
-    border-color: #ffffffCC transparent transparent transparent;
-  }
-`
+import styles from './styles.module.css'
 
 interface SliderProps {
   min: number
@@ -80,41 +11,55 @@ interface SliderProps {
 }
 
 const Slider: React.FC<SliderProps> = ({ min, max, value, onChange, resultIndex, disabled }) => {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = Number(event.target.value)
+  const labels = Array.from({ length: 5 }).map((_, i, arr) => min + Math.floor(i / (arr.length - 1) * (max - min)))
+  const [isDragging, setIsDragging] = React.useState(false)
 
-    if (newValue <= 95) {
-      soundTick.start()
+  const track = React.useRef<HTMLDivElement>(null!)
 
-      onChange(newValue)
-    }
+  const handleDragStart = () => {
+    if (disabled) return
+    setIsDragging(true)
   }
 
-  const labels = [0, 25, 50, 75, 100]
+  const handleDragEnd = () => {
+    setIsDragging(false)
+  }
+
+  const handleDrag = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || disabled) return
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
+    const { width, left } = track.current.getBoundingClientRect()
+    const xx = Math.min(1, Math.max(0, (clientX - left) / width))
+    onChange(
+      Math.max(min, Math.min(max, Math.round(xx * max))),
+    )
+  }
 
   return (
-    <SliderWrapper>
-      <Track style={{ width: `${value}%` }} />
-      <Track style={{ width: `${100 - value}%`, background: '#322943', right: 0 }} />
+    <div
+      className={styles.sliderContainer}
+      onMouseDown={handleDragStart}
+      onMouseUp={handleDragEnd}
+      onMouseMove={handleDrag}
+    >
       {resultIndex > -1 &&
-        <ResultLabel style={{ left: `${resultIndex}%` }}>{resultIndex}</ResultLabel>
+        <div key={resultIndex} className={styles.result} style={{ left: `${resultIndex}%` }}>
+          {resultIndex}
+        </div>
       }
-      <SliderInput
-        disabled={disabled}
-        type="range"
-        min={min}
-        max={max}
-        value={value}
-        onChange={handleChange}
-      />
-      <SliderLabels>
-        {labels.map((label, i) => (
-          <div key={i}>
-            {label}
-          </div>
-        ))}
-      </SliderLabels>
-    </SliderWrapper>
+      <div ref={track} className={styles.slider}>
+        <div style={{ width: `${value / max * 100}%` }} />
+      </div>
+      {labels.map((label, i) => (
+        <div
+          key={i}
+          className={styles.label}
+          style={{ left: (label / max * 100) + '%' }}
+        >
+          {label}
+        </div>
+      ))}
+    </div>
   )
 }
 

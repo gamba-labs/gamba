@@ -24,14 +24,14 @@ export function useGamba() {
 
   const updateSeed = (seed = randomSeed()) => setSeed(seed)
 
-  const play = (
-    params: Optional<GambaPlayParams, 'creator' | 'seed'>,
-  ) => {
-    return client.play({
+  const play = async (params: Optional<GambaPlayParams, 'creator' | 'seed'>) => {
+    const res = await client.play({
       seed,
       creator: defaultCreator!,
       ...params,
     })
+
+    return { ...res, result: () => awaitResult() }
   }
 
   const awaitResult = async () => {

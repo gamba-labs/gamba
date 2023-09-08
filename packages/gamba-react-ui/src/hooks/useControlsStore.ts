@@ -1,18 +1,22 @@
 import { create } from 'zustand'
-import { GameControlDefinition } from '../types'
+import { GameControlsSceme } from '../types'
 
 export interface ControlsStore {
-  gameControls: GameControlDefinition
-
-  setGameControls: (gameControls: GameControlDefinition) => void
+  scheme: GameControlsSceme
+  setScheme: (scheme: GameControlsSceme) => void
 
   values: Record<string, number>
+
+  wager: number
+  setWager: (value: number) => void
 }
 
 export const useControlsStore = create<ControlsStore>(
   (set) => ({
-    gameControls: {},
-    setGameControls: (gameControls) => set({ gameControls }),
+    scheme: {},
+    setScheme: (scheme) => set({ scheme }),
+    setWager: (wager) => set({ wager }),
     values: {},
+    wager: 0,
   }),
 )

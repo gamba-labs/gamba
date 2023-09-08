@@ -1,4 +1,4 @@
-import { RecentPlayEvent, solToLamports } from 'gamba'
+import { RecentPlayEvent, lamportsToSol, solToLamports } from 'gamba'
 import { useGamba, useRecentPlays } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
@@ -27,15 +27,19 @@ const RecentPlayLink = styled.a`
   color: white;
   border: 1px solid #00000033;
   border-radius: 5px;
+
   & .who {
     color: var(--primary-color);
   }
+
   & .flares {
     display: flex;
     letter-spacing: .5em;
   }
+
   border-bottom: 1px solid #00000033;
   transition: background .1s;
+
   &:hover {
     background: #292c39;
   }
@@ -62,6 +66,8 @@ function RecentPlay({ event, isSelf }: {event: RecentPlayEvent, isSelf: boolean}
   const isWhale = wager > solToLamports(0.1)
   const isRekt = payout === 0
 
+  const whaleStatus = Math.floor(Math.log10(Math.max(1, lamportsToSol(profit) * 1000)))
+
   return (
     <RecentPlayLink className="dark" target="_blank" href={`${VERIFY_URL}/${event.signature}`} rel="noreferrer">
       <div>
@@ -74,6 +80,7 @@ function RecentPlay({ event, isSelf }: {event: RecentPlayEvent, isSelf: boolean}
           </Amount>
         </span>
         <span className="flares">
+          {whaleStatus > 0 && '🐋'.repeat(whaleStatus - 1)}
           {isWhale && '🐳'}
           {isRekt && '💀'}
           {'🔥'.repeat(Math.floor(Math.max(0, multiplier - 1)))}

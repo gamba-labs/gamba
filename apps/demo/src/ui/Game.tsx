@@ -1,13 +1,13 @@
-import { solToLamports } from 'gamba'
-import { GameContext, GameControls, GameProvider, formatLamports, useInputContext } from 'gamba/react-ui'
+import { MIN_BET, lamportsToSol, solToLamports } from 'gamba'
+import { ErrorBoundary, formatLamports, useControlsStore, useWagerUtils } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Button } from '../components/Button'
-import { Dropdown } from '../components/Dropdown'
 import { Modal } from '../components/Modal'
 import { Section } from '../components/Section'
 import { GAMES } from '../games'
+import { Banner } from './Home'
 
 const GameWrapper = styled.div`
   height: 100vh;
@@ -34,66 +34,81 @@ const StyledControls = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
-  display: flex;
-  justify-content: center;
   width: 100%;
   z-index: 1;
   background: #000000CC;
   backdrop-filter: blur(50px);
-
-  padding: 10px;
+  & > div {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 `
 
-function CustomControl() {
-  const { control } = useInputContext()
-  return (
-    <div style={{ position: 'relative' }}>
-      {control.element}
-    </div>
-  )
-}
-
-function WagerControl() {
-  const { control } = useInputContext()
-  const [visible, setVisible] = React.useState(false)
-  const options = [0.05, 0.1, 1, 3, 4, 5, 10].map(solToLamports)
+function WagerInput() {
+  const controls = useControlsStore()
+  const wager = useWagerUtils({ bet: controls.scheme.wagerInput?.bet })
 
   const set = (value: number) => {
-    setVisible(false)
-    control.onChange(value)
+    controls.setWager(value)
   }
+
+  React.useEffect(
+    () => {
+      controls.setWager(wager.set(controls.wager))
+    }
+    , [controls.scheme.wagerInput],
+  )
 
   return (
     <div style={{ position: 'relative' }}>
-      <Button label="Wager" onClick={() => setVisible(!visible)} className="dark">
-        {formatLamports(control.value)}
+      <Button className="dark" onClick={
+        () => {
+          const _wager = prompt('Set Wager', String(lamportsToSol(controls.wager)))
+          if (_wager) {
+            set(wager.set(solToLamports(Number(_wager))))
+          }
+        }
+      }>
+        {formatLamports(controls.wager)}
       </Button>
-      <Dropdown anchor="bottom" visible={visible}>
-        {options.map((option) => (
-          <Button className="list transparent" key={option} onClick={() => set(option)}>
-            {formatLamports(option)}
-          </Button>
-        ))}
-      </Dropdown>
+      <div style={{ display: 'flex', gap: '5px' }}>
+        <Button size="small" onClick={() => set(MIN_BET)} className="dark">
+          MIN
+        </Button>
+        <Button size="small" onClick={() => set(wager.max())} className="dark">
+          MAX
+        </Button>
+        <Button size="small" onClick={() => set(wager.times(controls.wager, .5))} className="dark">
+          / 2
+        </Button>
+        <Button size="small" onClick={() => set(wager.times(controls.wager, 2))} className="dark">
+          x2
+        </Button>
+      </div>
     </div>
   )
 }
 
-function ButtonControl() {
-  const { control } = useInputContext()
+function PlayButton() {
+  const controls = useControlsStore()
+  const button = controls.scheme.playButton
+
+  if (!button) return null
 
   return (
-    <div style={{ position: 'relative' }}>
-      <Button disabled={control.disabled} onClick={() => control.onClick()}>
-        Play
-      </Button>
-    </div>
+    <Button onClick={() => button.onClick()}>
+      {button.label ?? 'Play'}
+    </Button>
   )
 }
 
 function Controls() {
+  const { shortName } = useParams()
+  const game = useMemo(() => GAMES.find((x) => x.short_name === shortName)!, [shortName])
   const [showInfo, setShowInfo] = React.useState(false)
-  const { game } = React.useContext(GameContext)
+  const ref = React.useRef<HTMLDivElement>(null!)
 
   return (
     <>
@@ -106,19 +121,16 @@ function Controls() {
         </Modal>
       )}
       <StyledControls>
-        <Section>
-          <div style={{ display: 'flex', gap: '20px' }}>
-            <Button style={{ padding: 0 }} onClick={() => setShowInfo(true)} className="transparent">
-              <img src={game.image} height="40px" />
-            </Button>
-
-            <GameControls
-              wager={WagerControl}
-              button={ButtonControl}
-              custom={CustomControl}
-            />
-
-          </div>
+        <Section ref={ref}>
+          <Button
+            className="transparent"
+            style={{ padding: 0 }}
+            onClick={() => setShowInfo(true)}
+          >
+            <img src={game.image} height="40px" />
+          </Button>
+          <WagerInput />
+          <PlayButton />
         </Section>
       </StyledControls>
     </>
@@ -129,14 +141,22 @@ export function Game() {
   const { shortName } = useParams()
   const game = useMemo(() => GAMES.find((x) => x.short_name === shortName), [shortName])
 
-  if (!game) return null
+  if (!game) return (
+    <>
+      <Banner>
+        <h1>Game Not found!</h1>
+      </Banner>
+    </>
+  )
 
   return (
     <GameWrapper key={game.short_name}>
-      <GameProvider game={game}>
-        <game.app />
-        <Controls />
-      </GameProvider>
+      <ErrorBoundary error={<>In game error</>}>
+        <React.Suspense fallback={<>Loading...</>}>
+          <game.app />
+        </React.Suspense>
+      </ErrorBoundary>
+      <Controls />
     </GameWrapper>
 
   )

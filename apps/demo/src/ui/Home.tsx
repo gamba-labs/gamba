@@ -4,7 +4,7 @@ import { ButtonLink } from '../components/Button'
 import { Section } from '../components/Section'
 import { Svg } from '../components/Svg'
 
-const Banner = styled.div`
+export const Banner = styled.div`
   width: 100%;
   background-size: cover;
   background-image: linear-gradient(0deg,var(--bg-color) 0%,#04051700 100%), url(/banner.png);
@@ -38,6 +38,18 @@ const Banner = styled.div`
   flex-direction: column-reverse;
 `
 
+// const StyledSlideshow = styled.div`
+
+// `
+
+// const Slideshow: React.FC = ({children}: {children: JSX.Element[]}) => {
+//   return (
+//     <StyledSlideshow>
+//       {children}
+//     </StyledSlideshow>
+//   )
+// }
+
 export function Home() {
   return (
     <Banner>
@@ -48,8 +60,13 @@ export function Home() {
         <p>
         A decentralized, provably-fair casino built on gamba.
         </p>
-        <ButtonLink className="white" href="https://gamba.so" target="_blank" pulse>
-          Learn More <Svg.ExternalLink />
+        <ButtonLink
+          className="white"
+          href="https://gamba.so"
+          target="_blank"
+          icon={<Svg.ExternalLink />}
+        >
+          Learn More
         </ButtonLink>
       </Section>
     </Banner>

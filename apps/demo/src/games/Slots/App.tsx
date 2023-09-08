@@ -3,9 +3,9 @@ import {
   ResponsiveSize,
   formatLamports,
   useGameControls,
+  useSounds,
 } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
-import * as Tone from 'tone'
 import { ItemPreview } from './components/ItemPreview'
 import { Slot } from './components/Slot'
 import { FINAL_DELAY, INITIAL_WAGER, LEGENDARY_THRESHOLD, NUM_SLOTS, REVEAL_SLOT_DELAY, SLOT_ITEMS, SPIN_DELAY, SlotItem } from './constants'
@@ -17,14 +17,6 @@ import selectSrc from './selected.mp3'
 import spinStartSrc from './spinstart.mp3'
 import unicornSelectSrc from './unicornselect.mp3'
 import winSrc from './win.mp3'
-
-const createSound = (url: string) => new Tone.Player({ url }).toDestination()
-
-const soundWin = createSound(winSrc)
-const soundLose = createSound(loseSrc)
-const soundSelect = createSound(selectSrc)
-const soundSpinStart = createSound(spinStartSrc)
-const soundSelectLegendary = createSound(unicornSelectSrc)
 
 export default function Slots() {
   const gamba = useGamba()
@@ -40,6 +32,14 @@ export default function Slots() {
     () => generateBetArray(maxPayout, wager),
     [maxPayout, wager, gamba.user?.nonce],
   )
+
+  const sounds = useSounds({
+    win: winSrc,
+    lose: loseSrc,
+    select: selectSrc,
+    spinStart: spinStartSrc,
+    selectLegendary: unicornSelectSrc,
+  })
 
   useGameControls({
     wager: { type: 'wager', value: wager, onChange: setWager },
@@ -60,13 +60,13 @@ export default function Slots() {
   const revealSlot = (combination: SlotItem[], slot = 0) => {
     updateSlot(slot, { spinning: false, item: combination[slot] })
 
-    soundSelect.start()
+    sounds.select.play()
 
     const allSame = combination.slice(0, slot + 1).every((item, index, arr) => !index || item === arr[index - 1])
 
     if (combination[slot].multiplier >= LEGENDARY_THRESHOLD) {
       if (allSame) {
-        soundSelectLegendary.start()
+        sounds.selectLegendary.play()
       }
     }
 
@@ -75,9 +75,9 @@ export default function Slots() {
         setSpinning(false)
         if (allSame) {
           setGood(true)
-          soundWin.start()
+          sounds.win.play()
         } else {
-          soundLose.start()
+          sounds.lose.play()
         }
       }, FINAL_DELAY)
     }
@@ -102,8 +102,7 @@ export default function Slots() {
 
       setSlots(slots.map((cell) => ({ ...cell, spinning: true })))
 
-      soundSpinStart.start()
-      soundSpinStart.playbackRate = 1.2
+      sounds.spinStart.play({ playbackRate: 1.2 })
 
       const result = await gamba.awaitResult()
 

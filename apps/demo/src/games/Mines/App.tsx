@@ -1,17 +1,14 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { ResponsiveSize, formatLamports, useClaim, useGameControls } from 'gamba/react-ui'
+import { ResponsiveSize, formatLamports, useClaim, useGameControls, useSounds } from 'gamba/react-ui'
 import React from 'react'
-import * as Tone from 'tone'
 import { Bomb } from './Svg'
-import { Cell, Grid, MultiplierCurrent, MultiplierWrapper, PulsingText } from './styles'
+import styles from './styles.module.css'
 
 import finishSrc from './finish.mp3'
 import loseSrc from './lose.mp3'
 import tickSrc from './tick.mp3'
 import winSrc from './win.mp3'
-
-import styles from './test.module.css'
 
 const GRID_SIZE = 25
 const PITCH_INCREASE_FACTOR = 1.06
@@ -29,16 +26,15 @@ type LoadState = 'playing' | 'claiming'
 const generateGrid = () =>
   new Array(GRID_SIZE).fill({ status: 'hidden', profit: 0 }) as CellState[]
 
-const createSound = (url: string) =>
-  new Tone.Player({ url }).toDestination()
-
-const soundTick = createSound(tickSrc)
-const soundWin = createSound(winSrc)
-const soundLose = createSound(loseSrc)
-const soundFinish = createSound(finishSrc)
-
 function Mines() {
   const gamba = useGamba()
+  const sounds = useSounds({
+    tick: tickSrc,
+    win: winSrc,
+    lose: loseSrc,
+    finish: finishSrc,
+  })
+
   const [grid, setGrid] = React.useState(generateGrid())
   const [currentLevel, setLevel] = React.useState(0)
   const [selected, setSelected] = React.useState(-1)
@@ -83,66 +79,66 @@ function Mines() {
     [remainingCells, config],
   )
 
-  const customControls = (
-    <>
-      {gameState === 'idle' && (
-        <>
-          <select
-            value={config.wager}
-            onChange={(evt) => setConfig({ ...config, wager: Number(evt.target.value) })}
-          >
-            {WAGER_AMOUNTS.map((value, i) => (
-              <option key={i} value={value}>
-                {formatLamports(value)}
-              </option>
-            ))}
-          </select>
-          <select
-            value={config.mines}
-            onChange={(evt) => setConfig({ ...config, mines: Number(evt.target.value) })}
-          >
-            {MINE_SELECT.map((value, i) => (
-              <option key={i} value={value}>
-                {value} Mines
-              </option>
-            ))}
-          </select>
-        </>
-      )}
+  // const customControls = (
+  //   <>
+  //     {gameState === 'idle' && (
+  //       <>
+  //         <select
+  //           value={config.wager}
+  //           onChange={(evt) => setConfig({ ...config, wager: Number(evt.target.value) })}
+  //         >
+  //           {WAGER_AMOUNTS.map((value, i) => (
+  //             <option key={i} value={value}>
+  //               {formatLamports(value)}
+  //             </option>
+  //           ))}
+  //         </select>
+  //         <select
+  //           value={config.mines}
+  //           onChange={(evt) => setConfig({ ...config, mines: Number(evt.target.value) })}
+  //         >
+  //           {MINE_SELECT.map((value, i) => (
+  //             <option key={i} value={value}>
+  //               {value} Mines
+  //             </option>
+  //           ))}
+  //         </select>
+  //       </>
+  //     )}
 
-      {gameState === 'playing' && (
-        <div>
-          <button disabled={loading || claiming} onClick={endGame}>
-                Claim {formatLamports(gamba.balances.user)}
-          </button>
-        </div>
-      )}
+  //     {gameState === 'playing' && (
+  //       <div>
+  //         <button disabled={loading || claiming} onClick={endGame}>
+  //           Claim {formatLamports(gamba.balances.user)}
+  //         </button>
+  //       </div>
+  //     )}
 
-      {needsReset && (
-        <button disabled={loading} onClick={reset}>
-              Reset
-        </button>
-      )}
-    </>
-  )
+  //     {needsReset && (
+  //       <button disabled={loading} onClick={reset}>
+  //         Reset
+  //       </button>
+  //     )}
+  //   </>
+  // )
 
-  useGameControls({
-    custom: {
-      type: 'custom',
-      element: customControls,
-    },
-  })
+  // useGameControls({
+  //   custom: {
+  //     type: 'custom',
+  //     element: customControls,
+  //   },
+  // })
 
   React.useEffect(
     () => {
       if (gameFinished) {
-        soundFinish.start()
+        sounds.finish.play()
       }
     },
     [gameFinished],
   )
 
-  const playCell = async (cellIndex: number) => {
+  const play = async (cellIndex: number) => {
     setLoading('playing')
     setSelected(cellIndex)
     setGameState('playing')
@@ -156,15 +152,13 @@ function Mines() {
         deductFees: !firstBet,
       })
 
-      soundTick.playbackRate = 1.5
-      soundTick.start()
+      sounds.tick.play({ playbackRate: 1.5 })
 
       const result = await gamba.awaitResult()
 
       if (result.payout > 0) {
-        soundTick.stop()
-        soundWin.playbackRate = Math.pow(PITCH_INCREASE_FACTOR, currentLevel)
-        soundWin.start()
+        sounds.tick.player.stop()
+        sounds.win.play({ playbackRate: Math.pow(PITCH_INCREASE_FACTOR, currentLevel) })
 
         setLevel((x) => x + 1)
         setTotalGain((x) => x + result.payout)
@@ -205,8 +199,8 @@ function Mines() {
             ),
         )
 
-        soundTick.stop()
-        soundLose.start()
+        sounds.tick.player.stop()
+        sounds.lose.play()
       }
     } catch (err) {
       console.error(err)
@@ -225,50 +219,50 @@ function Mines() {
             +{formatLamports(totalGain)}
           </div>
           {needsReset && !loading && (
-            <PulsingText onClick={reset}>
+            <div className={styles.pulsing} onClick={reset}>
               {gameFinished ? 'a winner is you!' : 'Reset!'}
-            </PulsingText>
+            </div>
           )}
         </div>
-        <MultiplierWrapper>
+        <div className={styles.levels}>
           {Array.from({ length: 4 })
             .map((_, i) => {
               const level = currentLevel + i
               if (level >= GRID_SIZE - config.mines) {
                 return (
-                  <MultiplierCurrent key={i}>
-                      -
-                  </MultiplierCurrent>
+                  <div key={i}>
+                    -
+                  </div>
                 )
               }
               const unrevealed = GRID_SIZE - level
               const multiplier = unrevealed / (unrevealed - config.mines)
               return (
-                <MultiplierCurrent key={i} isCurrent={i === 0}>
+                <div key={i}>
                   {parseFloat(multiplier.toFixed(3))}x
-                </MultiplierCurrent>
+                </div>
               )
             })}
-        </MultiplierWrapper>
-        <Grid>
+        </div>
+        <div className={styles.grid}>
           {grid.map((cell, index) => (
-            <Cell
-              className={cell.status}
+            <button
               key={index}
-              status={cell.status}
-              onClick={() => playCell(index)}
-              selected={selected === index}
+              data-status={cell.status}
+              data-selected={selected === index}
+              className={styles.cell}
+              onClick={() => play(index)}
               disabled={!canPlay || cell.status !== 'hidden'}
             >
               {(cell.status === 'hidden' || cell.status === 'mine') && <Bomb />}
               {(cell.status === 'gold') && (
                 <div>
-                    +{parseFloat(lamportsToSol(cell.profit).toFixed(3))}
+                  +{parseFloat(lamportsToSol(cell.profit).toFixed(3))}
                 </div>
               )}
-            </Cell>
+            </button>
           ))}
-        </Grid>
+        </div>
       </div>
     </ResponsiveSize>
   )

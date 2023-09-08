@@ -11,11 +11,12 @@ interface Props {
 
 export function Card({ to, logo, backgroundColor }: Props) {
   return (
-    <NavLink to={to} className={styles.card} style={{ backgroundColor }}>
-      <div
-        className={styles.background}
-        style={{ backgroundImage: 'url(/game.svg)', backgroundColor }}
-      />
+    <NavLink
+      to={to}
+      className={styles.card}
+      style={{ backgroundColor }}
+    >
+      <div className={styles.background} />
       {logo && (
         <div
           className={styles.logo}

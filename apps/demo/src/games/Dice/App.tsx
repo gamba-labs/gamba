@@ -6,7 +6,7 @@ import styles from './App.module.css'
 
 import SOUND_LOSE from './lose.mp3'
 import SOUND_PLAY from './play.mp3'
-import SOUND_TICK from './tick.wav'
+import SOUND_TICK from './tick.mp3'
 import SOUND_WIN from './win.mp3'
 
 const DICE_SIDES = 100

@@ -92,7 +92,7 @@ export default function Slots() {
 
       sounds.play.play()
 
-      await gamba.play({
+      const res = await gamba.play({
         wager,
         bet,
       })
@@ -104,7 +104,7 @@ export default function Slots() {
 
       sounds.spin.play({ playbackRate: 1.2 })
 
-      const result = await gamba.awaitResult()
+      const result = await res.result()
 
       setSpinning(false)
 

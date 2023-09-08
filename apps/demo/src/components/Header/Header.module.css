@@ -7,15 +7,20 @@
   padding: 10px;
   background: #000000CC;
   backdrop-filter: blur(20px);
-  @media (min-height: 800px) {
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@media (min-height: 800px) {
+  .wrapper {
     padding: 10px 20px;
   }
-  > div {
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-  }
+}
+
+.wrapper > div {
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
 }
 
 .logo {
@@ -27,16 +32,19 @@
   white-space: nowrap;
   border-radius: 5px;
   padding: 5px 10px;
-  &:hover {
-    background: #ffffff11;
-  }
-  & .label {
-    display: none;
-    @media (min-width: 800px) {
-      display: block;
-    }
-  }
-  & > img {
-    height: 30px;
+}
+
+.logo:hover {
+  background: #ffffff11;
+}
+
+.logo > img {
+  height: 30px;
+}
+
+.title {
+  display: none;
+  @media (min-width: 800px) {
+    display: block;
   }
 }

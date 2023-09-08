@@ -9,7 +9,7 @@ export const Header2: React.FC<React.PropsWithChildren> = ({ children }) => {
         <div>
           <NavLink className={styles.logo} to="/">
             <img src="/logo.svg" height="20px" />
-            Gamba Demo
+            <span className={styles.title}>Gamba Demo</span>
           </NavLink>
         </div>
         {/* <a target="_blank" href="https://github.com/gamba-labs/gamba" rel="noreferrer">

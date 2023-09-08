@@ -7,9 +7,9 @@ import styles from './App.module.css'
 import { Coin } from './Coin'
 import { Effect } from './Effect'
 
-import coinSrc from './coin.wav'
-import loseSrc from './lose.wav'
-import winSrc from './win.wav'
+import SOUND_COIN from './coin.mp3'
+import SOUND_LOSE from './lose.mp3'
+import SOUND_WIN from './win.mp3'
 
 const SIDES = {
   Heads: [0, 2],
@@ -24,9 +24,9 @@ export default function Flip() {
   const [bet, setBet] = React.useState(SIDES.Heads)
 
   const sounds = useSounds({
-    coin: coinSrc,
-    win: winSrc,
-    lose: loseSrc,
+    coin: SOUND_COIN,
+    win: SOUND_WIN,
+    lose: SOUND_LOSE,
   })
 
   const { wager } = useGameControls({

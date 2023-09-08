@@ -46,6 +46,15 @@
   }
 }
 
+@keyframes hover-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
 .statusBar {
   width: 100%;
   display: flex;
@@ -88,15 +97,6 @@ button.reset {
   gap: 8px;
 }
 
-@keyframes hover-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
 .cell {
   display: flex;
   position: relative;
@@ -112,40 +112,40 @@ button.reset {
   width: 50px;
   transition: background 0.3s, opacity .3s;
   font-size: 12px;
+}
 
-  &[data-status="hidden"] {
-    background: #573c89;
-    &:disabled {
-      opacity: .5;
-    }
-  }
-
-  &[data-status="gold"] {
-    color: white;
-    background: #32cd5e;
-    animation: gold-reveal .5s ease;
-  }
-
-  &[data-selected="true"] {
-    animation: selected-animation .5s ease infinite;
-    z-index: 10;
-    opacity: 1!important;
-  }
-
-  &[data-status="mine"] {
-    background: #ff5252;
-    animation: mine-reveal .3s ease;
-    z-index: 10;
-  }
-
+.cell[data-status="hidden"] {
+  background: #573c89;
   &:disabled {
-    cursor: default;
+    opacity: .5;
   }
+}
 
-  &:hover:not(:disabled) {
-    background: #764cc4;
-    animation: hover-pulse .5s ease infinite;
-  }
+.cell[data-status="gold"] {
+  color: white;
+  background: #32cd5e;
+  animation: gold-reveal .5s ease;
+}
+
+.cell[data-selected="true"] {
+  animation: selected-animation .5s ease infinite;
+  z-index: 10;
+  opacity: 1!important;
+}
+
+.cell[data-status="mine"] {
+  background: #ff5252;
+  animation: mine-reveal .3s ease;
+  z-index: 10;
+}
+
+.cell:disabled {
+  cursor: default;
+}
+
+.cell:hover:not(:disabled) {
+  background: #764cc4;
+  animation: hover-pulse .5s ease infinite;
 }
 
 .levels {
@@ -157,18 +157,19 @@ button.reset {
   display: flex;
   align-items: center;
   overflow: hidden;
+}
 
-  & > div {
-    display: flex;
-    align-items: center;
-    margin: 0 auto;
-    width: 25%;
-    justify-content: center;
-    padding: 15px 0;
-    &:first-child {
-      background: #FFFFFF11;
-      background: 2px 0px 10px #00000033;
-      color: #32cd5e;
-    }
-  }
+.levels > div {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  width: 25%;
+  justify-content: center;
+  padding: 15px 0;
+}
+
+.levels > div:first-child {
+  background: #FFFFFF11;
+  background: 2px 0px 10px #00000033;
+  color: #32cd5e;
 }

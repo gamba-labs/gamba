@@ -1,3 +1,7 @@
+:root {
+  --card-aspect-ratio: 2 / 1;
+}
+
 @keyframes tile-animation {
   0% {
     background-position: -100px 200px;
@@ -29,7 +33,7 @@
   border-radius: 5px;
   display: flex;
   justify-content: end;
-  aspect-ratio: 2/1;
+  aspect-ratio: var(--card-aspect-ratio);
   width: 150px;
   transition: width .25s ease, transform .2s ease, aspect-ratio .2s ease;
   max-height: 100%;
@@ -37,23 +41,26 @@
   flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
-  @media (min-height: 900px) {
+}
+
+@media (min-height: 900px) {
+  .card {
     width: 200px;
   }
+}
 
-  &:hover {
-    outline: var(--text-color) solid 1px;
-    outline-offset: 3px;
+.card:hover {
+  outline: var(--text-color) solid 1px;
+  outline-offset: 3px;
+}
 
-    & > .logo {
-      transform: scale(1.1);
-    }
+.card:hover .logo {
+  transform: scale(1.1);
+}
 
-    & > .background {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-  }
+.card:hover .background {
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .background {
@@ -64,6 +71,7 @@
   height: 100%;
   background-size: 50px;
   background-position: center;
+  background-image: url(/game.svg);
   transition: transform .2s ease, opacity .3s;
   animation: tile-animation 10s linear infinite;
   opacity: 0;

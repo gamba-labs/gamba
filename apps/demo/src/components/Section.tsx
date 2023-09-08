@@ -39,7 +39,7 @@ export function SlideSection({ stuff, children, ...rest }: SectionProps) {
       stuff={
         <>
           {stuff}
-          <div className="arrows">
+          <div className={styles.sliderArrows}>
             <Button2 size="small" variant="ghost" onClick={() => scroll(-1)}>
               <Icon.ArrowLeft />
             </Button2>

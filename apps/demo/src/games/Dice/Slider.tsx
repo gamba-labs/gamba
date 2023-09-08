@@ -13,7 +13,6 @@ interface SliderProps {
 const Slider: React.FC<SliderProps> = ({ min: minValue, max: maxValue, value, onChange, disabled, range: [min, max] }) => {
   const labels = Array.from({ length: 5 }).map((_, i, arr) => min + Math.floor(i / (arr.length - 1) * (max - min)))
   const [isDragging, setIsDragging] = React.useState(false)
-
   const track = React.useRef<HTMLDivElement>(null!)
 
   const change = (clientX: number) => {

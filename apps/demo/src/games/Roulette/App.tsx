@@ -1,31 +1,28 @@
 import { lamportsToSol, solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { Fullscreen, formatLamports } from 'gamba/react-ui'
+import { Fullscreen, formatLamports, useSounds } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
-import * as Tone from 'tone'
 import { Results } from './Results'
 import { Table } from './Table'
 import { CHIPS, INITIAL_TABLE_BETS, NAMED_BETS } from './constants'
 import { Chip, StylelessButton } from './styles'
 import { NamedBet } from './types'
 
-const createSound = (url: string) =>
-  new Tone.Player({ url }).toDestination()
-
-
-import chipSrc from './chip.wav'
-import diceSrc from './dice.wav'
-import winSrc from './win.wav'
-
-export const soundChip = createSound(chipSrc)
-export const soundDice = createSound(diceSrc)
-export const soundWin = createSound(winSrc)
+import SOUND_CHIP from './chip.wav'
+import SOUND_PLAY from './play.wav'
+import SOUND_WIN from './win.wav'
 
 export default function Roulette() {
   const gamba = useGamba()
   const [tableBet, setTableBet] = useState(INITIAL_TABLE_BETS)
   const [selectedChip, setSelectedChip] = useState(solToLamports(0.01))
   const [results, setResults] = useState<number[]>([])
+
+  const sounds = useSounds({
+    chip: SOUND_CHIP,
+    play: SOUND_PLAY,
+    win: SOUND_WIN,
+  })
 
   const clearChips = () => {
     setTableBet(INITIAL_TABLE_BETS)
@@ -56,12 +53,12 @@ export default function Roulette() {
   const play = async () => {
     try {
       await gamba.play({ bet, wager })
-      soundDice.start()
+      sounds.play.play()
       setLoading(true)
       const result = await gamba.awaitResult()
       addResult(result.resultIndex)
       if (result.payout > 0)
-        soundWin.start()
+        sounds.win.play()
     } catch {
       //
     } finally {

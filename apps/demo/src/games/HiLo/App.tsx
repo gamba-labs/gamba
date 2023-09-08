@@ -1,24 +1,23 @@
 import { solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { Fullscreen } from 'gamba/react-ui'
+import { Fullscreen, useSounds } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
-import * as Tone from 'tone'
-import cardSrc from './card.mp3'
 import { RANKS } from './constants'
 import { Card, Container, Option, Overlay, OverlayText } from './styles'
-import winSrc from './win.wav'
 
-const createSound = (url: string) =>
-  new Tone.Player({ url }).toDestination()
+import SOUND_CARD from './card.mp3'
+import SOUND_WIN from './win.mp3'
 
-const cardSound = createSound(cardSrc)
-const winSound = createSound(winSrc)
 
 const randomRank = () => 1 + Math.floor(Math.random() * (RANKS - 1))
 const WAGER_AMOUNTS = [0.05, 0.1, 0.25, 0.5, 1, 2].map(solToLamports)
 
 export default function HiLo() {
   const gamba = useGamba()
+  const sounds = useSounds({
+    win: SOUND_WIN,
+    card: SOUND_CARD,
+  })
   const [cards, setCards] = useState([randomRank()])
   const [loading, setLoading] = useState(false)
   const [claiming, setClaiming] = useState(false)
@@ -59,38 +58,28 @@ export default function HiLo() {
 
   const play = async () => {
     try {
-      let bet
-      switch (option) {
-        case 'hi':
-          bet = betHi
-          break
-        case 'lo':
-          bet = betLo
-          break
-        case 'same':
-          bet = betSame
-          break
-      }
-      let wagerInput = wager
-      let res
+      const bet = (
+        () => {
+          if (option === 'hi')
+            return betHi
+          if (option === 'lo')
+            return betLo
+          return betSame
+        }
+      )()
 
-      if (gameState === 'playing') {
-        wagerInput = wager + totalGain
-        res = await gamba.play(bet, wagerInput, { deductFees: true })
-      } else {
-        res = await gamba.play(bet, wagerInput, { deductFees: false })
-      }
+      const res = await gamba.play({ bet, wager: gameState === 'playing' ? wager + totalGain : wager, deductFees: true })
 
       setLoading(true)
       setGameState('playing')
       const result = await res.result()
       addCard(result.resultIndex)
-      cardSound.start()
+      sounds.card.play()
 
       const win = result.payout > 0
 
       if (win) {
-        winSound.start()
+        sounds.win.play()
         setTotalGain(totalGain + result.payout)
       } else {
         setGameState('lost')
@@ -135,7 +124,7 @@ export default function HiLo() {
               $selected={option === 'hi'}
               onClick={() => setOption('hi')}
             >
-              {/* <div><FaHandPointUp /></div> */}
+              <div>{'^'}</div>
               <div>(x{Math.max(...betHi).toFixed(2)})</div>
             </Option>
           ) : (
@@ -143,7 +132,7 @@ export default function HiLo() {
               $selected={option === 'same'}
               onClick={() => setOption('same')}
             >
-              {/* <div><FaEquals /></div> */}
+              <div>{'='}</div>
               <div>(x{Math.max(...betSame).toFixed(2)})</div>
             </Option>
           )}

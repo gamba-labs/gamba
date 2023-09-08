@@ -21,6 +21,7 @@
 
 .color-default {
   --bg-col-solid: #1a1c24;
+  --bg-col-solid-hover: #272a39;
   --bg-col-outlined: #6666ff33;
   --bg-col-outlined-hover: #6666ff66;
   --col-outlined: white;
@@ -28,7 +29,8 @@
 }
 
 .color-white {
-  --bg-col-solid: #FFFFFF;
+  --bg-col-solid: #FFFFFFDF;
+  --bg-col-solid-hover: #FFFFFF;
   --bg-col-outlined: #FFFFFF33;
   --bg-col-outlined-hover: #FFFFFF99;
   --col-outlined: white;
@@ -39,33 +41,28 @@
   background: var(--bg-col-solid);
   color: var(--col-solid);
   border: none;
+  --hover-background: var(--bg-col-solid-hover);
 }
 
 .variant-ghost {
   background: transparent;
   color: var(--col-outlined);
   border: none;
-  &:hover {
-    background: var(--bg-col-outlined);
-  }
+  --hover-background: var(--bg-col-outlined);
 }
 
 .variant-soft {
   background: var(--bg-col-outlined);
   color: var(--col-outlined);
   border: none;
-  &:hover {
-    background: var(--bg-col-outlined-hover);
-  }
+  --hover-background: var(--bg-col-outlined-hover);
 }
 
 .variant-outlined {
   background: var(--bg-col-outlined);
   color: var(--col-outlined);
   border: 1px solid var(--bg-col-solid);
-  &:hover {
-    background: var(--bg-col-outlined-hover);
-  }
+  --hover-background: var(--bg-col-outlined-hover);
 }
 
 .pulse {
@@ -78,10 +75,17 @@
   transition: background .25s;
   text-align: center;
   cursor: pointer;
-  &:disabled {
-    opacity: .9;
-    cursor: default
+}
+
+@media (hover: hover) {
+  .button:hover {
+    background: var(--hover-background);
   }
+}
+
+.button:disabled {
+  opacity: .9;
+  cursor: default
 }
 
 a.button {

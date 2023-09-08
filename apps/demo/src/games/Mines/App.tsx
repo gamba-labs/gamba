@@ -20,7 +20,7 @@ interface CellState {
   status: CellStatus
   profit: number
 }
-type MinesStatus = 'playing' | 'idle' | 'lost'
+type GameStatus = 'playing' | 'idle' | 'lost'
 type LoadState = 'playing' | 'claiming'
 
 const generateGrid = () =>
@@ -40,7 +40,7 @@ function Mines() {
   const [selected, setSelected] = React.useState(-1)
   const [totalGain, setTotalGain] = React.useState(0)
   const [loadingState, setLoading] = React.useState<LoadState | null>(null)
-  const [gameState, setGameState] = React.useState<MinesStatus>('idle')
+  const [gameStatus, setGameStatus] = React.useState<GameStatus>('idle')
 
   const [config] = React.useState({
     wager: WAGER_AMOUNTS[0],
@@ -50,24 +50,10 @@ function Mines() {
   const remainingCells = GRID_SIZE - currentLevel
   const remainingLevels = remainingCells - config.mines
   const gameFinished = remainingLevels <= 0
-  const needsReset = gameState === 'lost' || gameFinished
+  const needsReset = gameStatus === 'lost' || gameFinished
   const loading = loadingState !== null
 
   const [claim, claiming] = useClaim()
-
-  const endGame = async () => {
-    await claim()
-    reset()
-    setLoading(null)
-  }
-
-  const reset = async () => {
-    setGrid(generateGrid())
-    setLoading(null)
-    setGameState('idle')
-    setLevel(0)
-    setTotalGain(0)
-  }
 
   const canPlay = !loading && !claiming && !needsReset
 
@@ -79,49 +65,6 @@ function Mines() {
       }),
     [remainingCells, config],
   )
-
-  // const customControls = (
-  //   <>
-  //     {gameState === 'idle' && (
-  //       <>
-  //         <select
-  //           value={config.wager}
-  //           onChange={(evt) => setConfig({ ...config, wager: Number(evt.target.value) })}
-  //         >
-  //           {WAGER_AMOUNTS.map((value, i) => (
-  //             <option key={i} value={value}>
-  //               {formatLamports(value)}
-  //             </option>
-  //           ))}
-  //         </select>
-  //         <select
-  //           value={config.mines}
-  //           onChange={(evt) => setConfig({ ...config, mines: Number(evt.target.value) })}
-  //         >
-  //           {MINE_SELECT.map((value, i) => (
-  //             <option key={i} value={value}>
-  //               {value} Mines
-  //             </option>
-  //           ))}
-  //         </select>
-  //       </>
-  //     )}
-
-  //     {gameState === 'playing' && (
-  //       <div>
-  //         <button disabled={loading || claiming} onClick={endGame}>
-  //           Claim {formatLamports(gamba.balances.user)}
-  //         </button>
-  //       </div>
-  //     )}
-
-  //     {needsReset && (
-  //       <button disabled={loading} onClick={reset}>
-  //         Reset
-  //       </button>
-  //     )}
-  //   </>
-  // )
 
   // useGameControls({
   //   custom: {
@@ -139,10 +82,24 @@ function Mines() {
     [gameFinished],
   )
 
+  const endGame = async () => {
+    await claim()
+    reset()
+    setLoading(null)
+  }
+
+  const reset = async () => {
+    setGrid(generateGrid())
+    setLoading(null)
+    setGameStatus('idle')
+    setLevel(0)
+    setTotalGain(0)
+  }
+
   const play = async (cellIndex: number) => {
     setLoading('playing')
     setSelected(cellIndex)
-    setGameState('playing')
+    setGameStatus('playing')
 
     try {
       const firstBet = currentLevel === 0
@@ -173,7 +130,7 @@ function Mines() {
           ),
         )
       } else {
-        setGameState('lost')
+        setGameStatus('lost')
 
         // "Reveal" mines under random hidden squares
         const revealedMines = grid
@@ -205,7 +162,7 @@ function Mines() {
       }
     } catch (err) {
       console.error(err)
-      setGameState('idle')
+      setGameStatus('idle')
     } finally {
       setLoading(null)
       setSelected(-1)
@@ -224,7 +181,7 @@ function Mines() {
               Mines: {config.mines}
             </span>
           </div>
-          {gameState === 'playing' && (
+          {gameStatus === 'playing' && (
             <button className={styles.reset} disabled={loading || claiming} onClick={endGame}>
               Cashout
             </button>

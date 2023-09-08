@@ -20,9 +20,10 @@
   border-bottom: 1px solid #00000033;
   transition: background .1s;
   text-decoration: none;
-  &:hover {
-    background: #292c39;
-  }
+}
+
+.play:hover {
+  background: #292c39;
 }
 
 .play > div {

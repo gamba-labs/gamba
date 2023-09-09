@@ -8,6 +8,6 @@ export default {
   `,
   creator: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
   image: new URL('./logo.png', import.meta.url).href,
-  theme_color: '#ad6bff',
+  theme_color: '#d185ff',
   app: React.lazy(() => import('./App')),
 }

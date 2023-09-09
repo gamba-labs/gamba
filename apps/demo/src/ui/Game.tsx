@@ -24,8 +24,18 @@ function PlayButton() {
 function Controls() {
   const { shortName } = useParams()
   const game = useMemo(() => GAMES.find((x) => x.short_name === shortName)!, [shortName])
-  const [showInfo, setShowInfo] = React.useState(true)
+  const [showInfo, setShowInfo] = React.useState(false)
   const controls = useControlsStore()
+
+  React.useEffect(
+    () => {
+      if (!window.localStorage.getItem('played-' + shortName)) {
+        setShowInfo(true)
+        window.localStorage.setItem('played-' + shortName, String(Date.now()))
+      }
+    },
+    [],
+  )
 
   return (
     <>

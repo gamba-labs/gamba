@@ -34,7 +34,7 @@ export function ClaimButton() {
 
 
   return (
-    <Button onClick={() => claim()} loading={loading}>
+    <Button variant="ghost" onClick={() => claim()} loading={loading}>
       Claim {formatLamports(gamba.balances.user)}
     </Button>
   )
@@ -51,7 +51,7 @@ function CopyAddressButton() {
   }
 
   return (
-    <Button onClick={copy}>
+    <Button variant="ghost" onClick={copy}>
       {copied ? 'Copied' : 'Copy Address'}
     </Button>
   )
@@ -159,11 +159,11 @@ function ConnectedButton() {
           <ClaimButton />
           <RedeemBonusButton />
           {wallet.connected && (
-            <Button onClick={() => wallet.disconnect()}>
+            <Button variant="ghost" onClick={() => wallet.disconnect()}>
               Disconnect
             </Button>
           )}
-          <Button onClick={() => setModal(true)}>
+          <Button variant="ghost" onClick={() => setModal(true)}>
             More Options
           </Button>
         </Dropdown>

@@ -15,9 +15,7 @@
   align-items: center;
   justify-content: space-between;
   color: white;
-  border: 1px solid #00000033;
-  border-radius: 5px;
-  border-bottom: 1px solid #00000033;
+  border-radius: 10px;
   transition: background .1s;
   text-decoration: none;
 }

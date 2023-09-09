@@ -8,21 +8,11 @@ interface Props {
 }
 
 export function Card({ game }: Props) {
-  // const [modal, setModal] = React.useState<GameBundle>()
   return (
     <>
-      {/* {modal && (
-        <Modal onClose={() => setModal(undefined)}>
-          <h1>{game.name}</h1>
-          <NavButton color="white" to={'/' + game.short_name}>
-            Play Game
-          </NavButton>
-        </Modal>
-      )} */}
       <NavButton
-        // onClick={() => setModal(game)}
-        to={'/' + game.short_name}
         className={styles.card}
+        to={'/' + game.short_name}
         style={{ backgroundColor: game.theme_color }}
       >
         <div className={styles.background} />

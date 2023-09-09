@@ -25,14 +25,20 @@ export function ItemPreview({ betArray }: {betArray: number[]}) {
         {itemsByMultiplier.map(({ items, multiplier }, i) => (
           <div className={!betArray.includes(multiplier) ? styles.hidden : ''} key={i}>
             <div className={styles.multiplier}>{multiplier}x</div>
-            {items.map((item, i) => (
+            <div
+              key={i}
+              className={styles.icon}
+            >
+              <img className={styles.slotImage} src={items[0].image} />
+            </div>
+            {/* {items.map((item, i) => (
               <div
                 key={i}
                 className={styles.icon}
               >
                 <img className={styles.slotImage} src={item.image} />
               </div>
-            ))}
+            ))} */}
           </div>
         ))}
       </div>

@@ -1,5 +1,5 @@
 :root {
-  --card-aspect-ratio: 2 / 1;
+  --card-aspect-ratio: 2 / 1.25;
 }
 
 @keyframes tile-animation {
@@ -17,11 +17,12 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background-size: contain;
+  background-size: 100%;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 10;
   transition: transform .2s ease;
+  transform: scale(.99);
 }
 
 .card {
@@ -45,7 +46,7 @@
 
 @media (min-width: 900px) {
   .card {
-    width: 200px;
+    width: 180px;
   }
 }
 
@@ -69,7 +70,7 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background-size: 50px;
+  background-size: 100px;
   background-position: center;
   background-image: url(/game.svg);
   transition: transform .2s ease, opacity .3s;

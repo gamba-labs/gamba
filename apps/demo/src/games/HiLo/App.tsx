@@ -131,37 +131,6 @@ export default function HiLo() {
           )}
         </div>
       </Fullscreen>
-      {/* <ActionBar>
-        {gameState === 'lost' ? (
-          <Button onClick={reset}>Reset</Button>
-        ) : (
-          <>
-            {gameState === 'idle' ? (
-              <Dropdown
-                value={wager}
-                format={(value) => formatLamports(value)}
-                label="Wager"
-                onChange={setWager}
-                options={WAGER_AMOUNTS.map((value) => ({
-                  label: formatLamports(value),
-                  value,
-                }))}
-              />
-            ) : (
-              <Button
-                loading={claiming}
-                disabled={claiming || loading}
-                onClick={claim}
-              >
-                CASHOUT {formatLamports(gamba.balances.user)}
-              </Button>
-            )}
-            <Button loading={loading} disabled={!option} onClick={play}>
-              PLAY {option}
-            </Button>
-          </>
-        )}
-      </ActionBar> */}
     </>
   )
 }

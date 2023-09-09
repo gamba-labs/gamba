@@ -5,7 +5,7 @@ export default {
   name: 'Flip',
   short_name: 'flip',
   description: `
-    Pick Heads or Tails, then flip the coin for a chance to double your money.
+    Pick Heads or Tails. Double your money or go broke. Simple as.
   `,
   creator: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
   image,

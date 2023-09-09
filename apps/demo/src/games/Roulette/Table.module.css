@@ -25,8 +25,8 @@
 }
 
 .betButton[data-color="black"] {
-  --background-color: #22222C;
-  --border-color: #29294f;
+  --background-color: #1b1b25;
+  --border-color: #121218;
 }
 
 .betButton:not([data-color]):hover {

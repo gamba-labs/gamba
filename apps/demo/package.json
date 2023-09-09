@@ -26,14 +26,12 @@
     "zustand": "^4.4.1"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
     "@types/three": "^0.150.2",
     "@vitejs/plugin-react": "^3.1.0",
     "buffer": "^6.0.3",
-    "rollup-plugin-polyfill-node": "^0.12.0",
     "tsup": "^7.2.0",
     "unplugin-fonts": "^1.0.3",
     "vite": "^4.2.1",

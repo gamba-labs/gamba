@@ -1,6 +1,7 @@
 import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
 import styles from './App.module.css'
+import appStyles from './App.module.css'
 
 const itemsByMultiplier = Object.entries(
   SLOT_ITEMS.reduce<Record<string, SlotItem[]>>(
@@ -29,7 +30,7 @@ export function ItemPreview({ betArray }: {betArray: number[]}) {
               key={i}
               className={styles.icon}
             >
-              <img className={styles.slotImage} src={items[0].image} />
+              <img className={appStyles.slotImage} src={items[0].image} />
             </div>
             {/* {items.map((item, i) => (
               <div

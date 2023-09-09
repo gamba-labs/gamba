@@ -1,25 +1,21 @@
-import React, { MouseEventHandler } from 'react'
-import { INITIAL_TABLE_BETS, NAMED_BETS, NUMBERS, NUMBER_COLUMNS, getNumberInfo } from './constants'
-// import { useRoulette } from './store'
-import { Chip, ChipWrapper, StyledBetButton, Relative, StylelessButton, TableSquare, TableWrapper } from './styles'
-import { NamedBet } from './types'
 import { lamportsToSol } from 'gamba'
-import { soundChip } from './App'
+import React, { MouseEventHandler } from 'react'
+import appStyles from './App.module.css'
+import styles from './Table.module.css'
+import { NAMED_BETS, NUMBERS, NUMBER_COLUMNS, getNumberInfo } from './constants'
+import { NamedBet } from './types'
+import { useRoulette } from './useRoulette'
 
 interface BetButtonProps {
   square: {name?: NamedBet, number?: number}
   value: number
 }
 
-function BetButton({
-  square,
-  children,
-  value,
-}: React.PropsWithChildren<BetButtonProps>) {
-  const placeChip = () => null // useRoulette((state) => state.placeChip)
-  const removeChips = () => null // useRoulette((state) => state.removeChips)
-  const selectedBetAmount = () => null //useRoulette((state) => state.selectedBetAmount)
-  const setHighlightedSquares = () => null // useRoulette((state) => state.setHighlightedSquares)
+function BetButton({ square, children, value, className, ...rest }: React.PropsWithChildren<BetButtonProps> & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  const placeChip = useRoulette((state) => state.placeChip)
+  const removeChips = useRoulette((state) => state.removeChips)
+  const selectedBetAmount = useRoulette((state) => state.selectedBetAmount)
+  const setHighlightedSquares = useRoulette((state) => state.setHighlightedSquares)
 
   const hover = () => {
     if (typeof square.number !== 'undefined')
@@ -37,90 +33,85 @@ function BetButton({
     const numberOrName = square.name ?? square.number
     if (typeof numberOrName !== 'undefined') {
       if (evt.button === 2) {
-        soundChip.playbackRate = .8
-        soundChip.start()
         removeChips(numberOrName)
       } else {
-        soundChip.playbackRate = 1
-        soundChip.start()
         placeChip(numberOrName, selectedBetAmount)
       }
     }
   }
 
   return (
-    <Relative>
-      <StylelessButton
-        onContextMenu={click}
-        onClick={click}
-        onMouseOver={hover}
-        onMouseLeave={leave}
-        onPointerDown={hover}
-        onPointerUp={leave}
-        onPointerCancel={leave}
-        style={{ fontWeight: 'bold' }}
-      >
-        {children}
-      </StylelessButton>
+    <button
+      className={[styles.betButton, className].join(' ')}
+      onContextMenu={click}
+      onClick={click}
+      onMouseOver={hover}
+      onMouseLeave={leave}
+      {...rest}
+    >
+      {children}
       {value > 0 && (
-        <ChipWrapper key={value}>
-          <Chip value={lamportsToSol(value)}>
+        <div key={value} className={styles.chip2}>
+          <div className={appStyles.chip}>
             {lamportsToSol(value)}
-          </Chip>
-        </ChipWrapper>
+          </div>
+        </div>
       )}
-    </Relative>
+    </button>
   )
 }
 
-export function Table({ tableBet, onChange }: {tableBet: typeof INITIAL_TABLE_BETS, onChange: (tableBet: typeof INITIAL_TABLE_BETS) => void}) {
-  const highlightedSquares = [] //useRoulette((state) => state.highlightedSquares)
-  // const tableBet = useRoulette((state) => state.tableBet)
+export function Table() {
+  const highlightedSquares = useRoulette((state) => state.highlightedSquares)
+  const tableBet = useRoulette((state) => state.tableBet)
 
   return (
-    <TableWrapper>
+    <div className={styles.wrapper}>
       {Array.from({ length: NUMBERS }).map((_, i) => {
         const { row, color } = getNumberInfo(i)
         const value = tableBet.numbers[i]
         const isHighlighted = highlightedSquares.includes(i)
-        const transparent = highlightedSquares.length > 1 && !isHighlighted
         return (
-          <div style={{ gridRow: row + 1 }} key={i}>
-            <BetButton
-              square={{ number: i }}
-              value={value}
-            >
-              <TableSquare $highlighted={isHighlighted} $transparent={transparent} $color={color}>
-                {i + 1}
-              </TableSquare>
-            </BetButton>
-          </div>
+          <BetButton
+            key={i}
+            square={{ number: i }}
+            value={value}
+            data-highlight={isHighlighted}
+            data-color={color}
+            style={{ gridRow: row + 1 }}
+          >
+            {i + 1}
+          </BetButton>
         )
       })}
       {(['row1', 'row2', 'row3'] as const).map((name, i) => (
-        <div style={{ gridRow: (i + 1), gridColumn: NUMBER_COLUMNS + 1 }} key={i}>
-          <BetButton
-            square={{ name }}
-            value={tableBet.named[name]}
-          >
-            <StyledBetButton>
-              1:2
-            </StyledBetButton>
-          </BetButton>
-        </div>
+        <BetButton
+          key={name}
+          square={{ name }}
+          value={tableBet.named[name]}
+          style={{
+            gridRow: (i + 1),
+            gridColumn: NUMBER_COLUMNS + 1,
+          }}
+        >
+          1:2
+        </BetButton>
       ))}
       {(['firstHalf', 'odd', 'red', 'black', 'even', 'secondHalf'] as const).map((name, i) => (
-        <div style={{ gridRow: 4, gridColumn: i + 1 }} key={i}>
-          <BetButton
-            square={{ name }}
-            value={tableBet.named[name]}
-          >
-            <StyledBetButton>
-              {name}
-            </StyledBetButton>
-          </BetButton>
-        </div>
+        <BetButton
+          key={i}
+          square={{ name }}
+          value={tableBet.named[name]}
+          style={{
+            gridRow: 4,
+            gridColumn: i + 1,
+          }}
+        >
+          <div>
+            {name}
+          </div>
+        </BetButton>
       ))}
-    </TableWrapper>
+    </div>
   )
 }

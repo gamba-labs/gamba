@@ -1,36 +1,30 @@
-import { lamportsToSol, solToLamports } from 'gamba'
+import { lamportsToSol } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { Fullscreen, formatLamports, useSounds } from 'gamba/react-ui'
+import { Fullscreen, formatLamports, useGameControls, useSounds } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
+import styles from './App.module.css'
 import { Results } from './Results'
 import { Table } from './Table'
-import { CHIPS, INITIAL_TABLE_BETS, NAMED_BETS } from './constants'
-import { Chip, StylelessButton } from './styles'
+import { CHIPS, NAMED_BETS } from './constants'
 import { NamedBet } from './types'
+import { useRoulette } from './useRoulette'
 
-import SOUND_CHIP from './chip.wav'
-import SOUND_PLAY from './play.wav'
-import SOUND_WIN from './win.wav'
+import SOUND_CHIP from './chip.mp3'
+import SOUND_PLAY from './play.mp3'
+import SOUND_WIN from './win.mp3'
 
 export default function Roulette() {
   const gamba = useGamba()
-  const [tableBet, setTableBet] = useState(INITIAL_TABLE_BETS)
-  const [selectedChip, setSelectedChip] = useState(solToLamports(0.01))
-  const [results, setResults] = useState<number[]>([])
-
+  const tableBet = useRoulette((state) => state.tableBet)
+  const clearChips = useRoulette((state) => state.clearChips)
   const sounds = useSounds({
+    win: SOUND_WIN,
     chip: SOUND_CHIP,
     play: SOUND_PLAY,
-    win: SOUND_WIN,
   })
-
-  const clearChips = () => {
-    setTableBet(INITIAL_TABLE_BETS)
-  }
-
-  const addResult = (result: number) => {
-    setResults((r) => [result, ...r])
-  }
+  // const selectedBetAmount = useRoulette((state) => state.selectedBetAmount)
+  const setSelectedBetAmount = useRoulette((state) => state.setSelectedBetAmount)
+  const addResult = useRoulette((state) => state.addResult)
   const [loading, setLoading] = useState(false)
 
   const distributedBet = useMemo(() =>
@@ -50,78 +44,69 @@ export default function Roulette() {
     return { wager, bet, maxPayoutExceeded, maxPayout }
   }, [distributedBet, gamba.house?.maxPayout])
 
+  console.log(bet, wager)
+
+  useGameControls({ disabled: loading, playButton: { onClick: () => play() } })
+
   const play = async () => {
     try {
-      await gamba.play({ bet, wager })
-      sounds.play.play()
       setLoading(true)
-      const result = await gamba.awaitResult()
+      const res = await gamba.play({ bet, wager })
+      sounds.play.play()
+      const result = await res.result()
       addResult(result.resultIndex)
-      if (result.payout > 0)
+      if (result.payout > 0) {
         sounds.win.play()
-    } catch {
-      //
+      } else {
+        // sounds.lose.play()
+      }
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <>
-      <Fullscreen>
-        <div style={{ display: 'grid', gap: '20px', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
-            <div>
-              <div style={{ fontWeight: 'bold' }}>
-                {maxPayoutExceeded ? (
-                  <span style={{ color: '#ff0066' }}>
-                    TOO HIGH
-                  </span>
-                ) : (
-                  <>
-                    {formatLamports(maxPayout)}
-                  </>
-                )}
-              </div>
-              <div style={{ fontSize: '10px' }}>
-                MAX PAYOUT
-              </div>
+    <Fullscreen>
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
+          <div>
+            <div style={{ fontWeight: 'bold' }}>
+              {maxPayoutExceeded ? (
+                <span style={{ color: '#ff0066' }}>
+                  TOO HIGH
+                </span>
+              ) : (
+                <>
+                  {formatLamports(maxPayout)}
+                </>
+              )}
             </div>
-            <div>
-              <div style={{ fontWeight: 'bold' }}>
-                {formatLamports(wager)}
-              </div>
-              <div style={{ fontSize: '10px' }}>
-                TOTAL BET
-              </div>
+            <div style={{ fontSize: '10px' }}>
+              MAX PAYOUT
             </div>
           </div>
-
-          <Results
-            results={results}
-            loading={loading}
-          />
-
-          <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
-            {CHIPS.map((value) => (
-              <StylelessButton key={value} onClick={() => setSelectedChip(value)}>
-                <Chip inactive={value !== selectedChip} value={lamportsToSol(value)}>
-                  {lamportsToSol(value)}
-                </Chip>
-              </StylelessButton>
-            ))}
+          <div>
+            <div style={{ fontWeight: 'bold' }}>
+              {formatLamports(wager)}
+            </div>
+            <div style={{ fontSize: '10px' }}>
+              TOTAL BET
+            </div>
           </div>
-          <Table tableBet={tableBet} onChange={setTableBet} />
         </div>
-      </Fullscreen>
-      {/* <ActionBar>
-        <Button disabled={!wager} onClick={clearChips}>
-          Clear
-        </Button>
-        <Button disabled={loading || maxPayoutExceeded || !wager} onClick={play}>
-          Spin
-        </Button>
-      </ActionBar> */}
-    </>
+        <Results loading={loading} />
+        <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
+          {CHIPS.map((value) => (
+            <button key={value} className={styles.chip} onClick={() => setSelectedBetAmount(value)}>
+              {lamportsToSol(value)}
+            </button>
+          ))}
+          <button onClick={() => clearChips()}>
+            Clear
+          </button>
+        </div>
+        <Table />
+      </div>
+    </Fullscreen>
   )
 }

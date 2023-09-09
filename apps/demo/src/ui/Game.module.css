@@ -34,15 +34,26 @@
 .controls {
   width: 100%;
   padding: 20px 10px;
+  background: #000000CC;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.controls > div {
   margin: 0 auto;
   display: grid;
   grid-template-columns: auto auto 1fr;
   gap: 10px;
-  @media (min-width: 960px) {
-    padding: 20px;
+}
+
+@media (min-width: 960px) {
+  .controls > div {
     width: 800px;
   }
-  @media (min-width: 1280px) {
+}
+
+@media (min-width: 1280px) {
+  .controls > div {
     width: 1000px;
   }
 }

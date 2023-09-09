@@ -37,18 +37,20 @@ function Controls() {
         </Modal>
       )}
       <div className={styles.controls}>
-        <Button
-          variant="ghost"
-          style={{ padding: 0 }}
-          onClick={() => setShowInfo(true)}
-        >
-          <img src={game.image} height="40px" />
-        </Button>
         <div>
-          <WagerInput />
-        </div>
-        <div style={{ height: '100%', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-          <PlayButton />
+          <Button
+            variant="ghost"
+            style={{ padding: 0 }}
+            onClick={() => setShowInfo(true)}
+          >
+            <img src={game.image} height="40px" />
+          </Button>
+          <div>
+            <WagerInput />
+          </div>
+          <div style={{ height: '100%', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <PlayButton />
+          </div>
         </div>
       </div>
     </>

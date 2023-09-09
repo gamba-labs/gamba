@@ -11,14 +11,16 @@
   flex-direction: column;
   color: white;
   margin-bottom: 20px;
-  & > div:first-child {
-    font-weight: bold;
-    font-size: 30px;
-  }
-  & > div:last-child {
-    font-size: 12px;
-    opacity: .8;
-  }
+}
+
+.rollUnder > div:first-child {
+  font-weight: bold;
+  font-size: 30px;
+}
+
+.rollUnder > div:last-child {
+  font-size: 12px;
+  opacity: .8;
 }
 
 .stats {
@@ -31,24 +33,25 @@
   max-width: 100%;
   padding: 5px;
   text-wrap: nowrap;
+}
+
+.stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  text-align: center;
+  word-wrap: nowrap;
   & > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    text-align: center;
-    word-wrap: nowrap;
-    & > div {
-      padding: 5px;
-    }
-    & > div:last-child {
-      opacity: .8;
-      font-size: 12px;
-    }
-    & > div:first-child {
-      font-weight: bold;
-    }
+    padding: 5px;
+  }
+  & > div:last-child {
+    opacity: .8;
+    font-size: 12px;
+  }
+  & > div:first-child {
+    font-weight: bold;
   }
 }
 

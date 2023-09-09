@@ -1,0 +1,39 @@
+.wrapper {
+  display: grid;
+  gap: 10px;
+}
+
+.square {
+  background: red;
+  border-radius: 5px;
+}
+
+.betButton {
+  position: relative;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background-color: transparent;
+  color: white;
+  width: 50px;
+}
+
+.betButton[data-color="red"] {
+  background: #f06;
+}
+
+.betButton[data-color="black"] {
+  background: #333;
+}
+
+.betButton:hover, .betButton[data-highlight="true"] {
+  box-shadow: 0 0 0 1px #fff;
+}
+
+.chip2 {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+}

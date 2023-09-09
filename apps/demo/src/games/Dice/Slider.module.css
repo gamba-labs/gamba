@@ -8,24 +8,22 @@
   transition: box-shadow .2s ease;
   cursor: pointer;
 
-  &:not([aria-disabled="true"]) {
-    &:hover {
-      box-shadow: 0 0 0px 11px #32294355;
-    }
-  }
-
-  &[aria-disabled="true"] {
-    opacity: .7;
-    cursor: default;
-  }
-
-  & > div {
-    background: #a079ff;
-    height: 100%;
-    border-radius: 10px 0 0 10px;
-  }
 }
 
+.slider:not([aria-disabled="true"]):hover {
+  box-shadow: 0 0 0px 11px #32294355;
+}
+
+.slider[aria-disabled="true"] {
+  opacity: .7;
+  cursor: default;
+}
+
+.slider > div {
+  background: #a079ff;
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+}
 .label {
   margin-top: 10px;
   position: absolute;

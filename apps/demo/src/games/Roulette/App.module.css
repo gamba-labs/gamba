@@ -1,0 +1,24 @@
+.container {
+  display: grid;
+  gap: 20px;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chip {
+  --chip-color: #00ec65;
+  width: 35px;
+  border-radius: 10px;
+  background: var(--chip-color);
+  color: black;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px dashed #060;
+  color: #030;
+  box-shadow: 0 0 0 1px var(--chip-color);
+  padding: 0 2px;
+  display: inline-block;
+  text-align: center;
+  user-select: none;
+}

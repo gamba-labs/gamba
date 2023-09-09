@@ -3,7 +3,7 @@ import { useGamba } from 'gamba/react'
 import { Fullscreen, useSounds } from 'gamba/react-ui'
 import React, { useMemo, useState } from 'react'
 import { RANKS } from './constants'
-import { Card, Container, Option, Overlay, OverlayText } from './styles'
+import styles from './App.module.css'
 
 import SOUND_CARD from './card.mp3'
 import SOUND_WIN from './win.mp3'
@@ -97,53 +97,39 @@ export default function HiLo() {
   return (
     <>
       <Fullscreen maxScale={1.25}>
-        <Container>
+        <div className={styles.container}>
           {currentRank !== 0 ? (
-            <Option
-              $selected={option === 'lo'}
-              onClick={() => setOption('lo')}
-            >
+            <div className={styles.option} onClick={() => setOption('lo')}>
               {/* <div><FaHandPointDown /></div> */}
               <div>(x{Math.max(...betLo).toFixed(2)})</div>
-            </Option>
+            </div>
           ) : (
-            <Option
-              $selected={option === 'same'}
-              onClick={() => setOption('same')}
-            >
+            <div className={styles.option} onClick={() => setOption('same')}>
               {/* <div><FaEquals /></div> */}
               <div>(x{Math.max(...betSame).toFixed(2)})</div>
-            </Option>
+            </div>
           )}
-          <Card key={cards.length}>
+          <div className={styles.card} key={cards.length}>
             <div className="rank">{currentRank + 1}</div>
             <div className="suit"></div>
-          </Card>
+          </div>
           {currentRank !== RANKS - 1 ? (
-            <Option
-              $selected={option === 'hi'}
-              onClick={() => setOption('hi')}
-            >
+            <div className={styles.option} onClick={() => setOption('hi')}>
               <div>{'^'}</div>
               <div>(x{Math.max(...betHi).toFixed(2)})</div>
-            </Option>
+            </div>
           ) : (
-            <Option
-              $selected={option === 'same'}
-              onClick={() => setOption('same')}
-            >
+            <div className={styles.option} onClick={() => setOption('same')}>
               <div>{'='}</div>
               <div>(x{Math.max(...betSame).toFixed(2)})</div>
-            </Option>
+            </div>
           )}
           {needsReset && !loading && (
-            <Overlay>
-              <OverlayText>
-                Reset to start
-              </OverlayText>
-            </Overlay>
+            <div className={styles.overlay}>
+              Reset to start
+            </div>
           )}
-        </Container>
+        </div>
       </Fullscreen>
       {/* <ActionBar>
         {gameState === 'lost' ? (
@@ -176,7 +162,6 @@ export default function HiLo() {
           </>
         )}
       </ActionBar> */}
-
     </>
   )
 }

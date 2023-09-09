@@ -1,0 +1,27 @@
+.wrapper {
+  border-radius: 20px;
+  background: #292a307d;
+  margin: 0 auto;
+  font-weight: bold;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+}
+
+.result {
+  /* color: ${({ $color }) => numberColorToHex($color).text}; */
+  /* align-items: ${({ $color }) => $color === 'red' ? 'end' : 'baseline'}; */
+  display: flex;
+  padding: 10px;
+  width: 40px;
+  justify-content: center;
+}
+
+.result:first-child {
+  height: 50px;
+  font-size: 24px;
+  align-items: center;
+  width: 60px;
+  justify-content: center;
+  background: #FFFFFF11;
+}

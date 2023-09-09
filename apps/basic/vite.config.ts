@@ -1,5 +1,5 @@
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 import react from '@vitejs/plugin-react'
-import nodePolyfills from 'rollup-plugin-polyfill-node'
 import Unfonts from 'unplugin-fonts/vite'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -8,16 +8,18 @@ const ENV_PREFIX = ['GAMBA_', 'VITE_']
 
 export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
-  // assetsInclude: ['**/*.glb'],
   server: {
     port: 7779,
     // host: true,
   },
   define: { 'process.env.ANCHOR_BROWSER': true },
-  build: {
-    rollupOptions: {
+  optimizeDeps: {
+    esbuildOptions: {
+      // Node.js global to browser globalThis
+      define: { global: 'globalThis' },
+      // Enable esbuild polyfill plugins
       plugins: [
-        nodePolyfills(),
+        NodeGlobalsPolyfillPlugin({ buffer: true }),
       ],
     },
   },

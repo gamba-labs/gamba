@@ -126,6 +126,9 @@ importers:
         specifier: ^4.4.1
         version: 4.4.1(@types/react@18.2.21)(react@18.2.0)
     devDependencies:
+      '@esbuild-plugins/node-globals-polyfill':
+        specifier: ^0.2.3
+        version: 0.2.3(esbuild@0.18.20)
       '@types/react':
         specifier: ^18.0.28
         version: 18.2.21
@@ -1946,6 +1949,14 @@ packages:
       bn.js: 5.2.1
       buffer-layout: 1.2.2
     dev: false
+
+  /@esbuild-plugins/node-globals-polyfill@0.2.3(esbuild@0.18.20):
+    resolution: {integrity: sha512-r3MIryXDeXDOZh7ih1l/yE9ZLORCd5e8vWg02azWRGj5SPTuoh69A2AIyn0Z31V/kHBfZ4HgWJ+OK3GTTwLmnw==}
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      esbuild: 0.18.20
+    dev: true
 
   /@esbuild/android-arm64@0.17.19:
     resolution: {integrity: sha512-KBMWvEZooR7+kzY0BtbTQn0OAYY7CsiydT63pVEaPtVYF0hXbUaOyZog37DKxK7NF3XacBJOpYT4adIJh+avxA==}

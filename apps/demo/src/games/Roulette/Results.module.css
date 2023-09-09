@@ -1,5 +1,9 @@
+@keyframes identifier {
+  from { background-color: white;}
+  to { background-color: #292a307d;}
+}
 .wrapper {
-  border-radius: 20px;
+  border-radius: 10px;
   background: #292a307d;
   margin: 0 auto;
   font-weight: bold;
@@ -9,12 +13,19 @@
 }
 
 .result {
-  /* color: ${({ $color }) => numberColorToHex($color).text}; */
-  /* align-items: ${({ $color }) => $color === 'red' ? 'end' : 'baseline'}; */
   display: flex;
   padding: 10px;
   width: 40px;
   justify-content: center;
+}
+
+.result[data-color="red"] {
+  color: #ff0066;
+}
+
+.result[data-color="black"] {
+  color: #cbffad;
+  align-items: end;
 }
 
 .result:first-child {
@@ -24,4 +35,5 @@
   width: 60px;
   justify-content: center;
   background: #FFFFFF11;
+  animation: identifier 1s;
 }

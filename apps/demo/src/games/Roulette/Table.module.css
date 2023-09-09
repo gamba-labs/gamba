@@ -18,16 +18,20 @@
   width: 50px;
 }
 
+.betButton:not([data-color]):hover {
+  background: #33339933;
+}
+
 .betButton[data-color="red"] {
-  background: #f06;
+  background: #ff0066;
 }
 
 .betButton[data-color="black"] {
-  background: #333;
+  background: #22222C;
 }
 
 .betButton:hover, .betButton[data-highlight="true"] {
-  box-shadow: 0 0 0 1px #fff;
+  box-shadow: 0 0 0 1px #ffffff99;
 }
 
 .chip2 {

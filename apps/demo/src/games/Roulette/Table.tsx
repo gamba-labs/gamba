@@ -2,7 +2,7 @@ import { lamportsToSol } from 'gamba'
 import React, { MouseEventHandler } from 'react'
 import appStyles from './App.module.css'
 import styles from './Table.module.css'
-import { NAMED_BETS, NUMBERS, NUMBER_COLUMNS, getNumberInfo } from './constants'
+import { NAMED_BETS, NUMBER_COLUMNS, SQUARES } from './constants'
 import { NamedBet } from './types'
 import { useRoulette } from './useRoulette'
 
@@ -67,8 +67,7 @@ export function Table() {
 
   return (
     <div className={styles.wrapper}>
-      {Array.from({ length: NUMBERS }).map((_, i) => {
-        const { row, color } = getNumberInfo(i)
+      {SQUARES.map(({ row, color }, i) => {
         const value = tableBet.numbers[i]
         const isHighlighted = highlightedSquares.includes(i)
         return (

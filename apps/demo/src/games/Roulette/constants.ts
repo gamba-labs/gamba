@@ -1,5 +1,5 @@
 import { solToLamports } from 'gamba'
-import { NamedBet, NumberInfo } from './types'
+import { NamedBet } from './types'
 
 export const CHIPS = [
   0.05,
@@ -16,34 +16,35 @@ const RED_NUMBERS = [
   1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36,
 ]
 
-export const getNumberInfo = (index: number): NumberInfo => {
-  const number = index + 1
-  const isEven = number % 2 === 0
-  const isRed = RED_NUMBERS.includes(number % (RED_NUMBERS.length + 1))
-  return {
-    number,
-    isEven,
-    row: (2 - index % 3),
-    color: isRed ? 'red' : 'black',
-  }
-}
+export const SQUARES = Array.from({ length: NUMBERS })
+  .map((_, index) => {
+    const number = index + 1
+    const isEven = number % 2 === 0
+    const isRed = RED_NUMBERS.includes(number % (RED_NUMBERS.length + 1))
+    return {
+      index,
+      number,
+      isEven,
+      row: (2 - index % 3),
+      color: isRed ? 'red' : 'black' as 'red' | 'black',
+    }
+  })
 
-const squares = Array.from({ length: NUMBERS }).fill(0).map((_, i) => i)
+export type NumberInfo = typeof SQUARES[0]
 
-const filterSquares = (callback: (stuff: NumberInfo) => boolean) => {
-  return squares.filter((i) => callback(getNumberInfo(i)))
-}
+const pickIndices = (filter: (stuff: NumberInfo) => boolean) =>
+  SQUARES.filter((x) => filter(x)).map(({ index }) => index)
 
 export const NAMED_BETS = {
-  firstHalf: filterSquares(({ number }) => number <= NUMBERS / 2),
-  secondHalf: filterSquares(({ number }) => number > NUMBERS / 2),
-  even: filterSquares(({ isEven }) => isEven),
-  odd: filterSquares(({ isEven }) => !isEven),
-  red: filterSquares(({ color }) => color === 'red'),
-  black: filterSquares(({ color }) => color === 'black'),
-  row1: filterSquares(({ row }) => row === 0),
-  row2: filterSquares(({ row }) => row === 1),
-  row3: filterSquares(({ row }) => row === 2),
+  firstHalf: pickIndices(({ number }) => number <= NUMBERS / 2),
+  secondHalf: pickIndices(({ number }) => number > NUMBERS / 2),
+  even: pickIndices(({ isEven }) => isEven),
+  odd: pickIndices(({ isEven }) => !isEven),
+  red: pickIndices(({ color }) => color === 'red'),
+  black: pickIndices(({ color }) => color === 'black'),
+  row1: pickIndices(({ row }) => row === 0),
+  row2: pickIndices(({ row }) => row === 1),
+  row3: pickIndices(({ row }) => row === 2),
 }
 
 export const INITIAL_TABLE_BETS = {

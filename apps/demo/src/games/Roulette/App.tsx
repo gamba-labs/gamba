@@ -12,6 +12,7 @@ import { useRoulette } from './useRoulette'
 import SOUND_CHIP from './chip.mp3'
 import SOUND_PLAY from './play.mp3'
 import SOUND_WIN from './win.mp3'
+import SOUND_LOSE from './lose.mp3'
 
 export default function Roulette() {
   const gamba = useGamba()
@@ -19,6 +20,7 @@ export default function Roulette() {
   const clearChips = useRoulette((state) => state.clearChips)
   const sounds = useSounds({
     win: SOUND_WIN,
+    lose: SOUND_LOSE,
     chip: SOUND_CHIP,
     play: SOUND_PLAY,
   })
@@ -44,8 +46,6 @@ export default function Roulette() {
     return { wager, bet, maxPayoutExceeded, maxPayout }
   }, [distributedBet, gamba.house?.maxPayout])
 
-  console.log(bet, wager)
-
   useGameControls({ disabled: loading, playButton: { onClick: () => play() } })
 
   const play = async () => {
@@ -58,7 +58,7 @@ export default function Roulette() {
       if (result.payout > 0) {
         sounds.win.play()
       } else {
-        // sounds.lose.play()
+        sounds.lose.play()
       }
     } finally {
       setLoading(false)

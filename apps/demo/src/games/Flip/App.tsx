@@ -11,8 +11,8 @@ import SOUND_LOSE from './lose.mp3'
 import SOUND_WIN from './win.mp3'
 
 const SIDES = {
-  Heads: [0, 2],
-  Tails: [2, 0],
+  Heads: [2, 0],
+  Tails: [0, 2],
 }
 
 export default function Flip() {
@@ -68,9 +68,10 @@ export default function Flip() {
       <Canvas
         linear
         flat
+        orthographic
         camera={{
-          fov: 45,
-          position: [0, 0, 10],
+          zoom: 80,
+          position: [0, 0, 100],
         }}
       >
         <Coin result={resultIndex} flipping={flipping} />

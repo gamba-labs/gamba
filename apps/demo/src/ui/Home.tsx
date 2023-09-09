@@ -14,15 +14,35 @@ export function Home() {
         <p>
           A decentralized, provably-fair casino built on gamba.
         </p>
-        <Button
-          as="a"
-          color="white"
-          href="https://gamba.so"
-          target="_blank"
-          icon={<Icon.ExternalLink />}
-        >
-          Learn More
-        </Button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Button
+            as="a"
+            color="white"
+            href="https://github.com/gamba-labs"
+            target="_blank"
+            icon={<Icon.ExternalLink />}
+          >
+            Github
+          </Button>
+          <Button
+            as="a"
+            color="white"
+            href="https://discord.gg/TkGr9bAZ"
+            target="_blank"
+            icon={<Icon.ExternalLink />}
+          >
+            Discord
+          </Button>
+          <Button
+            as="a"
+            color="white"
+            href="https://twitter.com/GambaLabs"
+            target="_blank"
+            icon={<Icon.ExternalLink />}
+          >
+            Twitter
+          </Button>
+        </div>
       </Section>
     </div>
   )

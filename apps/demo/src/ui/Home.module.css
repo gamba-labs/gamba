@@ -16,7 +16,10 @@
   animation: fade-in .5s;
   display: flex;
   flex-direction: column-reverse;
+}
 
+.banner h1 {
+  font-size: 42px;
 }
 
 @media (min-height: 600px) {

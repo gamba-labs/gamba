@@ -6,7 +6,7 @@ import { SQUARES } from './constants'
 export function Results({ loading }: {loading?: boolean}) {
   const results = useRoulette((state) => state.results)
   const [firstResult] = results
-  const firstResultColor = !loading && firstResult && SQUARES[firstResult].color
+  const firstResultColor = !loading && firstResult + 1 && SQUARES[firstResult].color
 
   return (
     <div className={styles.wrapper}>

@@ -10,7 +10,7 @@
   gap: 5px;
   grid-template-columns: auto;
   text-align: left;
-  background: #1a1c24;
+  background: #13151c;
   min-height: 40px;
   align-items: center;
   justify-content: space-between;
@@ -23,7 +23,7 @@
 }
 
 .play:hover {
-  background: #292c39;
+  background: #1a1c24;
 }
 
 .play > div {

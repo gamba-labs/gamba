@@ -74,6 +74,7 @@ button.reset {
   border: none;
   background: none;
   animation: reset-button-shine 1s infinite;
+  cursor: pointer;
   &:disabled {
     color: #cccccc99!important;
     cursor: default;
@@ -107,7 +108,6 @@ button.reset {
   border-bottom: 4px solid #00000033;
   border-radius: 4px;
   font-weight: bold;
-  cursor: pointer;
   aspect-ratio: 1;
   width: 50px;
   transition: background 0.3s, opacity .3s;

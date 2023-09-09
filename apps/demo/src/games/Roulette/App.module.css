@@ -6,19 +6,28 @@
   -webkit-user-select: none;
 }
 
-.chip {
-  --chip-color: #00ec65;
-  width: 35px;
-  border-radius: 10px;
-  background: var(--chip-color);
-  color: black;
-  font-size: 12px;
-  font-weight: bold;
-  border: 1px dashed #060;
-  color: #030;
-  box-shadow: 0 0 0 1px var(--chip-color);
-  padding: 0 2px;
-  display: inline-block;
-  text-align: center;
-  user-select: none;
+.chipSelectWrapper {
+  display: flex;
+  gap: 5px;
+}
+
+.button {
+  border: none;
+  color: white;
+  margin: 0;
+  padding: 5px 10px;
+  background: transparent;
+  cursor: default;
+  position: relative;
+  border-radius: 5px;
+}
+
+.button:disabled {
+  opacity: .5;
+}
+
+.button.selected, .button:not(:disabled):hover {
+  transition: background .1s;
+  background: #9999ff44;
+  mix-blend-mode:screen;
 }

@@ -9,8 +9,8 @@ import Roulette from './Roulette'
 export const GAMES: GameBundle[] = [
   Dice,
   Mines,
+  Roulette,
   Flip,
   Slots,
   // HiLo,
-  Roulette,
 ]

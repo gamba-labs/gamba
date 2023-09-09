@@ -35,7 +35,7 @@ export function App() {
         <Route path="/:shortName" element={<Game />} />
       </Routes>
 
-      <SlideSection title="Casino Games">
+      <SlideSection title="Demo Games">
         {GAMES.map((game) => (
           <Card
             key={game.short_name}
@@ -46,7 +46,7 @@ export function App() {
         ))}
       </SlideSection>
 
-      <Section title="Recent Games">
+      <Section title="Recent Plays">
         <RecentPlays />
       </Section>
     </>

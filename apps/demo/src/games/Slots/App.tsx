@@ -26,12 +26,38 @@ import {
 import styles from './App.module.css'
 import { generateBetArray, getSlotCombination } from './utils'
 
+interface Result {
+  payout: number
+}
+
+const Stuff: React.FC<{messages: string[]}> = ({ messages }) => {
+  const [messageIndex, setMessageIndex] = React.useState(0)
+
+  React.useEffect(
+    () => {
+      const timeout = setInterval(() => {
+        setMessageIndex((x) => (x + 1) % messages.length)
+      }, 2500)
+
+      return () => clearTimeout(timeout)
+    },
+    [messages],
+  )
+
+  return (
+    <>
+      {messages[messageIndex]}
+    </>
+  )
+}
+
 export default function Slots() {
   const gamba = useGamba()
   const [spinning, setSpinning] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState(0)
+  const [result, setResult] = useState<Result>()
   const [good, setGood] = useState(false)
+  const [revealedSlots, setRevealedSlots] = React.useState(NUM_SLOTS)
 
   const [combination, setCombination] = React.useState(
     Array.from({ length: NUM_SLOTS }).map(() => SLOT_ITEMS[0]),
@@ -69,6 +95,8 @@ export default function Slots() {
       }
     }
 
+    setRevealedSlots(slot + 1)
+
     if (slot === NUM_SLOTS - 1) {
       setTimeout(() => {
         setSpinning(false)
@@ -97,6 +125,7 @@ export default function Slots() {
         bet,
       })
 
+      setRevealedSlots(0)
       setGood(false)
       setSpinning(true)
 
@@ -105,8 +134,6 @@ export default function Slots() {
       sounds.spin.play({ playbackRate: 1.2 })
 
       const result = await res.result()
-
-      setSpinning(false)
 
       const multiplier = result.options[result.resultIndex] / 1000
       // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
@@ -117,13 +144,13 @@ export default function Slots() {
 
       setCombination(combination)
 
-      setResult(result.payout)
+      setResult({ payout: result.payout })
 
       setTimeout(() => revealSlot(combination), revealDelay)
     } catch (err) {
       // Reset if there's an error
-      // setSlots(slots.map((cell) => ({ ...cell, spinning: false })))
       setSpinning(false)
+      setRevealedSlots(NUM_SLOTS)
     } finally {
       setLoading(false)
     }
@@ -139,21 +166,31 @@ export default function Slots() {
               <Slot
                 key={i}
                 index={i}
-                spinning={spinning}
+                revealed={revealedSlots > i}
                 item={slot}
                 good={good}
               />
             ))}
           </div>
-          <div className={styles.result}>
-            {good ? (
+          <div className={styles.result} data-good={good}>
+            {spinning ? (
+              <Stuff
+                messages={[
+                  'Spinning!',
+                  'Good luck',
+                ]}
+              />
+            ) : result ? (
               <>
-                Payout: {formatLamports(result)}
+                Payout: {formatLamports(result.payout)}
               </>
             ) : (
-              <>
-                FEELING LUCKY?
-              </>
+              <Stuff
+                messages={[
+                  'FEELING LUCKY?',
+                  'SPIN ME!',
+                ]}
+              />
             )}
           </div>
         </div>

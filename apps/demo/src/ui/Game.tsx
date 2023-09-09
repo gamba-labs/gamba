@@ -15,7 +15,7 @@ function PlayButton() {
   if (!button) return null
 
   return (
-    <Button disabled={controls.scheme.disabled} onClick={() => button.onClick()}>
+    <Button color="white" disabled={controls.scheme.disabled} onClick={() => button.onClick()}>
       {button.label ?? 'Play'}
     </Button>
   )
@@ -25,6 +25,7 @@ function Controls() {
   const { shortName } = useParams()
   const game = useMemo(() => GAMES.find((x) => x.short_name === shortName)!, [shortName])
   const [showInfo, setShowInfo] = React.useState(false)
+  const controls = useControlsStore()
 
   return (
     <>
@@ -40,13 +41,15 @@ function Controls() {
         <div>
           <Button
             variant="ghost"
-            style={{ padding: 0 }}
+            size="small"
+            style={{ width: '100px' }}
             onClick={() => setShowInfo(true)}
           >
             <img src={game.image} height="40px" />
           </Button>
           <div>
             <WagerInput />
+            {controls.scheme.custom && controls.scheme.custom}
           </div>
           <div style={{ height: '100%', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <PlayButton />
@@ -66,7 +69,7 @@ export function Game() {
   return (
     <>
       <div className={styles.container}>
-        <div key={game.short_name} className={styles.wrapper}>
+        <div key={game.short_name} className={styles.view}>
           <GameView game={game} />
         </div>
         <Controls />

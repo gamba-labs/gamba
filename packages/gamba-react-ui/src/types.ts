@@ -17,6 +17,7 @@ export interface GameControlsSceme {
   wagerInput?: {
     bet?: number[]
   }
+  custom?: JSX.Element,
   playButton?: {
     label?: string
     onClick: () => void

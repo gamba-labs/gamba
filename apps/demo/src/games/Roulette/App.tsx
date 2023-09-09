@@ -1,52 +1,68 @@
-import { lamportsToSol } from 'gamba'
+import { solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
 import { Fullscreen, formatLamports, useGameControls, useSounds } from 'gamba/react-ui'
-import React, { useMemo, useState } from 'react'
+import React from 'react'
 import styles from './App.module.css'
 import { Results } from './Results'
 import { Table } from './Table'
-import { CHIPS, NAMED_BETS } from './constants'
+import { CHIPS, NAMED_BETS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { NamedBet } from './types'
 import { useRoulette } from './useRoulette'
+import { Chip } from './Chip'
 
-import SOUND_CHIP from './chip.mp3'
-import SOUND_PLAY from './play.mp3'
-import SOUND_WIN from './win.mp3'
-import SOUND_LOSE from './lose.mp3'
+const CHIP_RATE = solToLamports(0.05)
 
 export default function Roulette() {
   const gamba = useGamba()
+  const [loading, setLoading] = React.useState(false)
   const tableBet = useRoulette((state) => state.tableBet)
   const clearChips = useRoulette((state) => state.clearChips)
+  const selectedBetAmount = useRoulette((state) => state.selectedBetAmount)
+  const setSelectedBetAmount = useRoulette((state) => state.setSelectedBetAmount)
+  const addResult = useRoulette((state) => state.addResult)
   const sounds = useSounds({
     win: SOUND_WIN,
     lose: SOUND_LOSE,
-    chip: SOUND_CHIP,
     play: SOUND_PLAY,
   })
-  // const selectedBetAmount = useRoulette((state) => state.selectedBetAmount)
-  const setSelectedBetAmount = useRoulette((state) => state.setSelectedBetAmount)
-  const addResult = useRoulette((state) => state.addResult)
-  const [loading, setLoading] = useState(false)
 
-  const distributedBet = useMemo(() =>
+  const distributedBet = React.useMemo(() =>
     tableBet.numbers.map((value, i) => {
-      return Object.keys(NAMED_BETS).reduce((prev, key) => {
-        const betName = key as NamedBet
-        const ids = NAMED_BETS[betName]
-        return ids.includes(i) ? Math.floor(prev + tableBet.named[betName] / ids.length) : prev
-      }, value)
-    }), [tableBet])
+      return Object
+        .entries(NAMED_BETS)
+        .reduce((prev, [betName, { ids }]) => {
+          if (ids.includes(i)) {
+            return prev + tableBet.named[betName as NamedBet] / ids.length
+          }
+          return prev
+        }, value) * CHIP_RATE
+    }), [tableBet],
+  )
 
-  const { wager, bet, maxPayoutExceeded, maxPayout } = useMemo(() => {
-    const wager = distributedBet.reduce((a, b) => a + b, 0)
-    const bet = distributedBet.map((amount) => (amount * distributedBet.length) / (wager || 1))
+  const { wager, bet, maxPayout } = React.useMemo(() => {
+    const wager = Math.floor(distributedBet.reduce((a, b) => a + b, 0))
+    const bet = distributedBet.map((amount) => +((amount * distributedBet.length) / (wager || 1)).toFixed(4))
     const maxPayout = Math.max(...bet) * wager
-    const maxPayoutExceeded = maxPayout > (gamba.house?.maxPayout ?? 0)
-    return { wager, bet, maxPayoutExceeded, maxPayout }
-  }, [distributedBet, gamba.house?.maxPayout])
+    return { wager, bet, maxPayout }
+  }, [distributedBet, gamba.house.maxPayout])
 
-  useGameControls({ disabled: loading, playButton: { onClick: () => play() } })
+  console.log(bet, wager)
+
+  const maxPayoutExceeded = maxPayout > gamba.house.maxPayout
+
+  useGameControls({
+    disabled: loading,
+    custom: (
+      <>
+        <div className={styles.stats}>
+          <div>
+            <Chip value={1} /> = {formatLamports(CHIP_RATE)}
+          </div>
+        </div>
+      </>
+    ),
+    playButton: { onClick: () => play() },
+  })
 
   const play = async () => {
     try {
@@ -66,9 +82,9 @@ export default function Roulette() {
   }
 
   return (
-    <Fullscreen>
+    <Fullscreen maxScale={1.25} onContextMenu={(e) => e.preventDefault()}>
       <div className={styles.container}>
-        <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
+        {/* <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
           <div>
             <div style={{ fontWeight: 'bold' }}>
               {maxPayoutExceeded ? (
@@ -93,15 +109,19 @@ export default function Roulette() {
               TOTAL BET
             </div>
           </div>
-        </div>
+        </div> */}
         <Results loading={loading} />
-        <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
+        <div className={styles.chipSelectWrapper}>
           {CHIPS.map((value) => (
-            <button key={value} className={styles.chip} onClick={() => setSelectedBetAmount(value)}>
-              {lamportsToSol(value)}
+            <button
+              key={value}
+              className={[styles.button, value === selectedBetAmount && styles.selected].join(' ')}
+              onClick={() => setSelectedBetAmount(value)}
+            >
+              <Chip value={value} />
             </button>
           ))}
-          <button onClick={() => clearChips()}>
+          <button className={styles.button} disabled={!wager} onClick={() => clearChips()}>
             Clear
           </button>
         </div>

@@ -1,8 +1,8 @@
 import { useGamba } from 'gamba/react'
 import { Fullscreen, formatLamports, useGameControls, useSounds } from 'gamba/react-ui'
 import React, { useState } from 'react'
-import Slider from './Slider'
 import styles from './App.module.css'
+import Slider from './Slider'
 
 import SOUND_LOSE from './lose.mp3'
 import SOUND_PLAY from './play.mp3'
@@ -11,10 +11,10 @@ import SOUND_WIN from './win.mp3'
 
 const DICE_SIDES = 100
 
-function Dice() {
+export default function Dice() {
   const gamba = useGamba()
   const [loading, setLoading] = useState(false)
-  const [resultIndex, setResultIndex] = useState(-1)
+  const [resultIndex, setResultIndex] = useState(49)
   const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(DICE_SIDES / 2))
 
   const sounds = useSounds({
@@ -115,5 +115,3 @@ function Dice() {
     </Fullscreen>
   )
 }
-
-export default Dice

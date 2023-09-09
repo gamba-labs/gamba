@@ -3,11 +3,11 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useBonusBalance, useGamba } from 'gamba/react'
 import { formatLamports, useClaim, useCloseAccount, useCreateAccount, useRedeemBonus } from 'gamba/react-ui'
 import React, { useState } from 'react'
-import { useOnClickOutside } from '../hooks/useOnClickOutside'
 import { Button } from '../components/Button'
 import { Dropdown } from '../components/Dropdown'
-import { Modal } from '../components/Modal'
 import { Icon } from '../components/Icon'
+import { Modal } from '../components/Modal'
+import { useOnClickOutside } from '../hooks/useOnClickOutside'
 
 function RedeemBonusButton() {
   const [redeemBonus, loading] = useRedeemBonus()
@@ -115,7 +115,24 @@ function ConnectedButton() {
     <>
       {modal && (
         <Modal onClose={() => setModal(false)}>
-          <h1>More Options</h1>
+          <h1>{formatLamports(gamba.balances.total)}</h1>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%', textAlign: 'center' }}>
+            <div>
+              {formatLamports(gamba.balances.user)}
+              <div>Claimable</div>
+            </div>
+            <div>
+              {formatLamports(gamba.balances.bonus)}
+              <div>Bonus</div>
+            </div>
+          </div>
+          <Button
+            onClick={() => navigator.clipboard.writeText(gamba.wallet.publicKey.toBase58())}
+            variant="ghost"
+            size="small"
+          >
+            {gamba.wallet.publicKey.toBase58()}
+          </Button>
           <ShuffleSeedButton />
           <CloseAccountButton onClosed={() => setModal(false)} />
           <CreateAccountButton />
@@ -147,7 +164,7 @@ function ConnectedButton() {
             </Button>
           )}
           <Button onClick={() => setModal(true)}>
-            More Options <Icon.ArrowRight />
+            More Options
           </Button>
         </Dropdown>
       </div>

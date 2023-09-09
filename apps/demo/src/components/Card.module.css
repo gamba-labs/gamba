@@ -55,7 +55,7 @@
 }
 
 .card:hover .logo {
-  transform: scale(1.1);
+  transform: scale(1.1) translateY(-2px);
 }
 
 .card:hover .background {

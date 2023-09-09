@@ -9,12 +9,14 @@ export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: (
   useOnClickOutside(ref, onClose)
 
   return (
-    <div className={styles.container}>
-      <div className={styles.modal} ref={ref}>
-        <button className={styles.close} onClick={onClose}>
-          <Icon.Close2 />
-        </button>
-        {children}
+    <div className={styles.modal}>
+      <div className={styles.container}>
+        <div className={styles.wrapper} ref={ref}>
+          <button className={styles.close} onClick={onClose}>
+            <Icon.Close2 />
+          </button>
+          {children}
+        </div>
       </div>
     </div>
   )

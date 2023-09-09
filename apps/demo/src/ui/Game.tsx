@@ -24,7 +24,7 @@ function PlayButton() {
 function Controls() {
   const { shortName } = useParams()
   const game = useMemo(() => GAMES.find((x) => x.short_name === shortName)!, [shortName])
-  const [showInfo, setShowInfo] = React.useState(false)
+  const [showInfo, setShowInfo] = React.useState(true)
   const controls = useControlsStore()
 
   return (
@@ -34,7 +34,12 @@ function Controls() {
           <h1 style={{ textAlign: 'center' }}>
             <img height="100" src={game.image} alt={game.name} />
           </h1>
-          {game.description || 'No information available'}
+          <p>
+            {game.description || 'No information available'}
+          </p>
+          <Button onClick={() => setShowInfo(false)}>
+            Play
+          </Button>
         </Modal>
       )}
       <div className={styles.controls}>
@@ -68,8 +73,8 @@ export function Game() {
 
   return (
     <>
-      <div className={styles.container}>
-        <div key={game.short_name} className={styles.view}>
+      <div key={game.short_name} className={styles.container}>
+        <div className={styles.view}>
           <GameView game={game} />
         </div>
         <Controls />

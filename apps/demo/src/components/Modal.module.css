@@ -9,40 +9,51 @@
   100% { transform: scale(1); }
 }
 
-.container {
+.modal {
   position: fixed;
-  left: 0;
   top: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: opacity linear 150ms;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  overflow-y: auto;
   height: 100vh;
-  z-index: 1000;
-  background: #00000099;
-  padding: 10px;
 }
 
-.modal {
+.container {
+  display: flex;
+  padding: 20px;
+  min-height: calc(100vh - 6rem);
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper {
+  box-sizing: border-box;
   position: relative;
-  box-shadow: 0 0 #0000, 0 0 #0000, 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  z-index: 1040;
-  padding-bottom: 20px;
-  border: none;
-  background: #10141f;
-  color: white;
-  overflow-y: auto;
-  animation: appear .3s, appear2 .1s;
-  max-width: 400px;
-  height: auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  z-index: 1050;
+  max-width: min(100%, 400px);
   border-radius: 10px;
-  min-width: 400px;
+  background: #10141f;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.6);
+  flex: 1;
+  padding-bottom: 20px;
 }
 
 .modal h1 {
   text-align: center;
   padding: 40px 0 20px 0;
   font-size: 24px;
+}
+
+.modal p {
+  padding: 0 30px;
+  text-align: center;
 }
 
 button.close {

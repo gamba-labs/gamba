@@ -37,12 +37,7 @@ export function App() {
 
       <SlideSection title="Demo Games">
         {GAMES.map((game) => (
-          <Card
-            key={game.short_name}
-            to={'/' + game.short_name}
-            logo={game.image}
-            backgroundColor={game.theme_color}
-          />
+          <Card key={game.short_name} game={game} />
         ))}
       </SlideSection>
 

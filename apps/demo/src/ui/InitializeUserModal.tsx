@@ -46,12 +46,12 @@ function InnerModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => v
 
   return (
     <Modal onClose={onCancel}>
-      <h1>Wecome!</h1>
-      In order to play you need to create an account to interract with the Solana program.<br />
+      <h1>Welcome!</h1>
+      <p>
+        In order to play you need to create an account to interract with the Solana program.<br />
       This only needs to be done once.
-      <br />
-      <br />
-      <Button loading={creating} pulse onClick={create}>
+      </p>
+      <Button color="white" loading={creating} pulse onClick={create}>
         {!initUser ? 'Initialize Account' : 'Initializing user...'}
       </Button>
     </Modal>

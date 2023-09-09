@@ -27,14 +27,12 @@ export function PoolButton() {
           <h1>
             Select Token
           </h1>
-          <p style={{ textAlign: 'center', padding: '0 30px' }}>
+          <p>
             Custom tokens and liquidity pools coming soon!
-            <br />
-            <br />
-            <Button variant="ghost" onClick={() => setPoolModal(false)}>
-              Close
-            </Button>
           </p>
+          <Button onClick={() => setPoolModal(false)}>
+            Close
+          </Button>
         </Modal>
       )}
       <Button

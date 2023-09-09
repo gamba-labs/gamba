@@ -12,7 +12,7 @@ export function Home() {
           Gamba Demo
         </h1>
         <p>
-          A decentralized, provably-fair casino built on gamba.
+          A decentralized, provably-fair casino built on <Button size="small" variant="soft" as="a" href="https://gamba.so" target="_blank">Gamba</Button>.
         </p>
         <div style={{ display: 'flex', gap: '10px' }}>
           <Button

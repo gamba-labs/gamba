@@ -30,7 +30,7 @@
   background: #ffffff;
   transform: scale(1);
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 10px;
   display: flex;
   justify-content: end;
   aspect-ratio: var(--card-aspect-ratio);

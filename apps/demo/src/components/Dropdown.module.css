@@ -5,12 +5,6 @@
   visibility: hidden;
   z-index: 10;
   right: 0;
-  & > div {
-    display: grid;
-    background: #222233;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-  }
   &.top {
     top: 100%;
     margin-top: 10px;
@@ -26,4 +20,13 @@
     transform: translateY(0px)!important;
     visibility: visible;
   }
+}
+
+.container > div {
+  display: grid;
+  background: #222233;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 5px;
+  gap: 5px;
 }

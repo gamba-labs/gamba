@@ -38,55 +38,45 @@ export function Home() {
   return (
     <div className={styles.banner}>
       <Section>
-        <Carousel>
-          <>
-            <h2>
-              A decentralized, provably-fair casino built on <Button size="small" variant="soft" as="a" href="https://gamba.so" target="_blank">Gamba</Button>.
-            </h2>
-            <p style={{ wordWrap: 'break-word' }}>
-            Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba Gamba !!!!!!!!!!
-            </p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <Button
-                as="a"
-                color="white"
-                href="https://github.com/gamba-labs"
-                target="_blank"
-                icon={<Icon.ExternalLink />}
-              >
-                Github
-              </Button>
-              <Button
-                as="a"
-                color="white"
-                variant="ghost"
-                href="https://discord.gg/TkGr9bAZ"
-                target="_blank"
-                icon={<Icon.ExternalLink />}
-              >
-                Discord
-              </Button>
-              <Button
-                as="a"
-                color="white"
-                variant="ghost"
-                href="https://twitter.com/GambaLabs"
-                target="_blank"
-                icon={<Icon.ExternalLink />}
-              >
-                Twitter
-              </Button>
-            </div>
-          </>
-          {/* <>
-            <h2>
-              Nope
-            </h2>
-            <p>
-              I dont know
-            </p>
-          </> */}
-        </Carousel>
+        <>
+          <h2>
+            Gamba Demo
+          </h2>
+          <p style={{ wordWrap: 'break-word' }}>
+            A decentralized, provably-fair casino built on <Button size="small" variant="soft" as="a" href="https://gamba.so" target="_blank">Gamba</Button>.
+          </p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Button
+              as="a"
+              color="white"
+              href="https://github.com/gamba-labs"
+              target="_blank"
+              icon={<Icon.ExternalLink />}
+            >
+              Github
+            </Button>
+            <Button
+              as="a"
+              color="white"
+              variant="ghost"
+              href="https://discord.gg/TkGr9bAZ"
+              target="_blank"
+              icon={<Icon.ExternalLink />}
+            >
+              Discord
+            </Button>
+            <Button
+              as="a"
+              color="white"
+              variant="ghost"
+              href="https://twitter.com/GambaLabs"
+              target="_blank"
+              icon={<Icon.ExternalLink />}
+            >
+              Twitter
+            </Button>
+          </div>
+        </>
       </Section>
     </div>
   )

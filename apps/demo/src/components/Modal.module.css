@@ -20,6 +20,7 @@
   z-index: 1040;
   overflow-y: auto;
   height: 100vh;
+  animation: appear .3s;
 }
 
 .container {
@@ -43,6 +44,8 @@
   box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.6);
   flex: 1;
   padding-bottom: 20px;
+  animation: appear2 .3s;
+  color: white;
 }
 
 .modal h1 {

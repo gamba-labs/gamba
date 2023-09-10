@@ -83,16 +83,22 @@ export class GambaClient {
   /**
    * Plays a bet against the Program
    */
-  play = this.makeMethodCall('play', ({ wager: _wager, ...params }: GambaPlayParams) => {
+  play = this.makeMethodCall('play', ({ wager, ...params }: GambaPlayParams) => {
+    const totalBalance = this.user.balance + this.user.bonusBalance + this.owner.balance - 1000000
+
     if (!this.user.created) {
       throw GambaError.PLAY_BEFORE_INITIALIZED
     }
 
-    const houseFee = zeroUnless(this.house?.fees.house)
-    const creatorFee = zeroUnless(this.house?.fees.creator)
-    const totalFee = houseFee + creatorFee
+    if (wager > totalBalance) {
+      throw GambaError.INSUFFICIENT_BALANCE
+    }
 
-    const wager = params?.deductFees ? Math.ceil(_wager / (1 + totalFee)) : _wager
+    // const houseFee = zeroUnless(this.house.fees.house)
+    // const creatorFee = zeroUnless(this.house.fees.creator)
+    // const totalFee = houseFee + creatorFee
+
+    // const wager = params?.deductFees ? Math.ceil(_wager / (1 + totalFee)) : _wager
 
     return this.program.methods
       .play(
@@ -146,10 +152,6 @@ export class GambaClient {
    */
   withdraw = this.makeMethodCall('withdraw', (desiredAmount?: number) => {
     const amount = desiredAmount ?? this.user.balance
-
-    if (amount > this.user.balance) {
-      throw GambaError.INSUFFICIENT_BALANCE
-    }
 
     return this.program.methods
       .userWithdraw(new BN(amount))

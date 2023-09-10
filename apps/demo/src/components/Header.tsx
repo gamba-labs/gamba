@@ -1,26 +1,26 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { Button, NavButton } from './Button'
 import styles from './Header.module.css'
 
 export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const toggle = () => {
+    console.log(document.body.classList)
+    const prev = document.documentElement.getAttribute('data-theme')
+    const theme = prev === 'light' ? 'dark' : 'light'
+    document.documentElement.setAttribute('data-theme', theme)
+  }
   return (
     <div className={styles.wrapper}>
       <div>
-        <div>
-          <NavLink className={styles.logo} to="/">
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <NavButton variant="ghost" className={styles.logo} to="/">
             <img src="/logo.svg" height="20px" />
             <span className={styles.title}>Gamba Demo</span>
-          </NavLink>
+          </NavButton>
+          <Button onClick={toggle} variant="soft" color="white">
+            LIGHT
+          </Button>
         </div>
-        {/* <a target="_blank" href="https://github.com/gamba-labs/gamba" rel="noreferrer">
-          Github
-        </a>
-        <a target="_blank" href="https://discord.gg/xjBsW3e8fK" rel="noreferrer">
-          Discord
-        </a>
-        <a target="_blank" href="https://twitter.com/GambaLabs" rel="noreferrer">
-          Twitter
-        </a> */}
         <div style={{ display: 'flex', gap: '10px' }}>
           {children}
         </div>

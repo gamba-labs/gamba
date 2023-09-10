@@ -14,10 +14,16 @@
   grid-template-rows: 1fr max-content;
   position: relative;
   transition: height .2s ease;
-  @media (min-height: 800px) {
+}
+
+@media (min-height: 820px) {
+  .container {
     height: 90vh;
   }
-  @media (min-height: 1200px) {
+}
+
+@media (min-height: 1200px) {
+  .container {
     height: max(960px, min(1600px, 60vh));
   }
 }
@@ -33,8 +39,6 @@
 .controls {
   width: 100%;
   padding: 20px 10px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
 .controls > div {
@@ -54,5 +58,80 @@
 @media (min-width: 1280px) {
   .controls > div {
     width: 1000px;
+  }
+}
+
+@keyframes splash {
+  0% {
+    opacity: 1;
+  }
+  30%, 75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes splash2 {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  30% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(.9);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+  }
+}
+
+.splash {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  animation: splash 1.25s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.splash > img {
+  opacity: 0;
+  max-width: min(300px, 90%);
+  max-height: min(300px, 25%);
+  animation: splash2 1.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.splash {
+  background-color: attr(data-theme-color );
+  background: #0c0c11;
+}
+
+.butt {
+  margin: 0;
+  padding: 0;
+  height: 20px;
+  border: none;
+  background: #ffffff00;
+  width: 100vw;
+  bottom: 0;
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (min-height: 800px) {
+  .butt {
+    visibility: hidden;
+    opacity: 0;
   }
 }

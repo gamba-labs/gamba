@@ -8,11 +8,11 @@
 }
 
 .size-large {
-  padding: 10px 20px;
+  padding: 12px 24px;
 }
 
 .size-medium {
-  padding: 8px 16px;
+  padding: 10px 20px;
 }
 
 .size-small {
@@ -20,8 +20,8 @@
 }
 
 .color-default {
-  --bg-col-solid: #1a1c24;
-  --bg-col-solid-hover: #272a39;
+  --bg-col-solid: #12141a;
+  --bg-col-solid-hover: #1d1f28;
   --bg-col-outlined: #8a8abc33;
   --bg-col-outlined-hover: #6666ff66;
   --col-outlined: white;
@@ -46,7 +46,7 @@
 
 .variant-ghost {
   background: transparent;
-  color: var(--col-outlined);
+  color: inherit;
   border: none;
   --hover-background: var(--bg-col-outlined);
 }
@@ -76,6 +76,7 @@
   text-align: center;
   cursor: pointer;
   display: inline-block;
+  text-wrap: nowrap;
 }
 
 @media (hover: hover) {

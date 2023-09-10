@@ -10,18 +10,17 @@
   gap: 5px;
   grid-template-columns: auto;
   text-align: left;
-  background: #13151c;
+  background: var(--recent-plays-bg);
   min-height: 40px;
   align-items: center;
   justify-content: space-between;
-  color: white;
+  color: var(--text-color);
   border-radius: 10px;
-  transition: background .1s;
   text-decoration: none;
 }
 
 .play:hover {
-  background: #1a1c24;
+  background: var(--recent-plays-bg-hover);
 }
 
 .play > div {

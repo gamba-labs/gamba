@@ -1,5 +1,6 @@
 .section {
   width: 100%;
+  max-width: 100%;
   transition: width .25s ease padding .25s ease;
   padding: 20px 10px;
   margin: 0 auto;
@@ -11,6 +12,7 @@
     width: 800px;
   }
 }
+
 @media (min-width: 1280px) {
   .section {
     width: 1000px;

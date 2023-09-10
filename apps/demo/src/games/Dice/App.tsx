@@ -14,7 +14,7 @@ const DICE_SIDES = 100
 export default function Dice() {
   const gamba = useGamba()
   const [loading, setLoading] = useState(false)
-  const [resultIndex, setResultIndex] = useState(49)
+  const [resultIndex, setResultIndex] = useState(-1)
   const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(DICE_SIDES / 2))
 
   const sounds = useSounds({

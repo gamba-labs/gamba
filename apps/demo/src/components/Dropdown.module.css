@@ -5,6 +5,7 @@
   visibility: hidden;
   z-index: 10;
   right: 0;
+  color: white;
   &.top {
     top: 100%;
     margin-top: 10px;

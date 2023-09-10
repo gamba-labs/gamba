@@ -9,7 +9,7 @@ export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
   server: { port: 7778 },
   resolve: { alias: { '@src': path.resolve(__dirname, './src') } },
-  define: { 'process.env.ANCHOR_BROWSER': true },
+  // define: { 'process.env.ANCHOR_BROWSER': true },
   plugins: [
     react(),
     Unfonts({

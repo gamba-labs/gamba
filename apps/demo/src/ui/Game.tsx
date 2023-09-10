@@ -29,10 +29,12 @@ function Controls() {
 
   React.useEffect(
     () => {
-      if (!window.localStorage.getItem('played-' + shortName)) {
-        setShowInfo(true)
-        window.localStorage.setItem('played-' + shortName, String(Date.now()))
-      }
+      setTimeout(() => {
+        if (!window.localStorage.getItem('played-' + shortName)) {
+          setShowInfo(true)
+          window.localStorage.setItem('played-' + shortName, String(Date.now()))
+        }
+      }, 1000)
     },
     [],
   )
@@ -85,11 +87,24 @@ export function Game() {
     <>
       <div key={game.short_name} className={styles.container}>
         <div className={styles.view}>
-          <GameView game={game} />
+          <GameView
+            game={game}
+          />
         </div>
         <Controls />
+        <div className={styles.splash} data-theme-color={game.theme_color}>
+          <img src={game.image} />
+        </div>
+        <button
+          className={styles.butt}
+          onClick={
+            () =>
+              document.getElementById('below')?.scrollIntoView({ behavior: 'smooth' })
+          }
+        >
+        </button>
       </div>
+      <div id="below" />
     </>
-
   )
 }

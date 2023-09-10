@@ -60,9 +60,11 @@ function InnerModal({ onDone, onCancel }: {onDone: () => void, onCancel: () => v
 }
 
 export function InitializeAccountModal() {
+  const gamba = useGamba()
   const wallet = useWallet()
   const walletModal = useWalletModal()
   const [error, setError] = React.useState<GambaError2 | null>(null)
+  const [error2, setError2] = React.useState<GambaError2 | null>(null)
 
   useGambaError(
     (err) => {
@@ -75,8 +77,33 @@ export function InitializeAccountModal() {
           walletModal.setVisible(true)
         }
       }
+      if (err.message === GambaError.INSUFFICIENT_BALANCE) {
+        setError2(err)
+      }
     },
   )
+
+  if (error2) {
+    return (
+      <Modal onClose={() => setError2(null)}>
+        <h1>Insufficient Balance</h1>
+        <p>
+          You need more funds to make this bet!
+          Send funds to this address to continue:
+        </p>
+        <Button
+          onClick={() => navigator.clipboard.writeText(gamba.wallet.publicKey.toBase58())}
+          variant="ghost"
+          size="small"
+        >
+          {gamba.wallet.publicKey.toBase58()}
+        </Button>
+        <Button onClick={() => setError2(null)}>
+          Okay
+        </Button>
+      </Modal>
+    )
+  }
 
   if (!error) return null
 

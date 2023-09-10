@@ -1,7 +1,8 @@
 .button {
   pointer-events: auto;
   border: none;
-  background: #fffffff9;
+  background: #111122;
+  color: white;
   border-radius: 40px;
   padding: 10px;
   margin: 10px;
@@ -13,7 +14,6 @@
 
 .button.selected {
   opacity: 1;
-  color: #ff0066;
 }
 
 .button:active {

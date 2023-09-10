@@ -75,27 +75,29 @@
   position: absolute;
   top: -5px;
   transition: left .3s ease;
-  & > div {
-    animation: result-appear .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    transform-origin: bottom;
-    background: #ffffffCC;
-    backdrop-filter: blur(50px);
-    border-radius: 5px;
-    padding: 5px;
-    font-size: 18px;
-    font-weight: bold;
-    width: 50px;
-    text-align: center;
-    color: black;
-    &::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      margin-left: -10px;
-      border-width: 10px 10px 0px 10px;
-      border-style: solid;
-      border-color: #ffffffCC transparent transparent transparent;
-    }
-  }
+}
+
+.result > div {
+  animation: result-appear .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  transform-origin: bottom;
+  background: #ffffffCC;
+  backdrop-filter: blur(50px);
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  width: 50px;
+  text-align: center;
+  color: black;
+}
+
+.result > div::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -10px;
+  border-width: 10px 10px 0px 10px;
+  border-style: solid;
+  border-color: #ffffffCC transparent transparent transparent;
 }

@@ -6,7 +6,7 @@ import { Icon } from '../components/Icon'
 import { cx } from '../utils'
 import styles from './RecentPlays.module.css'
 
-const VERIFY_URL = 'https://explorer.solana.com/tx'
+const VERIFY_URL = 'http://localhost:7778/tx'
 
 const TimeDiff: React.FC<{time: number}> = ({ time }) => {
   const diff = (Date.now() - time)

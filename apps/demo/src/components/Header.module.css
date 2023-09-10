@@ -5,9 +5,9 @@
   top: 0;
   left: 0;
   padding: 10px;
-  background: #000000CC;
+  /* background: #000000CC;
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); */
 }
 
 @media (min-height: 800px) {
@@ -30,7 +30,6 @@
   gap: 1em;
   transition: background .2s;
   white-space: nowrap;
-  border-radius: 5px;
   padding: 5px 10px;
 }
 

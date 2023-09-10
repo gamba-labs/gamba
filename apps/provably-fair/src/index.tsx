@@ -1,9 +1,10 @@
-import { ConnectionProvider, useConnection } from '@solana/wallet-adapter-react'
+import { AlertDialog, Button, Code, Container, DropdownMenu, Flex, Heading, Text, Theme } from '@radix-ui/themes'
+import '@radix-ui/themes/styles.css'
+
+import { useConnection } from '@solana/wallet-adapter-react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Route, Routes, useNavigate, useParams } from 'react-router-dom'
-import './index.css'
-import { Legacy } from './Legacy'
+import { Route, Routes, useNavigate, useParams } from 'react-router-dom'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
@@ -32,15 +33,70 @@ function Transaction() {
 
   return (
     <>
-      <div>{txid}</div>
-      <pre>
+      <Heading>{txid}</Heading>
+      <Container>
         {logs.map((x, i) => (
-          <div key={i}>{x}</div>
+          <Code key={i}>{x}</Code>
         ))}
-      </pre>
+      </Container>
       <a target="_blank" href={`https://explorer.solana.com/tx/${txid}`} rel="noreferrer">
         View in Solana Explorer
       </a>
+    </>
+  )
+}
+
+function Weclome() {
+  return (
+    <>
+      <Flex direction="column" gap="2">
+        <Text>Hello from Radix Themes :)</Text>
+        <Button>Lets go</Button>
+        <AlertDialog.Root>
+          <AlertDialog.Trigger>
+            <Button color="red">Revoke access</Button>
+          </AlertDialog.Trigger>
+          <AlertDialog.Content style={{ maxWidth: 450 }}>
+            <AlertDialog.Title>Revoke access</AlertDialog.Title>
+            <AlertDialog.Description size="2">
+    Are you sure? This application will no longer be accessible and any
+    existing sessions will be expired.
+            </AlertDialog.Description>
+
+            <Flex gap="3" mt="4" justify="end">
+              <AlertDialog.Cancel>
+                <Button variant="soft" color="gray">
+        Cancel
+                </Button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action>
+                <Button variant="solid" color="red">
+        Revoke access
+                </Button>
+              </AlertDialog.Action>
+            </Flex>
+          </AlertDialog.Content>
+        </AlertDialog.Root>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            <Button color="green">Click Me</Button>
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Content>
+            <DropdownMenu.Group>
+              <DropdownMenu.Item>
+                <p>New Tab</p>
+              </DropdownMenu.Item>
+            </DropdownMenu.Group>
+
+            <DropdownMenu.Group onClick={() => alert('Nooo')}>
+              <DropdownMenu.Item>
+                <p>More tools</p>
+              </DropdownMenu.Item>
+            </DropdownMenu.Group>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </Flex>
     </>
   )
 }
@@ -50,7 +106,7 @@ function App() {
     <Routes>
       <Route
         path="/"
-        element={<Legacy />}
+        element={<Weclome />}
       />
       <Route
         path="/tx/:txid"
@@ -61,12 +117,9 @@ function App() {
 }
 
 root.render(
-  <ConnectionProvider
-    endpoint={import.meta.env.GAMBA_SOLANA_RPC}
-    config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'confirmed' }}
-  >
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </ConnectionProvider>,
+  <React.StrictMode>
+    <Theme accentColor="iris" panelBackground="solid">
+      <Weclome />
+    </Theme>
+  </React.StrictMode>,
 )

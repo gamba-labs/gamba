@@ -3,7 +3,7 @@ import { Badge, Box, Button, Callout, Card, Code, Container, Flex, Grid, Heading
 import { ConnectionProvider, useConnection } from '@solana/wallet-adapter-react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { BrowserRouter, NavLink, Route, Routes, useParams } from 'react-router-dom'
 
 import '@radix-ui/themes/styles.css'
 import { clusterApiUrl } from '@solana/web3.js'
@@ -344,7 +344,6 @@ root.render(
       <BrowserRouter>
         <Theme accentColor="iris" radius="medium" panelBackground="translucent">
           <App />
-          {/* <ThemePanel /> */}
         </Theme>
       </BrowserRouter>
     </ConnectionProvider>

@@ -76,6 +76,9 @@ export function RecentPlays() {
           isSelf={event.player.equals(wallet.publicKey)}
         />
       ))}
+      {!recentPlays.length && Array.from({ length: 10 }).map((_, i) => (
+        <div key={i} className={styles.skeleton} />
+      ))}
     </div>
   )
 }

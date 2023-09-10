@@ -1,11 +1,12 @@
-import { ArrowRightIcon, BellIcon, CheckIcon, ClipboardIcon, ExternalLinkIcon, MagnifyingGlassIcon, TriangleDownIcon, TriangleUpIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Button, Callout, Card, Code, Container, Flex, Grid, Heading, Link, Separator, Table, Text, TextField, Theme } from '@radix-ui/themes'
+import { BellIcon, CheckIcon, ClipboardIcon, ExternalLinkIcon, MagnifyingGlassIcon, TriangleDownIcon, TriangleUpIcon } from '@radix-ui/react-icons'
+import { Badge, Box, Button, Callout, Card, Code, Container, Flex, Grid, Heading, Link, Table, Text, TextField, Theme } from '@radix-ui/themes'
 import { ConnectionProvider, useConnection } from '@solana/wallet-adapter-react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 
 import '@radix-ui/themes/styles.css'
+import { clusterApiUrl } from '@solana/web3.js'
 import './styles.css'
 import styles from './styles.module.css'
 
@@ -21,7 +22,6 @@ const examples = [
 ]
 
 function Transaction() {
-  const navigate = useNavigate()
   const { connection } = useConnection()
   const { txid } = useParams<{txid: string}>()
   const [logs, setLogs] = React.useState<string[]>([])
@@ -164,8 +164,8 @@ function Dashboard() {
 
             <Table.Body>
 
-              {examples.map(({ txid, profit }) => (
-                <Table.Row key={txid}>
+              {examples.map(({ txid }, i) => (
+                <Table.Row key={i}>
                   <Table.Cell>
                     <Flex align="baseline" gap="2">
                       <Button variant="ghost" size="1">
@@ -173,7 +173,7 @@ function Dashboard() {
                       </Button>
 
                       <Link asChild>
-                        <NavLink to={'/tx/' + txid}>
+                        <NavLink to={'/address/' + txid}>
                           {txid.substring(0, 6)}
                         </NavLink>
                       </Link>
@@ -208,8 +208,8 @@ function Dashboard() {
 
             <Table.Body>
 
-              {examples.map(({ txid, profit }) => (
-                <Table.Row key={txid}>
+              {examples.map(({ txid }, i) => (
+                <Table.Row key={i}>
                   <Table.Cell>
                     <Flex align="baseline" gap="2">
                       <Button variant="ghost" size="1">
@@ -257,8 +257,8 @@ function Dashboard() {
           </Table.Header>
 
           <Table.Body>
-            {examples.map(({ txid, profit }) => (
-              <Table.Row key={txid}>
+            {examples.map(({ txid, profit }, i) => (
+              <Table.Row key={i}>
                 <Table.Cell>
                   <Flex align="baseline" gap="2">
                     <Button variant="ghost" size="1">
@@ -340,10 +340,7 @@ function App() {
 root.render(
   <React.StrictMode>
 
-    <ConnectionProvider
-      endpoint={import.meta.env.GAMBA_SOLANA_RPC}
-      config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'confirmed' }}
-    >
+    <ConnectionProvider endpoint={clusterApiUrl('mainnet-beta')}>
       <BrowserRouter>
         <Theme accentColor="iris" radius="medium" panelBackground="translucent">
           <App />

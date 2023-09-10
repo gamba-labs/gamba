@@ -5,7 +5,7 @@
   margin: 0 auto;
 }
 
-@media (min-width: 960px) {
+@media (min-width: 460px) {
   .section {
     padding: 20px;
     width: 800px;

@@ -35,7 +35,7 @@
   display: flex;
   justify-content: end;
   aspect-ratio: var(--card-aspect-ratio);
-  width: 150px;
+  width: 160px;
   transition: width .25s ease, transform .2s ease, aspect-ratio .2s ease;
   max-height: 100%;
   overflow: hidden;

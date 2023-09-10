@@ -1,6 +1,6 @@
 import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
-import styles from './App.module.css'
+import styles from './ItemPreview.module.css'
 import appStyles from './App.module.css'
 
 const itemsByMultiplier = Object.entries(
@@ -32,14 +32,6 @@ export function ItemPreview({ betArray }: {betArray: number[]}) {
             >
               <img className={appStyles.slotImage} src={items[0].image} />
             </div>
-            {/* {items.map((item, i) => (
-              <div
-                key={i}
-                className={styles.icon}
-              >
-                <img className={styles.slotImage} src={item.image} />
-              </div>
-            ))} */}
           </div>
         ))}
       </div>

@@ -78,6 +78,7 @@ export function InitializeAccountModal() {
         }
       }
       if (err.message === GambaError.INSUFFICIENT_BALANCE) {
+        err.handle()
         setError2(err)
       }
     },
@@ -85,11 +86,16 @@ export function InitializeAccountModal() {
 
   if (error2) {
     return (
-      <Modal onClose={() => setError2(null)}>
+      <Modal
+        onClose={() => {
+          setError2(null)
+          error2.reject()
+        }}
+      >
         <h1>Insufficient Balance</h1>
         <p>
           You need more funds to make this bet!
-          Send funds to this address to continue:
+          Send SOL to this address to continue:
         </p>
         <Button
           onClick={() => navigator.clipboard.writeText(gamba.wallet.publicKey.toBase58())}
@@ -97,9 +103,6 @@ export function InitializeAccountModal() {
           size="small"
         >
           {gamba.wallet.publicKey.toBase58()}
-        </Button>
-        <Button onClick={() => setError2(null)}>
-          Okay
         </Button>
       </Modal>
     )

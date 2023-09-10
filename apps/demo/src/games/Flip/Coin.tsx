@@ -41,7 +41,6 @@ interface CoinFlipProps {
 export function Coin({ flipping, result }: CoinFlipProps) {
   const group = React.useRef<Group>(null!)
   const target = React.useRef(0)
-  const transition = React.useRef(0)
 
   React.useEffect(() => {
     if (!flipping && result !== null) {
@@ -56,9 +55,9 @@ export function Coin({ flipping, result }: CoinFlipProps) {
     } else if (result !== null) {
       group.current.rotation.y += (target.current - group.current.rotation.y) * .1
     }
-    group.current.scale.y += ((flipping ? 1.25 : 1) - group.current.scale.y) * .1
-    group.current.scale.setScalar(group.current.scale.y * transition.current)
-    transition.current += (1 - transition.current) * .5
+    const scale = flipping ? 1.25 : 1
+    group.current.scale.y += (scale - group.current.scale.y) * .1
+    group.current.scale.setScalar(group.current.scale.y)
   })
 
   return (

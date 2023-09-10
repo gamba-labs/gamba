@@ -92,7 +92,7 @@ export function Game() {
           />
         </div>
         <Controls />
-        <div className={styles.splash} data-theme-color={game.theme_color}>
+        <div className={styles.splash}>
           <img src={game.image} />
         </div>
         <button

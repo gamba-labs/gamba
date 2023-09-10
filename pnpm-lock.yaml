@@ -157,8 +157,42 @@ importers:
         specifier: ^0.14.7
         version: 0.14.7(vite@4.2.1)(workbox-build@6.6.0)(workbox-window@6.6.0)
 
-  apps/provably-fair:
+  apps/trash.explorer:
     dependencies:
+      '@tanstack/react-query':
+        specifier: ^4.32.0
+        version: 4.32.0(react-dom@18.2.0)(react@18.2.0)
+      gamba-core:
+        specifier: workspace:*
+        version: link:../../packages/gamba-core
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.0
+        version: 18.2.21
+      '@types/react-dom':
+        specifier: ^18.0.11
+        version: 18.0.11
+      '@vitejs/plugin-react':
+        specifier: ^3.1.0
+        version: 3.1.0(vite@4.2.1)
+      unplugin-fonts:
+        specifier: ^1.0.3
+        version: 1.0.3(vite@4.2.1)
+      vite:
+        specifier: ^4.2.1
+        version: 4.2.1
+
+  apps/verify:
+    dependencies:
+      '@radix-ui/react-icons':
+        specifier: ^1.3.0
+        version: 1.3.0(react@18.2.0)
       '@radix-ui/themes':
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.0.11)(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)
@@ -190,37 +224,6 @@ importers:
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
-      '@vitejs/plugin-react':
-        specifier: ^3.1.0
-        version: 3.1.0(vite@4.2.1)
-      unplugin-fonts:
-        specifier: ^1.0.3
-        version: 1.0.3(vite@4.2.1)
-      vite:
-        specifier: ^4.2.1
-        version: 4.2.1
-
-  apps/trash.explorer:
-    dependencies:
-      '@tanstack/react-query':
-        specifier: ^4.32.0
-        version: 4.32.0(react-dom@18.2.0)(react@18.2.0)
-      gamba-core:
-        specifier: workspace:*
-        version: link:../../packages/gamba-core
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-    devDependencies:
-      '@types/react':
-        specifier: ^18.2.0
-        version: 18.2.21
-      '@types/react-dom':
-        specifier: ^18.0.11
-        version: 18.0.11
       '@vitejs/plugin-react':
         specifier: ^3.1.0
         version: 3.1.0(vite@4.2.1)
@@ -3273,6 +3276,14 @@ packages:
       '@types/react-dom': 18.0.11
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@radix-ui/react-icons@1.3.0(react@18.2.0):
+    resolution: {integrity: sha512-jQxj/0LKgp+j9BiTXz3O3sgs26RNet2iLWmsPyRz2SIcR4q/4SbazXfnYwbAr+vLYKSfc7qxzyGQA1HLlYiuNw==}
+    peerDependencies:
+      react: ^16.x || ^17.x || ^18.x
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@radix-ui/react-id@1.0.1(@types/react@18.2.21)(react@18.2.0):

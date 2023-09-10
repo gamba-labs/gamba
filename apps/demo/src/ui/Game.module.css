@@ -113,7 +113,6 @@
 }
 
 .splash {
-  background-color: attr(data-theme-color );
   background: #0c0c11;
 }
 

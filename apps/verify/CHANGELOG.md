@@ -1,4 +1,4 @@
-# provably-fair
+# verify
 
 ## 1.0.2
 

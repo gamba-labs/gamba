@@ -172,7 +172,7 @@ export function TransactionView() {
   return (
     <Container>
       <Box my="4">
-        <Heading mb="3" size="8">
+        <Heading mb="3">
           Gamba Transaction
         </Heading>
 

@@ -5,7 +5,6 @@ import clsx from 'clsx'
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import styles from './test.module.css'
-import { lamportsToSol } from 'gamba-core'
 
 interface Parsed {
   bet: number[]
@@ -272,7 +271,7 @@ export function TransactionView() {
                     Wager
                   </Text>
                   <Text>
-                    {parseFloat(lamportsToSol(parsed.wager).toFixed(2))} SOL
+                    {parseFloat((parsed.wager / 1e9).toFixed(2))} SOL
                   </Text>
                 </Grid>
               </Table.Cell>

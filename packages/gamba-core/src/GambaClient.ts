@@ -5,11 +5,11 @@ import { Connection, Keypair, PublicKey, SYSVAR_CLOCK_PUBKEY, TransactionInstruc
 import { Account } from './Account'
 import { Event } from './Event'
 import { GambaError2 } from './GambaError'
-import { BET_UNIT, GambaError, HOUSE_SEED, PROGRAM_ID, SYSTEM_PROGRAM, USER_SEED } from './constants'
+import { BET_UNIT, GambaError, PROGRAM_ID, SYSTEM_PROGRAM } from './constants'
 import { Gamba as GambaProgram, IDL } from './idl'
 import { parseHouseAccount, parseUserAccount, parseWalletAccount } from './parsers'
 import { HouseState, UserState, Wallet } from './types'
-import { decodeHouse, decodeUser, getPdaAddress, zeroUnless } from './utils'
+import { decodeHouse, decodeUser, getPdaAddress } from './utils'
 
 export interface GambaPlayParams {
   creator: PublicKey | string
@@ -224,12 +224,17 @@ export class GambaClient {
     )
 
     this.userAccount = new Account(
-      getPdaAddress(USER_SEED, this._wallet.publicKey.toBytes()),
+      getPdaAddress(
+        Buffer.from('user2'),
+        this._wallet.publicKey.toBytes(),
+      ),
       decodeUser,
     )
 
     this.houseAccount = new Account(
-      getPdaAddress(HOUSE_SEED),
+      getPdaAddress(
+        Buffer.from('house'),
+      ),
       decodeHouse,
     )
   }

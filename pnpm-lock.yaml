@@ -322,9 +322,6 @@ importers:
         specifier: ^1.78.4
         version: 1.78.4
     devDependencies:
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
       eslint:
         specifier: ^8.48.0
         version: 8.48.0

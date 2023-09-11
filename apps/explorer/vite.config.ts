@@ -7,7 +7,7 @@ const ENV_PREFIX = ['GAMBA_', 'VITE_']
 
 export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
-  server: { port: 7778 },
+  server: { port: 7777 },
   resolve: { alias: { '@src': path.resolve(__dirname, './src') } },
   plugins: [
     react(),

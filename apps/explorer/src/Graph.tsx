@@ -3,13 +3,11 @@ import { Group } from '@visx/group'
 import { ParentSize } from '@visx/responsive'
 import { Bar } from '@visx/shape'
 import React, { useMemo } from 'react'
-// import letterFrequency, { LetterFrequency } from '@visx/mock-data/lib/mocks/letterFrequency'
 import { scaleBand, scaleLinear } from '@visx/scale'
 import { DAILY_VOLUME, DailyVolume } from './data'
 
 const data = DAILY_VOLUME
 
-// accessors
 const getLetter = (d: DailyVolume) => d.date
 const getLetterFrequency = (d: DailyVolume) => Number(d.total_volume) * 100
 

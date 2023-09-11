@@ -5,7 +5,8 @@
   "description": "",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "keywords": [],
   "author": "",
@@ -20,12 +21,12 @@
     "@visx/gradient": "^3.3.0",
     "@visx/grid": "^3.3.0",
     "@visx/group": "^3.3.0",
-    "@visx/mock-data": "^3.3.0",
     "@visx/responsive": "^3.3.0",
     "@visx/scale": "^3.3.0",
     "@visx/shape": "^3.3.0",
     "@visx/tooltip": "^3.3.0",
     "@visx/vendor": "^3.3.0",
+    "clsx": "^2.0.0",
     "gamba-core": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

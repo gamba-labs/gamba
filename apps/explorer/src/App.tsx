@@ -1,5 +1,5 @@
-import { BellIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { Box, Button, Callout, Container, Flex, Popover, TextField } from '@radix-ui/themes'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Box, Button, Container, Flex, Popover, TextField } from '@radix-ui/themes'
 import React from 'react'
 import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
 import styles from './App.module.css'
@@ -63,16 +63,6 @@ export function App() {
         </Container>
       </Box>
       <Container p="2">
-        <Container mb="4">
-          <Callout.Root>
-            <Callout.Icon>
-              <BellIcon />
-            </Callout.Icon>
-            <Callout.Text>
-              Data displayed on the dashboard are samples.
-            </Callout.Text>
-          </Callout.Root>
-        </Container>
         <Routes>
           <Route
             path="/"

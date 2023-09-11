@@ -1,28 +1,24 @@
-import { ClipboardIcon, TriangleUpIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Button, Card, Container, Flex, Grid, Heading, Link, Table, Text, Tooltip } from '@radix-ui/themes'
+import { ClipboardIcon, InfoCircledIcon, TriangleUpIcon } from '@radix-ui/react-icons'
+import { Badge, Box, Button, Callout, Card, Container, Flex, Grid, Heading, Link, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { AreaGraph } from './AreaGraph'
-import { CREATORS, PLAYS, POOLS } from './data'
-
-// const useFetch = () => {
-//   const [state, setState] = useState<[]>()
-//   const fetch = async () => {
-//     const res = await window.fetch('https://209.38.229.113.nip.io:3001/daily-volume?start=1693762744&end=1694367544&creator=', { method: 'get' })
-//     return await res.json()
-//   }
-//   React.useEffect(
-//     () => {
-//       fetch().then(setState)
-//     }
-//     , [])
-//   return state
-// }
+import { CREATORS, PLAYS } from './data'
 
 export function Dashboard() {
   return (
     <Container>
-      <div style={{ height: '300px' }}>
+      <Container mb="4">
+        <Callout.Root>
+          <Callout.Icon>
+            <InfoCircledIcon />
+          </Callout.Icon>
+          <Callout.Text>
+            Data displayed on the dashboard are samples.
+          </Callout.Text>
+        </Callout.Root>
+      </Container>
+      <div style={{ height: '250px' }}>
         <AreaGraph />
       </div>
       <Box my="4">
@@ -77,59 +73,6 @@ export function Dashboard() {
         columns={{ sm: '2' }}
         gap="4"
       >
-        {/* <Box>
-          <Table.Root variant="surface">
-            <Table.Header>
-              <Table.Row>
-                <Table.ColumnHeaderCell>
-                  Token
-                </Table.ColumnHeaderCell>
-                <Table.ColumnHeaderCell>
-                  Liquidity
-                </Table.ColumnHeaderCell>
-                <Table.ColumnHeaderCell>
-                  Volume
-                </Table.ColumnHeaderCell>
-              </Table.Row>
-            </Table.Header>
-
-            <Table.Body>
-              {POOLS.map(({ symbol, liquidity, volume }, i) => (
-                <Table.Row key={i}>
-                  <Table.Cell>
-                    <Flex align="baseline" gap="2">
-                      <Button variant="ghost" size="1">
-                        <ClipboardIcon />
-                      </Button>
-                      <Link asChild>
-                        <NavLink to={'/pool/' + symbol}>
-                          {symbol}
-                        </NavLink>
-                      </Link>
-                    </Flex>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text color="green">
-                      {liquidity} SOL
-                    </Text>
-                    <Badge color="red">
-                      -2.4%
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text color="green">
-                      {volume} SOL
-                    </Text>
-                    <Badge color="green">
-                      1,320%
-                    </Badge>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table.Root>
-        </Box> */}
-
         <Box>
           <Table.Root variant="surface">
             <Table.Header>
@@ -137,7 +80,7 @@ export function Dashboard() {
                 <Table.ColumnHeaderCell>
                   Creator
                 </Table.ColumnHeaderCell>
-                <Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell align="right">
                   Volume
                 </Table.ColumnHeaderCell>
               </Table.Row>
@@ -154,16 +97,18 @@ export function Dashboard() {
                       </Button>
                       <Link asChild>
                         <NavLink to={'/address/' + address}>
-                          {meta?.name ?? (address.substring(0, 12) + '...')}
+                          {meta?.name ?? (address.substring(0, 24) + '...')}
                         </NavLink>
                       </Link>
                     </Flex>
                   </Table.Cell>
-                  <Table.Cell>
-                    <Badge color="green">
-                      {volume}
+                  <Table.Cell align="right">
+                    <Text>
+                      {volume} SOL
+                    </Text>
+                    {/* <Badge color="green">
                       <TriangleUpIcon />
-                    </Badge>
+                    </Badge> */}
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -178,7 +123,7 @@ export function Dashboard() {
                 <Table.ColumnHeaderCell>
                   Play
                 </Table.ColumnHeaderCell>
-                <Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell align="right">
                   Payout
                 </Table.ColumnHeaderCell>
               </Table.Row>
@@ -200,8 +145,8 @@ export function Dashboard() {
                       </Link>
                     </Flex>
                   </Table.Cell>
-                  <Table.Cell>
-                    <Text color={profit >= 0 ? 'green' : 'red'} mr="2">
+                  <Table.Cell align="right">
+                    <Text mr="2">
                       {Math.abs(profit).toFixed(3)} SOL
                     </Text>
                     <Badge color={profit >= 0 ? 'green' : 'red'}>
@@ -223,11 +168,8 @@ export function Dashboard() {
               <Table.ColumnHeaderCell>
                 Play
               </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell align="right">
                 Payout
-              </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>
-                Time
               </Table.ColumnHeaderCell>
             </Table.Row>
           </Table.Header>
@@ -249,8 +191,8 @@ export function Dashboard() {
                     {/* </Tooltip> */}
                   </Flex>
                 </Table.Cell>
-                <Table.Cell>
-                  <Text color={profit >= 0 ? 'green' : 'red'} mr="2">
+                <Table.Cell align="right">
+                  <Text mr="2">
                     {Math.abs(profit).toFixed(3)} SOL
                   </Text>
                   <Badge color={profit >= 0 ? 'green' : 'red'}>
@@ -258,7 +200,6 @@ export function Dashboard() {
                     {Math.abs(multiplier * 100 - 100).toFixed(0)}%
                   </Badge>
                 </Table.Cell>
-                <Table.Cell>Just now</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>

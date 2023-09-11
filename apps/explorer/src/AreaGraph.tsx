@@ -2,7 +2,6 @@ import { curveMonotoneX } from '@visx/curve'
 import { localPoint } from '@visx/event'
 import { GradientOrangeRed, LinearGradient } from '@visx/gradient'
 import { GridColumns, GridRows } from '@visx/grid'
-// import appleStock, { AppleStock } from '@visx/mock-data/lib/mocks/appleStock'
 import { ParentSize } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
 import { AreaClosed, Bar, Line } from '@visx/shape'
@@ -15,7 +14,6 @@ import { DAILY_VOLUME, DailyVolume } from './data'
 
 type TooltipData = DailyVolume;
 
-// console.log(appleStock)
 const stock = DAILY_VOLUME.reduce(
   (prev, curr) => {
     const nextTotal = prev.total + curr.total_volume
@@ -40,13 +38,11 @@ const tooltipStyles = {
   zIndex: 1000,
 }
 
-// util
 const formatDate = timeFormat('%b %d, \'%y')
 
 // accessors
 const getDate = (d: DailyVolume) => new Date(d.date)
 const getStockValue = (d: DailyVolume) => d.total_volume
-const getStockValue2 = (d: DailyVolume) => d.daily
 
 const formatLamps = (lamports: number) => parseFloat((lamports / 1e9).toFixed(2))
 

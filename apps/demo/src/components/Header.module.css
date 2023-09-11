@@ -5,13 +5,13 @@
   top: 0;
   left: 0;
   padding: 10px;
-  /* background: #000000CC;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px); */
 }
 
 @media (min-height: 800px) {
   .wrapper {
+    background: #000000CC;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     padding: 10px 20px;
   }
 }

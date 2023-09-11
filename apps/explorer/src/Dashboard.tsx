@@ -27,7 +27,7 @@ export function Dashboard() {
           gap="4"
         >
           <Box>
-            <Card size="3">
+            <Card size="2">
               <Heading color="orange" size="5">
                 Volume
               </Heading>
@@ -37,7 +37,7 @@ export function Dashboard() {
             </Card>
           </Box>
           <Box>
-            <Card size="3">
+            <Card size="2">
               <Heading color="orange" size="5">
                 Plays
               </Heading>
@@ -47,7 +47,7 @@ export function Dashboard() {
             </Card>
           </Box>
           <Box>
-            <Card size="3">
+            <Card size="2">
               <Heading color="orange" size="5">
                 Players
               </Heading>
@@ -57,7 +57,7 @@ export function Dashboard() {
             </Card>
           </Box>
           <Box grow="1">
-            <Card size="3">
+            <Card size="2">
               <Heading color="orange" size="5">
                 Creators
               </Heading>
@@ -140,7 +140,7 @@ export function Dashboard() {
 
                       <Link asChild>
                         <NavLink to={'/tx/' + txid}>
-                          {txid.substring(0, 6)}
+                          {txid.substring(0, 20)}...
                         </NavLink>
                       </Link>
                     </Flex>

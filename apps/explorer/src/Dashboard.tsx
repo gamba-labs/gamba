@@ -1,4 +1,4 @@
-import { ClipboardIcon, InfoCircledIcon, TriangleUpIcon } from '@radix-ui/react-icons'
+import { ClipboardIcon, InfoCircledIcon } from '@radix-ui/react-icons'
 import { Badge, Box, Button, Callout, Card, Container, Flex, Grid, Heading, Link, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
@@ -104,7 +104,7 @@ export function Dashboard() {
                   </Table.Cell>
                   <Table.Cell align="right">
                     <Text>
-                      {volume} SOL
+                      {volume.toLocaleString()} SOL
                     </Text>
                     {/* <Badge color="green">
                       <TriangleUpIcon />
@@ -147,7 +147,7 @@ export function Dashboard() {
                   </Table.Cell>
                   <Table.Cell align="right">
                     <Text mr="2">
-                      {Math.abs(profit).toFixed(3)} SOL
+                      {Math.abs(profit).toFixed(3).toLocaleString()} SOL
                     </Text>
                     <Badge color={profit >= 0 ? 'green' : 'red'}>
                       {multiplier >= 1 ? '+' : '-'}
@@ -193,7 +193,7 @@ export function Dashboard() {
                 </Table.Cell>
                 <Table.Cell align="right">
                   <Text mr="2">
-                    {Math.abs(profit).toFixed(3)} SOL
+                    {Math.abs(profit).toFixed(3).toLocaleString()} SOL
                   </Text>
                   <Badge color={profit >= 0 ? 'green' : 'red'}>
                     {multiplier >= 1 ? '+' : '-'}

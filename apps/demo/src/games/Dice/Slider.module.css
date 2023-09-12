@@ -5,7 +5,6 @@
   box-shadow: 0 0 0px px #32294333;
   transition: box-shadow .2s ease;
   height: 15px;
-  overflow: hidden;
   opacity: 1;
   cursor: pointer;
 }
@@ -67,17 +66,17 @@
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 5px;
+  width: 10px;
   height: 20px;
   background: #dbdaffeb;
   cursor: pointer;
-  border-radius: 0px;
+  border-radius: 2px;
 }
 
 .slider::-moz-range-thumb {
-  width: 5px;
+  width: 10x;
   height: 20px;
-  background: #5351ff;
+  background: #dbdaffeb;
   cursor: pointer;
-  border-radius: 0px;
+  border-radius: 2px;
 }

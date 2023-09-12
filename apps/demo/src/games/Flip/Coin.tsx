@@ -15,9 +15,7 @@ function CoinModel() {
     <>
       <mesh rotation-x={-Math.PI / 2}>
         <cylinderGeometry args={[1, 1, .29]} />
-        <meshBasicMaterial
-          color={COIN_COLOR}
-        />
+        <meshBasicMaterial color={COIN_COLOR} />
       </mesh>
       <mesh position-z={.15}>
         <planeGeometry args={[1.3, 1.3, 1.3]} />
@@ -35,7 +33,7 @@ function CoinModel() {
 
 interface CoinFlipProps {
   flipping: boolean
-  result: number | null
+  result: number
 }
 
 export function Coin({ flipping, result }: CoinFlipProps) {
@@ -43,7 +41,7 @@ export function Coin({ flipping, result }: CoinFlipProps) {
   const target = React.useRef(0)
 
   React.useEffect(() => {
-    if (!flipping && result !== null) {
+    if (!flipping) {
       const fullTurns = Math.floor(group.current.rotation.y / (Math.PI * 2))
       target.current = (fullTurns + 1) * Math.PI * 2 + result * Math.PI
     }
@@ -52,7 +50,7 @@ export function Coin({ flipping, result }: CoinFlipProps) {
   useFrame((_, dt) => {
     if (flipping) {
       group.current.rotation.y += 25 * dt
-    } else if (result !== null) {
+    } else {
       group.current.rotation.y += (target.current - group.current.rotation.y) * .1
     }
     const scale = flipping ? 1.25 : 1

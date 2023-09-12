@@ -21,7 +21,7 @@ export default function Flip() {
   const gamba = useGamba()
   const [flipping, setFlipping] = React.useState(false)
   const [win, setWin] = React.useState(false)
-  const [resultIndex, setResultIndex] = React.useState<number | null>(null)
+  const [resultIndex, setResultIndex] = React.useState(0)
   const [bet, setBet] = React.useState(SIDES.Heads)
   const [wager, setWager] = React.useState(WAGER_OPTIONS[0])
 

@@ -14,8 +14,9 @@ const Slider: React.FC<SliderProps> = ({ min: minValue, max: maxValue, value, on
   const labels = Array.from({ length: 5 }).map((_, i, arr) => min + Math.floor(i / (arr.length - 1) * (max - min)))
 
   const change = (newValue: number) => {
-    if (newValue >= minValue && newValue <= maxValue)
-      onChange(newValue)
+    const fixedValue = Math.max(minValue, Math.min(maxValue, newValue))
+    if (fixedValue !== value)
+      onChange(fixedValue)
   }
 
   return (

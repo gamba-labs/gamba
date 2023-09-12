@@ -44,9 +44,9 @@ export class Account<T> extends Event<[current: DecodedAccountInfo<T>, previous:
   listen(connection: Connection) {
     this.fetchState(connection)
 
-    const listener = connection.onAccountChange(this.publicKey, (info) =>
-      this.update(info),
-    )
+    const listener = connection.onAccountChange(this.publicKey, (info) => {
+      this.update(info)
+    })
 
     return () => {
       connection.removeAccountChangeListener(listener)

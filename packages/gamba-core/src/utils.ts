@@ -1,10 +1,12 @@
 import { BorshAccountsCoder, BorshCoder, EventParser } from '@coral-xyz/anchor'
 import { getAssociatedTokenAddressSync } from '@solana/spl-token'
-import { AccountInfo, Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
+import { AccountInfo, Connection, LAMPORTS_PER_SOL, ParsedTransactionWithMeta, PublicKey } from '@solana/web3.js'
 import { IDL, PROGRAM_ID } from './constants'
-import { ParsedSettledBetEvent, parseSettledBetEvent } from './parsers'
-import { BetSettledEvent, GameResult, HouseState, RecentPlayEvent, UserState } from './types'
-// import BN from 'bn.js'
+import { parsePlayEvent } from './parsers'
+import { GameEvent, HouseState, UserState, GameResult } from './types'
+
+const accountsCoder = new BorshAccountsCoder(IDL)
+const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
 
 /**
  * Return zero if provided number is undefined
@@ -65,133 +67,155 @@ export const getPdaAddress = (...seeds: (Uint8Array | Buffer)[]) => {
 export const decodeUser = (account: AccountInfo<Buffer> | null) => {
   if (!account?.data?.length)
     return null
-  return new BorshAccountsCoder(IDL).decode('user', account.data) as UserState
+  return accountsCoder.decode<UserState>('user', account.data)
 }
 
 export const decodeHouse = (account: AccountInfo<Buffer> | null) => {
   if (!account?.data?.length)
     return null
-  return new BorshAccountsCoder(IDL).decode('house', account.data) as HouseState
+  return accountsCoder.decode<HouseState>('house', account.data)
 }
 
 export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
   return hmac256(rngSeed, [clientSeed, nonce].join('-'))
 }
 
-export const resultIndexFromGameHash = (gameHash: string, options: number[]) => {
-  const result = parseInt(gameHash.substring(0, 5), 16)
-  return result % options.length
-}
-
-export const getGameResult = async (
+export const deriveGameResult = async (
   previousState: UserState,
   currentState: UserState,
+  estimatedTime = Date.now(),
 ): Promise<GameResult> => {
   const clientSeed = previousState.currentGame.clientSeed
-  const options = previousState.currentGame.options
+  const bet = previousState.currentGame.options
   const nonce = bnToNumber(previousState.nonce)
-  const rngSeedHashed = previousState.currentGame.rngSeedHashed
   const rngSeed = currentState.previousRngSeed
   const gameHash = await getGameHash(rngSeed, clientSeed, nonce)
-  const resultIndex = resultIndexFromGameHash(gameHash, options)
-  const multiplier = options[resultIndex]
+  const resultIndex = parseInt(gameHash.substring(0, 5), 16) % bet.length
+  const multiplier = bet[resultIndex] / 1000
   const wager = bnToNumber(previousState.currentGame.wager)
-  const payout = (wager * multiplier / 1000)
+  const payout = (wager * multiplier)
   const profit = (payout - wager)
 
   return {
+    creator: currentState.currentGame.creator,
     player: currentState.owner,
-    rngSeedHashed,
     rngSeed,
     clientSeed,
     nonce,
-    options,
+    bet,
     resultIndex,
     wager,
     payout,
     profit,
+    estimatedTime,
+    signature: '',
+    multiplier,
   }
 }
 
-export const getTokenBalance = async (connection: Connection, wallet: PublicKey, token: PublicKey) => {
-  const associatedTokenAccount = getAssociatedTokenAddressSync(
-    token,
-    wallet,
-  )
-  const tokenAccountBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
-  return Number(tokenAccountBalance.value.amount)
+export const getTokenAccount = async (connection: Connection, wallet: PublicKey, token: PublicKey) => {
+  const address = getAssociatedTokenAddressSync(token, wallet)
+  const tokenAccountBalance = await connection.getTokenAccountBalance(address)
+  const balance = Number(tokenAccountBalance.value.amount)
+  return { address, balance }
 }
 
-export const getRecentEvents = async (
+export const parseTransactionEvents = (
+  logs: string[],
+  signature: string,
+  time: number,
+) => {
+  const parsedEvents: GameResult[] = []
+  const events = eventParser.parseLogs(logs)
+  for (const event of events) {
+    const data = event.data as GameEvent
+    if (event.name === 'GameEvent')
+      parsedEvents.push(parsePlayEvent(data, signature, time))
+  }
+  return parsedEvents
+}
+
+/**
+ * Fetches transactions from a given address and extracts their GameResult events
+ */
+export const getGameResults = async (
   connection: Connection,
   params: {
     signatureLimit: number,
-    rngAddress: PublicKey,
+    address: PublicKey,
+    before?: string,
   },
 ) => {
-  console.debug('[gamba] Fetching recent events', params)
-
-  const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
-
-  const signatures = await connection.getSignaturesForAddress(
-    params.rngAddress,
-    { limit: params.signatureLimit },
-    'finalized',
+  const signatureInfo = await connection.getSignaturesForAddress(
+    params.address,
+    {
+      limit: params.signatureLimit,
+      before: params.before,
+    },
+    'confirmed',
   )
-
-  const signatureStrings = signatures.map((x) => x.signature)
+  const signatures = signatureInfo.map((x) => x.signature)
 
   const transactions = await connection.getParsedTransactions(
-    signatureStrings,
-    { maxSupportedTransactionVersion: 0, commitment: 'finalized' },
+    signatures,
+    {
+      maxSupportedTransactionVersion: 0,
+      commitment: 'confirmed',
+    },
   )
 
-  console.debug('[gamba] Transactions', transactions.length)
+  const results = transactions.flatMap(
+    (tx) => {
+      if (!tx?.meta?.logMessages) return []
+      return parseTransactionEvents(
+        tx.meta.logMessages,
+        tx.transaction.signatures[0],
+        (tx.blockTime ?? 0) * 1000,
+      )
+    },
+  )
 
-  return new Promise<RecentPlayEvent[]>((resolve) => {
-    const parsedEvents: RecentPlayEvent[] = []
-    for (const tx of transactions) {
-      try {
-        if (tx?.meta?.logMessages) {
-          const events = eventParser.parseLogs(tx.meta.logMessages)
-          for (const event of events) {
-            const data = event.data as BetSettledEvent
-            parsedEvents.push({
-              signature: tx.transaction.signatures[0],
-              estimatedTime: tx.blockTime ? (tx.blockTime * 1000) : Date.now(),
-              creator: data.creator,
-              clientSeed: data.clientSeed,
-              wager: bnToNumber(data.wager),
-              nonce: bnToNumber(data.nonce),
-              resultIndex: bnToNumber(data.resultIndex),
-              resultMultiplier: bnToNumber(data.resultMultiplier) / 1000,
-              rngSeed: data.rngSeed,
-              player: data.player,
-            })
-          }
-        }
-      } catch (err) {
-        console.error('[gamba] Failed to parse logs', tx)
-      }
-    }
-    resolve(parsedEvents)
-  })
+  return { results, signatures }
 }
 
-export const listenForPlayEvents = (connection: Connection, cb: (event: ParsedSettledBetEvent) => void) => {
-  const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
-  console.debug('🛜 Listen for events')
+export interface ParsedGambaTransaction {
+  transaction: ParsedTransactionWithMeta
+  gameResult?: GameResult
+}
 
+/**
+ * Tries to find Gamba data in a transaction
+ */
+export const parseGambaTransaction = async (
+  transaction: ParsedTransactionWithMeta,
+): Promise<ParsedGambaTransaction> => {
+  const _logs = transaction.meta?.logMessages ?? []
+  const events = await parseTransactionEvents(
+    _logs,
+    transaction.transaction.signatures[0],
+    (transaction.blockTime ?? 0) * 1000,
+  )
+  const gameResult = events[0]
+  return { transaction, gameResult }
+}
+
+export const listenForPlayEvents = (
+  connection: Connection,
+  cb: (event: GameResult) => void,
+  creator?: PublicKey,
+) => {
+  console.debug('🛜 Listen for events')
   const logSubscription = connection.onLogs(
-    PROGRAM_ID,
+    creator ?? PROGRAM_ID,
     (logs) => {
       if (logs.err) {
         return
       }
-      for (const event of eventParser.parseLogs(logs.logs)) {
-        const data = event.data as BetSettledEvent
-        cb(parseSettledBetEvent(data, logs.signature))
-      }
+      parseTransactionEvents(
+        logs.logs,
+        logs.signature,
+        Date.now(),
+      ).forEach(cb)
     },
   )
 

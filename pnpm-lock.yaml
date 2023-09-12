@@ -183,6 +183,9 @@ importers:
       clsx:
         specifier: ^2.0.0
         version: 2.0.0
+      gamba:
+        specifier: workspace:^
+        version: link:../../packages/gamba
       gamba-core:
         specifier: workspace:*
         version: link:../../packages/gamba-core
@@ -208,6 +211,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^3.1.0
         version: 3.1.0(vite@4.2.1)
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
       unplugin-fonts:
         specifier: ^1.0.3
         version: 1.0.3(vite@4.2.1)

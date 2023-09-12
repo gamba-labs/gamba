@@ -655,6 +655,58 @@ export type Gamba = {
           'index': false
         }
       ]
+    },
+    {
+      'name': 'GameEvent',
+      'fields': [
+        {
+          'name': 'creator',
+          'type': 'publicKey',
+          'index': false
+        },
+        {
+          'name': 'player',
+          'type': 'publicKey',
+          'index': false
+        },
+        {
+          'name': 'wager',
+          'type': 'u64',
+          'index': false
+        },
+        {
+          'name': 'nonce',
+          'type': 'i64',
+          'index': false
+        },
+        {
+          'name': 'rngSeed',
+          'type': 'string',
+          'index': false
+        },
+        {
+          'name': 'clientSeed',
+          'type': 'string',
+          'index': false
+        },
+        {
+          'name': 'resultMultiplier',
+          'type': 'u64',
+          'index': false
+        },
+        {
+          'name': 'resultIndex',
+          'type': 'u64',
+          'index': false
+        },
+        {
+          'name': 'options',
+          'type': {
+            'vec': 'u32'
+          },
+          'index': false
+        }
+      ]
     }
   ],
   'errors': [
@@ -1354,6 +1406,56 @@ export const IDL: Gamba = {
         {
           name: 'resultIndex',
           type: 'u64',
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'GameEvent',
+      fields: [
+        {
+          name: 'creator',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'player',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'wager',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'nonce',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'rngSeed',
+          type: 'string',
+          index: false,
+        },
+        {
+          name: 'clientSeed',
+          type: 'string',
+          index: false,
+        },
+        {
+          name: 'resultMultiplier',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'resultIndex',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'options',
+          type: { vec: 'u32' },
           index: false,
         },
       ],

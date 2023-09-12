@@ -49,7 +49,7 @@ function Inner({ children }: React.PropsWithChildren) {
  */
 export function Gamba({ children, creator: _creator }: React.PropsWithChildren<GambaProviderProps>) {
   const [seed, setSeed] = React.useState(randomSeed())
-  const { wallet, connected } = useWallet()
+  const _wallet = useWallet()
   const { connection } = useConnection()
 
   const creator = React.useMemo(
@@ -59,10 +59,10 @@ export function Gamba({ children, creator: _creator }: React.PropsWithChildren<G
 
   const walletAdapter = React.useMemo(
     () => {
-      if (connected && wallet?.adapter)
-        return wallet?.adapter
+      if (_wallet?.connected && _wallet?.wallet?.adapter)
+        return _wallet?.wallet?.adapter
     }
-    , [wallet, connected],
+    , [_wallet],
   )
 
   const client = React.useMemo(
@@ -71,7 +71,6 @@ export function Gamba({ children, creator: _creator }: React.PropsWithChildren<G
         connection,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         walletAdapter as any,
-        // onError,
       )
     },
     [connection, walletAdapter],
@@ -80,8 +79,6 @@ export function Gamba({ children, creator: _creator }: React.PropsWithChildren<G
   React.useEffect(() => client.userAccount.listen(connection), [connection, client.userAccount])
   React.useEffect(() => client.houseAccount.listen(connection), [connection, client.houseAccount])
   React.useEffect(() => client.walletAccount.listen(connection), [connection, client.walletAccount])
-
-  // React.useEffect(() => listenForPlayEvents(connection), [client])
 
   return (
     <GambaContext.Provider value={{ creator, client, seed, setSeed }}>

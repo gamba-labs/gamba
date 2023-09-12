@@ -9,6 +9,6 @@ export default {
   `,
   creator: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
   image,
-  theme_color: '#00da69',
+  theme_color: 'rgb(29 232 126)',
   app: React.lazy(() => import('./App')),
 }

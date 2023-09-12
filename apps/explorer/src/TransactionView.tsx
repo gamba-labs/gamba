@@ -2,26 +2,17 @@ import { ExternalLinkIcon, MixIcon, ResetIcon } from '@radix-ui/react-icons'
 import { Badge, Box, Button, Card, Code, Container, Flex, Grid, Heading, IconButton, Link, ScrollArea, Table, Tabs, Text, TextField } from '@radix-ui/themes'
 import { useConnection } from '@solana/wallet-adapter-react'
 import clsx from 'clsx'
+import { GameResult, ParsedGambaTransaction, parseGambaTransaction } from 'gamba-core'
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import styles from './test.module.css'
 
-interface Parsed {
-  bet: number[]
-  wager: number
-  resultIndex: number
-  rngSeed: string
-  rngSeedHashed: string
-  nonce: number
-  clientSeed: string
-}
-
-const VerificationSection: React.FC<{parsed: Parsed}> = ({ parsed }) => {
+const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
   const [clientSeed, setClientSeed] = React.useState(parsed.clientSeed)
 
   const verifyArgs = [
     parsed.rngSeed,
-    parsed.rngSeedHashed,
+    'parsed.rngSeedHashed',
     clientSeed,
     parsed.nonce,
     parsed.wager,
@@ -110,64 +101,35 @@ const VerificationSection: React.FC<{parsed: Parsed}> = ({ parsed }) => {
 export function TransactionView() {
   const { connection } = useConnection()
   const { txid } = useParams<{txid: string}>()
-  const [logs, setLogs] = React.useState<string[]>([])
-  const [valid, setValid] = React.useState(false)
-
-  const [parsed, setParsed] = React.useState<Parsed>()
+  const [parsed, setParsed] = React.useState<ParsedGambaTransaction>()
 
   React.useEffect(
     () => {
       connection.getParsedTransaction(txid!)
-        .then((x) => {
-          const _logs = x?.meta?.logMessages ?? []
-
-          const extractValue = (key: string) => {
-            const arr = _logs.find((x) => x.includes(key + ': '))?.split(key + ': ')
-            return arr ? arr[1] : ''
+        .then((transaction) => {
+          if (transaction) {
+            return parseGambaTransaction(transaction)
           }
-          if (_logs[0].startsWith('Program GambaXcmhJg1vgPm1Gn6mnMKGyyR3X2eSmF6yeU6XWtT')) {
-            setValid(true)
-
-            setParsed({
-              bet: JSON.parse(extractValue('options')),
-              wager: JSON.parse(extractValue('wager')),
-              resultIndex: JSON.parse(extractValue('result_index')),
-              rngSeed: extractValue('rng_seed'),
-              rngSeedHashed: extractValue('rng_seed_hashed'),
-              nonce: JSON.parse(extractValue('nonce')),
-              clientSeed: extractValue('client_seed'),
-            })
-          }
-          setLogs(_logs)
         })
+        .then(setParsed)
     }, [txid],
   )
 
-  if (!parsed) return null
+  if (!parsed?.gameResult) return null
 
-  if (!valid) {
-    return (
-      <Container>
-        <Heading mb="3" size="8">
-          Not a Gamba Transaction
-        </Heading>
-        <Link target="_blank" href={`https://explorer.solana.com/tx/${txid}`} rel="noreferrer">
-          View in Solana Explorer <ExternalLinkIcon />
-        </Link>
-      </Container>
-    )
-  }
+  const logs = parsed?.transaction.meta?.logMessages ?? []
+  const { gameResult } = parsed
 
-  const bet = parsed.bet.map((x) => x / 1000)
+  const bet = gameResult.bet.map((x) => x / 1000)
   const moreThanOne = bet.filter((x) => x >= 1)
   const sum = bet.reduce((p, x) => p + x, 0)
   const winChange = moreThanOne.length / bet.length
   const potentialWin = Math.max(...bet)
   const oddsScore = sum / bet.length
   const uniqueOutcomes = Array.from(new Set(bet)).sort()
-  const multiplier = parsed.bet[parsed.resultIndex] / 1e3
-  const payout = parsed.wager * multiplier
-  const profit = payout - parsed.wager
+  const multiplier = gameResult.bet[gameResult.resultIndex] / 1e3
+  const payout = gameResult.wager * multiplier
+  const profit = payout - gameResult.wager
 
   return (
     <Container>
@@ -177,11 +139,6 @@ export function TransactionView() {
         </Heading>
 
         <Flex gap="2">
-          {/* <Badge color="green">
-            <CheckIcon />
-            Verified Fair!
-          </Badge> */}
-
           <Link target="_blank" href={`https://explorer.solana.com/tx/${txid}`} rel="noreferrer">
             View in Solana Explorer <ExternalLinkIcon />
           </Link>
@@ -238,11 +195,11 @@ export function TransactionView() {
               <Table.Cell>
                 <Grid columns="2" gap="4">
                   <Text weight="bold">
-                    Player
+                    Creator
                   </Text>
                   <Link asChild>
-                    <NavLink to={'/tx/' + txid}>
-                      Coming Soon
+                    <NavLink to={'/address/' + gameResult.creator.toBase58()}>
+                      {gameResult.creator.toBase58()}
                     </NavLink>
                   </Link>
                 </Grid>
@@ -253,13 +210,26 @@ export function TransactionView() {
               <Table.Cell>
                 <Grid columns="2" gap="4">
                   <Text weight="bold">
-                    Creator
+                    Player
                   </Text>
                   <Link asChild>
-                    <NavLink to={'/tx/' + txid}>
-                      Coming Soon
+                    <NavLink to={'/address/' + gameResult.player.toBase58()}>
+                      {gameResult.player.toBase58()}
                     </NavLink>
                   </Link>
+                </Grid>
+              </Table.Cell>
+            </Table.Row>
+
+            <Table.Row>
+              <Table.Cell>
+                <Grid columns="2" gap="4">
+                  <Text weight="bold">
+                    Time
+                  </Text>
+                  <Text>
+                    {new Date(gameResult.estimatedTime).toLocaleString()}
+                  </Text>
                 </Grid>
               </Table.Cell>
             </Table.Row>
@@ -271,7 +241,7 @@ export function TransactionView() {
                     Wager
                   </Text>
                   <Text>
-                    {parseFloat((parsed.wager / 1e9).toFixed(2))} SOL
+                    {parseFloat((gameResult.wager / 1e9).toFixed(2))} SOL
                   </Text>
                 </Grid>
               </Table.Cell>
@@ -304,7 +274,7 @@ export function TransactionView() {
                   <Flex gap="1" wrap="wrap">
                     {bet.map((x, i) => {
                       const rank = Math.floor(uniqueOutcomes.indexOf(x) / (uniqueOutcomes.length - 1) * 7)
-                      const active = i === parsed.resultIndex
+                      const active = i === gameResult.resultIndex
                       return (
                         <Badge
                           key={i}
@@ -336,7 +306,7 @@ export function TransactionView() {
 
         <Box px="2" pt="2" pb="2">
           <Tabs.Content value="verification">
-            <VerificationSection parsed={parsed} />
+            <VerificationSection parsed={gameResult} />
           </Tabs.Content>
 
           <Tabs.Content value="logs">

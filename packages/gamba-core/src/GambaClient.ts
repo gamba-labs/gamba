@@ -44,6 +44,7 @@ export class GambaClient {
   }
 
   private errorEvent = new Event<[GambaError2]>
+
   onError = (listener: (error: GambaError2) => void) => this.errorEvent.subscribe(listener)
 
   /**

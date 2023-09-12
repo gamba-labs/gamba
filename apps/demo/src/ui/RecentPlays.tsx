@@ -1,8 +1,9 @@
-import { RecentPlayEvent, lamportsToSol, solToLamports } from 'gamba'
-import { useGamba, useRecentPlays } from 'gamba/react'
+import { GameResult, lamportsToSol } from 'gamba'
+import { useGamba, useRecentGameResults } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
 import { Icon } from '../components/Icon'
+import { Section } from '../components/Section'
 import { cx } from '../utils'
 import styles from './RecentPlays.module.css'
 
@@ -24,21 +25,18 @@ const TimeDiff: React.FC<{time: number}> = ({ time }) => {
   }, [time])
 }
 
-function RecentPlay({ event, isSelf }: {event: RecentPlayEvent, isSelf: boolean}) {
-  const wager = event.wager
-  const multiplier = event.resultMultiplier
+function RecentPlay({ result, isSelf }: {result: GameResult, isSelf: boolean}) {
+  const wager = result.wager
+  const multiplier = result.multiplier
   const payout = wager * multiplier
   const profit = wager * multiplier - wager
-
-  const isWhale = wager > solToLamports(0.1)
-  const isRekt = payout === 0
-
   const win = profit >= 0
-
-  const whaleStatus = Math.floor(Math.log10(Math.max(1, lamportsToSol(profit) * 1000)))
+  const isRekt = payout === 0
+  const whaleScore = Math.log10(lamportsToSol(wager) / 0.01)
+  const litScore = multiplier - 1
 
   return (
-    <a className={styles.play} href={`${VERIFY_URL}/${event.signature}`} target="_blank" rel="noreferrer">
+    <a className={styles.play} href={`${VERIFY_URL}/${result.signature}`} target="_blank" rel="noreferrer">
       <div>
         <span className={styles.who}>
           {isSelf ? 'You ' : 'Someone '}
@@ -50,14 +48,13 @@ function RecentPlay({ event, isSelf }: {event: RecentPlayEvent, isSelf: boolean}
           </span>
         </span>
         <span className={styles.flares}>
-          {whaleStatus > 0 && '🐋'.repeat(whaleStatus - 1)}
-          {isWhale && '🐳'}
+          {whaleScore > 0 && '🐋'.repeat(whaleScore)}
           {isRekt && '💀'}
-          {'🔥'.repeat(Math.floor(Math.max(0, multiplier - 1)))}
+          {litScore > 0 && '🔥'.repeat(litScore)}
         </span>
       </div>
       <span>
-        <TimeDiff time={event.estimatedTime} /> <Icon.ExternalLink />
+        <TimeDiff time={result.estimatedTime} /> <Icon.ExternalLink />
       </span>
     </a>
   )
@@ -65,20 +62,29 @@ function RecentPlay({ event, isSelf }: {event: RecentPlayEvent, isSelf: boolean}
 
 export function RecentPlays() {
   const { wallet } = useGamba()
-  const recentPlays = useRecentPlays()
+  const recentPlays = useRecentGameResults()
 
   return (
-    <div className={styles.container}>
-      {recentPlays.map((event, i) => (
-        <RecentPlay
-          key={i}
-          event={event}
-          isSelf={event.player.equals(wallet.publicKey)}
-        />
-      ))}
-      {!recentPlays.length && Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className={styles.skeleton} />
-      ))}
-    </div>
+    <Section
+      title="Recent Plays"
+      stuff={
+        <>
+          {/* <Button size="small" variant="soft"></Button> */}
+        </>
+      }
+    >
+      <div className={styles.container}>
+        {recentPlays.map((result, i) => (
+          <RecentPlay
+            key={i}
+            result={result}
+            isSelf={result.player.equals(wallet.publicKey)}
+          />
+        ))}
+        {!recentPlays.length && Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className={styles.skeleton} />
+        ))}
+      </div>
+    </Section>
   )
 }

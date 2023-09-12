@@ -123,12 +123,11 @@ export default function Slots() {
 
       const result = await res.result()
 
-      const multiplier = result.options[result.resultIndex] / 1000
       // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
       const resultDelay = Date.now() - startTime
       const revealDelay = Math.max(0, SPIN_DELAY - resultDelay)
 
-      const combination = getSlotCombination(NUM_SLOTS, multiplier, bet)
+      const combination = getSlotCombination(NUM_SLOTS, result.multiplier, bet)
 
       setCombination(combination)
 

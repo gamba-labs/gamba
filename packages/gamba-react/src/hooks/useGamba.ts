@@ -1,4 +1,4 @@
-import { GambaError, GambaError2, GambaPlayParams, getGameResult } from 'gamba-core'
+import { GambaError, GambaError2, GambaPlayParams, deriveGameResult } from 'gamba-core'
 import React from 'react'
 import { GambaContext } from '../GambaProvider'
 import { randomSeed } from '../utils'
@@ -20,9 +20,8 @@ export function useGamba() {
   const { creator, seed, setSeed } = React.useContext(GambaContext)
   const client = useGambaClient()
   const balances = useBalances()
-  const [initialize, isInitializing] = useCreateAccount()
-  const [claim, isClaiming] = useClaim()
-
+  const [initialize] = useCreateAccount()
+  const [claim] = useClaim()
   const { connection } = client
 
   const updateSeed = (seed = randomSeed()) => setSeed(seed)
@@ -55,7 +54,7 @@ export function useGamba() {
           // Game nonce incremented by 1
           // We can now derive a result
           if (currentNonce === previousNonce + 1) {
-            return getGameResult(previous.decoded, current.decoded)
+            return deriveGameResult(previous.decoded, current.decoded)
           }
           // Nonce skipped
           if (currentNonce > previousNonce + 1) {
@@ -81,13 +80,9 @@ export function useGamba() {
     house: client.house,
     seed,
     anticipateResult,
-
     play,
-
     claim,
-
     initialize,
-
     balances,
   }
 }

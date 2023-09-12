@@ -2,6 +2,7 @@ import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Box, Button, Container, Flex, Popover, TextField } from '@radix-ui/themes'
 import React from 'react'
 import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import { AddressView } from './Address'
 import styles from './App.module.css'
 import { Dashboard } from './Dashboard'
 import { TransactionView } from './TransactionView'
@@ -71,6 +72,10 @@ export function App() {
           <Route
             path="/tx/:txid"
             element={<TransactionView />}
+          />
+          <Route
+            path="/address/:address"
+            element={<AddressView />}
           />
         </Routes>
       </Container>

@@ -1,7 +1,7 @@
 import { useCloseAccount, useCreateAccount, useGamba } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
-import { Button, CopyButton } from '../components/Button'
+import { Button } from '../components/Button'
 import { Icon } from '../components/Icon'
 import { Modal } from '../components/Modal'
 
@@ -40,34 +40,13 @@ function CreateAccountButton() {
   )
 }
 
-
 export function UserModal({ onClose }: Props) {
   const gamba = useGamba()
 
   return (
     <Modal onClose={onClose}>
       <h1>{formatLamports(gamba.balances.total)}</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%', textAlign: 'center' }}>
-        <div>
-          {formatLamports(gamba.balances.user)}
-          <div>Claimable</div>
-        </div>
-        <div>
-          {formatLamports(gamba.balances.bonus)}
-          <div>Bonus</div>
-        </div>
-      </div>
-      <CopyButton
-        content={gamba.wallet.publicKey.toBase58()}
-        variant="ghost"
-        size="small"
-        style={{ width: '100%' }}
-      >
-        {gamba.wallet.publicKey.toBase58()}
-      </CopyButton>
-      <div>
-        {gamba.user.status}
-      </div>
+      <p>{gamba.wallet.publicKey.toBase58()}</p>
       <div style={{ display: 'grid', gap: '10px' }}>
         <Button
           onClick={() => gamba.updateSeed()}

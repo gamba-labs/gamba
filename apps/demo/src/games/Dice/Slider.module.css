@@ -68,7 +68,7 @@
   appearance: none;
   width: 20px;
   height: 20px;
-  background: #dbdaffeb;
+  background: #dbdaff;
   cursor: pointer;
   border-radius: 2px;
 }
@@ -76,7 +76,7 @@
 .slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  background: #dbdaffeb;
+  background: #dbdaff;
   cursor: pointer;
   border-radius: 2px;
 }

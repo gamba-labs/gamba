@@ -1,22 +1,22 @@
-import { getTokenBalance } from 'gamba-core'
+import { getTokenAccount } from 'gamba-core'
 import React, { useState } from 'react'
 import { useGamba } from './useGamba'
 
 export function useBonusBalance() {
   const gamba = useGamba()
-  const [bonusTokens, setBonusTokens] = useState(0)
+  const [balance, setBalance] = useState(0)
 
   React.useEffect(() => {
     const fetchBonusTokens = async () => {
       if (!gamba.wallet || !gamba.house.bonusMint) {
-        setBonusTokens(0)
+        setBalance(0)
         return
       }
-      const balance = await getTokenBalance(gamba.connection, gamba.wallet.publicKey, gamba.house.bonusMint)
-      setBonusTokens(balance)
+      const { balance } = await getTokenAccount(gamba.connection, gamba.wallet.publicKey, gamba.house.bonusMint)
+      setBalance(balance)
     }
     fetchBonusTokens()
   }, [gamba.wallet, gamba.house, gamba.user])
 
-  return bonusTokens
+  return balance
 }

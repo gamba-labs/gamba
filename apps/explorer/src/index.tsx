@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { App } from './App'
 import './styles.css'
+import { Gamba } from 'gamba/react'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
@@ -14,7 +15,9 @@ root.render(
     <ConnectionProvider endpoint={import.meta.env.GAMBA_SOLANA_RPC}>
       <BrowserRouter>
         <Theme accentColor="iris" radius="medium" panelBackground="translucent">
-          <App />
+          <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
+            <App />
+          </Gamba>
         </Theme>
       </BrowserRouter>
     </ConnectionProvider>

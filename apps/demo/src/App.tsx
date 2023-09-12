@@ -2,7 +2,7 @@ import React from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { Card } from './components/Card'
 import { Header } from './components/Header'
-import { Section, SlideSection } from './components/Section'
+import { SlideSection } from './components/Section'
 import { GAMES } from './games'
 import { ErrorHandlers } from './ui/ErrorHandlers'
 import { Game } from './ui/Game'
@@ -39,9 +39,7 @@ export function App() {
         ))}
       </SlideSection>
 
-      <Section title="Recent Plays">
-        <RecentPlays />
-      </Section>
+      <RecentPlays />
     </>
   )
 }

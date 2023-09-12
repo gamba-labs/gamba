@@ -43,16 +43,19 @@
   flex-grow: 1;
   text-align: center;
   word-wrap: nowrap;
-  & > div {
-    padding: 5px;
-  }
-  & > div:last-child {
-    opacity: .8;
-    font-size: 12px;
-  }
-  & > div:first-child {
-    font-weight: bold;
-  }
+}
+
+.stats > div > div {
+  padding: 5px;
+}
+
+.stats > div > div:last-child {
+  opacity: .6;
+  font-size: 75%;
+}
+
+.stats > div > div:first-child {
+  font-weight: bold;
 }
 
 .sliderContainer {

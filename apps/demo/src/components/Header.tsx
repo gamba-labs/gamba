@@ -3,11 +3,6 @@ import { NavButton } from './Button'
 import styles from './Header.module.css'
 
 export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
-  // const toggle = () => {
-  //   const prev = document.documentElement.getAttribute('data-theme')
-  //   const theme = prev === 'light' ? 'dark' : 'light'
-  //   document.documentElement.setAttribute('data-theme', theme)
-  // }
   return (
     <div className={styles.wrapper}>
       <div>
@@ -16,9 +11,6 @@ export const Header: React.FC<React.PropsWithChildren> = ({ children }) => {
             <img src="/logo.svg" height="20px" />
             <span className={styles.title}>Gamba Demo</span>
           </NavButton>
-          {/* <Button onClick={toggle} variant="soft" color="white">
-            LIGHT
-          </Button> */}
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           {children}

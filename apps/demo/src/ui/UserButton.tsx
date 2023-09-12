@@ -1,7 +1,7 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useBonusBalance, useGamba } from 'gamba/react'
-import { formatLamports, useClaim, useCloseAccount, useCreateAccount, useRedeemBonus } from 'gamba/react-ui'
+import { useBonusBalance, useClaim, useCloseAccount, useCreateAccount, useGamba, useRedeemBonus } from 'gamba/react'
+import { formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import { Button } from '../components/Button'
 import { Dropdown } from '../components/Dropdown'
@@ -133,6 +133,9 @@ function ConnectedButton() {
           >
             {gamba.wallet.publicKey.toBase58()}
           </Button>
+          <div>
+            {gamba.user.status}
+          </div>
           <ShuffleSeedButton />
           <CloseAccountButton onClosed={() => setModal(false)} />
           <CreateAccountButton />

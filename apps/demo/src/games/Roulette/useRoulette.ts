@@ -3,6 +3,9 @@ import { CHIPS, INITIAL_TABLE_BETS } from './constants'
 import { NamedBet, TableBet } from './types'
 
 interface RouletteState {
+  spinning: boolean
+  setSpinning: (spinning: boolean) => void
+
   selectedBetAmount: number,
   setSelectedBetAmount: (selectedBetAmount: number) => void,
 
@@ -20,10 +23,14 @@ interface RouletteState {
 
 export const useRoulette = create<RouletteState>(
   (set, get) => ({
+    tableBet: INITIAL_TABLE_BETS,
+
     selectedBetAmount: CHIPS[0],
     setSelectedBetAmount: (selectedBetAmount) => set({ selectedBetAmount }),
 
-    tableBet: INITIAL_TABLE_BETS,
+    spinning: false,
+    setSpinning: (spinning) => set({ spinning }),
+
     clearChips: () => set({ tableBet: INITIAL_TABLE_BETS }),
     placeChip: (indexOrSquare, amount) => {
       if (typeof indexOrSquare === 'number') {

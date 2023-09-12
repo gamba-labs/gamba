@@ -5,12 +5,12 @@ import React from 'react'
 import { randomSeed } from './utils'
 
 interface GambaProviderProps {
-  creator?: PublicKey | string
+  creator: PublicKey | string
   onError?: (error: GambaError2, handler: Event) => void
 }
 
 interface GambaContext {
-  creator?: PublicKey | string
+  creator: PublicKey
   client: GambaClient
   seed: string
   setSeed: (seed: string) => void
@@ -47,10 +47,15 @@ function Inner({ children }: React.PropsWithChildren) {
 /**
  *
  */
-export function Gamba({ children, creator }: React.PropsWithChildren<GambaProviderProps>) {
+export function Gamba({ children, creator: _creator }: React.PropsWithChildren<GambaProviderProps>) {
   const [seed, setSeed] = React.useState(randomSeed())
   const { wallet, connected } = useWallet()
   const { connection } = useConnection()
+
+  const creator = React.useMemo(
+    () => new PublicKey(_creator),
+    [_creator],
+  )
 
   const walletAdapter = React.useMemo(
     () => {

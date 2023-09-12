@@ -1,8 +1,4 @@
-
-export { ErrorBoundary } from './ErrorBoundary'
-export { Fullscreen } from './Fullscreen'
-export { GameView } from './GameView'
-export * from './hooks'
 export * from './types'
+export * as GameUi from './ui'
+export { useWagerUtils } from './useWagerUtils'
 export { formatLamports } from './utils'
-

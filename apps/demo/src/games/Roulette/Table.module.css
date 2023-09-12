@@ -17,6 +17,12 @@
   box-shadow: 0 0 0 1px var(--border-color);
   color: white;
   width: 50px;
+  cursor: pointer;
+}
+
+.betButton:disabled {
+  cursor: default;
+  opacity: .9;
 }
 
 .betButton[data-color="red"] {

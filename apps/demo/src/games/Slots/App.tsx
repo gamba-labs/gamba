@@ -1,11 +1,7 @@
 import { useGamba } from 'gamba/react'
-import {
-  Fullscreen,
-  formatLamports,
-  useGameControls,
-  useSounds,
-} from 'gamba/react-ui'
-import React, { useMemo, useState } from 'react'
+import { GameUi, formatLamports } from 'gamba/react-ui'
+import React from 'react'
+import styles from './App.module.css'
 import { ItemPreview } from './ItemPreview'
 import { Slot } from './Slot'
 import {
@@ -22,8 +18,8 @@ import {
   SOUND_WIN,
   SPIN_DELAY,
   SlotItem,
+  WAGER_OPTIONS,
 } from './constants'
-import styles from './App.module.css'
 import { generateBetArray, getSlotCombination } from './utils'
 
 interface Result {
@@ -53,17 +49,16 @@ const Stuff: React.FC<{messages: string[]}> = ({ messages }) => {
 
 export default function Slots() {
   const gamba = useGamba()
-  const [spinning, setSpinning] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<Result>()
-  const [good, setGood] = useState(false)
+  const [spinning, setSpinning] = React.useState(false)
+  const [result, setResult] = React.useState<Result>()
+  const [good, setGood] = React.useState(false)
   const [revealedSlots, setRevealedSlots] = React.useState(NUM_SLOTS)
-
+  const [wager, setWager] = React.useState(WAGER_OPTIONS[0])
   const [combination, setCombination] = React.useState(
     Array.from({ length: NUM_SLOTS }).map(() => SLOT_ITEMS[0]),
   )
 
-  const sounds = useSounds({
+  const sounds = GameUi.useSounds({
     win: SOUND_WIN,
     lose: SOUND_LOSE,
     reveal: SOUND_REVEAL,
@@ -72,16 +67,11 @@ export default function Slots() {
     play: SOUND_PLAY,
   })
 
-  const { wager } = useGameControls({
-    disabled: spinning,
-    wagerInput: { },
-    playButton: { label: 'Spin', onClick: () => play() },
-  })
-
   const maxPayout = gamba.house?.maxPayout ?? 0
-  const bet = useMemo(
+
+  const bet = React.useMemo(
     () => generateBetArray(maxPayout, wager),
-    [maxPayout, wager, gamba.user?.nonce],
+    [maxPayout, wager, gamba.user.nonce],
   )
 
   const revealSlot = (combination: SlotItem[], slot = 0) => {
@@ -116,8 +106,6 @@ export default function Slots() {
 
   const play = async () => {
     try {
-      setLoading(true)
-
       sounds.play.play()
 
       const res = await gamba.play({
@@ -151,13 +139,26 @@ export default function Slots() {
       // Reset if there's an error
       setSpinning(false)
       setRevealedSlots(NUM_SLOTS)
-    } finally {
-      setLoading(false)
     }
   }
 
   return (
-    <Fullscreen maxScale={1.25}>
+    <GameUi.Fullscreen maxScale={1.25}>
+      <GameUi.Controls disabled={spinning}>
+        {WAGER_OPTIONS.map((_wager) => (
+          <GameUi.Button
+            key={_wager}
+            selected={wager === _wager}
+            onClick={() => setWager(_wager)}
+          >
+            {formatLamports(_wager)}
+          </GameUi.Button>
+        ))}
+        <GameUi.Button variant="primary" onClick={play}>
+          Spin
+        </GameUi.Button>
+      </GameUi.Controls>
+
       <div className={styles.container}>
         <div>
           <ItemPreview betArray={bet} />
@@ -195,6 +196,6 @@ export default function Slots() {
           </div>
         </div>
       </div>
-    </Fullscreen>
+    </GameUi.Fullscreen>
   )
 }

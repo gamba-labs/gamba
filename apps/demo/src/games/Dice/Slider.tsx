@@ -12,53 +12,39 @@ interface SliderProps {
 
 const Slider: React.FC<SliderProps> = ({ min: minValue, max: maxValue, value, onChange, disabled, range: [min, max] }) => {
   const labels = Array.from({ length: 5 }).map((_, i, arr) => min + Math.floor(i / (arr.length - 1) * (max - min)))
-  const [isDragging, setIsDragging] = React.useState(false)
-  const track = React.useRef<HTMLDivElement>(null!)
 
-  const change = (clientX: number) => {
-    if (disabled) return
-    const { width, left } = track.current.getBoundingClientRect()
-    const xx = Math.min(1, Math.max(0, (clientX - left) / width))
-    const newValue = Math.max(minValue, Math.min(maxValue, Math.round(xx * max)))
-    if (newValue !== value)
+  const change = (newValue: number) => {
+    if (newValue >= minValue && newValue <= maxValue)
       onChange(newValue)
   }
 
-  const handleDragStart = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
-    setIsDragging(true)
-    change(clientX)
-  }
-
-  const handleDragEnd = () => {
-    setIsDragging(false)
-  }
-
-  const handleDrag = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    if (!isDragging) return
-    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
-    change(clientX)
-  }
-
   return (
-    <div
-      onMouseDown={handleDragStart}
-      onMouseUp={handleDragEnd}
-      onMouseMove={handleDrag}
-    >
-      <div ref={track} className={styles.slider} aria-disabled={disabled}>
-        <div style={{ width: `${value / max * 100}%` }} />
+    <>
+      <div className={styles.wrapper} aria-disabled={disabled}>
+        <div
+          className={styles.track}
+          style={{ width: `calc(${value / max * 100}%)` }}
+        />
+        <input
+          className={styles.slider}
+          type="range"
+          value={value}
+          disabled={disabled}
+          min={min}
+          max={max}
+          onChange={(event) => change(Number(event.target.value))}
+        />
       </div>
       {labels.map((label, i) => (
         <div
           key={i}
-          className={styles.label}
+          className={[styles.label, value >= label && styles.active].join(' ')}
           style={{ left: (label / max * 100) + '%' }}
         >
           {label}
         </div>
       ))}
-    </div>
+    </>
   )
 }
 

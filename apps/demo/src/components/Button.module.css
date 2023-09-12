@@ -74,15 +74,18 @@
   border-radius: 8px;
   transition: background .25s;
   text-align: center;
-  cursor: pointer;
   display: inline-block;
   text-wrap: nowrap;
 }
 
 @media (hover: hover) {
-  .button:hover {
+  .button:not(:disabled):hover {
     background: var(--hover-background);
   }
+}
+
+.button:not(:disabled) {
+  cursor: pointer;
 }
 
 .button:disabled {

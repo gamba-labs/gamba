@@ -24,6 +24,7 @@ interface ButtonProps<E extends Element> {
   pulse?: boolean
   icon?: JSX.Element
   loading?: boolean
+  disabled?: boolean
 }
 
 export function Button<E extends Element>(
@@ -38,6 +39,7 @@ export function Button<E extends Element>(
     color = 'default',
     pulse,
     icon,
+    disabled,
     className,
     ...rest
   } = props
@@ -54,6 +56,7 @@ export function Button<E extends Element>(
           className,
         )
       }
+      disabled={disabled || loading}
       {...rest}
     >
       {children}

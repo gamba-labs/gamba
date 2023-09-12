@@ -15,7 +15,6 @@ export function Slot({ revealed, good, item, index }: SlotProps) {
     [...SLOT_ITEMS].sort(() => Math.random() - .5)
   , [],
   )
-
   return (
     <div className={styles.slot} data-good={good}>
       <div className={styles2.spinner} data-spinning={!revealed}>

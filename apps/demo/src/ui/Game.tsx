@@ -1,4 +1,4 @@
-import { GameView, useControlsStore } from 'gamba/react-ui'
+import { GameUi } from 'gamba/react-ui'
 import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button } from '../components/Button'
@@ -6,35 +6,33 @@ import { Modal } from '../components/Modal'
 import { GAMES } from '../games'
 import styles from './Game.module.css'
 import { Home } from './Home'
-import { WagerInput } from './WagerInput'
 
-function PlayButton() {
-  const controls = useControlsStore()
-  const button = controls.scheme.playButton
-
-  if (!button) return null
+function Splash() {
+  const game = GameUi.useCurrentGame()
 
   return (
-    <Button color="white" disabled={controls.scheme.disabled} onClick={() => button.onClick()}>
-      {button.label ?? 'Play'}
-    </Button>
+    <>
+      <div className={styles.splash}>
+        <img src={game.image} />
+      </div>
+    </>
   )
 }
 
 function Controls() {
-  const { shortName } = useParams()
-  const game = useMemo(() => GAMES.find((x) => x.short_name === shortName)!, [shortName])
+  const game = GameUi.useCurrentGame()
   const [showInfo, setShowInfo] = React.useState(false)
-  const controls = useControlsStore()
 
+  // Show info modal the first time that the game is played
   React.useEffect(
     () => {
-      setTimeout(() => {
-        if (!window.localStorage.getItem('played-' + shortName)) {
+      const timeout = setTimeout(() => {
+        if (!window.localStorage.getItem('played-' + game.short_name)) {
           setShowInfo(true)
-          window.localStorage.setItem('played-' + shortName, String(Date.now()))
+          window.localStorage.setItem('played-' + game.short_name, String(Date.now()))
         }
       }, 1000)
+      return () => clearTimeout(timeout)
     },
     [],
   )
@@ -44,13 +42,13 @@ function Controls() {
       {showInfo && (
         <Modal onClose={() => setShowInfo(false)}>
           <h1 style={{ textAlign: 'center' }}>
-            <img height="100" src={game.image} alt={game.name} />
+            <img height="100px" src={game.image} alt={game.name} />
           </h1>
           <p>
-            {game.description || 'No information available'}
+            {game.description}
           </p>
-          <Button onClick={() => setShowInfo(false)}>
-            Play
+          <Button color="white" onClick={() => setShowInfo(false)}>
+            Continue
           </Button>
         </Modal>
       )}
@@ -64,13 +62,7 @@ function Controls() {
           >
             <img src={game.image} height="40px" />
           </Button>
-          <div>
-            <WagerInput />
-            {controls.scheme.custom && controls.scheme.custom}
-          </div>
-          <div style={{ height: '100%', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <PlayButton />
-          </div>
+          <GameUi.ControlView />
         </div>
       </div>
     </>
@@ -84,27 +76,14 @@ export function Game() {
   if (!game) return (<Home />)
 
   return (
-    <>
-      <div key={game.short_name} className={styles.container}>
+    <GameUi.Provider key={game.short_name} game={game}>
+      <div className={styles.container}>
         <div className={styles.view}>
-          <GameView
-            game={game}
-          />
+          <GameUi.View />
         </div>
+        <Splash />
         <Controls />
-        <div className={styles.splash}>
-          <img src={game.image} />
-        </div>
-        <button
-          className={styles.butt}
-          onClick={
-            () =>
-              document.getElementById('below')?.scrollIntoView({ behavior: 'smooth' })
-          }
-        >
-        </button>
       </div>
-      <div id="below" />
-    </>
+    </GameUi.Provider>
   )
 }

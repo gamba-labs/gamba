@@ -1,14 +1,9 @@
 import { MIN_BET } from 'gamba-core'
 import { useBalances, useGambaClient } from 'gamba-react'
-import React from 'react'
-
-interface WagerConstraints {
-  bet?: number[]
-}
 
 const ESTIMATED_FEE_AND_RENT = 1000000
 
-export function useWagerUtils(constaints: WagerConstraints) {
+export function useWagerUtils() {
   const gamba = useGambaClient()
   const balances = useBalances()
 
@@ -16,18 +11,13 @@ export function useWagerUtils(constaints: WagerConstraints) {
   const creatorFee = gamba.house.fees.creator
   const totalFee = houseFee + creatorFee
 
-  const maxMultiplier = React.useMemo(
-    () => constaints.bet ? Math.max(...constaints.bet) : 1,
-    [constaints.bet],
-  )
-
-  const set = (desiredValue: number) => {
+  return (desiredValue: number, bet?: number[]) => {
+    const maxMultiplier = bet ? Math.max(...bet) : 1
     let _val = desiredValue
 
     const maxWagerForBet = gamba.house.maxPayout / maxMultiplier
     _val = Math.min(_val, maxWagerForBet)
 
-    //
     _val = Math.min(balances.total, _val)
 
     // Deduct fees:
@@ -38,10 +28,4 @@ export function useWagerUtils(constaints: WagerConstraints) {
 
     return Math.max(MIN_BET, _val)
   }
-
-  const max = () => set(balances.total)
-  const min = () => set(MIN_BET)
-  const times = (a: number, x: number) => set(a * x)
-
-  return { max, min, set, times }
 }

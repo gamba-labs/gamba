@@ -1,6 +1,6 @@
 import { SLOT_ITEMS, SlotItem } from './constants'
 
-const pickRandom = <T>(arr: T[]) => arr[Math.random() * arr.length | 0]
+const pickRandom = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]
 
 /**
  * Creates a bet array for given wager amount and max payout
@@ -36,7 +36,7 @@ export const getSlotCombination = (count: number, multiplier: number, bet: numbe
   // When we win, all slots are the same
   if (multiplier > 0) {
     const items = SLOT_ITEMS.filter((x) => x.multiplier === multiplier)
-    const item = pickRandom(items)
+    const item = pickRandom(items) ?? pickRandom(SLOT_ITEMS.filter((x) => x.multiplier < 1))
     return new Array(count).fill(item) as SlotItem[]
   }
 
@@ -48,8 +48,9 @@ export const getSlotCombination = (count: number, multiplier: number, bet: numbe
     ({ previous, items }, _, i) => {
       const item = (() => {
         // Make sure we don't pick one that has been selected
-        if (i === count - 1)
-          return pickRandom(availableSlotItems.filter((x) => !items.includes(x)))
+        if (i === count - 1) {
+          return pickRandom(availableSlotItems.filter((x) => !items.includes(x))) ?? pickRandom(SLOT_ITEMS)
+        }
 
         // Pick a random one
         return Math.random() < .75 ? previous : pickRandom(availableSlotItems)

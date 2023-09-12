@@ -4,10 +4,9 @@ import { Card } from './components/Card'
 import { Header } from './components/Header'
 import { Section, SlideSection } from './components/Section'
 import { GAMES } from './games'
+import { ErrorHandlers } from './ui/ErrorHandlers'
 import { Game } from './ui/Game'
 import { Home } from './ui/Home'
-import { InitializeAccountModal } from './ui/InitializeUserModal'
-import { PoolButton } from './ui/PoolButton'
 import { RecentPlays } from './ui/RecentPlays'
 import { UserButton } from './ui/UserButton'
 
@@ -23,10 +22,9 @@ export function App() {
 
   return (
     <>
-      <InitializeAccountModal />
+      <ErrorHandlers />
 
       <Header>
-        <PoolButton />
         <UserButton />
       </Header>
 

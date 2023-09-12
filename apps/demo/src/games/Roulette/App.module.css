@@ -6,29 +6,3 @@
   -webkit-user-select: none;
   color: white;
 }
-
-.chipSelectWrapper {
-  display: flex;
-  gap: 5px;
-}
-
-.button {
-  border: none;
-  color: white;
-  margin: 0;
-  padding: 5px 10px;
-  background: transparent;
-  cursor: default;
-  position: relative;
-  border-radius: 5px;
-}
-
-.button:disabled {
-  opacity: .5;
-}
-
-.button.selected, .button:not(:disabled):hover {
-  transition: background .1s;
-  background: #9999ff44;
-  mix-blend-mode:screen;
-}

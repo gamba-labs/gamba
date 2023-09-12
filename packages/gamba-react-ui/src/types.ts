@@ -12,18 +12,6 @@ export interface GameBundle {
   app: (() => JSX.Element) | React.LazyExoticComponent<() => JSX.Element>
 }
 
-export interface GameControlsSceme {
-  disabled?: boolean
-  wagerInput?: {
-    bet?: number[]
-  }
-  custom?: JSX.Element,
-  playButton?: {
-    label?: string
-    onClick: () => void
-  }
-}
-
 // export interface WagerGameControl {
 //   type: 'wager'
 //   onChange: (wager: number) => void

@@ -14,12 +14,12 @@
 @keyframes gold-reveal {
   0% {
     color: white;
-    background: #32cd5e;
+    background: #ffffff;
     transform: scale(1.1);
   }
   75% {
-    color: white;
-    background: #ffffff;
+    color: #005822;
+    background: #3fff7a;
     transform: scale(1.2);
   }
 }
@@ -60,11 +60,12 @@
   display: flex;
   justify-content: space-between;
   color: white;
-  & > div:first-child {
-    display: flex;
-    color: #ffffffCC;
-    gap: 20px;
-  }
+}
+
+.statusBar > div:first-child {
+  display: flex;
+  color: #ffffffCC;
+  gap: 20px;
 }
 
 button.reset {
@@ -112,6 +113,7 @@ button.reset {
   width: 50px;
   transition: background 0.3s, opacity .3s;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .cell[data-status="hidden"] {
@@ -122,8 +124,8 @@ button.reset {
 }
 
 .cell[data-status="gold"] {
-  color: white;
-  background: #32cd5e;
+  color: #005822;
+  background: #3fff7a;
   animation: gold-reveal .5s ease;
 }
 
@@ -150,8 +152,8 @@ button.reset {
 
 .levels {
   border-radius: 5px;
+  color: gray;
   background: #292a307d;
-  font-weight: bold;
   overflow: hidden;
   width: 100%;
   display: flex;
@@ -160,16 +162,21 @@ button.reset {
 }
 
 .levels > div {
-  display: flex;
-  align-items: center;
   margin: 0 auto;
   width: 25%;
-  justify-content: center;
-  padding: 15px 0;
+  text-align: center;
+  padding: 5px 0;
+  opacity: .5;
+}
+
+.levels > div > div:first-child {
+  font-size: 60%;
+  color: gray;
 }
 
 .levels > div:first-child {
   background: #FFFFFF11;
   background: 2px 0px 10px #00000033;
   color: #32cd5e;
+  opacity: 1;
 }

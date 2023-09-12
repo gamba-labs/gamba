@@ -46,8 +46,6 @@ export class GambaClient {
   private errorEvent = new Event<[GambaError2]>
   onError = (listener: (error: GambaError2) => void) => this.errorEvent.subscribe(listener)
 
-  // private onError2?: (error: GambaError2) => void
-
   /**
    * If the used wallet is an inline burner wallet
    */
@@ -58,7 +56,9 @@ export class GambaClient {
     instructionBuilder: (...dsa: T) => Promise<TransactionInstruction>,
   ) => {
     return async (...args: T) => {
-      const runMethod: () => ReturnType<typeof this._createAndSendTransaction> = async () => {
+      const runMethod: () => ReturnType<typeof this._createAndSendTransaction> =
+      // Retry until error is resolved or rejected
+      async () => {
         try {
           const instructions = await instructionBuilder(...args)
           return this._createAndSendTransaction(instructions)

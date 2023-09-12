@@ -283,9 +283,14 @@ export function TransactionView() {
                   <Text weight="bold">
                     Payout
                   </Text>
-                  <Text>
-                    {parseFloat((payout / 1e9).toFixed(3))} SOL <Badge color={profit >= 0 ? 'green' : 'red'}>{multiplier * 100 - 100}%</Badge>
-                  </Text>
+                  <Flex>
+                    <Text mr="2">
+                      {parseFloat((payout / 1e9).toFixed(3))} SOL
+                    </Text>
+                    <Badge color={profit >= 0 ? 'green' : 'red'}>
+                      {parseFloat((multiplier * 100 - 100).toFixed(3))}%
+                    </Badge>
+                  </Flex>
                 </Grid>
               </Table.Cell>
             </Table.Row>

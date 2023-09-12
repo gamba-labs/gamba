@@ -1,6 +1,6 @@
 import { useGamba } from 'gamba/react'
-import { Fullscreen, formatLamports, useGameControls, useSounds } from 'gamba/react-ui'
-import React, { useState } from 'react'
+import { GameUi, formatLamports } from 'gamba/react-ui'
+import React from 'react'
 import styles from './App.module.css'
 import Slider from './Slider'
 
@@ -13,11 +13,12 @@ const DICE_SIDES = 100
 
 export default function Dice() {
   const gamba = useGamba()
-  const [loading, setLoading] = useState(false)
-  const [resultIndex, setResultIndex] = useState(-1)
+  const [wager, setWager] = React.useState(0)
+  const [loading, setLoading] = React.useState(false)
+  const [resultIndex, setResultIndex] = React.useState(-1)
   const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(DICE_SIDES / 2))
 
-  const sounds = useSounds({
+  const sounds = GameUi.useSounds({
     win: SOUND_WIN,
     dice: SOUND_PLAY,
     lose: SOUND_LOSE,
@@ -31,22 +32,8 @@ export default function Dice() {
     [rollUnderIndex],
   )
 
-  const { wager } = useGameControls({
-    disabled: loading,
-    wagerInput: { bet },
-    playButton: {
-      label: 'Roll',
-      onClick: () => play(),
-    },
-  })
-
   const multiplier = DICE_SIDES / rollUnderIndex
   const winChange = rollUnderIndex / DICE_SIDES
-
-  const updateRollUnderIndex = (x: number) => {
-    setRollUnderIndex(x)
-    sounds.tick.play()
-  }
 
   const play = async () => {
     try {
@@ -58,7 +45,7 @@ export default function Dice() {
         wager,
       })
 
-      const result = await gamba.awaitResult()
+      const result = await gamba.anticipateResult()
 
       setResultIndex(result.resultIndex)
 
@@ -74,7 +61,18 @@ export default function Dice() {
   }
 
   return (
-    <Fullscreen maxScale={1.5}>
+    <GameUi.Fullscreen maxScale={1.5}>
+      <GameUi.Controls disabled={loading}>
+        <GameUi.WagerInput
+          bet={bet}
+          wager={wager}
+          onChange={setWager}
+        />
+        <GameUi.Button variant="primary" onClick={play}>
+          Roll
+        </GameUi.Button>
+      </GameUi.Controls>
+
       <div className={styles.container}>
         <div className={styles.rollUnder}>
           <div>{rollUnderIndex + 1}</div>
@@ -104,14 +102,19 @@ export default function Dice() {
           }
           <Slider
             disabled={loading}
-            range={[1, DICE_SIDES]}
+            range={[0, DICE_SIDES]}
             min={1}
             max={DICE_SIDES - 5}
             value={rollUnderIndex}
-            onChange={updateRollUnderIndex}
+            onChange={
+              (value) => {
+                setRollUnderIndex(value)
+                sounds.tick.play()
+              }
+            }
           />
         </div>
       </div>
-    </Fullscreen>
+    </GameUi.Fullscreen>
   )
 }

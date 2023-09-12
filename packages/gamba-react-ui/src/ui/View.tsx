@@ -1,6 +1,6 @@
 import React from 'react'
-import { GameBundle } from './types'
-import { ErrorBoundary } from './ErrorBoundary'
+import ErrorBoundary from './ErrorBoundary'
+import { GameUiContext } from './Provider'
 
 const DefaultLoadScreen = () => {
   return (
@@ -14,8 +14,10 @@ const DefaultError = () => {
   return (
     <div style={{ color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', textAlign: 'center' }}>
       <div>
-        <h1>Don't worry</h1>
+        <h1>Error</h1>
         <p>
+          Don{'\''}t worry.
+          <br />
           This is only a client-side error and does not affect your user data.
         </p>
       </div>
@@ -24,7 +26,6 @@ const DefaultError = () => {
 }
 
 interface Props {
-  game: GameBundle
   /**
    * Component to show while the game is loading
    */
@@ -35,9 +36,17 @@ interface Props {
   error?: JSX.Element
 }
 
-export function GameView({ game, loader, error }: Props) {
+/**
+ * Renders the game component
+ */
+export default function View({ loader, error }: Props) {
+  const { game } = React.useContext(GameUiContext)
+
   return (
-    <ErrorBoundary key={game.short_name} error={error ?? <DefaultError />}>
+    <ErrorBoundary
+      key={game.short_name}
+      fallback={error ?? <DefaultError />}
+    >
       <React.Suspense fallback={loader ?? <DefaultLoadScreen />}>
         <game.app />
       </React.Suspense>

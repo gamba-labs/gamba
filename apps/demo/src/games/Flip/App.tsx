@@ -1,8 +1,8 @@
 import { Canvas } from '@react-three/fiber'
+import { solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { Fullscreen, useGameControls, useSounds } from 'gamba/react-ui'
+import { GameUi, formatLamports } from 'gamba/react-ui'
 import React from 'react'
-import styles from './App.module.css'
 import { Coin } from './Coin'
 import { Effect } from './Effect'
 
@@ -15,23 +15,20 @@ const SIDES = {
   Tails: [0, 2],
 }
 
+const WAGER_OPTIONS = [0.05, 0.1, 0.5, 1, 3].map(solToLamports)
+
 export default function Flip() {
   const gamba = useGamba()
   const [flipping, setFlipping] = React.useState(false)
   const [win, setWin] = React.useState(false)
-  const [resultIndex, setResultIndex] = React.useState(-1)
+  const [resultIndex, setResultIndex] = React.useState<number | null>(null)
   const [bet, setBet] = React.useState(SIDES.Heads)
+  const [wager, setWager] = React.useState(WAGER_OPTIONS[0])
 
-  const sounds = useSounds({
+  const sounds = GameUi.useSounds({
     coin: SOUND_COIN,
     win: SOUND_WIN,
     lose: SOUND_LOSE,
-  })
-
-  const { wager } = useGameControls({
-    disabled: flipping,
-    wagerInput: { bet },
-    playButton: { onClick: () => play() },
   })
 
   const play = async () => {
@@ -65,6 +62,33 @@ export default function Flip() {
 
   return (
     <>
+      <GameUi.Controls disabled={flipping}>
+        <GameUi.Group>
+          {Object.entries(SIDES).map(([label, _bet], i) => (
+            <GameUi.Button
+              key={i}
+              onClick={() => setBet(_bet)}
+              selected={bet === _bet}
+            >
+              {label}
+            </GameUi.Button>
+          ))}
+        </GameUi.Group>
+        <GameUi.Group>
+          {WAGER_OPTIONS.map((_wager, i) => (
+            <GameUi.Button
+              key={i}
+              onClick={() => setWager(_wager)}
+              selected={wager === _wager}
+            >
+              {formatLamports(_wager)}
+            </GameUi.Button>
+          ))}
+        </GameUi.Group>
+        <GameUi.Button variant="primary" onClick={play}>
+          Flip
+        </GameUi.Button>
+      </GameUi.Controls>
       <Canvas
         linear
         flat
@@ -78,19 +102,6 @@ export default function Flip() {
         {flipping && <Effect color="white" />}
         {win && <Effect color="#42ff78" />}
       </Canvas>
-      <Fullscreen style={{ pointerEvents: 'none' }} maxScale={1.5}>
-        <div className={[styles.container, flipping && styles.flipping].join(' ')}>
-          {Object.entries(SIDES).map(([label, _bet], i) => (
-            <button
-              key={i}
-              onClick={() => setBet(_bet)}
-              className={[styles.button, bet === _bet && styles.selected].join(' ')}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </Fullscreen>
     </>
   )
 }

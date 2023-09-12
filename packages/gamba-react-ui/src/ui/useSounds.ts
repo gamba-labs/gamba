@@ -31,9 +31,7 @@ class GambaSound {
 }
 
 export function useSounds<T extends {[s: string]: string}>(definition: T) {
-  React.useEffect(() => {
-
-  }, [definition])
+  const sources = Object.keys(definition)
 
   const sounds = React.useMemo(
     () =>
@@ -48,7 +46,7 @@ export function useSounds<T extends {[s: string]: string}>(definition: T) {
           [id]: sound,
         }), {} as Record<keyof T, GambaSound>)
     ,
-    [definition],
+    [...sources],
   )
 
   return sounds

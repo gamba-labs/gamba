@@ -1,8 +1,8 @@
-import { useSounds } from 'gamba/react-ui'
+import { GameUi } from 'gamba/react-ui'
 import React, { MouseEventHandler } from 'react'
 import { Chip } from './Chip'
 import styles from './Table.module.css'
-import { NAMED_BETS, NUMBER_COLUMNS, SOUND_CHIP, SQUARES } from './constants'
+import { NAMED_BETS, SOUND_CHIP, SQUARES } from './constants'
 import { NamedBet } from './types'
 import { useRoulette } from './useRoulette'
 
@@ -12,11 +12,12 @@ interface BetButtonProps {
 }
 
 function BetButton({ square, children, value, className, ...rest }: React.PropsWithChildren<BetButtonProps> & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  const spinning = useRoulette((state) => state.spinning)
   const placeChip = useRoulette((state) => state.placeChip)
   const removeChips = useRoulette((state) => state.removeChips)
   const selectedBetAmount = useRoulette((state) => state.selectedBetAmount)
   const setHighlightedSquares = useRoulette((state) => state.setHighlightedSquares)
-  const sounds = useSounds({ chip: SOUND_CHIP })
+  const sounds = GameUi.useSounds({ chip: SOUND_CHIP })
 
   const hover = () => {
     if (typeof square.number !== 'undefined')
@@ -50,6 +51,7 @@ function BetButton({ square, children, value, className, ...rest }: React.PropsW
       className={[styles.betButton, className].join(' ')}
       onContextMenu={click}
       onClick={click}
+      disabled={spinning}
       onMouseOver={hover}
       onMouseLeave={leave}
       {...rest}
@@ -86,38 +88,10 @@ export function Table() {
           </BetButton>
         )
       })}
-      {/* {(['row1', 'row2', 'row3'] as const).map((name, i) => (
-        <BetButton
-          key={name}
-          square={{ name }}
-          value={tableBet.named[name]}
-          style={{
-            gridRow: (i + 1),
-            gridColumn: NUMBER_COLUMNS + 1,
-          }}
-        >
-          1:2
-        </BetButton>
-      ))}
-      {(['firstHalf', 'odd', 'red', 'black', 'even', 'secondHalf'] as const).map((name, i) => (
+      {Object.entries(NAMED_BETS).map(([name, { label, row, col }], i) => (
         <BetButton
           key={i}
-          square={{ name }}
-          value={tableBet.named[name]}
-          style={{
-            gridRow: 4,
-            gridColumn: i + 1,
-          }}
-        >
-          <div>
-            {name}
-          </div>
-        </BetButton>
-      ))} */}
-      {Object.entries(NAMED_BETS).map(([name, { ids, label, row, col }], i) => (
-        <BetButton
-          key={i}
-          square={{ name }}
+          square={{ name: name as NamedBet }}
           value={tableBet.named[name as NamedBet]}
           style={{
             gridRow: row,

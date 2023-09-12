@@ -58,7 +58,7 @@ export class Account<T> extends Event<[current: DecodedAccountInfo<T>, previous:
    * @param callback Function to invoke whenever the account is changed
    * @return promise that resolves / rejects when the callback function returns a result object
    */
-  waitForState<U>(
+  anticipate<U>(
     callback: (current: DecodedAccountInfo<T>, previous: DecodedAccountInfo<T>) => U | undefined,
   ) {
     // console.debug(this._debugIdentifier, 'Wait for state')

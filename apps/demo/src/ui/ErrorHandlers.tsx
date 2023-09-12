@@ -3,7 +3,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaError2 } from 'gamba'
 import { GambaError, useGamba, useGambaError } from 'gamba/react'
 import React from 'react'
-import { Button } from '../components/Button'
+import { Button, CopyButton } from '../components/Button'
 import { Modal } from '../components/Modal'
 
 function InitUserModal({ onResolve, onReject }: {onResolve: () => void, onReject: () => void}) {
@@ -69,15 +69,15 @@ function LowBalanceModal({ onResolve, onReject }: {onResolve: () => void, onReje
     <Modal onClose={onReject}>
       <h1>Insufficient Balance</h1>
       <p>
-        You do not have enough SOL to make this bet.
-        Send SOL to this address to continue:
-        <Button
-          onClick={() => navigator.clipboard.writeText(gamba.wallet.publicKey.toBase58())}
+        You do not have enough SOL to make this bet. Fund it to continue.
+        <br />
+        <CopyButton
+          content={gamba.wallet.publicKey.toBase58()}
           variant="ghost"
           size="small"
         >
-          {gamba.wallet.publicKey.toBase58()}
-        </Button>
+          Copy address
+        </CopyButton>
       </p>
 
       <Button onClick={onReject}>

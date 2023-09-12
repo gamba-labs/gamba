@@ -1,6 +1,6 @@
 import React from 'react'
-import styles from './Dropdown.module.css'
 import { cx } from '../utils'
+import styles from './Dropdown.module.css'
 
 export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWithChildren<{visible: boolean, anchor?: 'bottom' | 'top'}>) {
   const ref = React.useRef<HTMLDivElement>(null!)

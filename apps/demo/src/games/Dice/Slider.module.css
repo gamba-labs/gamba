@@ -66,7 +66,7 @@
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 10px;
+  width: 20px;
   height: 20px;
   background: #dbdaffeb;
   cursor: pointer;
@@ -74,7 +74,7 @@
 }
 
 .slider::-moz-range-thumb {
-  width: 10x;
+  width: 20px;
   height: 20px;
   background: #dbdaffeb;
   cursor: pointer;

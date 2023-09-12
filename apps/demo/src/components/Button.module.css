@@ -20,9 +20,9 @@
 }
 
 .color-default {
-  --bg-col-solid: #12141a;
-  --bg-col-solid-hover: #1d1f28;
-  --bg-col-outlined: #8a8abc33;
+  --bg-col-solid: #1e222f;
+  --bg-col-solid-hover: #212738;
+  --bg-col-outlined: #21273866;
   --bg-col-outlined-hover: #6666ff66;
   --col-outlined: white;
   --col-solid: white;

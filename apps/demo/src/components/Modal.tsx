@@ -3,18 +3,24 @@ import { useOnClickOutside } from '../hooks/useOnClickOutside'
 import { Icon } from './Icon'
 import styles from './Modal.module.css'
 
-export function Modal({ children, onClose }: React.PropsWithChildren<{onClose: () => void}>) {
+interface Props extends React.PropsWithChildren {
+  onClose?: () => void
+}
+
+export function Modal({ children, onClose }: Props) {
   const ref = React.useRef<HTMLDivElement>(null!)
 
-  useOnClickOutside(ref, onClose)
+  useOnClickOutside(ref, () => onClose && onClose())
 
   return (
     <div className={styles.modal}>
       <div className={styles.container}>
         <div className={styles.wrapper} ref={ref}>
-          <button className={styles.close} onClick={onClose}>
-            <Icon.Close2 />
-          </button>
+          {onClose && (
+            <button className={styles.close} onClick={onClose}>
+              <Icon.Close2 />
+            </button>
+          )}
           {children}
         </div>
       </div>

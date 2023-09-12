@@ -15,14 +15,6 @@
   --recent-plays-bg: #e1e5fc;
   --recent-plays-bg-hover: #dbdff8;
 }
-/* @media (prefers-color-scheme: light) {
-  :root {
-    --text-color: #080809;
-    --bg-color: #ffffff;
-    --recent-plays-bg: #e1e5fc;
-    --recent-plays-bg-hover: #dbdff8;
-  }
-} */
 
 html, body {
   overflow-x: hidden;
@@ -74,11 +66,6 @@ a:not([href^="https://"]):not([href^="http://"]) {
 a {
   color: unset;
 }
-
-
-/**
-  Game UI stuff
-**/
 
 .gamba-ui-controls-wrapper {
   display: flex;

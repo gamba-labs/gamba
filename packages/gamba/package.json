@@ -21,10 +21,12 @@
     "build": "tsup src/index.ts --format cjs,esm --dts && pnpm react:build && pnpm ui:build",
     "clean": "rm -rf dist && pnpm react:clean && pnpm ui:clean",
     "lint": "tsc && pnpm react:lint && pnpm ui:lint",
+
     "react:dev": "tsup ./react/src/index.ts -d ./react/dist --watch --format cjs,esm --dts",
     "react:build": "tsup ./react/src/index.ts -d ./react/dist --format cjs,esm --dts",
     "react:clean": "rm -rf ./react/dist",
     "react:lint": "tsc",
+
     "ui:dev": "tsup ./react-ui/src/index.ts -d ./react-ui/dist --watch --format cjs,esm --dts",
     "ui:build": "tsup ./react-ui/src/index.ts -d ./react-ui/dist --format cjs,esm --dts",
     "ui:clean": "rm -rf ./react-ui/dist",

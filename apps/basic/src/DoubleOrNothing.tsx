@@ -1,11 +1,12 @@
-import { GameResult, lamportsToSol, solToLamports } from 'gamba'
+import { GameResult, solToLamports } from 'gamba'
 import { useGamba, useGambaError } from 'gamba/react'
+import { formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
 const getToast = (result: GameResult) => {
   if (result.payout > 0) {
-    return <span>You won <b>{parseFloat(lamportsToSol(result.payout).toFixed(4))} SOL</b></span>
+    return <span>You won <b>{formatLamports(result.payout)}</b></span>
   }
   return <span>You lost</span>
 }
@@ -29,10 +30,9 @@ export default function DoubleOrNothing() {
       const wager = solToLamports(0.05)
 
       // Initiate the request
-      const req = await gamba.methods.play({
+      const req = await gamba.play({
         bet: [2, 0],
         wager,
-        // deductFees: true,
       })
 
       setStatus('flipping')

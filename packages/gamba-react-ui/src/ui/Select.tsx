@@ -9,7 +9,7 @@ export function useOnClickOutside(
   React.useEffect(
     () => {
       const listener = (event: MouseEvent | TouchEvent) => {
-        if (!ref.current || ref.current.contains(event.target)) {
+        if (!ref.current || ref.current.contains(event.target as any)) {
           return
         }
         handler(event)

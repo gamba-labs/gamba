@@ -17,7 +17,6 @@ export default function WagerInput({ bet, wager, onChange }: WagerInputProps) {
   const disabled = globalDisabled
 
   const set = (value: number) => {
-    console.log(parseFloat(wagerUtil(value, bet).toFixed(4)))
     const fixedValue = solToLamports(parseFloat(lamportsToSol(wagerUtil(value, bet)).toFixed(4)))
     onChange(fixedValue)
   }

@@ -44,7 +44,6 @@ export function useGamba() {
           throw new Error(GambaError.USER_ACCOUNT_CLOSED_BEFORE_RESULT)
         }
         if (state.user.nonce > previous.user.nonce + 1) {
-          console.log(state.user, previous.user)
           throw new Error(GambaError.FAILED_TO_GENERATE_RESULT)
         }
         if (state.user.lastGame && state.user.nonce === previous.user.nonce + 1) {

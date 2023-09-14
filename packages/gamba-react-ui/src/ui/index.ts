@@ -9,7 +9,7 @@ export { default as Provider } from './Provider'
 export { default as Group } from './Group'
 export { default as View } from './View'
 export { default as WagerInput } from './WagerInput'
-export { Select, Option } from './Select'
+export { default as Select } from './Select'
 
 export { useSounds } from './useSounds'
 

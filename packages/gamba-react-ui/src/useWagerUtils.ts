@@ -7,15 +7,15 @@ export function useWagerUtils() {
   const gamba = useGambaClient()
   const balances = useBalances()
 
-  const houseFee = gamba.house.fees.house
-  const creatorFee = gamba.house.fees.creator
+  const houseFee = gamba.state.house.fees.house
+  const creatorFee = gamba.state.house.fees.creator
   const totalFee = houseFee + creatorFee
 
   return (desiredValue: number, bet?: number[]) => {
     const maxMultiplier = bet ? Math.max(...bet) : 1
     let _val = desiredValue
 
-    const maxWagerForBet = gamba.house.maxPayout / maxMultiplier
+    const maxWagerForBet = gamba.state.house.maxPayout / maxMultiplier
     _val = Math.min(_val, maxWagerForBet)
 
     _val = Math.min(balances.total, _val)

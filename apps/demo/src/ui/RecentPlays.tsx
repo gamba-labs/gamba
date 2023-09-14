@@ -89,12 +89,12 @@ export function RecentPlays() {
       title="Recent Plays"
       stuff={
         <>
-          <Button onClick={() => events.fetchNewer()} size="small" variant="soft">
+          {/* <Button onClick={() => events.fetchNewer()} size="small" variant="soft">
             Update
           </Button>
           <Button onClick={() => events.fetch({ signatureLimit: 10 })} size="small" variant="soft">
             Moar
-          </Button>
+          </Button> */}
         </>
       }
     >

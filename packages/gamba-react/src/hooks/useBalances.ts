@@ -3,9 +3,9 @@ import { useGambaClient } from './useGambaClient'
 export function useBalances() {
   const client = useGambaClient()
 
-  const user = client.user.balance
-  const wallet = client.owner.balance
-  const bonus = client.user.bonusBalance
+  const user = client.state.user.balance
+  const wallet = client.state.wallet.balance
+  const bonus = client.state.user.bonusBalance
 
   return {
     total: user + wallet + bonus,

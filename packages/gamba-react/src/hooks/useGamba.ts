@@ -18,8 +18,9 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 export function useGamba() {
   const { creator, seed, setSeed } = React.useContext(GambaContext)
   const client = useGambaClient()
-  const { connection } = client
   const balances = useBalances()
+
+  const { connection, wallet, state, anticipate, closeAccount, initializeAccount, withdraw, redeemBonusToken } = client
 
   const updateSeed = (seed = randomSeed()) => setSeed(seed)
 
@@ -55,16 +56,19 @@ export function useGamba() {
 
   return {
     connection,
-    creator,
-    client,
-    updateSeed,
-    wallet: client._wallet,
-    owner: client.owner,
-    user: client.user,
-    house: client.house,
+    wallet,
     seed,
-    nextResult,
-    play,
+    updateSeed,
     balances,
+    house: state.house,
+    user: state.user,
+    owner: state.wallet,
+    anticipate: anticipate.bind(client),
+    redeemBonusToken,
+    play,
+    closeAccount,
+    initializeAccount,
+    withdraw,
+    nextResult,
   }
 }

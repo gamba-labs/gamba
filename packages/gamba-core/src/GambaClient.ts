@@ -23,30 +23,18 @@ export class GambaClient {
   /** The connection object from Solana's SDK. */
   public readonly connection: Connection
 
-  program: Program<GambaProgram>
+  private program: Program<GambaProgram>
 
-  _wallet: Wallet
+  wallet: Wallet
 
-  private state = createState()
+  public state = createState()
   private previous = this.state
 
   get addresses() {
-    const wallet = this._wallet.publicKey
-    const user = getPdaAddress(Buffer.from('user2'), this._wallet.publicKey.toBytes())
+    const wallet = this.wallet.publicKey
+    const user = getPdaAddress(Buffer.from('user2'), this.wallet.publicKey.toBytes())
     const house = getPdaAddress(Buffer.from('house'))
     return { wallet, user, house }
-  }
-
-  get owner() {
-    return this.state.wallet
-  }
-
-  get house() {
-    return this.state.house
-  }
-
-  get user() {
-    return this.state.user
   }
 
   private stateEvent = new Event<[current: State, previous: State]>
@@ -126,9 +114,9 @@ export class GambaClient {
    * Plays a bet against the Program
    */
   play = this.makeMethodCall('play', ({ wager, ...params }: GambaPlayParams) => {
-    const totalBalance = this.user.balance + this.user.bonusBalance + this.owner.balance - 1000000
+    const totalBalance = this.state.user.balance + this.state.user.bonusBalance + this.state.wallet.balance - 1000000
 
-    if (!this.user.created) {
+    if (!this.state.user.created) {
       throw GambaError.PLAY_BEFORE_INITIALIZED
     }
 
@@ -187,7 +175,7 @@ export class GambaClient {
    * @param desiredAmount Lamports to withdraw. Leave empty for available funds.
    */
   withdraw = this.makeMethodCall('withdraw', (desiredAmount?: number) => {
-    const amount = desiredAmount ?? this.user.balance
+    const amount = desiredAmount ?? this.state.user.balance
 
     return this.program.methods
       .userWithdraw(new BN(amount))
@@ -203,19 +191,19 @@ export class GambaClient {
    * @param amountToRedeem Bonus tokens to redeem.
    */
   redeemBonusToken = this.makeMethodCall('redeemBonusToken', (amountToRedeem: number) => {
-    if (!this.house.bonusMint) {
+    if (!this.state.house.bonusMint) {
       throw 'House does not have a bonus token'
     }
 
     const associatedTokenAccount = getAssociatedTokenAddressSync(
-      this.house.bonusMint,
+      this.state.house.bonusMint,
       this.addresses.wallet,
     )
 
     return this.program.methods
       .redeemBonusToken(new BN(amountToRedeem ?? associatedTokenAccount))
       .accounts({
-        mint: this.house.bonusMint,
+        mint: this.state.house.bonusMint,
         tokenProgram: TOKEN_PROGRAM_ID,
         from: associatedTokenAccount,
         authority: this.addresses.wallet,
@@ -237,17 +225,17 @@ export class GambaClient {
     wallet?: Wallet,
   ) {
     if (wallet) {
-      this._wallet = wallet
+      this.wallet = wallet
     } else {
       // Create an inline burner wallet if none is provided
-      this._wallet = new NodeWallet(new Keypair)
+      this.wallet = new NodeWallet(new Keypair)
     }
 
     this.connection = connection
 
     const anchorProvider = new AnchorProvider(
       connection,
-      this._wallet,
+      this.wallet,
       { preflightCommitment: connection.commitment },
     )
 
@@ -293,13 +281,13 @@ export class GambaClient {
     const blockhash = await this.connection.getLatestBlockhash()
 
     const message = new TransactionMessage({
-      payerKey: this._wallet.publicKey,
+      payerKey: this.wallet.publicKey,
       recentBlockhash: blockhash.blockhash,
       instructions: [instruction],
     }).compileToV0Message()
     const transaction = new VersionedTransaction(message)
 
-    const signedTransaction = await this._wallet.signTransaction(transaction)
+    const signedTransaction = await this.wallet.signTransaction(transaction)
 
     const txId = await this.connection.sendTransaction(signedTransaction)
 

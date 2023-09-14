@@ -20,13 +20,13 @@ function ConnectedButton() {
   useOnClickOutside(ref, () => setVisible(false))
 
   const [claim, claiming] = usePromise(async () => {
-    await gamba.client.withdraw()
-    await gamba.client.anticipate((state, prev) => state.user.balance < prev.user.balance)
+    await gamba.withdraw()
+    await gamba.anticipate((state, prev) => state.user.balance < prev.user.balance)
   })
 
   const [redeemBonus, redeeming] = usePromise(async () => {
-    await gamba.client.redeemBonusToken(bonusBalance)
-    await gamba.client.anticipate((state, prev) => state.user.bonusBalance > prev.user.bonusBalance)
+    await gamba.redeemBonusToken(bonusBalance)
+    await gamba.anticipate((state, prev) => state.user.bonusBalance > prev.user.bonusBalance)
   })
 
   return (

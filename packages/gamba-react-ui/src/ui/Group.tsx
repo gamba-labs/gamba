@@ -2,10 +2,8 @@ import React from 'react'
 // import { useControlsStore } from '../useControlsStore'
 import { cx } from '../utils'
 
-// type ButtonHTMLAttributesProps = React.ButtonHTMLAttributes<HTMLButtonElement>
-
-interface GroupProps extends React.PropsWithChildren {
-  align?: 'left' | 'right'
+interface GroupProps extends React.HTMLAttributes<HTMLDivElement> {
+  // align?: 'left' | 'right'
 }
 
 export default function Group(props: GroupProps) {

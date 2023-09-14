@@ -1,9 +1,7 @@
-import { MIN_BET, lamportsToSol, solToLamports } from 'gamba-core'
-import { useBalances } from 'gamba-react'
+import { lamportsToSol, solToLamports } from 'gamba-core'
 import React from 'react'
 import { useControlsStore } from '../useControlsStore'
 import { useWagerUtils } from '../useWagerUtils'
-import { formatLamports } from '../utils'
 import Button from './Button'
 
 interface WagerInputProps {
@@ -14,54 +12,44 @@ interface WagerInputProps {
 
 export default function WagerInput({ bet, wager, onChange }: WagerInputProps) {
   const globalDisabled = useControlsStore((state) => state.disabled)
-  const balances = useBalances()
+  // const balances = useBalances()
   const wagerUtil = useWagerUtils()
+  const disabled = globalDisabled
 
   const set = (value: number) => {
-    const fixedValue = wagerUtil(value, bet)
+    console.log(parseFloat(wagerUtil(value, bet).toFixed(4)))
+    const fixedValue = solToLamports(parseFloat(lamportsToSol(wagerUtil(value, bet)).toFixed(4)))
     onChange(fixedValue)
   }
+
+  // const [_wager, _setWager] = React.useState('')
 
   React.useEffect(() => set(wager), [bet])
 
   return (
     <div className="gamba-game-ui-wager-input">
-      <Button
-        onClick={
-          () => {
-            const _wager = prompt('Set Wager', String(lamportsToSol(wager)))
-            if (_wager) {
-              set(solToLamports(Number(_wager)))
+      <input
+        type="number"
+        disabled={disabled}
+        value={lamportsToSol(Number(wager))}
+        step="0.05"
+        onFocus={(e) => {
+          e.target.select()
+        }}
+        onChange={
+          (evt) => {
+            if (evt.target.value) {
+              set(solToLamports(Number(evt.target.value)))
             }
           }
         }
-      >
-        {formatLamports(wager)}
-      </Button>
-      <div>
-        <input
-          type="range"
-          className="gamba-game-ui-range-input"
-          min={MIN_BET}
-          style={{ width: '100%' }}
-          max={balances.total}
-          disabled={globalDisabled}
-          value={wager}
-          onChange={(e) => set(Number(e.target.value))}
-        />
-      </div>
-      <div style={{ display: 'flex', gap: '5px' }}>
-        <Button onClick={() => set(MIN_BET)}>
-          MIN
-        </Button>
-        <Button onClick={() => set(balances.total)}>
-          MAX
-        </Button>
+      />
+      <div className="gamba-game-button-group">
         <Button onClick={() => set(wager / 2)}>
-          / 2
+          ½
         </Button>
         <Button onClick={() => set(wager * 2)}>
-          x2
+          2x
         </Button>
       </div>
     </div>

@@ -2,6 +2,31 @@ import React from 'react'
 import { cx } from '../utils'
 import Button from './Button'
 
+export function useOnClickOutside(
+  ref: React.RefObject<HTMLDivElement>,
+  handler: (event: MouseEvent | TouchEvent) => void,
+) {
+  React.useEffect(
+    () => {
+      const listener = (event: MouseEvent | TouchEvent) => {
+        if (!ref.current || ref.current.contains(event.target)) {
+          return
+        }
+        handler(event)
+      }
+
+      document.addEventListener('mousedown', listener)
+      document.addEventListener('touchstart', listener)
+
+      return () => {
+        document.removeEventListener('mousedown', listener)
+        document.removeEventListener('touchstart', listener)
+      }
+    },
+    [ref, handler],
+  )
+}
+
 interface SelectContext {
   value: any
   // setVisible: (visible: boolean) => void
@@ -10,15 +35,17 @@ interface SelectContext {
 
 const SelectContext = React.createContext<SelectContext>(null!)
 
-interface SelectProps<T> {
+interface SelectRootProps<T> {
   value: T
   onChange: (value: T) => void
   children: React.ReactNode
   label: string
+  format?: (value: T) => React.ReactNode
 }
 
-export function Select<T>(props: SelectProps<T>) {
+function Root<T>(props: SelectRootProps<T>) {
   // const id = React.useId()
+  const ref = React.useRef<HTMLDivElement>(null!)
   const [value, _setValue] = React.useState(props.value)
   const [visible, setVisible] = React.useState(false)
   const setValue = (value: T) => {
@@ -26,11 +53,14 @@ export function Select<T>(props: SelectProps<T>) {
     setVisible(false)
     props.onChange(value)
   }
+  useOnClickOutside(ref, () => setVisible(false))
+
   return (
     <SelectContext.Provider value={{ value, setValue }}>
-      <div className="gamba-ui-select-container">
+      <div ref={ref} className="gamba-ui-select-container">
         <Button onClick={() => setVisible(!visible)}>
-          {props.label} {JSON.stringify(props.value)}
+          {props.format ? props.format(props.value) : JSON.stringify(props.value)}
+          {/* {props.label} {JSON.stringify(props.value)} */}
         </Button>
         {visible && (
           <div className="gamba-ui-select-popup">
@@ -47,7 +77,7 @@ interface OptionProps<T> {
   children: React.ReactNode
 }
 
-export function Option<T>(props: OptionProps<T>) {
+function Option<T>(props: OptionProps<T>) {
   const context = React.useContext(SelectContext)
   const selected = context.value === props.value
   return (
@@ -59,3 +89,10 @@ export function Option<T>(props: OptionProps<T>) {
     </button>
   )
 }
+
+const Select = {
+  Root,
+  Option,
+}
+
+export default Select

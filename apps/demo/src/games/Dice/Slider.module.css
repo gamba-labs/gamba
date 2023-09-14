@@ -1,8 +1,8 @@
 .wrapper {
   position: relative;
-  background: #322943;
+  background: #ff556a;
   border-radius: 10px;
-  box-shadow: 0 0 0px px #32294333;
+  box-shadow: 0 0 0px 5px #32294355;
   transition: box-shadow .2s ease;
   height: 15px;
   opacity: 1;
@@ -10,7 +10,7 @@
 }
 
 .track {
-  background: #a079ff;
+  background: #55f275;
   height: 100%;
   border-radius: 10px 0 0 10px;
 }
@@ -24,17 +24,17 @@
   padding: 5px;
   border-radius: 10px;
   min-width: 30px;
-  color: rgb(255, 148, 159);
+  color: #ff949f;
   transition: left .2s ease;
   font-size: 75%;
 }
 
 .label.active {
-  color: rgb(148, 255, 148);
+  color: #94ff94;
 }
 
 .wrapper:not([aria-disabled="true"]):hover {
-  box-shadow: 0 0 0px 5px #32294355;
+  box-shadow: 0 0 0px 5px #32294399;
 }
 
 .wrapper[aria-disabled="true"] {
@@ -68,7 +68,7 @@
   appearance: none;
   width: 20px;
   height: 20px;
-  background: #dbdaff;
+  background: #FFFFFF;
   cursor: pointer;
   border-radius: 2px;
 }
@@ -76,7 +76,7 @@
 .slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  background: #dbdaff;
+  background: #FFFFFF;
   cursor: pointer;
   border-radius: 2px;
 }

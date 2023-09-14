@@ -55,8 +55,8 @@ function Mines() {
   const endGame = async () => {
     try {
       setClaiming(true)
-      await gamba.client.withdraw()
-      await gamba.client.anticipate((state, prev) => state.user.balance < prev.user.balance)
+      await gamba.withdraw()
+      await gamba.anticipate((state, prev) => state.user.balance < prev.user.balance)
       sounds.finish.play()
       reset()
     } finally {
@@ -118,28 +118,30 @@ function Mines() {
   return (
     <GameUi.Fullscreen maxScale={1.25}>
       <GameUi.Controls disabled={started}>
-        <GameUi.Select
+        <GameUi.Select.Root
           value={config.wager}
           label="Wager"
           onChange={(wager) => setConfig({ ...config, wager })}
+          format={(wager) => formatLamports(wager)}
         >
           {WAGER_OPTIONS.map((wager) => (
-            <GameUi.Option key={wager} value={wager}>
+            <GameUi.Select.Option key={wager} value={wager}>
               {formatLamports(wager)}
-            </GameUi.Option>
+            </GameUi.Select.Option>
           ))}
-        </GameUi.Select>
-        <GameUi.Select
+        </GameUi.Select.Root>
+        <GameUi.Select.Root
           value={config.mines}
           label="Mines"
           onChange={(mines) => setConfig({ ...config, mines })}
+          format={(mines) => mines + ' Mines'}
         >
           {MINE_SELECT.map((mines) => (
-            <GameUi.Option key={mines} value={mines}>
+            <GameUi.Select.Option key={mines} value={mines}>
               {mines} Mines
-            </GameUi.Option>
+            </GameUi.Select.Option>
           ))}
-        </GameUi.Select>
+        </GameUi.Select.Root>
         <GameUi.Button variant="primary" onClick={start}>
           Start
         </GameUi.Button>

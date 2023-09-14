@@ -69,21 +69,18 @@ export default function Roulette() {
   return (
     <GameUi.Fullscreen maxScale={1.25} onContextMenu={(e) => e.preventDefault()}>
       <GameUi.Controls disabled={spinning}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span>
-            <Chip value={1} /> = {formatLamports(CHIP_RATE)}
-          </span>
-        </div>
-        {CHIPS.map((value) => (
-          <GameUi.Button
-            key={value}
-            selected={value === selectedBetAmount}
-            onClick={() => setSelectedBetAmount(value)}
-          >
-            <Chip value={value} />
-          </GameUi.Button>
-        ))}
-        <GameUi.Group align="right">
+        <GameUi.Group>
+          {CHIPS.map((value) => (
+            <GameUi.Button
+              key={value}
+              selected={value === selectedBetAmount}
+              onClick={() => setSelectedBetAmount(value)}
+            >
+              <Chip value={value} />
+            </GameUi.Button>
+          ))}
+        </GameUi.Group>
+        <GameUi.Group>
           <GameUi.Button
             disabled={!wager}
             onClick={clearChips}
@@ -93,6 +90,11 @@ export default function Roulette() {
           <GameUi.Button variant="primary" disabled={maxPayoutExceeded} onClick={play}>
             Spin
           </GameUi.Button>
+        </GameUi.Group>
+        <GameUi.Group>
+          <span style={{ width: '100px' }}>
+            {formatLamports(wager)}
+          </span>
         </GameUi.Group>
       </GameUi.Controls>
 

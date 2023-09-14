@@ -1,15 +1,15 @@
 import { AnchorProvider, BN, Program } from '@coral-xyz/anchor'
 import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from '@solana/spl-token'
-import { Connection, Keypair, PublicKey, SYSVAR_CLOCK_PUBKEY, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
-import { Account } from './Account'
+import { AccountInfo, Connection, Keypair, PublicKey, SYSVAR_CLOCK_PUBKEY, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 import { Event } from './Event'
 import { GambaError2 } from './GambaError'
 import { BET_UNIT, GambaError, PROGRAM_ID, SYSTEM_PROGRAM } from './constants'
 import { Gamba as GambaProgram, IDL } from './idl'
 import { parseHouseAccount, parseUserAccount, parseWalletAccount } from './parsers'
-import { HouseState, UserState, Wallet } from './types'
-import { decodeHouse, decodeUser, getPdaAddress } from './utils'
+import { State, createState } from './state'
+import { Wallet } from './types'
+import { getPdaAddress } from './utils'
 
 export interface GambaPlayParams {
   creator: PublicKey | string
@@ -27,30 +27,71 @@ export class GambaClient {
 
   _wallet: Wallet
 
-  walletAccount: Account<null>
-  userAccount: Account<UserState>
-  houseAccount: Account<HouseState>
+  private state = createState()
+  private previous = this.state
+
+  get addresses() {
+    const wallet = this._wallet.publicKey
+    const user = getPdaAddress(Buffer.from('user2'), this._wallet.publicKey.toBytes())
+    const house = getPdaAddress(Buffer.from('house'))
+    return { wallet, user, house }
+  }
 
   get owner() {
-    return parseWalletAccount(this.walletAccount)
+    return this.state.wallet
   }
 
   get house() {
-    return parseHouseAccount(this.houseAccount)
+    return this.state.house
   }
 
   get user() {
-    return parseUserAccount(this.userAccount)
+    return this.state.user
+  }
+
+  private stateEvent = new Event<[current: State, previous: State]>
+
+  public onChange(listener: (state: State, previous: State) => void) {
+    return this.stateEvent.subscribe(listener)
+  }
+
+  private update(update: Partial<State>) {
+    this.state = { ...this.state, ...update }
+    this.stateEvent.emit(this.state, this.previous)
+    this.previous = this.state
+  }
+
+  /**
+   * Register a callback to be invoked whenever the state changes
+   * @param callback Function to invoke whenever the state is changed
+   * @return Promise that resolves when the callback function returns anything
+   */
+  anticipate<U>(
+    callback: (current: State, previous: State) => U | undefined,
+  ) {
+    return new Promise<U>((resolve, reject) => {
+      const listener = (current: State, previous: State) => {
+        try {
+          const handled = callback(current, previous)
+          if (handled) {
+            unsubscribe()
+            resolve(handled)
+          }
+        } catch (err) {
+          unsubscribe()
+          reject(err)
+        }
+      }
+      const unsubscribe = this.stateEvent.subscribe(listener)
+      listener(this.state, this.previous)
+    })
   }
 
   private errorEvent = new Event<[GambaError2]>
 
-  onError = (listener: (error: GambaError2) => void) => this.errorEvent.subscribe(listener)
-
-  /**
-   * If the used wallet is an inline burner wallet
-   */
-  burnerWalletIsPrimary = false
+  public onError(listener: (error: GambaError2) => void) {
+    return this.errorEvent.subscribe(listener)
+  }
 
   private makeMethodCall = <T extends unknown[] = []>(
     methodName: string,
@@ -95,12 +136,6 @@ export class GambaClient {
       throw GambaError.INSUFFICIENT_BALANCE
     }
 
-    // const houseFee = zeroUnless(this.house.fees.house)
-    // const creatorFee = zeroUnless(this.house.fees.creator)
-    // const totalFee = houseFee + creatorFee
-
-    // const wager = params?.deductFees ? Math.ceil(_wager / (1 + totalFee)) : _wager
-
     return this.program.methods
       .play(
         new BN(wager),
@@ -108,9 +143,9 @@ export class GambaClient {
         params.seed,
       )
       .accounts({
-        owner: this.owner.publicKey,
-        house: this.house.publicKey,
-        user: this.user.publicKey,
+        owner: this.addresses.wallet,
+        house: this.addresses.house,
+        user: this.addresses.user,
         creator: params.creator,
       })
       .instruction()
@@ -123,9 +158,9 @@ export class GambaClient {
     return this.program.methods
       .close()
       .accounts({
-        owner: this.owner.publicKey,
-        house: this.house.publicKey,
-        user: this.user.publicKey,
+        owner: this.addresses.wallet,
+        house: this.addresses.house,
+        user: this.addresses.user,
       })
       .instruction()
   })
@@ -135,10 +170,10 @@ export class GambaClient {
    */
   initializeAccount = this.makeMethodCall('initializeAccount', () => {
     return this.program.methods
-      .initializeUser(this.owner.publicKey)
+      .initializeUser(this.addresses.wallet)
       .accounts({
-        user: this.user.publicKey,
-        owner: this.owner.publicKey,
+        user: this.addresses.user,
+        owner: this.addresses.wallet,
         systemProgram: SYSTEM_PROGRAM,
       })
       .remainingAccounts([
@@ -157,8 +192,8 @@ export class GambaClient {
     return this.program.methods
       .userWithdraw(new BN(amount))
       .accounts({
-        user: this.user.publicKey,
-        owner: this.owner.publicKey,
+        user: this.addresses.user,
+        owner: this.addresses.wallet,
       })
       .instruction()
   })
@@ -174,7 +209,7 @@ export class GambaClient {
 
     const associatedTokenAccount = getAssociatedTokenAddressSync(
       this.house.bonusMint,
-      this.owner.publicKey,
+      this.addresses.wallet,
     )
 
     return this.program.methods
@@ -183,9 +218,9 @@ export class GambaClient {
         mint: this.house.bonusMint,
         tokenProgram: TOKEN_PROGRAM_ID,
         from: associatedTokenAccount,
-        authority: this.owner.publicKey,
-        user: this.user.publicKey,
-        house: this.house.publicKey,
+        authority: this.addresses.wallet,
+        user: this.addresses.user,
+        house: this.addresses.house,
       })
       .instruction()
   })
@@ -206,7 +241,6 @@ export class GambaClient {
     } else {
       // Create an inline burner wallet if none is provided
       this._wallet = new NodeWallet(new Keypair)
-      this.burnerWalletIsPrimary = true
     }
 
     this.connection = connection
@@ -218,26 +252,41 @@ export class GambaClient {
     )
 
     this.program = new Program(IDL, PROGRAM_ID, anchorProvider)
+  }
 
-    this.walletAccount = new Account(
-      this._wallet.publicKey,
-      () => null,
-    )
+  /**
+   * Starts listening for accounts that will update state
+   */
+  public listen() {
+    const { connection } = this
 
-    this.userAccount = new Account(
-      getPdaAddress(
-        Buffer.from('user2'),
-        this._wallet.publicKey.toBytes(),
-      ),
-      decodeUser,
-    )
+    const updateUser = async (info: AccountInfo<Buffer> | null) => {
+      this.update({ user: await parseUserAccount(info) })
+    }
 
-    this.houseAccount = new Account(
-      getPdaAddress(
-        Buffer.from('house'),
-      ),
-      decodeHouse,
-    )
+    const updateWallet = (info: AccountInfo<Buffer> | null) => {
+      this.update({ wallet: parseWalletAccount(info) })
+    }
+
+    const updateHouse = (info: AccountInfo<Buffer> | null) => {
+      this.update({ house: parseHouseAccount(info) })
+    }
+
+    connection.getAccountInfo(this.addresses.user).then(updateUser)
+    connection.getAccountInfo(this.addresses.wallet).then(updateWallet)
+    connection.getAccountInfo(this.addresses.house).then(updateHouse)
+
+    const listeners = [
+      connection.onAccountChange(this.addresses.wallet, updateWallet),
+      connection.onAccountChange(this.addresses.user, updateUser),
+      connection.onAccountChange(this.addresses.house, updateHouse),
+    ]
+
+    return () => {
+      listeners.forEach((listener) => {
+        this.connection.removeAccountChangeListener(listener)
+      })
+    }
   }
 
   private async _createAndSendTransaction(instruction: TransactionInstruction) {

@@ -1,45 +1,16 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useBonusBalance, useClaim, useGamba, useRedeemBonus } from 'gamba/react'
+import { useBonusBalance, useGamba } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import { Button, CopyButton } from '../components/Button'
 import { Dropdown } from '../components/Dropdown'
 import { useOnClickOutside } from '../hooks/useOnClickOutside'
+import { usePromise } from '../hooks/usePromise'
 import { UserModal } from './UserModal'
 
-function RedeemBonusButton() {
-  const [redeemBonus, loading] = useRedeemBonus()
-  const bonusBalance = useBonusBalance()
-
-  if (bonusBalance === 0) {
-    return null
-  }
-
-  return (
-    <Button onClick={() => redeemBonus(bonusBalance)} loading={loading}>
-      Redeem {formatLamports(bonusBalance, 'gSOL')}
-    </Button>
-  )
-}
-
-export function ClaimButton() {
-  const gamba = useGamba()
-  const [claim, loading] = useClaim()
-
-  if (gamba.balances.user < 1000) {
-    return null
-  }
-
-
-  return (
-    <Button variant="ghost" onClick={() => claim()} loading={loading}>
-      Claim {formatLamports(gamba.balances.user)}
-    </Button>
-  )
-}
-
 function ConnectedButton() {
+  const bonusBalance = useBonusBalance()
   const [modal, setModal] = React.useState(false)
   const gamba = useGamba()
   const wallet = useWallet()
@@ -48,12 +19,20 @@ function ConnectedButton() {
 
   useOnClickOutside(ref, () => setVisible(false))
 
+  const [claim, claiming] = usePromise(async () => {
+    await gamba.client.withdraw()
+    await gamba.client.anticipate((state, prev) => state.user.balance < prev.user.balance)
+  })
+
+  const [redeemBonus, redeeming] = usePromise(async () => {
+    await gamba.client.redeemBonusToken(bonusBalance)
+    await gamba.client.anticipate((state, prev) => state.user.bonusBalance > prev.user.bonusBalance)
+  })
+
   return (
     <>
       {modal && (
-        <UserModal
-          onClose={() => setModal(false)}
-        />
+        <UserModal onClose={() => setModal(false)} />
       )}
       <div style={{ position: 'relative' }} ref={ref}>
         <Button
@@ -67,8 +46,16 @@ function ConnectedButton() {
           <CopyButton variant="ghost" content={gamba.wallet.publicKey.toBase58()}>
             Copy Address
           </CopyButton>
-          <ClaimButton />
-          <RedeemBonusButton />
+          {gamba.balances.user >= 1000 && (
+            <Button onClick={claim} loading={claiming}>
+              Claim {formatLamports(gamba.balances.user)}
+            </Button>
+          )}
+          {bonusBalance > 0 && (
+            <Button onClick={redeemBonus} loading={redeeming}>
+              Redeem {formatLamports(bonusBalance, 'gSOL')}
+            </Button>
+          )}
           {wallet.connected && (
             <Button variant="ghost" onClick={() => wallet.disconnect()}>
               Disconnect
@@ -98,8 +85,8 @@ export function UserButton() {
   return (
     <>
       {wallet.connected ? <ConnectedButton /> : (
-        <Button onClick={connect}>
-          {wallet.connecting ? 'Connecting...' : 'Connect'}
+        <Button onClick={connect} loading={wallet.connecting}>
+          {wallet.connecting ? 'Connecting' : 'Connect'}
         </Button>
       )}
     </>

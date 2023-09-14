@@ -24,13 +24,7 @@ function InitUserModal({ onResolve, onReject }: {onResolve: () => void, onReject
     try {
       setCreating(true)
       await gamba.client.initializeAccount()
-      await gamba.client.userAccount.anticipate(
-        (current) => {
-          if (current.decoded?.created) {
-            return true
-          }
-        },
-      )
+      await gamba.client.anticipate((state) => state.user.created)
       setInitUser(true)
     } catch {
       onReject()

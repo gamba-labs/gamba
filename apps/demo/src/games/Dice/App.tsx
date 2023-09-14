@@ -45,7 +45,7 @@ export default function Dice() {
         wager,
       })
 
-      const result = await gamba.anticipateResult()
+      const result = await gamba.nextResult()
       setResultIndex(result.resultIndex)
 
       const win = result.payout > 0

@@ -1,96 +1,125 @@
 import { ClipboardIcon, InfoCircledIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import { Badge, Box, Button, Callout, Card, Container, Flex, Grid, Heading, Link, ScrollArea, Table, Text } from '@radix-ui/themes'
-import { useConnection } from '@solana/wallet-adapter-react'
-import { GameResult, PROGRAM_ID, getGameResults, lamportsToSol } from 'gamba-core'
+import { lamportsToSol } from 'gamba-core'
+import { useEventFetcher } from 'gamba/react'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { AreaGraph } from './AreaGraph'
-import { CREATORS, PLAYS } from './data'
+
+const timeAgo = (time: number) => {
+  const diff = Date.now() - time
+  const seconds = Math.floor(diff / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  if (hours >= 1) {
+    return hours + 'h ago'
+  }
+  if (minutes >= 1) {
+    return minutes + 'm ago'
+  }
+  return 'Just now'
+}
 
 function RecentPlays() {
-  const { connection } = useConnection()
-  const [results, setResults] = React.useState<GameResult[]>([])
   const [loading, setLoading] = React.useState(false)
-  const lastFetchSignature = React.useRef<string>()
+  const fetcher = useEventFetcher()
+  const initialFetch = React.useRef(false)
 
-  const loadMore = async () => {
+  const load = async () => {
     try {
       setLoading(true)
-      const { results, signatures } = await getGameResults(connection, {
-        signatureLimit: 25,
-        address: PROGRAM_ID,
-        before: lastFetchSignature.current,
-      })
-      const lastSignature = signatures.at(-1)
-      if (lastFetchSignature.current === lastSignature) {
-        return
-      }
-      lastFetchSignature.current = lastSignature
-      setResults((prev) => [...prev, ...results])
+      await fetcher.fetch({ signatureLimit: 40 })
     } finally {
       setLoading(false)
     }
   }
 
+  const results = React.useMemo(
+    () => fetcher.transactions.filter((x) => !!x.event.gameResult),
+    [fetcher.transactions],
+  )
+
   React.useEffect(
     () => {
-      loadMore()
+      if (initialFetch.current) return
+      initialFetch.current = true
+      load()
     }
-    , [])
+    , [fetcher],
+  )
 
   return (
     <Box my="4">
-      <ScrollArea type="always" scrollbars="vertical" style={{ width: '100%', height: 300 }}>
+      <ScrollArea
+        type="always"
+        scrollbars="vertical"
+        style={{
+          width: '100%',
+          height: 500,
+        }}
+      >
         <Table.Root variant="surface">
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeaderCell>
               Play
               </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>
+                Payout
+              </Table.ColumnHeaderCell>
               <Table.ColumnHeaderCell align="right">
-              Payout
+                Time
               </Table.ColumnHeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {results.map((play) => {
-              const multiplier = play.multiplier
-              const payout = multiplier * play.wager
-              const profit = payout - play.wager
+            {results.map((transaction, i) => {
+              const game = transaction.event.gameResult!
               return (
-                <Table.Row key={play.signature}>
+                <Table.Row key={transaction.signature}>
                   <Table.Cell>
                     <Flex align="baseline" gap="2">
+                      {1 + i}
                       <Button variant="ghost" size="1">
                         <ClipboardIcon />
                       </Button>
                       <Link asChild>
-                        <NavLink to={'/tx/' + play.signature}>
-                          {play.signature.substring(0, 30)}...
+                        <NavLink to={'/tx/' + transaction.signature}>
+                          {transaction.signature.substring(0, 30)}..
                         </NavLink>
                       </Link>
                     </Flex>
                   </Table.Cell>
-                  <Table.Cell align="right">
+                  <Table.Cell>
                     <Text mr="2">
-                      {parseFloat(lamportsToSol(profit).toFixed(3))} SOL
+                      {parseFloat(lamportsToSol(game.profit).toFixed(3))} SOL
                     </Text>
-                    <Badge color={profit >= 0 ? 'green' : 'red'}>
-                      {multiplier >= 1 ? '+' : '-'}
-                      {Math.abs(multiplier * 100 - 100).toFixed(0)}%
+                    <Badge color={game.profit >= 0 ? 'green' : 'red'}>
+                      {game.multiplier >= 1 ? '+' : '-'}
+                      {Math.abs(game.multiplier * 100 - 100).toFixed(0)}%
                     </Badge>
+                  </Table.Cell>
+                  <Table.Cell align="right">
+                    <Text>
+                      {timeAgo(transaction.time)}
+                    </Text>
                   </Table.Cell>
                 </Table.Row>
               )
             })}
           </Table.Body>
         </Table.Root>
+        <Box mt="2">
+          <Button
+            disabled={loading}
+            onClick={load}
+            variant="soft"
+            style={{ width: '100%' }}
+          >
+            {fetcher.transactions.length} - Load more <PlusCircledIcon />
+          </Button>
+        </Box>
       </ScrollArea>
-      <Box my="4">
-        <Button disabled={loading} onClick={loadMore} variant="soft" style={{ width: '100%' }}>
-          Load more <PlusCircledIcon />
-        </Button>
-      </Box>
     </Box>
   )
 }
@@ -159,7 +188,7 @@ export function Dashboard() {
         </Grid>
       </Box>
 
-      <Grid
+      {/* <Grid
         columns={{ sm: '2' }}
         gap="4"
       >
@@ -196,9 +225,6 @@ export function Dashboard() {
                     <Text>
                       {volume.toLocaleString()} SOL
                     </Text>
-                    {/* <Badge color="green">
-                      <TriangleUpIcon />
-                    </Badge> */}
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -249,7 +275,7 @@ export function Dashboard() {
             </Table.Body>
           </Table.Root>
         </Box>
-      </Grid>
+      </Grid> */}
 
       <RecentPlays />
     </Container>

@@ -63,6 +63,17 @@ export default function Flip() {
   return (
     <>
       <GameUi.Controls disabled={flipping}>
+        <GameUi.Select
+          value={wager}
+          label="Wager"
+          onChange={(wager) => setWager(wager)}
+        >
+          {WAGER_OPTIONS.map((wager) => (
+            <GameUi.Option key={wager} value={wager}>
+              {formatLamports(wager)}
+            </GameUi.Option>
+          ))}
+        </GameUi.Select>
         <GameUi.Group>
           {Object.entries(SIDES).map(([label, _bet], i) => (
             <GameUi.Button
@@ -71,17 +82,6 @@ export default function Flip() {
               selected={bet === _bet}
             >
               {label}
-            </GameUi.Button>
-          ))}
-        </GameUi.Group>
-        <GameUi.Group>
-          {WAGER_OPTIONS.map((_wager, i) => (
-            <GameUi.Button
-              key={i}
-              onClick={() => setWager(_wager)}
-              selected={wager === _wager}
-            >
-              {formatLamports(_wager)}
             </GameUi.Button>
           ))}
         </GameUi.Group>

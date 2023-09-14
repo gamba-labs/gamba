@@ -80,13 +80,13 @@ export function NavButton(props: ButtonProps<'button'> & Omit<ElementProps['butt
   )
 }
 
-export function CopyButton(props: ButtonProps<'button'> & ElementProps['button'] & {content: unknown}) {
+export function CopyButton(props: ButtonProps<'button'> & ElementProps['button'] & {content: string | number}) {
   const { content, children, onClick, ...rest } = props
   const [copied, setCopied] = React.useState(false)
 
   const click = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     onClick && onClick(e)
-    await navigator.clipboard.writeText(JSON.stringify(content))
+    await navigator.clipboard.writeText(content)
     setCopied(true)
     setTimeout(() => setCopied(false), 500)
   }

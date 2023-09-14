@@ -30,7 +30,7 @@ export function SlideSection({ stuff, children, ...rest }: SectionProps) {
   const ref = React.useRef<HTMLDivElement>(null!)
 
   const scroll = (x: number) => {
-    ref.current.scrollBy({ left: 1 * x, behavior: 'smooth' })
+    ref.current.scrollBy({ left: ref.current.clientWidth * x, behavior: 'smooth' })
   }
 
   return (

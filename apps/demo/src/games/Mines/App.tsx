@@ -55,7 +55,8 @@ function Mines() {
   const endGame = async () => {
     try {
       setClaiming(true)
-      await gamba.claim()
+      await gamba.client.withdraw()
+      await gamba.client.anticipate((state, prev) => state.user.balance < prev.user.balance)
       sounds.finish.play()
       reset()
     } finally {
@@ -82,7 +83,7 @@ function Mines() {
 
       sounds.tick.play({ playbackRate: 1.5 })
 
-      const result = await gamba.anticipateResult()
+      const result = await gamba.nextResult()
 
       sounds.tick.player.stop()
 
@@ -118,17 +119,6 @@ function Mines() {
     <GameUi.Fullscreen maxScale={1.25}>
       <GameUi.Controls disabled={started}>
         <GameUi.Select
-          value={config.mines}
-          label="Mines"
-          onChange={(mines) => setConfig({ ...config, mines })}
-        >
-          {MINE_SELECT.map((mines) => (
-            <GameUi.Option key={mines} value={mines}>
-              {mines} Mines
-            </GameUi.Option>
-          ))}
-        </GameUi.Select>
-        <GameUi.Select
           value={config.wager}
           label="Wager"
           onChange={(wager) => setConfig({ ...config, wager })}
@@ -139,16 +129,17 @@ function Mines() {
             </GameUi.Option>
           ))}
         </GameUi.Select>
-        {/* {MINE_SELECT.map((mines) => (
-          <GameUi.Button
-            key={mines}
-            disabled={started}
-            selected={config.mines === mines}
-            onClick={() => setConfig({ ...config, mines })}
-          >
-            {mines}
-          </GameUi.Button>
-        ))} */}
+        <GameUi.Select
+          value={config.mines}
+          label="Mines"
+          onChange={(mines) => setConfig({ ...config, mines })}
+        >
+          {MINE_SELECT.map((mines) => (
+            <GameUi.Option key={mines} value={mines}>
+              {mines} Mines
+            </GameUi.Option>
+          ))}
+        </GameUi.Select>
         <GameUi.Button variant="primary" onClick={start}>
           Start
         </GameUi.Button>

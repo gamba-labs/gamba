@@ -9,23 +9,30 @@ export type HouseState = IdlAccounts<GambaIdl>['house']
 export type UserState = IdlAccounts<GambaIdl>['user']
 export type UserStatus = keyof UserState['status']
 export type GameEvent = IdlEvents<GambaIdl>['GameEvent']
+/**
+ * @deprecated Legacy event
+ */
+export type BetSettledEvent = IdlEvents<GambaIdl>['BetSettledEvent']
 
 export type GambaProgram = Program<Gamba>
 
+export interface ParsedWallet {
+  balance: number
+}
+
 export interface ParsedUser {
-  publicKey: PublicKey
   created: boolean
   status: UserStatus
   balance: number
   bonusBalance: number
   nonce: number
-  state: UserState | null
+  lastGame: GameResult | null
 }
 
 
 export interface ParsedHouse {
-  publicKey: PublicKey
-  state: HouseState | null
+  // publicKey: PublicKey
+  // state: HouseState | null
   created: boolean
   rng: PublicKey | null
   bonusMint: PublicKey | null
@@ -50,6 +57,4 @@ export interface GameResult {
   nonce: number
   payout: number
   profit: number
-  signature: string
-  estimatedTime: number
 }

@@ -1,11 +1,11 @@
 import React from 'react'
 import { GameBundle } from '../types'
 
-export const GameUiContext = React.createContext<{
+export interface GameUiContext {
   game: GameBundle
-  // loading: boolean
-  // error?: Error
-}>(null!)
+}
+
+export const GameUiContext = React.createContext<GameUiContext>(null!)
 
 interface Props extends React.PropsWithChildren {
   game: GameBundle

@@ -1,7 +1,8 @@
 import { GameResult, lamportsToSol } from 'gamba'
-import { useGamba, useRecentGameResults } from 'gamba/react'
+import { useEventFetcher, useGamba } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
+import { Button } from '../components/Button'
 import { Icon } from '../components/Icon'
 import { Section } from '../components/Section'
 import { cx } from '../utils'
@@ -25,18 +26,25 @@ const TimeDiff: React.FC<{time: number}> = ({ time }) => {
   }, [time])
 }
 
-function RecentPlay({ result, isSelf }: {result: GameResult, isSelf: boolean}) {
+interface RecentPlayProps {
+  result: GameResult
+  isSelf: boolean
+  signature: string
+  time: number
+}
+
+function RecentPlay({ time, signature, result, isSelf }: RecentPlayProps) {
   const wager = result.wager
   const multiplier = result.multiplier
   const payout = wager * multiplier
   const profit = wager * multiplier - wager
   const win = profit >= 0
   const isRekt = payout === 0
-  const whaleScore = Math.log10(lamportsToSol(wager) / 0.01)
+  const whaleScore = Math.log10(lamportsToSol(wager) / 0.1)
   const litScore = multiplier - 1
 
   return (
-    <a className={styles.play} href={`${VERIFY_URL}/${result.signature}`} target="_blank" rel="noreferrer">
+    <a className={styles.play} href={`${VERIFY_URL}/${signature}`} target="_blank" rel="noreferrer">
       <div>
         <span className={styles.who}>
           {isSelf ? 'You ' : 'Someone '}
@@ -54,36 +62,59 @@ function RecentPlay({ result, isSelf }: {result: GameResult, isSelf: boolean}) {
         </span>
       </div>
       <span>
-        <TimeDiff time={result.estimatedTime} /> <Icon.ExternalLink />
+        <TimeDiff time={time} /> <Icon.ExternalLink />
       </span>
     </a>
   )
 }
 
 export function RecentPlays() {
-  const { wallet } = useGamba()
-  const recentPlays = useRecentGameResults()
+  const gamba = useGamba()
+  const events = useEventFetcher()
+
+  React.useEffect(
+    () => {
+      events.fetch({ signatureLimit: 20 })
+      return events.listen()
+    }
+    , [events],
+  )
+
+  const results = React.useMemo(() => {
+    return events.transactions.filter((x) => !!x.event.gameResult)
+  }, [events.transactions])
 
   return (
     <Section
       title="Recent Plays"
       stuff={
         <>
-          {/* <Button size="small" variant="soft"></Button> */}
+          <Button onClick={() => events.fetchNewer()} size="small" variant="soft">
+            Update
+          </Button>
+          <Button onClick={() => events.fetch({ signatureLimit: 10 })} size="small" variant="soft">
+            Moar
+          </Button>
         </>
       }
     >
       <div className={styles.container}>
-        {recentPlays.map((result, i) => (
+        {results.map((transaction) => (
           <RecentPlay
-            key={i}
-            result={result}
-            isSelf={result.player.equals(wallet.publicKey)}
+            key={transaction.signature}
+            time={transaction.time}
+            signature={transaction.signature}
+            result={transaction.event.gameResult!}
+            isSelf={transaction.event.gameResult!.player.equals(gamba.wallet.publicKey)}
           />
         ))}
-        {!recentPlays.length && Array.from({ length: 5 }).map((_, i) => (
+        {!events.latestSig ? Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className={styles.skeleton} />
-        ))}
+        )) : !results.length && (
+          <div>
+            No events
+          </div>
+        )}
       </div>
     </Section>
   )

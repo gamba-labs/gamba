@@ -1,5 +1,5 @@
 import { GameUi } from 'gamba/react-ui'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useParams } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { Modal } from '../components/Modal'
@@ -11,11 +11,9 @@ function Splash() {
   const game = GameUi.useCurrentGame()
 
   return (
-    <>
-      <div className={styles.splash}>
-        <img src={game.image} />
-      </div>
-    </>
+    <div className={styles.splash}>
+      <img src={game.image} />
+    </div>
   )
 }
 
@@ -71,12 +69,15 @@ function Controls() {
 
 export function Game() {
   const { shortName } = useParams()
-  const game = useMemo(() => GAMES.find((x) => x.short_name === shortName), [shortName])
+  const game = React.useMemo(() => GAMES.find((x) => x.short_name === shortName), [shortName])
 
   if (!game) return (<Home />)
 
   return (
-    <GameUi.Provider key={game.short_name} game={game}>
+    <GameUi.Provider
+      key={game.short_name}
+      game={game}
+    >
       <div className={styles.container}>
         <div className={styles.view}>
           <GameUi.View />

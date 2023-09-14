@@ -144,15 +144,17 @@ export default function Slots() {
   return (
     <GameUi.Fullscreen maxScale={1.25}>
       <GameUi.Controls disabled={spinning}>
-        {WAGER_OPTIONS.map((_wager) => (
-          <GameUi.Button
-            key={_wager}
-            selected={wager === _wager}
-            onClick={() => setWager(_wager)}
-          >
-            {formatLamports(_wager)}
-          </GameUi.Button>
-        ))}
+        <GameUi.Select
+          value={wager}
+          label="Wager"
+          onChange={(wager) => setWager(wager)}
+        >
+          {WAGER_OPTIONS.map((wager) => (
+            <GameUi.Option key={wager} value={wager}>
+              {formatLamports(wager)}
+            </GameUi.Option>
+          ))}
+        </GameUi.Select>
         <GameUi.Button variant="primary" onClick={play}>
           Spin
         </GameUi.Button>

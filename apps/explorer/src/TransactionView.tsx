@@ -1,8 +1,9 @@
 import { ExternalLinkIcon, MixIcon, ResetIcon } from '@radix-ui/react-icons'
 import { Badge, Box, Button, Card, Code, Container, Flex, Grid, Heading, IconButton, Link, ScrollArea, Table, Tabs, Text, TextField } from '@radix-ui/themes'
 import { useConnection } from '@solana/wallet-adapter-react'
+import { ParsedTransactionWithMeta } from '@solana/web3.js'
 import clsx from 'clsx'
-import { GameResult, ParsedGambaTransaction, parseGambaTransaction } from 'gamba-core'
+import { GameResult, parseGambaTransaction } from 'gamba-core'
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import styles from './test.module.css'
@@ -101,41 +102,43 @@ const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
 export function TransactionView() {
   const { connection } = useConnection()
   const { txid } = useParams<{txid: string}>()
-  const [parsed, setParsed] = React.useState<ParsedGambaTransaction>()
+  const [transaction, setTransaction] = React.useState<ParsedTransactionWithMeta>()
+  // const [parsed, setParsed] = React.useState<ParsedGambaTransaction>()
 
   React.useEffect(
     () => {
       connection.getParsedTransaction(txid!)
         .then((transaction) => {
           if (transaction) {
-            return parseGambaTransaction(transaction)
+            setTransaction(transaction)
           }
         })
-        .then(setParsed)
     }, [txid],
   )
 
-  if (!parsed?.gameResult) return null
+  const logs = transaction?.meta?.logMessages ?? []
+  const parsed = React.useMemo(() => {
+    if (transaction) {
+      return parseGambaTransaction(transaction)
+    }
+  }, [transaction])
 
-  const logs = parsed?.transaction.meta?.logMessages ?? []
-  const { gameResult } = parsed
+  if (!parsed?.event.gameResult) return null
 
-  const bet = gameResult.bet.map((x) => x / 1000)
-  const moreThanOne = bet.filter((x) => x >= 1)
-  const sum = bet.reduce((p, x) => p + x, 0)
-  const winChange = moreThanOne.length / bet.length
-  const potentialWin = Math.max(...bet)
-  const oddsScore = sum / bet.length
-  const uniqueOutcomes = Array.from(new Set(bet)).sort()
-  const multiplier = gameResult.bet[gameResult.resultIndex] / 1e3
-  const payout = gameResult.wager * multiplier
-  const profit = payout - gameResult.wager
+  const { gameResult } = parsed.event
+
+  const moreThanOne = gameResult.bet.filter((x) => x >= 1)
+  const sum = gameResult.bet.reduce((p, x) => p + x, 0)
+  const winChange = moreThanOne.length / gameResult.bet.length
+  const potentialWin = Math.max(...gameResult.bet)
+  const oddsScore = sum / gameResult.bet.length
+  const uniqueOutcomes = Array.from(new Set(gameResult.bet)).sort()
 
   return (
     <Container>
       <Box my="4">
         <Heading mb="3">
-          Gamba Transaction
+          Transaction
         </Heading>
 
         <Flex gap="2">
@@ -228,7 +231,7 @@ export function TransactionView() {
                     Time
                   </Text>
                   <Text>
-                    {new Date(gameResult.estimatedTime).toLocaleString()}
+                    {new Date(parsed.time).toLocaleString()}
                   </Text>
                 </Grid>
               </Table.Cell>
@@ -255,10 +258,10 @@ export function TransactionView() {
                   </Text>
                   <Flex>
                     <Text mr="2">
-                      {parseFloat((payout / 1e9).toFixed(3))} SOL
+                      {parseFloat((gameResult.payout / 1e9).toFixed(3))} SOL
                     </Text>
-                    <Badge color={profit >= 0 ? 'green' : 'red'}>
-                      {parseFloat((multiplier * 100 - 100).toFixed(3))}%
+                    <Badge color={gameResult.profit >= 0 ? 'green' : 'red'}>
+                      {parseFloat((gameResult.multiplier * 100 - 100).toFixed(3))}%
                     </Badge>
                   </Flex>
                 </Grid>
@@ -272,7 +275,7 @@ export function TransactionView() {
                     Outcomes
                   </Text>
                   <Flex gap="1" wrap="wrap">
-                    {bet.map((x, i) => {
+                    {gameResult.bet.map((x, i) => {
                       const rank = Math.floor(uniqueOutcomes.indexOf(x) / (uniqueOutcomes.length - 1) * 7)
                       const active = i === gameResult.resultIndex
                       return (

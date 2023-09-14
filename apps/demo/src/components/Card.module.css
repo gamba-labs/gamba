@@ -1,5 +1,5 @@
 :root {
-  --card-aspect-ratio: 2 / 1.25;
+  --card-aspect-ratio: 2 / 1.3;
 }
 
 @keyframes tile-animation {
@@ -26,20 +26,16 @@
 }
 
 .card {
-  color: white;
   position: relative;
   background: #ffffff;
   transform: scale(1);
   cursor: pointer;
   border-radius: 10px;
-  display: flex;
-  justify-content: end;
   aspect-ratio: var(--card-aspect-ratio);
   width: 160px;
   transition: width .25s ease, transform .2s ease, aspect-ratio .2s ease;
   max-height: 100%;
   overflow: hidden;
-  flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
 }
@@ -52,7 +48,8 @@
 
 .card:hover {
   outline: var(--text-color) solid 1px;
-  outline-offset: 3px;
+  outline-offset: 2px;
+  transform: translateY(-2px)
 }
 
 .card:hover .logo {

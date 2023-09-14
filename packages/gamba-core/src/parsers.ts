@@ -1,42 +1,47 @@
-import { PublicKey } from '@solana/web3.js'
-import { Account } from './Account'
-import { GameEvent, HouseState, ParsedHouse, GameResult, ParsedUser, UserState, UserStatus } from './types'
-import { bnToNumber } from './utils'
+import { AccountInfo } from '@solana/web3.js'
+import { createHouseState, createUserState, createWalletState } from './state'
+import { BetSettledEvent, GameEvent, GameResult, ParsedHouse, ParsedUser, ParsedWallet, UserState, UserStatus } from './types'
+import { bnToNumber, decodeHouse, decodeUser, getGameHash } from './utils'
 
 const parseStatus = (x: UserState['status']) => Object.keys(x)[0] as UserStatus
 
-export const defaultUser = (publicKey: PublicKey): ParsedUser => ({
-  publicKey,
-  created: false,
-  status: 'none',
-  balance: 0,
-  bonusBalance: 0,
-  nonce: 0,
-  state: null,
-})
-
-export const defaultHouse = (publicKey: PublicKey): ParsedHouse => ({
-  publicKey,
-  state: null,
-  created: false,
-  rng: null,
-  bonusMint: null,
-  balance: 0,
-  maxPayout: 0,
-  fees: {
-    total: 0,
-    house: 0,
-    creator: 0,
-  },
-})
-
-export const parseUserAccount = (account: Account<UserState>): ParsedUser => {
-  const { state, info } = account
-
-  if (!state || !info) {
-    return defaultUser(account.publicKey)
+const getGameResultFromUser = async (
+  state: UserState,
+): Promise<GameResult | null> => {
+  if (!state.previousRngSeed) {
+    return null
   }
+  const clientSeed = state.currentGame.clientSeed
+  const bet = state.currentGame.options.map((x) => x / 1000)
+  const nonce = bnToNumber(state.nonce) - 1
+  const rngSeed = state.previousRngSeed
+  const gameHash = await getGameHash(rngSeed, clientSeed, nonce)
+  const resultIndex = parseInt(gameHash.substring(0, 5), 16) % bet.length
+  const multiplier = bet[resultIndex]
+  const wager = bnToNumber(state.currentGame.wager)
+  const payout = (wager * multiplier)
+  const profit = (payout - wager)
 
+  return {
+    creator: state.currentGame.creator,
+    player: state.owner,
+    rngSeed,
+    clientSeed,
+    nonce,
+    bet,
+    resultIndex,
+    wager,
+    payout,
+    profit,
+    multiplier,
+  }
+}
+
+export const parseUserAccount = async (info: AccountInfo<Buffer> | null): Promise<ParsedUser> => {
+  const state = decodeUser(info)
+  if (!state) {
+    return createUserState()
+  }
   // Exclude active wagered balance from user balance
   const subtractedUserBalance = (() => {
     if (state.status.hashedSeedRequested) {
@@ -44,31 +49,27 @@ export const parseUserAccount = (account: Account<UserState>): ParsedUser => {
     }
     return 0
   })()
-
   return {
-    publicKey: account.publicKey,
     created: state.created,
     status: parseStatus(state.status),
     balance: bnToNumber(state.balance) - subtractedUserBalance,
     bonusBalance: bnToNumber(state.bonusBalance),
     nonce: bnToNumber(state.nonce),
-    state,
+    lastGame: await getGameResultFromUser(state),
   }
 }
 
-export const parseHouseAccount = (account: Account<HouseState>): ParsedHouse => {
-  const { state, info } = account
-  if (!state || !info) {
-    return defaultHouse(account.publicKey)
+export const parseHouseAccount = (info: AccountInfo<Buffer> | null): ParsedHouse => {
+  const state = decodeHouse(info)
+  if (!state) {
+    return createHouseState()
   }
   const houseFee = bnToNumber(state.houseFee) / 1000
   const creatorFee = bnToNumber(state.creatorFee) / 1000
   return {
-    publicKey: account.publicKey,
-    state,
     created: state?.created,
     rng: state.rng,
-    balance: info.lamports,
+    balance: 0,
     bonusMint: state.bonusMint,
     maxPayout: bnToNumber(state.maxPayout),
     fees: {
@@ -79,37 +80,19 @@ export const parseHouseAccount = (account: Account<HouseState>): ParsedHouse => 
   }
 }
 
-export interface ParsedWallet {
-  publicKey: PublicKey
-  balance: number
-}
-
-export const parseWalletAccount = (account: Account<null>) => {
-  const { info } = account
+export const parseWalletAccount = (info: AccountInfo<Buffer> | null): ParsedWallet => {
   if (!info) {
-    return {
-      publicKey: account.publicKey,
-      balance: 0,
-    }
+    return createWalletState()
   }
-  return {
-    publicKey: account.publicKey,
-    balance: info.lamports,
-  }
+  return { balance: info.lamports }
 }
 
-export const parsePlayEvent = (
-  data: GameEvent,
-  signature: string,
-  estimatedTime: number,
-): GameResult => {
+export const parsePlayEvent = (data: GameEvent): GameResult => {
   const multiplier = bnToNumber(data.resultMultiplier) / 1000
   const wager = bnToNumber(data.wager)
   const payout = (wager * multiplier)
   const profit = (payout - wager)
   return {
-    signature,
-    estimatedTime,
     creator: data.creator,
     clientSeed: data.clientSeed,
     wager,
@@ -118,7 +101,27 @@ export const parsePlayEvent = (
     rngSeed: data.rngSeed,
     player: data.player,
     nonce: bnToNumber(data.nonce),
-    bet: data.options,
+    bet: data.options.map((x) => x / 1000),
+    payout,
+    profit,
+  }
+}
+
+export const parseBetSettledEvent = (data: BetSettledEvent): GameResult => {
+  const multiplier = bnToNumber(data.resultMultiplier) / 1000
+  const wager = bnToNumber(data.wager)
+  const payout = (wager * multiplier)
+  const profit = (payout - wager)
+  return {
+    creator: data.creator,
+    clientSeed: data.clientSeed,
+    wager,
+    resultIndex: bnToNumber(data.resultIndex),
+    multiplier,
+    rngSeed: data.rngSeed,
+    player: data.player,
+    nonce: bnToNumber(data.nonce),
+    bet: [],
     payout,
     profit,
   }

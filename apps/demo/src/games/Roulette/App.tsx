@@ -1,6 +1,6 @@
 import { solToLamports } from 'gamba'
 import { useGamba } from 'gamba/react'
-import { GameUi } from 'gamba/react-ui'
+import { GameUi, formatLamports } from 'gamba/react-ui'
 import React from 'react'
 import styles from './App.module.css'
 import { Chip } from './Chip'
@@ -69,11 +69,11 @@ export default function Roulette() {
   return (
     <GameUi.Fullscreen maxScale={1.25} onContextMenu={(e) => e.preventDefault()}>
       <GameUi.Controls disabled={spinning}>
-        {/* <GameUi.WagerInput
-          bet={bet}
-          wager={wager}
-          onChange={() => null}
-        /> */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span>
+            <Chip value={1} /> = {formatLamports(CHIP_RATE)}
+          </span>
+        </div>
         {CHIPS.map((value) => (
           <GameUi.Button
             key={value}
@@ -97,11 +97,17 @@ export default function Roulette() {
       </GameUi.Controls>
 
       <div className={styles.container}>
-        <Results />
-        <Table />
-        {/* <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
+        <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
           <div>
-            <div style={{ fontWeight: 'bold' }}>
+            <div>
+              {formatLamports(wager)}
+            </div>
+            <div>
+              TOTAL BET
+            </div>
+          </div>
+          <div>
+            <div>
               {maxPayoutExceeded ? (
                 <span style={{ color: '#ff0066' }}>
                   TOO HIGH
@@ -112,19 +118,13 @@ export default function Roulette() {
                 </>
               )}
             </div>
-            <div style={{ fontSize: '10px' }}>
+            <div>
               MAX PAYOUT
             </div>
           </div>
-          <div>
-            <div style={{ fontWeight: 'bold' }}>
-              {formatLamports(wager)}
-            </div>
-            <div style={{ fontSize: '10px' }}>
-              TOTAL BET
-            </div>
-          </div>
-        </div> */}
+        </div>
+        <Results />
+        <Table />
       </div>
     </GameUi.Fullscreen>
   )

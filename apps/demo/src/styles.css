@@ -4,6 +4,7 @@
 
 :root {
   --bg-color: #080809;
+  --bg-color: #0e0e11;
   --text-color: #ffffff;
   --recent-plays-bg: #13151c;
   --recent-plays-bg-hover: #1a1c24;
@@ -112,6 +113,10 @@ a {
   opacity: .9;
   transition: opacity .2s;
   cursor: pointer;
+}
+
+.gamba-game-ui-wager-input {
+  display: grid;
 }
 
 .gamba-game-button.primary {

@@ -1,12 +1,11 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
-import { Event, GambaClient, GambaError2 } from 'gamba-core'
+import { GambaClient } from 'gamba-core'
 import React from 'react'
 import { randomSeed } from './utils'
 
 interface GambaProviderProps {
   creator: PublicKey | string
-  onError?: (error: GambaError2, handler: Event) => void
 }
 
 interface GambaContext {
@@ -26,17 +25,17 @@ function Inner({ children }: React.PropsWithChildren) {
 
   React.useEffect(
     () => {
-      return client.userAccount.subscribe(
+      return client.onChange(
         (current, previous) => {
-          if (current.decoded?.nonce.toNumber() === previous.decoded?.nonce.toNumber() + 1) {
+          if (current.user.nonce === previous.user.nonce + 1) {
             const nextSeed = randomSeed()
-            console.log('🌱 Next seed:', nextSeed)
+            console.log('🌱 Next seed:', nextSeed, current.user.nonce, previous.user.nonce)
             setSeed(nextSeed)
           }
         },
       )
     }
-    , [client.user],
+    , [client],
   )
 
   return (
@@ -59,10 +58,10 @@ export function Gamba({ children, creator: _creator }: React.PropsWithChildren<G
 
   const walletAdapter = React.useMemo(
     () => {
-      if (_wallet?.connected && _wallet?.wallet?.adapter)
+      if (_wallet?.connected && _wallet?.wallet?.adapter?.publicKey)
         return _wallet?.wallet?.adapter
     }
-    , [_wallet],
+    , [_wallet, connection],
   )
 
   const client = React.useMemo(
@@ -76,9 +75,7 @@ export function Gamba({ children, creator: _creator }: React.PropsWithChildren<G
     [connection, walletAdapter],
   )
 
-  React.useEffect(() => client.userAccount.listen(connection), [connection, client.userAccount])
-  React.useEffect(() => client.houseAccount.listen(connection), [connection, client.houseAccount])
-  React.useEffect(() => client.walletAccount.listen(connection), [connection, client.walletAccount])
+  React.useEffect(() => client.listen(), [client])
 
   return (
     <GambaContext.Provider value={{ creator, client, seed, setSeed }}>

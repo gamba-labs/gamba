@@ -1,47 +1,28 @@
-import { useCloseAccount, useCreateAccount, useGamba } from 'gamba/react'
+import { useGamba } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
 import { Button } from '../components/Button'
 import { Icon } from '../components/Icon'
 import { Modal } from '../components/Modal'
+import { usePromise } from '../hooks/usePromise'
 
 interface Props {
   onClose: () => void
 }
 
-function CloseAccountButton({ onClosed }: {onClosed?: () => void}) {
-  const gamba = useGamba()
-  const [closeAccount, loading] = useCloseAccount()
-
-  const close = async () => {
-    await closeAccount()
-    onClosed && onClosed()
-  }
-
-  if (!gamba.user.created) return null
-
-  return (
-    <Button loading={loading} onClick={close}>
-      Close Account
-    </Button>
-  )
-}
-
-function CreateAccountButton() {
-  const gamba = useGamba()
-  const [createAccount, loading] = useCreateAccount()
-
-  if (gamba.user.created) return null
-
-  return (
-    <Button loading={loading} onClick={createAccount}>
-      Create Account
-    </Button>
-  )
-}
-
 export function UserModal({ onClose }: Props) {
   const gamba = useGamba()
+
+  const [createAccount, creating] = usePromise(async () => {
+    await gamba.client.initializeAccount()
+    await gamba.client.anticipate((state) => state.user.created)
+  })
+
+  const [closeAccount, closing] = usePromise(async () => {
+    await gamba.client.closeAccount()
+    await gamba.client.anticipate((state) => !state.user.created)
+    onClose()
+  })
 
   return (
     <Modal onClose={onClose}>
@@ -54,8 +35,16 @@ export function UserModal({ onClose }: Props) {
         >
           SEED: {gamba.seed}
         </Button>
-        <CloseAccountButton onClosed={onClose} />
-        <CreateAccountButton />
+        {!gamba.user.created && (
+          <Button loading={creating} onClick={createAccount}>
+            Create Account
+          </Button>
+        )}
+        {gamba.user.created && (
+          <Button loading={closing} onClick={closeAccount}>
+            Close Account
+          </Button>
+        )}
         <Button
           as="a"
           icon={<Icon.ExternalLink />}

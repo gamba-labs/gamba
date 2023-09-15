@@ -8,7 +8,6 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "basic",
     "gamba-demo",
     "explorer"
   ]

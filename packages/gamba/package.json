@@ -19,7 +19,7 @@
   "scripts": {
     "dev": "tsup src/index.ts --watch --format cjs,esm --dts && pnpm react:dev && pnpm ui:dev",
     "build": "tsup src/index.ts --format cjs,esm --dts && pnpm react:build && pnpm ui:build",
-    "clean": "rm -rf dist && pnpm react:clean && pnpm ui:clean",
+    "clean": "rm -rf dist && rm -rf node_modules && pnpm react:clean && pnpm ui:clean",
     "lint": "tsc && pnpm react:lint && pnpm ui:lint",
 
     "react:dev": "tsup ./react/src/index.ts -d ./react/dist --watch --format cjs,esm --dts",

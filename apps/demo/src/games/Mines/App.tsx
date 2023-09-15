@@ -55,7 +55,7 @@ function Mines() {
   const endGame = async () => {
     try {
       setClaiming(true)
-      await gamba.withdraw()
+      await gamba.methods.withdraw(gamba.balances.user)
       await gamba.anticipate((state, prev) => state.user.balance < prev.user.balance)
       sounds.finish.play()
       reset()

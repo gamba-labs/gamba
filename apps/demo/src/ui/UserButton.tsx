@@ -75,7 +75,11 @@ export function UserButton() {
   const wallet = useWallet()
 
   const connect = () => {
-    walletModal.setVisible(true)
+    if (wallet.wallet) {
+      wallet.connect()
+    } else {
+      walletModal.setVisible(true)
+    }
   }
 
   return (

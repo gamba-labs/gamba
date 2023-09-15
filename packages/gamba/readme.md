@@ -67,17 +67,17 @@ function App() {
 
 ## Packages
 
-### Main package
+`gamba` contains all the individual packages listed below. In most cases this is the only library you need to install.
 
-`gamba` contains both `gamba-core` and `gamba-react`. This should be used rather than installing the nested packages seperately in most cases.
+## Nested packages:
+
+The packages listed here are already included in the main `gamba` package, but can also be installed independently if needed. They are reachable under `gamba/<package>`.
 
 * [`gamba-core`](https://github.com/gamba-labs/gamba/tree/main/packages/gamba-core) contains the essential stuff and works in other environment such as NodeJS
 
-* [`gamba-react`](https://github.com/gamba-labs/gamba/tree/main/packages/gamba-react) contains everything related to React such as context providers and hooks. Reachable in `gamba/react`
+* [`gamba-react`](https://github.com/gamba-labs/gamba/tree/main/packages/gamba-react) contains everything related to React such as context providers and hooks.
 
-### React UI Package
-
-[`gamba-react-ui`](https://github.com/gamba-labs/gamba/tree/main/packages/gamba-react-ui) contains useful tools and components for managing the user's Gamba account.
+* [`gamba-react-ui`](https://github.com/gamba-labs/gamba/tree/main/packages/gamba-react-ui) contains useful components and utilities for building games in your platform.
 
 ## Documentation
 

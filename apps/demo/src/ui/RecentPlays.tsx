@@ -1,5 +1,5 @@
 import { GameResult, lamportsToSol } from 'gamba'
-import { useEventFetcher, useGamba } from 'gamba/react'
+import { useGamba, useGambaEvents } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
 import { Icon } from '../components/Icon'
@@ -69,51 +69,23 @@ function RecentPlay({ time, signature, result, isSelf }: RecentPlayProps) {
 
 export function RecentPlays() {
   const gamba = useGamba()
-  const events = useEventFetcher()
-
-  React.useEffect(
-    () => {
-      events.fetch({ signatureLimit: 40 })
-      return events.listen()
-    }
-    , [events],
-  )
-
-  const results = React.useMemo(() => {
-    return events.transactions.filter((x) => !!x.event.gameResult)
-  }, [events.transactions])
+  const events = useGambaEvents()
 
   return (
-    <Section
-      title="Recent Plays"
-      stuff={
-        <>
-          {/* <Button onClick={() => events.fetchNewer()} size="small" variant="soft">
-            Update
-          </Button>
-          <Button onClick={() => events.fetch({ signatureLimit: 10 })} size="small" variant="soft">
-            Moar
-          </Button> */}
-        </>
-      }
-    >
+    <Section title="Recent Plays">
       <div className={styles.container}>
-        {results.map((transaction) => (
+        {events.map((transaction) => (
           <RecentPlay
             key={transaction.signature}
             time={transaction.time}
             signature={transaction.signature}
-            result={transaction.event.gameResult!}
-            isSelf={transaction.event.gameResult!.player.equals(gamba.wallet.publicKey)}
+            result={transaction.event.gameResult}
+            isSelf={transaction.event.gameResult.player.equals(gamba.wallet.publicKey)}
           />
         ))}
-        {!events.latestSig ? Array.from({ length: 5 }).map((_, i) => (
+        {!events.length && Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className={styles.skeleton} />
-        )) : !results.length && (
-          <div>
-            No events
-          </div>
-        )}
+        ))}
       </div>
     </Section>
   )

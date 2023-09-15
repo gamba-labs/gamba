@@ -12,37 +12,17 @@ export function Home() {
           Gamba Demo
         </h2>
         <p style={{ wordWrap: 'break-word' }}>
-          A decentralized, provably-fair casino built on <Button size="small" variant="soft" as="a" href="https://gamba.so" target="_blank">Gamba</Button>.
+          A decentralized, provably-fair casino built on Gamba.
         </p>
         <div style={{ display: 'flex', gap: '10px' }}>
           <Button
             as="a"
             color="white"
-            href="https://github.com/gamba-labs"
+            href="https://gamba.so"
             target="_blank"
             icon={<Icon.ExternalLink />}
           >
-            Github
-          </Button>
-          <Button
-            as="a"
-            color="white"
-            variant="ghost"
-            href="https://discord.gg/TkGr9bAZ"
-            target="_blank"
-            icon={<Icon.ExternalLink />}
-          >
-            Discord
-          </Button>
-          <Button
-            as="a"
-            color="white"
-            variant="ghost"
-            href="https://twitter.com/GambaLabs"
-            target="_blank"
-            icon={<Icon.ExternalLink />}
-          >
-            Twitter
+            Learn more
           </Button>
         </div>
       </Section>

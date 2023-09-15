@@ -58,6 +58,7 @@ export function useGamba() {
 
   return {
     connection,
+    creator,
     wallet,
     seed,
     updateSeed,

@@ -72,7 +72,10 @@ export class EventFetcher {
         this.latestTime = latest.time
       }
 
-      const eventTransactions = transactions.filter((x) => !!x.event.gameResult)
+      // todo
+      const eventTransactions = transactions.filter((x) => {
+        return !!x.event.gameResult && (x.event.gameResult.creator.equals(this.params.address) || this.params.address.equals(PROGRAM_ID))
+      })
 
       if (this.params.storeTransactions) {
         this.transactions = [
@@ -130,6 +133,7 @@ export class EventFetcher {
         }
         const events = parseTransactionEvents(logs.logs)
         const gameResult = events.gameResult ?? events.gameResultOld
+        console.log(gameResult)
         this.handleEvents([{
           signature: logs.signature,
           time: Date.now(),

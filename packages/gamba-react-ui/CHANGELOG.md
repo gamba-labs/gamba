@@ -1,5 +1,17 @@
 # gamba-react-ui
 
+## 1.0.0
+
+### Minor Changes
+
+- 9e012ef: A lot of breaking changes. Discord for details.
+
+### Patch Changes
+
+- Updated dependencies [9e012ef]
+  - gamba-core@0.5.0
+  - gamba-react@1.0.0
+
 ## 0.3.4
 
 ### Patch Changes

@@ -22,7 +22,6 @@ export default function Flip() {
   const [flipping, setFlipping] = React.useState(false)
   const [win, setWin] = React.useState(false)
   const [resultIndex, setResultIndex] = React.useState(0)
-  const [bet, setBet] = React.useState(SIDES.Heads)
   const [wager, setWager] = React.useState(WAGER_OPTIONS[0])
 
   const sounds = GameUi.useSounds({
@@ -31,7 +30,7 @@ export default function Flip() {
     lose: SOUND_LOSE,
   })
 
-  const play = async () => {
+  const play = async (bet: number[]) => {
     try {
       setWin(false)
       setFlipping(true)
@@ -75,19 +74,11 @@ export default function Flip() {
             </GameUi.Select.Option>
           ))}
         </GameUi.Select.Root>
-        <GameUi.Group>
-          {Object.entries(SIDES).map(([label, _bet], i) => (
-            <GameUi.Button
-              key={i}
-              onClick={() => setBet(_bet)}
-              selected={bet === _bet}
-            >
-              {label}
-            </GameUi.Button>
-          ))}
-        </GameUi.Group>
-        <GameUi.Button variant="primary" onClick={play}>
-          Flip
+        <GameUi.Button variant="primary" onClick={() => play(SIDES.Heads)}>
+          Heads
+        </GameUi.Button>
+        <GameUi.Button variant="primary" onClick={() => play(SIDES.Tails)}>
+          Tails
         </GameUi.Button>
       </GameUi.Controls>
       <Canvas
@@ -99,9 +90,25 @@ export default function Flip() {
           position: [0, 0, 100],
         }}
       >
-        <Coin result={resultIndex} flipping={flipping} />
+        <React.Suspense fallback={null}>
+          <Coin result={resultIndex} flipping={flipping} />
+        </React.Suspense>
         {flipping && <Effect color="white" />}
         {win && <Effect color="#42ff78" />}
+        <ambientLight color="#CCCCCC" />
+        <directionalLight
+          position-z={1}
+          position-y={1}
+          castShadow
+          color="#CCCCCC"
+        />
+        <hemisphereLight
+          intensity={.5}
+          position={[0, 1, 0]}
+          scale={[1, 1, 1]}
+          color="#ff0000"
+          groundColor="#0000ff"
+        />
       </Canvas>
     </>
   )

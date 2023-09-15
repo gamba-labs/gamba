@@ -13,7 +13,6 @@ const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
 
   const verifyArgs = [
     parsed.rngSeed,
-    'parsed.rngSeedHashed',
     clientSeed,
     parsed.nonce,
     parsed.wager,
@@ -42,7 +41,6 @@ const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
   }
   ;(async (
     rngSeed,
-    rngSeedHashed,
     clientSeed,
     nonce,
     wager,
@@ -51,7 +49,7 @@ const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
     const hash = await hmac256(rngSeed, [clientSeed, nonce].join('-'))
     const resultIndex = parseInt(hash.substring(0, 5), 16) % bet.length
     const multiplier = bet[resultIndex]
-    const payout = wager * multiplier / 1000
+    const payout = wager * multiplier
     return 'Payout: '+ payout / 1e9 + ' SOL'
   })(${verifyArgs})
   `
@@ -133,7 +131,6 @@ export function TransactionView() {
   const potentialWin = Math.max(...gameResult.bet)
   const oddsScore = sum / gameResult.bet.length
   const uniqueOutcomes = Array.from(new Set(gameResult.bet)).sort()
-
   return (
     <Container>
       <Box my="4">
@@ -220,6 +217,19 @@ export function TransactionView() {
                       {gameResult.player.toBase58()}
                     </NavLink>
                   </Link>
+                </Grid>
+              </Table.Cell>
+            </Table.Row>
+
+            <Table.Row>
+              <Table.Cell>
+                <Grid columns="2" gap="4">
+                  <Text weight="bold">
+                    Previous
+                  </Text>
+                  <Text>
+                    Coming Soon
+                  </Text>
                 </Grid>
               </Table.Cell>
             </Table.Row>

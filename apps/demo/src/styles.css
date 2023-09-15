@@ -70,6 +70,7 @@ a {
 
 .gamba-ui-controls-wrapper {
   display: flex;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
@@ -120,12 +121,8 @@ a {
 .gamba-game-button-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1px;
+  gap: 2px;
 }
-
-/* .gamba-game-button-group > button {
-  border-radius: 0px;
-} */
 
 .gamba-game-button:not(:disabled):hover {
   background: #2e2e40;

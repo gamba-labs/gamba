@@ -1,217 +1,53 @@
-import { AnchorProvider, BN, Program } from '@coral-xyz/anchor'
-import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from '@solana/spl-token'
-import { AccountInfo, Connection, Keypair, PublicKey, SYSVAR_CLOCK_PUBKEY, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
+import { AccountInfo, Connection, Keypair, MessageV0, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 import { Event } from './Event'
-import { GambaError2 } from './GambaError'
-import { BET_UNIT, GambaError, PROGRAM_ID, SYSTEM_PROGRAM } from './constants'
-import { Gamba as GambaProgram, IDL } from './idl'
+import { GambaError, clientError } from './GambaError'
 import { parseHouseAccount, parseUserAccount, parseWalletAccount } from './parsers'
 import { State, createState } from './state'
 import { Wallet } from './types'
-import { getPdaAddress } from './utils'
+// import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
+import { GambaAnchorClient } from './methods'
 
-export interface GambaPlayParams {
-  creator: PublicKey | string
-  wager: number
-  seed: string
-  bet: number[]
-  deductFees?: boolean
+async function makeAndSendTransaction(
+  connection: Connection,
+  wallet: Wallet,
+  instruction: TransactionInstruction,
+): Promise<SentTransaction> {
+  const blockhash = await connection.getLatestBlockhash()
+  const message = new TransactionMessage({
+    payerKey: wallet.publicKey,
+    recentBlockhash: blockhash.blockhash,
+    instructions: [instruction],
+  }).compileToV0Message()
+  const transaction = new VersionedTransaction(message)
+  const signedTransaction = await wallet.signTransaction(transaction)
+  const txId = await connection.sendTransaction(signedTransaction)
+  return { txId, blockhash, message }
+}
+
+export interface SentTransaction {
+  txId: string
+  blockhash: Readonly<{
+    blockhash: string;
+    lastValidBlockHeight: number;
+  }>
+  message: MessageV0
 }
 
 export class GambaClient {
   /** The connection object from Solana's SDK. */
   public readonly connection: Connection
 
-  private program: Program<GambaProgram>
+  public readonly methods: GambaAnchorClient
 
   wallet: Wallet
+  private fakeWallet = false
 
   public state = createState()
   private previous = this.state
 
   get addresses() {
-    const wallet = this.wallet.publicKey
-    const user = getPdaAddress(Buffer.from('user2'), this.wallet.publicKey.toBytes())
-    const house = getPdaAddress(Buffer.from('house'))
-    return { wallet, user, house }
+    return this.methods.addresses
   }
-
-  private stateEvent = new Event<[current: State, previous: State]>
-
-  public onChange(listener: (state: State, previous: State) => void) {
-    return this.stateEvent.subscribe(listener)
-  }
-
-  private update(update: Partial<State>) {
-    this.state = { ...this.state, ...update }
-    this.stateEvent.emit(this.state, this.previous)
-    this.previous = this.state
-  }
-
-  /**
-   * Register a callback to be invoked whenever the state changes
-   * @param callback Function to invoke whenever the state is changed
-   * @return Promise that resolves when the callback function returns anything
-   */
-  anticipate<U>(
-    callback: (current: State, previous: State) => U | undefined,
-  ) {
-    return new Promise<U>((resolve, reject) => {
-      const listener = (current: State, previous: State) => {
-        try {
-          const handled = callback(current, previous)
-          if (handled) {
-            unsubscribe()
-            resolve(handled)
-          }
-        } catch (err) {
-          unsubscribe()
-          reject(err)
-        }
-      }
-      const unsubscribe = this.stateEvent.subscribe(listener)
-      listener(this.state, this.previous)
-    })
-  }
-
-  private errorEvent = new Event<[GambaError2]>
-
-  public onError(listener: (error: GambaError2) => void) {
-    return this.errorEvent.subscribe(listener)
-  }
-
-  private makeMethodCall = <T extends unknown[] = []>(
-    methodName: string,
-    instructionBuilder: (...dsa: T) => Promise<TransactionInstruction>,
-  ) => {
-    return async (...args: T) => {
-      const runMethod: () => ReturnType<typeof this._createAndSendTransaction> =
-      // Retry until error is resolved or rejected
-      async () => {
-        try {
-          const instructions = await instructionBuilder(...args)
-          return this._createAndSendTransaction(instructions)
-        } catch (error) {
-          const _err = new GambaError2(
-            error as string,
-            methodName,
-            args,
-          )
-          this.errorEvent.emit(_err)
-          const resolution = await _err.wait()
-          if (resolution === 'resolved') {
-            return await runMethod()
-          }
-          throw error
-        }
-      }
-      return runMethod()
-    }
-  }
-
-  /**
-   * Plays a bet against the Program
-   */
-  play = this.makeMethodCall('play', ({ wager, ...params }: GambaPlayParams) => {
-    const totalBalance = this.state.user.balance + this.state.user.bonusBalance + this.state.wallet.balance - 1000000
-
-    if (!this.state.user.created) {
-      throw GambaError.PLAY_BEFORE_INITIALIZED
-    }
-
-    if (wager > totalBalance) {
-      throw GambaError.INSUFFICIENT_BALANCE
-    }
-
-    return this.program.methods
-      .play(
-        new BN(wager),
-        params.bet.map((x) => x * BET_UNIT),
-        params.seed,
-      )
-      .accounts({
-        owner: this.addresses.wallet,
-        house: this.addresses.house,
-        user: this.addresses.user,
-        creator: params.creator,
-      })
-      .instruction()
-  })
-
-  /**
-   * Closes the user account
-   */
-  closeAccount = this.makeMethodCall('closeAccount', () => {
-    return this.program.methods
-      .close()
-      .accounts({
-        owner: this.addresses.wallet,
-        house: this.addresses.house,
-        user: this.addresses.user,
-      })
-      .instruction()
-  })
-
-  /**
-   * Initialize user account
-   */
-  initializeAccount = this.makeMethodCall('initializeAccount', () => {
-    return this.program.methods
-      .initializeUser(this.addresses.wallet)
-      .accounts({
-        user: this.addresses.user,
-        owner: this.addresses.wallet,
-        systemProgram: SYSTEM_PROGRAM,
-      })
-      .remainingAccounts([
-        { pubkey: SYSVAR_CLOCK_PUBKEY, isSigner: false, isWritable: false },
-      ])
-      .instruction()
-  })
-
-  /**
-   * Withdraws desiredAmount from user account
-   * @param desiredAmount Lamports to withdraw. Leave empty for available funds.
-   */
-  withdraw = this.makeMethodCall('withdraw', (desiredAmount?: number) => {
-    const amount = desiredAmount ?? this.state.user.balance
-
-    return this.program.methods
-      .userWithdraw(new BN(amount))
-      .accounts({
-        user: this.addresses.user,
-        owner: this.addresses.wallet,
-      })
-      .instruction()
-  })
-
-  /**
-   * Redeems bonus tokens by burning them and adds them to the user's bonus balance
-   * @param amountToRedeem Bonus tokens to redeem.
-   */
-  redeemBonusToken = this.makeMethodCall('redeemBonusToken', (amountToRedeem: number) => {
-    if (!this.state.house.bonusMint) {
-      throw 'House does not have a bonus token'
-    }
-
-    const associatedTokenAccount = getAssociatedTokenAddressSync(
-      this.state.house.bonusMint,
-      this.addresses.wallet,
-    )
-
-    return this.program.methods
-      .redeemBonusToken(new BN(amountToRedeem ?? associatedTokenAccount))
-      .accounts({
-        mint: this.state.house.bonusMint,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        from: associatedTokenAccount,
-        authority: this.addresses.wallet,
-        user: this.addresses.user,
-        house: this.addresses.house,
-      })
-      .instruction()
-  })
 
   /**
    * @param connection
@@ -227,23 +63,92 @@ export class GambaClient {
     if (wallet) {
       this.wallet = wallet
     } else {
-      // Create an inline burner wallet if none is provided
-      this.wallet = new NodeWallet(new Keypair)
+      // Create a fake inline wallet if none is provided
+      const keypair = new Keypair
+      // this.wallet = new NodeWallet(keypair)
+      this.fakeWallet = true
+      this.wallet = {
+        payer: keypair,
+        publicKey: keypair.publicKey,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        signTransaction: () => null as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        signAllTransactions: () => null as any,
+      }
     }
 
     this.connection = connection
-
-    const anchorProvider = new AnchorProvider(
+    this.methods = new GambaAnchorClient(
       connection,
       this.wallet,
-      { preflightCommitment: connection.commitment },
+      this.sendTransaction.bind(this),
     )
+  }
 
-    this.program = new Program(IDL, PROGRAM_ID, anchorProvider)
+  private stateEvent = new Event<[current: State, previous: State]>
+
+  public onChange(listener: (state: State, previous: State) => void) {
+    return this.stateEvent.subscribe(listener)
+  }
+
+  private update(update: Partial<State>) {
+    this.state = { ...this.state, ...update }
+    this.stateEvent.emit(this.state, this.previous)
+    this.previous = this.state
+  }
+
+  private errorEvent = new Event<[GambaError]>
+
+  public onError(listener: (error: GambaError) => void) {
+    return this.errorEvent.subscribe(listener)
+  }
+
+  private async sendTransaction(
+    instruction: TransactionInstruction | Promise<TransactionInstruction>,
+  ) {
+    try {
+      if (this.fakeWallet) {
+        throw clientError('WalletNotConnected')
+      }
+      return await makeAndSendTransaction(this.connection, this.wallet, await instruction)
+    } catch (error) {
+      // Catch error so it can be handled by subscribers of onError
+      this.errorEvent.emit(new GambaError(error))
+      throw error
+    }
   }
 
   /**
-   * Starts listening for accounts that will update state
+   * Register a callback to be invoked whenever the client state changes, return a value to resolve the promise
+   * If you throw an error it will invoke callback listeners to onError (or useGambaError)
+   * @param callback Function to invoke whenever the state is changed
+   * @return Promise that resolves when the callback function returns anything
+   */
+  anticipate<U>(
+    callback: (current: State, previous: State) => U | undefined,
+  ) {
+    return new Promise<U>((resolve, reject) => {
+      const listener = (current: State, previous: State) => {
+        try {
+          const handled = callback(current, previous)
+          if (handled) {
+            unsubscribe()
+            resolve(handled)
+          }
+        } catch (err) {
+          // Catch error so it can be handled by subscribers of onError
+          this.errorEvent.emit(new GambaError(err))
+          unsubscribe()
+          reject(err)
+        }
+      }
+      const unsubscribe = this.stateEvent.subscribe(listener)
+      listener(this.state, this.previous)
+    })
+  }
+
+  /**
+   * Listens for accounts that will update state
    */
   public listen() {
     const { connection } = this
@@ -275,22 +180,5 @@ export class GambaClient {
         this.connection.removeAccountChangeListener(listener)
       })
     }
-  }
-
-  private async _createAndSendTransaction(instruction: TransactionInstruction) {
-    const blockhash = await this.connection.getLatestBlockhash()
-
-    const message = new TransactionMessage({
-      payerKey: this.wallet.publicKey,
-      recentBlockhash: blockhash.blockhash,
-      instructions: [instruction],
-    }).compileToV0Message()
-    const transaction = new VersionedTransaction(message)
-
-    const signedTransaction = await this.wallet.signTransaction(transaction)
-
-    const txId = await this.connection.sendTransaction(signedTransaction)
-
-    return { txId, blockhash, message }
   }
 }

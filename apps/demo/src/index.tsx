@@ -1,8 +1,8 @@
+import { SolanaMobileWalletAdapter, createDefaultAddressSelector, createDefaultAuthorizationResultCache, createDefaultWalletNotFoundHandler } from '@solana-mobile/wallet-adapter-mobile'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
-import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { Gamba } from 'gamba/react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -16,6 +16,17 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 function Root() {
   const wallets = React.useMemo(
     () => [
+      new SolanaMobileWalletAdapter({
+        addressSelector: createDefaultAddressSelector(),
+        appIdentity: {
+          name: 'Gamba Demo',
+          uri: 'https://play.gamba.so',
+          icon: 'icon-512.png',
+        },
+        authorizationResultCache: createDefaultAuthorizationResultCache(),
+        cluster: 'mainnet-beta',
+        onWalletNotFound: createDefaultWalletNotFoundHandler(),
+      }),
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
     ]

@@ -33,8 +33,7 @@
 
 .controls > div {
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
   gap: 10px;
   justify-content: center;
 }

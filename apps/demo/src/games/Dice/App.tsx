@@ -14,7 +14,7 @@ const DICE_SIDES = 100
 export default function Dice() {
   const gamba = useGamba()
   const [wager, setWager] = React.useState(0)
-  const [loading, setLoading] = React.useState(false)
+  const [rolling, setRolling] = React.useState(false)
   const [resultIndex, setResultIndex] = React.useState(-1)
   const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(DICE_SIDES / 2))
 
@@ -37,7 +37,7 @@ export default function Dice() {
 
   const play = async () => {
     try {
-      setLoading(true)
+      setRolling(true)
       sounds.dice.play()
 
       await gamba.play({
@@ -55,13 +55,13 @@ export default function Dice() {
         sounds.lose.play()
       }
     } finally {
-      setLoading(false)
+      setRolling(false)
     }
   }
 
   return (
     <GameUi.Fullscreen maxScale={1.5}>
-      <GameUi.Controls disabled={loading}>
+      <GameUi.Controls disabled={rolling}>
         <GameUi.WagerInput
           bet={bet}
           wager={wager}
@@ -100,7 +100,7 @@ export default function Dice() {
             </div>
           }
           <Slider
-            disabled={loading}
+            disabled={rolling}
             range={[0, DICE_SIDES]}
             min={1}
             max={DICE_SIDES - 5}

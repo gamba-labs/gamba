@@ -63,11 +63,11 @@ export const decodeAccount = <T>(accountName: string, account: AccountInfo<Buffe
 }
 
 export const decodeUser = (account: AccountInfo<Buffer> | null) => {
-  return decodeAccount<UserState>('user', account)
+  return decodeAccount('user', account)
 }
 
 export const decodeHouse = (account: AccountInfo<Buffer> | null) => {
-  return decodeAccount<HouseState>('house', account)
+  return decodeAccount('house', account)
 }
 
 export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {

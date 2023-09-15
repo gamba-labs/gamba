@@ -76,10 +76,11 @@ button.reset {
   background: none;
   animation: reset-button-shine 1s infinite;
   cursor: pointer;
-  &:disabled {
-    color: #cccccc99!important;
-    cursor: default;
-  }
+}
+
+button.reset:disabled {
+  color: #cccccc99!important;
+  cursor: default;
 }
 
 .container {
@@ -87,7 +88,6 @@ button.reset {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 50px;
   font-size: 14px;
   user-select: none;
 }
@@ -118,9 +118,10 @@ button.reset {
 
 .cell[data-status="hidden"] {
   background: #573c89;
-  &:disabled {
-    opacity: .5;
-  }
+}
+
+.cell[data-status="hidden"]:disabled {
+  opacity: .5;
 }
 
 .cell[data-status="gold"] {

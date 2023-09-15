@@ -1,6 +1,7 @@
 export * from './EventFetcher'
 export * from './GambaClient'
 export * from './GambaError'
+export * from './methods'
 export * from './constants'
 export * from './types'
 export * from './state'

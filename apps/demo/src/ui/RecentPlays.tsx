@@ -2,7 +2,6 @@ import { GameResult, lamportsToSol } from 'gamba'
 import { useEventFetcher, useGamba } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React from 'react'
-import { Button } from '../components/Button'
 import { Icon } from '../components/Icon'
 import { Section } from '../components/Section'
 import { cx } from '../utils'
@@ -23,7 +22,7 @@ const TimeDiff: React.FC<{time: number}> = ({ time }) => {
       return minutes + 'm ago'
     }
     return 'Just now'
-  }, [time])
+  }, [diff])
 }
 
 interface RecentPlayProps {
@@ -74,7 +73,7 @@ export function RecentPlays() {
 
   React.useEffect(
     () => {
-      events.fetch({ signatureLimit: 20 })
+      events.fetch({ signatureLimit: 40 })
       return events.listen()
     }
     , [events],

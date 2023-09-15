@@ -87,14 +87,9 @@ export default function Roulette() {
           >
             Clear
           </GameUi.Button>
-          <GameUi.Button variant="primary" disabled={maxPayoutExceeded} onClick={play}>
+          <GameUi.Button variant="primary" onClick={play}>
             Spin
           </GameUi.Button>
-        </GameUi.Group>
-        <GameUi.Group>
-          <span style={{ width: '100px' }}>
-            {formatLamports(wager)}
-          </span>
         </GameUi.Group>
       </GameUi.Controls>
 

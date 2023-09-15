@@ -1,7 +1,7 @@
 import React from 'react'
 
 const style: React.CSSProperties = {
-  position: 'absolute',
+  // position: 'absolute',
   justifyContent: 'center',
   alignItems: 'center',
   display: 'flex',
@@ -15,9 +15,10 @@ const style: React.CSSProperties = {
 
 interface Props extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {
   maxScale?: number
+  overlay?: boolean
 }
 
-export default function Fullscreen({ children, maxScale = 1, ...props }: Props) {
+export default function Fullscreen({ children, maxScale = 1, overlay, ...props }: Props) {
   const wrapper = React.useRef<HTMLDivElement>(null!)
   const inner = React.useRef<HTMLDivElement>(null!)
   const content = React.useRef<HTMLDivElement>(null!)
@@ -53,7 +54,7 @@ export default function Fullscreen({ children, maxScale = 1, ...props }: Props) 
   }, [maxScale])
 
   return (
-    <div {...props} ref={wrapper} style={style}>
+    <div {...props} ref={wrapper} style={{ ...style, position: overlay ? 'absolute' : 'absolute' }}>
       <div ref={inner}>
         <div ref={content}>
           {children}

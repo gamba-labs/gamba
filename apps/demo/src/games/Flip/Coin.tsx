@@ -1,4 +1,4 @@
-import { useTexture } from '@react-three/drei'
+import { useGLTF, useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
 import { Group } from 'three'
@@ -6,25 +6,21 @@ import { Group } from 'three'
 import TEXTURE_HEADS from './heads.png'
 import TEXTURE_TAILS from './tails.png'
 
-const COIN_COLOR = '#ffd630'
-
 function CoinModel() {
+  const model = useGLTF('/Coin.glb')
   const [heads, tails] = useTexture([TEXTURE_HEADS, TEXTURE_TAILS])
-
   return (
     <>
-      <mesh rotation-x={-Math.PI / 2}>
-        <cylinderGeometry args={[1, 1, .29]} />
-        <meshBasicMaterial color={COIN_COLOR} />
-      </mesh>
-      <mesh position-z={.15}>
+      <primitive object={model.nodes.Coin}>
+      </primitive>
+      <mesh position-z={.3}>
         <planeGeometry args={[1.3, 1.3, 1.3]} />
-        <meshBasicMaterial transparent map={heads} />
+        <meshStandardMaterial transparent map={heads} />
       </mesh>
       <group rotation-y={Math.PI}>
-        <mesh position-z={.15}>
+        <mesh position-z={.3}>
           <planeGeometry args={[1.3, 1.3, 1.3]} />
-          <meshBasicMaterial transparent map={tails} />
+          <meshStandardMaterial transparent map={tails} />
         </mesh>
       </group>
     </>

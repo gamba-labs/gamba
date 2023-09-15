@@ -21,25 +21,30 @@ export default function WagerInput({ bet, wager, onChange }: WagerInputProps) {
     onChange(fixedValue)
   }
 
-  // const [_wager, _setWager] = React.useState('')
+  const [_wager, _setWager] = React.useState('')
 
   React.useEffect(() => set(wager), [bet])
+  React.useEffect(() => _setWager(String(lamportsToSol(Number(wager)))), [wager])
 
   return (
     <div className="gamba-game-ui-wager-input">
       <input
         type="number"
         disabled={disabled}
-        value={lamportsToSol(Number(wager))}
+        value={_wager}
         step="0.05"
         onFocus={(e) => {
           e.target.select()
         }}
+        onBlur={() => {
+          _setWager(String(lamportsToSol(Number(wager))))
+        }}
         onChange={
           (evt) => {
-            if (evt.target.value) {
+            const val = Number(_wager)
+            _setWager(evt.target.value)
+            if (!isNaN(val))
               set(solToLamports(Number(evt.target.value)))
-            }
           }
         }
       />

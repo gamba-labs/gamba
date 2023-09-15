@@ -26,20 +26,17 @@ interface Result {
   payout: number
 }
 
-const Stuff: React.FC<{messages: string[]}> = ({ messages }) => {
+const Messages: React.FC<{messages: string[]}> = ({ messages }) => {
   const [messageIndex, setMessageIndex] = React.useState(0)
-
   React.useEffect(
     () => {
       const timeout = setInterval(() => {
         setMessageIndex((x) => (x + 1) % messages.length)
       }, 2500)
-
       return () => clearTimeout(timeout)
     },
     [messages],
   )
-
   return (
     <>
       {messages[messageIndex]}
@@ -107,6 +104,7 @@ export default function Slots() {
   const play = async () => {
     try {
       sounds.play.play()
+      setSpinning(true)
 
       const res = await gamba.play({
         wager,
@@ -115,7 +113,6 @@ export default function Slots() {
 
       setRevealedSlots(0)
       setGood(false)
-      setSpinning(true)
 
       const startTime = Date.now()
 
@@ -177,7 +174,7 @@ export default function Slots() {
           </div>
           <div className={styles.result} data-good={good}>
             {spinning ? (
-              <Stuff
+              <Messages
                 messages={[
                   'Spinning!',
                   'Good luck',
@@ -188,10 +185,10 @@ export default function Slots() {
                 Payout: {formatLamports(result.payout)}
               </>
             ) : (
-              <Stuff
+              <Messages
                 messages={[
-                  'FEELING LUCKY?',
                   'SPIN ME!',
+                  'FEELING LUCKY?',
                 ]}
               />
             )}

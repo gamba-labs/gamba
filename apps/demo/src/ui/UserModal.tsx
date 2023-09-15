@@ -14,12 +14,12 @@ export function UserModal({ onClose }: Props) {
   const gamba = useGamba()
 
   const [createAccount, creating] = usePromise(async () => {
-    await gamba.initializeAccount()
+    await gamba.methods.initializeAccount()
     await gamba.anticipate((state) => state.user.created)
   })
 
   const [closeAccount, closing] = usePromise(async () => {
-    await gamba.closeAccount()
+    await gamba.methods.closeAccount()
     await gamba.anticipate((state) => !state.user.created)
     onClose()
   })

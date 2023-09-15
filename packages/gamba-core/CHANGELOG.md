@@ -1,5 +1,11 @@
 # gamba-core
 
+## 0.5.0
+
+### Minor Changes
+
+- 9e012ef: A lot of breaking changes. Discord for details.
+
 ## 0.3.1
 
 ### Patch Changes

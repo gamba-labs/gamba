@@ -1,5 +1,22 @@
 # gamba
 
+## 1.0.0
+
+### Minor Changes
+
+- cad36ad: A lot of breaking changes. Discord for details.
+
+### Patch Changes
+
+- e741790: A lot of breaking changes. Discord for details.
+- 85b7df4: A lot of breaking changes. Discord for details.
+- Updated dependencies [cad36ad]
+- Updated dependencies [e741790]
+- Updated dependencies [85b7df4]
+  - gamba-core@0.5.0
+  - gamba-react@1.0.0
+  - gamba-react-ui@1.0.0
+
 ## 0.7.4
 
 ### Patch Changes

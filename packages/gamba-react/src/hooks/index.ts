@@ -1,5 +1,5 @@
 export { useBalances } from './useBalances'
-export { useBonusBalance } from './useBonusBalance'
+export { useBonusToken } from './useBonusToken'
 export { useGamba, useGambaError } from './useGamba'
 export { useGambaClient } from './useGambaClient'
 export { useEventFetcher } from './useEventFetcher'

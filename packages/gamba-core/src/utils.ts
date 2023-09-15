@@ -74,7 +74,11 @@ export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) 
   return hmac256(rngSeed, [clientSeed, nonce].join('-'))
 }
 
-export const getTokenAccount = async (connection: Connection, wallet: PublicKey, token: PublicKey) => {
+export const getTokenAccount = async (
+  connection: Connection,
+  wallet: PublicKey,
+  token: PublicKey,
+) => {
   const address = getAssociatedTokenAddressSync(token, wallet)
   const tokenAccountBalance = await connection.getTokenAccountBalance(address)
   const balance = Number(tokenAccountBalance.value.amount)

@@ -1,6 +1,6 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useBonusBalance, useGamba } from 'gamba/react'
+import { useBonusToken, useGamba } from 'gamba/react'
 import { formatLamports } from 'gamba/react-ui'
 import React, { useState } from 'react'
 import { Button, CopyButton } from '../components/Button'
@@ -10,7 +10,7 @@ import { usePromise } from '../hooks/usePromise'
 import { UserModal } from './UserModal'
 
 function ConnectedButton() {
-  const bonusBalance = useBonusBalance()
+  const bonusToken = useBonusToken()
   const [modal, setModal] = React.useState(false)
   const gamba = useGamba()
   const wallet = useWallet()
@@ -25,7 +25,14 @@ function ConnectedButton() {
   })
 
   const [redeemBonus, redeeming] = usePromise(async () => {
-    // await gamba.methods.redeemBonusToken(bonusBalance)
+    if (!bonusToken.mint || !bonusToken.associatedTokenAccount) {
+      throw 'No mint'
+    }
+    await gamba.methods.redeemBonusToken(
+      bonusToken.mint,
+      bonusToken.associatedTokenAccount,
+      bonusToken.balance,
+    )
     await gamba.anticipate((state, prev) => state.user.bonusBalance > prev.user.bonusBalance)
   })
 
@@ -51,9 +58,9 @@ function ConnectedButton() {
               Claim {formatLamports(gamba.balances.user)}
             </Button>
           )}
-          {bonusBalance > 0 && (
+          {bonusToken.balance > 0 && (
             <Button onClick={redeemBonus} loading={redeeming}>
-              Redeem {formatLamports(bonusBalance, 'gSOL')}
+              Redeem {formatLamports(bonusToken.balance, 'gSOL')}
             </Button>
           )}
           {wallet.connected && (

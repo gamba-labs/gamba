@@ -5,6 +5,7 @@ import { IDL } from './idl'
 import { GambaProgram, Wallet } from './types'
 import { getPdaAddress } from './utils'
 import { SentTransaction } from './GambaClient'
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 
 export interface GambaPlayParams {
   creator: PublicKey | string
@@ -116,28 +117,25 @@ export class GambaAnchorClient {
 
   /**
      * Redeems bonus tokens by burning them and adds them to the user's bonus balance
+     * @param mint The mint address of the bonus token. Has to match house.bonusMint
+     * @param associatedTokenAccount The users ATA
      * @param amountToRedeem Bonus tokens to redeem.
      */
-  // redeemBonusToken = (amountToRedeem: number) => {
-  //   if (!this.state.house.bonusMint) {
-  //     throw 'House does not have a bonus token'
-  //   }
-
-  //   const associatedTokenAccount = getAssociatedTokenAddress(
-  //     this.state.house.bonusMint,
-  //     this.addresses.wallet,
-  //   )
-
-  //   return this.program.methods
-  //     .redeemBonusToken(new BN(amountToRedeem ?? associatedTokenAccount))
-  //     .accounts({
-  //       mint: this.state.house.bonusMint,
-  //       tokenProgram: TOKEN_PROGRAM_ID,
-  //       from: associatedTokenAccount,
-  //       authority: this.addresses.wallet,
-  //       user: this.addresses.user,
-  //       house: this.addresses.house,
-  //     })
-  //     .instruction()
-  // }
+  redeemBonusToken = (
+    mint: PublicKey,
+    associatedTokenAccount: PublicKey,
+    amountToRedeem: number,
+  ) => {
+    return this.program.methods
+      .redeemBonusToken(new BN(amountToRedeem))
+      .accounts({
+        mint,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        from: associatedTokenAccount,
+        authority: this.addresses.wallet,
+        user: this.addresses.user,
+        house: this.addresses.house,
+      })
+      .instruction()
+  }
 }

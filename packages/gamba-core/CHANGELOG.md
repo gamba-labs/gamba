@@ -1,5 +1,11 @@
 # gamba-core
 
+## 0.5.2
+
+### Patch Changes
+
+- 677bfa8: Bugfix: Throw error before requesting signature when creating account
+
 ## 0.5.0
 
 ### Minor Changes

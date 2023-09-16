@@ -3,7 +3,7 @@ import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 import { AccountInfo, Connection, LAMPORTS_PER_SOL, ParsedTransactionWithMeta, PublicKey, SignaturesForAddressOptions } from '@solana/web3.js'
 import { IDL, PROGRAM_ID } from './constants'
 import { parseBetSettledEvent, parsePlayEvent } from './parsers'
-import { GameEvent, GameResult, HouseState, UserState } from './types'
+import { GameEvent, GameResult, HouseState, ParsedGambaTransaction, UserState } from './types'
 
 const accountsCoder = new BorshAccountsCoder(IDL)
 const eventParser = new EventParser(PROGRAM_ID, new BorshCoder(IDL))
@@ -29,6 +29,10 @@ export const hmac256 = async (secretKey: string, message: string, algorithm = 'S
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
   return hashHex
+}
+
+export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
+  return hmac256(rngSeed, [clientSeed, nonce].join('-'))
 }
 
 // ....
@@ -63,15 +67,11 @@ export const decodeAccount = <T>(accountName: string, account: AccountInfo<Buffe
 }
 
 export const decodeUser = (account: AccountInfo<Buffer> | null) => {
-  return decodeAccount('user', account)
+  return decodeAccount<UserState>('user', account)
 }
 
 export const decodeHouse = (account: AccountInfo<Buffer> | null) => {
-  return decodeAccount('house', account)
-}
-
-export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
-  return hmac256(rngSeed, [clientSeed, nonce].join('-'))
+  return decodeAccount<HouseState>('house', account)
 }
 
 export const getTokenAccount = async (
@@ -105,14 +105,6 @@ export const parseTransactionEvents = (
   }
 
   return { gameResult, gameResultOld }
-}
-
-export interface ParsedGambaTransaction {
-  signature: string
-  time: number
-  event: {
-    gameResult?: GameResult
-  }
 }
 
 /**

@@ -1,7 +1,8 @@
 import { Connection, PublicKey } from '@solana/web3.js'
 import { Event } from './Event'
 import { PROGRAM_ID } from './constants'
-import { ParsedGambaTransaction, fetchTransactionsWithEvents, parseTransactionEvents } from './utils'
+import { ParsedGambaTransaction } from './types'
+import { fetchTransactionsWithEvents, parseTransactionEvents } from './utils'
 
 export interface EventFetcherParams {
   /**

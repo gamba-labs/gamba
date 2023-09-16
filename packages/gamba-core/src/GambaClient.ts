@@ -4,7 +4,6 @@ import { GambaError, clientError } from './GambaError'
 import { parseHouseAccount, parseUserAccount, parseWalletAccount } from './parsers'
 import { State, createState } from './state'
 import { Wallet } from './types'
-// import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
 import { GambaAnchorClient } from './methods'
 
 async function makeAndSendTransaction(
@@ -54,7 +53,6 @@ export class GambaClient {
    * A connection to a fullnode JSON RPC endpoint
    * @param wallet
    * The web3 wallet to use for signing and interracting with the contract.
-   * If none is set an inline burner wallet is created
    */
   constructor(
     connection: Connection,
@@ -65,7 +63,6 @@ export class GambaClient {
     } else {
       // Create a fake inline wallet if none is provided
       const keypair = new Keypair
-      // this.wallet = new NodeWallet(keypair)
       this.fakeWallet = true
       this.wallet = {
         payer: keypair,
@@ -105,8 +102,12 @@ export class GambaClient {
 
   private async sendTransaction(
     instruction: TransactionInstruction | Promise<TransactionInstruction>,
+    params?: {requiresAccount?: boolean},
   ) {
     try {
+      if (params?.requiresAccount && !this.state.user.created) {
+        throw clientError('AccountNotInitialized')
+      }
       if (this.fakeWallet) {
         throw clientError('WalletNotConnected')
       }

@@ -19,7 +19,7 @@ const getGambaClientError = (error: unknown) => {
 }
 
 type ProgramErrorCode = Gamba['errors'][number]['name']
-type GambaClientError = 'WalletNotConnected'
+type GambaClientError = 'WalletNotConnected' | 'AccountNotInitialized'
 type ErrorCode = 'GenericClientError' | 'InsufficentFunds' | 'AccountNotInitialized' | GambaClientError | ProgramErrorCode
 
 export const clientError = (gambaClientError: GambaClientError) => ({ gambaClientError })

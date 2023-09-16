@@ -15,12 +15,14 @@ export interface GambaPlayParams {
   deductFees?: boolean
 }
 
+export type SendFunction = (instruction: TransactionInstruction | Promise<TransactionInstruction>, params?: {requiresAccount?: boolean}) => Promise<SentTransaction>
+
 export class GambaAnchorClient {
   private program: GambaProgram
 
   wallet: Wallet
 
-  sender: (instruction: TransactionInstruction | Promise<TransactionInstruction>) => Promise<SentTransaction>
+  sender: SendFunction
 
   get addresses() {
     const wallet = this.wallet.publicKey
@@ -32,7 +34,7 @@ export class GambaAnchorClient {
   constructor(
     connection: Connection,
     wallet: Wallet,
-    sender: (instruction: TransactionInstruction | Promise<TransactionInstruction>) => Promise<SentTransaction>,
+    sender: SendFunction,
   ) {
     const anchorProvider = new AnchorProvider(
       connection,
@@ -62,6 +64,7 @@ export class GambaAnchorClient {
           creator: params.creator,
         })
         .instruction(),
+      { requiresAccount: true },
     )
   }
 
@@ -126,16 +129,18 @@ export class GambaAnchorClient {
     associatedTokenAccount: PublicKey,
     amountToRedeem: number,
   ) => {
-    return this.program.methods
-      .redeemBonusToken(new BN(amountToRedeem))
-      .accounts({
-        mint,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        from: associatedTokenAccount,
-        authority: this.addresses.wallet,
-        user: this.addresses.user,
-        house: this.addresses.house,
-      })
-      .instruction()
+    return this.sender(
+      this.program.methods
+        .redeemBonusToken(new BN(amountToRedeem))
+        .accounts({
+          mint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          from: associatedTokenAccount,
+          authority: this.addresses.wallet,
+          user: this.addresses.user,
+          house: this.addresses.house,
+        })
+        .instruction(),
+    )
   }
 }

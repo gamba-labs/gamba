@@ -31,8 +31,6 @@ export interface ParsedUser {
 
 
 export interface ParsedHouse {
-  // publicKey: PublicKey
-  // state: HouseState | null
   created: boolean
   rng: PublicKey | null
   bonusMint: PublicKey | null
@@ -57,4 +55,12 @@ export interface GameResult {
   nonce: number
   payout: number
   profit: number
+}
+
+export interface ParsedGambaTransaction {
+  signature: string
+  time: number
+  event: {
+    gameResult?: GameResult
+  }
 }

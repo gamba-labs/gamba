@@ -79,10 +79,10 @@ export const getTokenAccount = async (
   wallet: PublicKey,
   token: PublicKey,
 ) => {
-  const address = getAssociatedTokenAddressSync(token, wallet)
-  const tokenAccountBalance = await connection.getTokenAccountBalance(address)
+  const associatedTokenAccount = getAssociatedTokenAddressSync(token, wallet)
+  const tokenAccountBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
   const balance = Number(tokenAccountBalance.value.amount)
-  return { address, balance }
+  return { associatedTokenAccount, balance }
 }
 
 /**

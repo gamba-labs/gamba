@@ -44,7 +44,7 @@ const formatDate = timeFormat('%b %d, \'%y')
 const getDate = (d: DailyVolume) => new Date(d.date)
 const getStockValue = (d: DailyVolume) => d.total_volume
 
-const formatLamps = (lamports: number) => parseFloat((lamports / 1e9).toFixed(2))
+const formatLamps = (lamports: number) => parseFloat((lamports / 1e9).toFixed(3))
 
 const bisectDate = bisector<DailyVolume, Date>((d) => new Date(d.date)).left
 

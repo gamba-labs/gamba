@@ -134,7 +134,6 @@ export class EventFetcher {
         }
         const events = parseTransactionEvents(logs.logs)
         const gameResult = events.gameResult ?? events.gameResultOld
-        console.log(gameResult)
         this.handleEvents([{
           signature: logs.signature,
           time: Date.now(),

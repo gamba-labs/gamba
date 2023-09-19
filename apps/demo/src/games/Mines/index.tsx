@@ -10,5 +10,5 @@ export default {
   creator: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
   theme_color: 'rgb(138 102 255)',
   image,
-  app: React.lazy(() => import('./App')),
+  app: React.lazy(() => import('./Mines')),
 }

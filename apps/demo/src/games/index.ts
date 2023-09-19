@@ -8,8 +8,8 @@ import HiLo from './HiLo'
 
 export const GAMES: GameBundle[] = [
   Dice,
-  Roulette,
   HiLo,
+  Roulette,
   Slots,
   Mines,
   Flip,

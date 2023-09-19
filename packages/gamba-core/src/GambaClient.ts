@@ -105,11 +105,11 @@ export class GambaClient {
     params?: {requiresAccount?: boolean},
   ) {
     try {
-      if (params?.requiresAccount && !this.state.user.created) {
-        throw clientError('AccountNotInitialized')
-      }
       if (this.fakeWallet) {
         throw clientError('WalletNotConnected')
+      }
+      if (params?.requiresAccount && !this.state.user.created) {
+        throw clientError('AccountNotInitialized')
       }
       return await makeAndSendTransaction(this.connection, this.wallet, await instruction)
     } catch (error) {

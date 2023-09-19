@@ -7,22 +7,19 @@ import { getPdaAddress } from './utils'
 import { SentTransaction } from './GambaClient'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 
-export interface GambaPlayParams {
+export interface PlayMethodParams {
   creator: PublicKey | string
   wager: number
   seed: string
   bet: number[]
-  deductFees?: boolean
 }
 
 export type SendFunction = (instruction: TransactionInstruction | Promise<TransactionInstruction>, params?: {requiresAccount?: boolean}) => Promise<SentTransaction>
 
 export class GambaAnchorClient {
   private program: GambaProgram
-
-  wallet: Wallet
-
-  sender: SendFunction
+  private wallet: Wallet
+  private sender: SendFunction
 
   get addresses() {
     const wallet = this.wallet.publicKey
@@ -46,10 +43,8 @@ export class GambaAnchorClient {
     this.sender = sender
   }
 
-  /**
-     * Plays a bet against the Program
-     */
-  play = (params: GambaPlayParams) => {
+  /** Plays a bet against the Program */
+  play = (params: PlayMethodParams) => {
     return this.sender(
       this.program.methods
         .play(
@@ -68,9 +63,7 @@ export class GambaAnchorClient {
     )
   }
 
-  /**
-     * Closes the user account
-     */
+  /** Closes the user account */
   closeAccount = () => {
     return this.sender(
       this.program.methods
@@ -84,9 +77,7 @@ export class GambaAnchorClient {
     )
   }
 
-  /**
-     * Initialize user account
-     */
+  /** Initialize user account */
   initializeAccount = () => {
     return this.sender(
       this.program.methods
@@ -103,9 +94,7 @@ export class GambaAnchorClient {
     )
   }
 
-  /**
-     * Withdraws amount from user account
-     */
+  /** Withdraws amount from user account */
   withdraw = (amount: number) => {
     return this.sender(
       this.program.methods
@@ -119,11 +108,11 @@ export class GambaAnchorClient {
   }
 
   /**
-     * Redeems bonus tokens by burning them and adds them to the user's bonus balance
-     * @param mint The mint address of the bonus token. Has to match house.bonusMint
-     * @param associatedTokenAccount The users ATA
-     * @param amountToRedeem Bonus tokens to redeem.
-     */
+   * Redeems bonus tokens by burning them and adds them to the user's bonus balance
+   * @param mint The mint address of the bonus token. Has to match house.bonusMint
+   * @param associatedTokenAccount The users ATA
+   * @param amountToRedeem Bonus tokens to redeem.
+   */
   redeemBonusToken = (
     mint: PublicKey,
     associatedTokenAccount: PublicKey,

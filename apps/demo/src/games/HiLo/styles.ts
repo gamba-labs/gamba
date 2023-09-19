@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 const appear = keyframes`
   0% { transform: scale(.0) translateY(100px) rotateY(90deg); }
@@ -9,7 +9,7 @@ export const Container = styled.div<{ $disabled?: boolean }>`
   user-select: none;
   background: #9967e300;
   transition: opacity .2s;
-  ${({ $disabled }) => $disabled && `
+  ${({ $disabled }) => $disabled && css`
     pointer-events: none;
     opacity: .7;
   `}
@@ -39,26 +39,24 @@ export const Option = styled.button<{ selected?: boolean }>`
     filter: drop-shadow(-4px 4px 2px #00000066);
     margin-right: 10px;
   }
+  &:hover > div:first-child {
+    transform: scale(max(var(--scale), 1.1));
+  }
   & > div:last-child {
-    ${({ selected }) => selected ? `
+    ${({ selected }) => selected ? css`
       opacity: 1;
-      ` : `
+      ` : css`
       opacity: .5;
     `}
   }
-  ${({ selected }) => selected ? `
+  ${({ selected }) => selected ? css`
     --scale: 1;
     --opacity: 1;
     opacity: 1;
-  ` : `
+  ` : css`
     --scale: .75;
     opacity: .5;
   `}
-  &:hover {
-    & > div:first-child {
-      transform: scale(max(var(--scale), 1.1));
-    }
-  }
 `
 
 export const Profit = styled.div`
@@ -107,12 +105,12 @@ export const CardContainer = styled.div`
 `
 
 export const Card = styled.div<{$small?: boolean}>`
-  ${(props) => props.$small ? `
+  ${(props) => props.$small ? css`
     height: 35px;
     font-size: 15px;
     padding: 5px;
     border-radius: 6px;
-  ` : `
+  ` : css`
     height: 160px;
     font-size: 70px;
     padding: 10px;

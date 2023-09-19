@@ -1,11 +1,11 @@
 import { useGamba } from 'gamba/react'
 import { GameUi, formatLamports } from 'gamba/react-ui'
 import React from 'react'
-import { RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, WAGER_AMOUNTS } from './constants'
+import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, WAGER_AMOUNTS } from './constants'
 import { Card, CardContainer, CardPreview, Container, CardsContainer, Option, Options, Profit } from './styles'
 
 const randomRank = () => 1 + Math.floor(Math.random() * (RANKS - 1))
-const MAX_CARD_SHOWN = 5
+
 const card = (rank = randomRank()): Card => ({
   key: Math.random(),
   rank,
@@ -24,9 +24,10 @@ export default function HiLo() {
   const [initialWager, setInitialWager] = React.useState(WAGER_AMOUNTS[0])
   const [profit, setProfit] = React.useState(0)
   const currentRank = cards[cards.length - 1].rank
-  const addCard = (rank: number) => setCards((cards) => [...cards, card(rank)].slice(-MAX_CARD_SHOWN))
   const [option, setOption] = React.useState<'hi' | 'lo'>()
   const [hoveredOption, hoverOption] = React.useState<'hi' | 'lo'>()
+
+  const addCard = (rank: number) => setCards((cards) => [...cards, card(rank)].slice(-MAX_CARD_SHOWN))
 
   const sounds = GameUi.useSounds({
     card: SOUND_CARD,

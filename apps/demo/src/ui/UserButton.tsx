@@ -25,14 +25,7 @@ function ConnectedButton() {
   })
 
   const [redeemBonus, redeeming] = usePromise(async () => {
-    if (!bonusToken.mint || !bonusToken.associatedTokenAccount) {
-      throw 'No mint'
-    }
-    await gamba.methods.redeemBonusToken(
-      bonusToken.mint,
-      bonusToken.associatedTokenAccount,
-      bonusToken.balance,
-    )
+    await gamba.redeemBonusToken()
     await gamba.anticipate((state, prev) => state.user.bonusBalance > prev.user.bonusBalance)
   })
 
@@ -45,7 +38,7 @@ function ConnectedButton() {
         <Button
           onClick={() => setVisible(!visible)}
           icon={<img src={wallet.wallet?.adapter.icon} height="20px" />}
-          loading={gamba.user.created && gamba.user.status !== 'playing'}
+          // loading={gamba.user.created && gamba.user.status !== 'playing'}
         >
           {formatLamports(gamba.balances.total)}
         </Button>

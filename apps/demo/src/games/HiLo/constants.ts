@@ -2,6 +2,8 @@ import { solToLamports } from 'gamba'
 
 export const WAGER_AMOUNTS = [0.05, 0.1, 0.25, 0.5, 1, 2].map(solToLamports)
 
+export const MAX_CARD_SHOWN = 5
+
 export const RANK_SYMBOLS: Record<number, string> = {
   0: '2',
   1: '3',

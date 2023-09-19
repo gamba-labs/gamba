@@ -153,7 +153,7 @@ export function TransactionView() {
                 Win Chance
               </Text>
               <Text size="6" weight="bold">
-                {parseFloat((winChange * 100).toFixed(2))}%
+                {parseFloat((winChange * 100).toFixed(3))}%
               </Text>
             </Grid>
           </Card>
@@ -163,7 +163,7 @@ export function TransactionView() {
                 Max Win
               </Text>
               <Text size="6" weight="bold">
-                {parseFloat(potentialWin.toFixed(2))}x
+                {parseFloat(potentialWin.toFixed(3))}x
               </Text>
             </Grid>
           </Card>
@@ -254,7 +254,7 @@ export function TransactionView() {
                     Wager
                   </Text>
                   <Text>
-                    {parseFloat((gameResult.wager / 1e9).toFixed(2))} SOL
+                    {parseFloat((gameResult.wager / 1e9).toFixed(3))} SOL
                   </Text>
                 </Grid>
               </Table.Cell>

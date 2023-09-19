@@ -29,7 +29,6 @@ export function useOnClickOutside(
 
 interface SelectContext {
   value: any
-  // setVisible: (visible: boolean) => void
   setValue: (t: any) => void
 }
 
@@ -44,7 +43,6 @@ interface SelectRootProps<T> {
 }
 
 function Root<T>(props: SelectRootProps<T>) {
-  // const id = React.useId()
   const ref = React.useRef<HTMLDivElement>(null!)
   const [value, _setValue] = React.useState(props.value)
   const [visible, setVisible] = React.useState(false)
@@ -60,7 +58,6 @@ function Root<T>(props: SelectRootProps<T>) {
       <div ref={ref} className="gamba-ui-select-container">
         <Button onClick={() => setVisible(!visible)}>
           {props.format ? props.format(props.value) : JSON.stringify(props.value)}
-          {/* {props.label} {JSON.stringify(props.value)} */}
         </Button>
         {visible && (
           <div className="gamba-ui-select-popup">

@@ -1,4 +1,4 @@
-import { GambaError, GambaPlayParams } from 'gamba-core'
+import { GambaError, PlayMethodParams, getTokenAccount } from 'gamba-core'
 import React from 'react'
 import { GambaContext } from '../GambaProvider'
 import { randomSeed } from '../utils'
@@ -13,7 +13,16 @@ export function useGambaError(callback: (err: GambaError) => void) {
   React.useEffect(() => client.onError(callback), [callback])
 }
 
-type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+
+/**
+ * Play parameters within the gamba context.
+ * Here creator and seed isn't needed since it's provided by the context state. (But can be overridden)
+ */
+interface PlayParams extends Optional<PlayMethodParams, 'creator' | 'seed'> {
+  /** Deducts estimated Gamba fees from the wager. A 1 SOL wager will prompt the player to pay exactly 1 SOL. */
+  excludeFees?: boolean
+}
 
 export function useGamba() {
   const { creator, seed, setSeed } = React.useContext(GambaContext)
@@ -25,15 +34,33 @@ export function useGamba() {
   const updateSeed = (seed = randomSeed()) => setSeed(seed)
 
   /**
-   * Shorthand for `gamba.methods.play`, which includes creator address and client seed from the Gamba context
-   */
-  const play = async (params: Optional<GambaPlayParams, 'creator' | 'seed'>) => {
-    const res = await client.methods.play({
+  * Shorthand for `gamba.methods.play`, which includes creator address and client seed from the Gamba context
+  */
+  const play = async ({ wager: _wager, excludeFees, ...params }: PlayParams) => {
+    const totalFee = state.house.fees.total
+    const wager = excludeFees ? Math.ceil(_wager / (1 + totalFee)) : _wager
+    const res = await methods.play({
       seed,
       creator,
+      wager,
       ...params,
     })
     return { ...res, result: nextResult }
+  }
+
+  /**
+  * Shorthand for `gamba.methods.redeemBonusToken`, which automatically inserts the correct token addresses
+  */
+  const redeemBonusToken = async (balance?: number) => {
+    if (!state.house.bonusMint) {
+      throw new Error('House doesn\'t provide a bonus token')
+    }
+    const account = await getTokenAccount(connection, wallet.publicKey, state.house.bonusMint)
+    return await methods.redeemBonusToken(
+      state.house.bonusMint,
+      account.associatedTokenAccount,
+      balance ?? account.balance,
+    )
   }
 
   /**
@@ -68,6 +95,7 @@ export function useGamba() {
     owner: state.wallet,
     anticipate: client.anticipate.bind(client),
     play,
+    redeemBonusToken,
     methods,
     nextResult,
   }

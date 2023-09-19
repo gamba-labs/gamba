@@ -10,6 +10,7 @@ import { Home } from './Home'
 function Splash() {
   const game = GameUi.useCurrentGame()
 
+  return null
   return (
     <div className={styles.splash}>
       <img src={game.image} />

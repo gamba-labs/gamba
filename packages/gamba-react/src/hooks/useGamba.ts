@@ -29,12 +29,12 @@ export function useGamba() {
   const client = useGambaClient()
   const balances = useBalances()
 
-  const { connection, wallet, state, methods } = client
+  const { connected, connection, wallet, state, methods } = client
 
   const updateSeed = (seed = randomSeed()) => setSeed(seed)
 
   /**
-  * Shorthand for `gamba.methods.play`, which includes creator address and client seed from the Gamba context
+  * Shorthand for `gamba.methods.play` which includes creator address and client seed from the Gamba context.
   */
   const play = async ({ wager: _wager, excludeFees, ...params }: PlayParams) => {
     const totalFee = state.house.fees.total
@@ -45,22 +45,54 @@ export function useGamba() {
       wager,
       ...params,
     })
-    return { ...res, result: nextResult }
+    return {
+      ...res,
+      result: nextResult,
+    }
   }
 
   /**
-  * Shorthand for `gamba.methods.redeemBonusToken`, which automatically inserts the correct token addresses
+  * Shorthand for `gamba.methods.redeemBonusToken` which automatically inserts the houses's token mint
   */
-  const redeemBonusToken = async (balance?: number) => {
+  const redeemBonusToken = async (amount?: number) => {
     if (!state.house.bonusMint) {
       throw new Error('House doesn\'t provide a bonus token')
     }
     const account = await getTokenAccount(connection, wallet.publicKey, state.house.bonusMint)
-    return await methods.redeemBonusToken(
+    const res = await methods.redeemBonusToken(
       state.house.bonusMint,
       account.associatedTokenAccount,
-      balance ?? account.balance,
+      amount ?? account.balance,
     )
+    await client.anticipate((state, prev) => state.user.bonusBalance > prev.user.bonusBalance)
+    return res
+  }
+
+  /**
+  * Shorthand for `gamba.methods.withdraw`
+  */
+  const withdraw = async (amount?: number) => {
+    const res = await methods.withdraw(amount ?? balances.user)
+    await client.anticipate((state, prev) => state.user.balance < prev.user.balance)
+    return res
+  }
+
+  /**
+  * Shorthand for `gamba.methods.initializeAccount`
+  */
+  const initializeAccount = async () => {
+    const res = await methods.initializeAccount()
+    await client.anticipate((state) => state.user.created)
+    return res
+  }
+
+  /**
+  * Shorthand for `gamba.methods.closeAccount`
+  */
+  const closeAccount = async () => {
+    const res = await methods.closeAccount()
+    await client.anticipate((state) => !state.user.created)
+    return res
   }
 
   /**
@@ -84,6 +116,8 @@ export function useGamba() {
   }
 
   return {
+    /** If a wallet has been connected to the Gamba provider */
+    connected,
     connection,
     creator,
     wallet,
@@ -93,9 +127,13 @@ export function useGamba() {
     house: state.house,
     user: state.user,
     owner: state.wallet,
+    /** Wait for a state change to occur */
     anticipate: client.anticipate.bind(client),
     play,
     redeemBonusToken,
+    initializeAccount,
+    closeAccount,
+    withdraw,
     methods,
     nextResult,
   }

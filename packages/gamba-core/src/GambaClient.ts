@@ -39,7 +39,7 @@ export class GambaClient {
   public readonly methods: GambaAnchorClient
 
   wallet: Wallet
-  private fakeWallet = false
+  connected = false
 
   public state = createState()
   private previous = this.state
@@ -59,18 +59,20 @@ export class GambaClient {
     wallet?: Wallet,
   ) {
     if (wallet) {
+      this.connected = true
       this.wallet = wallet
     } else {
       // Create a fake inline wallet if none is provided
       const keypair = new Keypair
-      this.fakeWallet = true
       this.wallet = {
         payer: keypair,
         publicKey: keypair.publicKey,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        signTransaction: () => null as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        signAllTransactions: () => null as any,
+        signTransaction: () => {
+          throw new Error('Wallet not connected')
+        },
+        signAllTransactions: () => {
+          throw new Error('Wallet not connected')
+        },
       }
     }
 
@@ -105,7 +107,7 @@ export class GambaClient {
     params?: {requiresAccount?: boolean},
   ) {
     try {
-      if (this.fakeWallet) {
+      if (!this.connected) {
         throw clientError('WalletNotConnected')
       }
       if (params?.requiresAccount && !this.state.user.created) {
@@ -152,7 +154,9 @@ export class GambaClient {
    * Listens for accounts that will update state
    */
   public listen() {
-    const { connection } = this
+    const { connection, connected } = this
+
+    if (!connected) return
 
     const updateUser = async (info: AccountInfo<Buffer> | null) => {
       this.update({ user: await parseUserAccount(info) })

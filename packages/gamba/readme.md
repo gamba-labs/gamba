@@ -43,16 +43,37 @@ If you want to create a Gamba project from scratch you can install our main pack
 
 The following example is a simple game where the user has a 50/50 chance of doubling their money.
 
-```tsx
+```jsx
 import React from 'react'
 import { Gamba, useGamba } from 'gamba/react'
 
 function DoubleOrNothing() {
   const gamba = useGamba()
+  const [profit, setProfit] = React.useState(0)
+
+  const play = async () => {
+    // Request user to sign transaction
+    const request = await gamba.play({
+      bet: [0, 2], // 0x or 2x
+      wager: 1e9 * 0.1, // 0.1 SOL
+    })
+    // Await the result
+    const result = await request.result()
+    // Show profit in UI
+    setProfit(profit + result.profit)
+  }
+
   return (
-    <button onClick={() => gamba.play([0, 2])}>
-      Double or Nothing
-    </button>
+    <>
+      <button onClick={play}>
+        Double or Nothing
+      </button>
+      {profit > 0 && (
+        <button onClick={() => gamba.withdraw(profit)}>
+          Claim {profit / 1e9} SOL
+        </button>
+      )}
+    </>
   )
 }
 

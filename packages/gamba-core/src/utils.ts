@@ -136,8 +136,6 @@ export async function fetchTransactionsWithEvents(
 
   const signatures = signatureInfo.map((x) => x.signature)
 
-  console.debug('Sigs', signatures.length)
-
   const transactions = (await connection.getParsedTransactions(
     signatures,
     {
@@ -146,11 +144,8 @@ export async function fetchTransactionsWithEvents(
     },
   )).flatMap((x) => x ? [x] : [])
 
-
-
   const parsed = transactions.map(parseGambaTransaction)
 
-  console.debug('Txs', parsed.length)
   return parsed
 }
 

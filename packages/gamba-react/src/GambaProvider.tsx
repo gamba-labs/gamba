@@ -33,7 +33,7 @@ function Inner({ children }: React.PropsWithChildren) {
         (current, previous) => {
           if (previous.user.nonce > 0 && current.user.nonce === previous.user.nonce + 1) {
             const nextSeed = randomSeed()
-            console.log('🌱 Seed: %d (%d)', nextSeed, current.user.nonce)
+            console.log('🌱 Seed: %s (nonce: %d)', nextSeed, current.user.nonce)
             setSeed(nextSeed)
           }
         },

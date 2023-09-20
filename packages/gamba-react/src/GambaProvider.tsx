@@ -2,10 +2,15 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import { GambaClient } from 'gamba-core'
 import React from 'react'
-import { randomSeed } from './utils'
+import { SimulatePlayParams, randomSeed } from './utils'
 
 interface GambaProviderProps {
   creator: PublicKey | string
+  /**
+   * The play method is `useGamba` will simulate bets. Good for testing game UIs
+   * Note that this will not simulate potential errors such as maximum payout exceeded, or insufficent balance.
+   * */
+  fakePlay?: SimulatePlayParams
 }
 
 interface GambaContext {
@@ -13,13 +18,12 @@ interface GambaContext {
   client: GambaClient
   seed: string
   setSeed: (seed: string) => void
+  fakePlay?: SimulatePlayParams
 }
 
 export const GambaContext = React.createContext<GambaContext>(null!)
 
-/**
- * Updates client seed when nonce advances
- */
+/** Updates client seed when nonce advances */
 function Inner({ children }: React.PropsWithChildren) {
   const { client, setSeed } = React.useContext(GambaContext)
 
@@ -27,9 +31,9 @@ function Inner({ children }: React.PropsWithChildren) {
     () => {
       return client.onChange(
         (current, previous) => {
-          if (current.user.nonce === previous.user.nonce + 1) {
+          if (previous.user.nonce > 0 && current.user.nonce === previous.user.nonce + 1) {
             const nextSeed = randomSeed()
-            console.log('🌱 Next seed:', nextSeed, current.user.nonce, previous.user.nonce)
+            console.log('🌱 Seed: %d (%d)', nextSeed, current.user.nonce)
             setSeed(nextSeed)
           }
         },
@@ -43,16 +47,18 @@ function Inner({ children }: React.PropsWithChildren) {
   )
 }
 
-/**
- *
- */
-export function Gamba({ children, creator: _creator }: React.PropsWithChildren<GambaProviderProps>) {
+export function Gamba({ children, creator: _creator, fakePlay }: React.PropsWithChildren<GambaProviderProps>) {
   const [seed, setSeed] = React.useState(randomSeed())
   const _wallet = useWallet()
   const { connection } = useConnection()
 
   const creator = React.useMemo(
-    () => new PublicKey(_creator),
+    () => {
+      if (!_creator) {
+        throw new Error('No creator address provided to Gamba.')
+      }
+      return new PublicKey(_creator)
+    },
     [_creator],
   )
 
@@ -78,7 +84,7 @@ export function Gamba({ children, creator: _creator }: React.PropsWithChildren<G
   React.useEffect(() => client.listen(), [client])
 
   return (
-    <GambaContext.Provider value={{ creator, client, seed, setSeed }}>
+    <GambaContext.Provider value={{ creator, client, seed, setSeed, fakePlay }}>
       <Inner>
         {children}
       </Inner>

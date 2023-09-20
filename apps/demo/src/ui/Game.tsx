@@ -10,7 +10,6 @@ import { Home } from './Home'
 function Splash() {
   const game = GameUi.useCurrentGame()
 
-  return null
   return (
     <div className={styles.splash}>
       <img src={game.image} />
@@ -39,7 +38,7 @@ function Controls() {
   return (
     <>
       {showInfo && (
-        <Modal onClose={() => setShowInfo(false)}>
+        <Modal>
           <h1 style={{ textAlign: 'center' }}>
             <img height="100px" src={game.image} alt={game.name} />
           </h1>

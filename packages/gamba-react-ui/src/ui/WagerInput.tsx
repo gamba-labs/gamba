@@ -12,7 +12,6 @@ interface WagerInputProps {
 
 export default function WagerInput({ bet, wager, onChange }: WagerInputProps) {
   const globalDisabled = useControlsStore((state) => state.disabled)
-  // const balances = useBalances()
   const wagerUtil = useWagerUtils()
   const disabled = globalDisabled
 

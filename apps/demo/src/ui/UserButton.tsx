@@ -19,15 +19,8 @@ function ConnectedButton() {
 
   useOnClickOutside(ref, () => setVisible(false))
 
-  const [claim, claiming] = usePromise(async () => {
-    await gamba.methods.withdraw(gamba.balances.user)
-    await gamba.anticipate((state, prev) => state.user.balance < prev.user.balance)
-  })
-
-  const [redeemBonus, redeeming] = usePromise(async () => {
-    await gamba.redeemBonusToken()
-    await gamba.anticipate((state, prev) => state.user.bonusBalance > prev.user.bonusBalance)
-  })
+  const [claim, claiming] = usePromise(() => gamba.withdraw())
+  const [redeemBonus, redeeming] = usePromise(() => gamba.redeemBonusToken())
 
   return (
     <>
@@ -38,7 +31,6 @@ function ConnectedButton() {
         <Button
           onClick={() => setVisible(!visible)}
           icon={<img src={wallet.wallet?.adapter.icon} height="20px" />}
-          // loading={gamba.user.created && gamba.user.status !== 'playing'}
         >
           {formatLamports(gamba.balances.total)}
         </Button>

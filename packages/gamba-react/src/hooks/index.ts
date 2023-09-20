@@ -2,4 +2,5 @@ export { useBalances } from './useBalances'
 export { useBonusToken } from './useBonusToken'
 export { useGamba, useGambaError } from './useGamba'
 export { useGambaClient } from './useGambaClient'
-export { useEventFetcher, useGambaEvents } from './useEventFetcher'
+export { useGambaEvents } from './useGambaEvents'
+

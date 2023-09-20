@@ -1,8 +1,6 @@
 import { Connection, PublicKey } from '@solana/web3.js'
+import { PROGRAM_ID, ParsedGambaTransaction, fetchTransactionsWithEvents, listenForEvents } from 'gamba'
 import { Event } from './Event'
-import { PROGRAM_ID } from './constants'
-import { ParsedGambaTransaction } from './types'
-import { fetchTransactionsWithEvents, parseTransactionEvents } from './utils'
 
 export interface EventFetcherParams {
   /**
@@ -28,8 +26,6 @@ export class EventFetcher {
 
   private pubsub = new Event<[ParsedGambaTransaction[]]>
 
-  private logSubscription?: ReturnType<typeof this.connection.onLogs>
-
   onEvents(...handler: (Parameters<typeof this.pubsub.subscribe>)) {
     return this.pubsub.subscribe(...handler)
   }
@@ -43,18 +39,15 @@ export class EventFetcher {
 
   constructor(
     connection: Connection,
-    params?: EventFetcherParams,
+    _params: EventFetcherParams = {},
   ) {
+    const { address = PROGRAM_ID, ...params } = _params
     this.connection = connection
     this.params = {
-      address: PROGRAM_ID,
       storeTransactions: true,
+      address,
       ...params,
     }
-  }
-
-  static create(connection: Connection, params?: EventFetcherParams) {
-    return new EventFetcher(connection, params)
   }
 
   private handleEvents(transactions: ParsedGambaTransaction[]) {
@@ -121,31 +114,10 @@ export class EventFetcher {
   }
 
   public listen() {
-    if (this.logSubscription !== undefined)
-      throw new Error('Already listening')
-
-    console.debug('🛜 Listen for events', this.params.address.toBase58())
-
-    this.logSubscription = this.connection.onLogs(
+    return listenForEvents(
+      this.connection,
       this.params.address,
-      (logs) => {
-        if (logs.err) {
-          return
-        }
-        const events = parseTransactionEvents(logs.logs)
-        const gameResult = events.gameResult ?? events.gameResultOld
-        this.handleEvents([{
-          signature: logs.signature,
-          time: Date.now(),
-          event: { gameResult },
-        }])
-      },
+      (event) => this.handleEvents([event]),
     )
-
-    return () => {
-      console.debug('🛜❌ Remove listener')
-      if (this.logSubscription !== undefined)
-        this.connection.removeOnLogsListener(this.logSubscription)
-    }
   }
 }

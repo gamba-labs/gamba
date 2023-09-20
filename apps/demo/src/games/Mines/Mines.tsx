@@ -5,7 +5,7 @@ import React from 'react'
 import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_FINISH, SOUND_LOSE, SOUND_TICK, SOUND_WIN, WAGER_OPTIONS } from './constants'
 import { GameConfig } from './types'
 import { generateGrid, revealAllMines, revealGold } from './utils'
-import { CellButton, Container, Grid, Levels, ResetButton, StatusBar } from './styles'
+import { CellButton, Container, Grid, Levels, StatusBar } from './styles'
 
 function Mines() {
   const gamba = useGamba()
@@ -55,8 +55,7 @@ function Mines() {
       setClaiming(true)
       const amountToWithdraw = Math.min(totalGain, gamba.user.balance)
       if (amountToWithdraw > 0) {
-        await gamba.methods.withdraw(amountToWithdraw)
-        await gamba.anticipate((state, prev) => state.user.balance < prev.user.balance)
+        await gamba.withdraw(amountToWithdraw)
         sounds.finish.play()
       }
       reset()
@@ -77,14 +76,14 @@ function Mines() {
     setLoading(true)
     setSelected(cellIndex)
     try {
-      await gamba.play({
+      const res = await gamba.play({
         bet,
         wager: totalGain || config.wager,
       })
 
       sounds.tick.play({ playbackRate: 1.5 })
 
-      const result = await gamba.nextResult()
+      const result = await res.result()
 
       sounds.tick.player.stop()
 
@@ -157,14 +156,14 @@ function Mines() {
       <Container>
         <StatusBar>
           <div>
+            <span>
+              Mines: {config.mines}
+            </span>
             {totalGain > 0 && (
               <span>
                 {formatLamports(totalGain)} +{Math.round(totalGain / config.wager * 100 - 100)}%
               </span>
             )}
-            <span>
-              Mines: {config.mines}
-            </span>
           </div>
         </StatusBar>
         <Levels>
@@ -174,7 +173,8 @@ function Mines() {
               if (level >= GRID_SIZE - config.mines) {
                 return (
                   <div key={i}>
-                    -
+                    <div>-</div>
+                    <div>-</div>
                   </div>
                 )
               }

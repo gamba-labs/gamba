@@ -1,7 +1,7 @@
 import { GambaError, PlayMethodParams, getTokenAccount } from 'gamba-core'
 import React from 'react'
 import { GambaContext } from '../GambaProvider'
-import { randomSeed } from '../utils'
+import { randomSeed, simulatePlay } from '../utils'
 import { useBalances } from './useBalances'
 import { useGambaClient } from './useGambaClient'
 
@@ -25,26 +25,39 @@ interface PlayParams extends Optional<PlayMethodParams, 'creator' | 'seed'> {
 }
 
 export function useGamba() {
-  const { creator, seed, setSeed } = React.useContext(GambaContext)
+  const { creator, seed, setSeed, fakePlay } = React.useContext(GambaContext)
   const client = useGambaClient()
   const balances = useBalances()
 
-  const { connected, connection, wallet, state, methods } = client
+  const { connected, connection, wallet, state, methods, addresses } = client
 
   const updateSeed = (seed = randomSeed()) => setSeed(seed)
 
   /**
   * Shorthand for `gamba.methods.play` which includes creator address and client seed from the Gamba context.
   */
-  const play = async ({ wager: _wager, excludeFees, ...params }: PlayParams) => {
+  const play = async (_params: PlayParams) => {
+    const {
+      excludeFees,
+      wager: _wager,
+      ...rest
+    } = _params
     const totalFee = state.house.fees.total
     const wager = excludeFees ? Math.ceil(_wager / (1 + totalFee)) : _wager
-    const res = await methods.play({
-      seed,
-      creator,
+
+    const params: PlayMethodParams = {
       wager,
-      ...params,
-    })
+      creator,
+      seed,
+      ...rest,
+    }
+
+    if (fakePlay) {
+      return simulatePlay(params, fakePlay, addresses.wallet, state.user.nonce)
+    }
+
+    const res = await methods.play(params)
+
     return {
       ...res,
       result: nextResult,
@@ -99,8 +112,8 @@ export function useGamba() {
    * Waits for the next game result to occur
    * @returns `GameResult`
    */
-  const nextResult = async () => {
-    return await client.anticipate(
+  const nextResult = () =>
+    client.anticipate(
       (state, previous) => {
         if (!state.user.created) {
           throw new Error('User account was closed.')
@@ -113,9 +126,9 @@ export function useGamba() {
         }
       },
     )
-  }
 
   return {
+    addresses,
     /** If a wallet has been connected to the Gamba provider */
     connected,
     connection,

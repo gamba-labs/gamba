@@ -71,8 +71,7 @@ export default function HiLo() {
       if (claiming) return
       if (gamba.balances.user > 0) {
         setClaiming(true)
-        await gamba.methods.withdraw(gamba.balances.user)
-        await gamba.anticipate((state, prev) => state.user.balance < prev.user.balance)
+        await gamba.withdraw(gamba.balances.user)
       }
       sounds.finish.play({ playbackRate: .8 })
       setTimeout(() => {

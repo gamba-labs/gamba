@@ -1,7 +1,7 @@
 import { ClipboardIcon, InfoCircledIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import { Badge, Box, Button, Callout, Card, Container, Flex, Grid, Heading, Link, ScrollArea, Table, Text } from '@radix-ui/themes'
 import { lamportsToSol } from 'gamba-core'
-import { useEventFetcher } from 'gamba/react'
+import { useEventFetcher } from './useEventFetcher'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { AreaGraph } from './AreaGraph'

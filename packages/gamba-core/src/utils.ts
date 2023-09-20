@@ -136,6 +136,8 @@ export async function fetchTransactionsWithEvents(
 
   const signatures = signatureInfo.map((x) => x.signature)
 
+  console.debug('Sigs', signatures.length)
+
   const transactions = (await connection.getParsedTransactions(
     signatures,
     {
@@ -144,7 +146,35 @@ export async function fetchTransactionsWithEvents(
     },
   )).flatMap((x) => x ? [x] : [])
 
+
+
   const parsed = transactions.map(parseGambaTransaction)
 
+  console.debug('Txs', parsed.length)
   return parsed
+}
+
+export function listenForEvents(
+  connection: Connection,
+  address: PublicKey,
+  callback: (event: ParsedGambaTransaction) => void,
+) {
+  const logSubscription = connection.onLogs(
+    address,
+    (logs) => {
+      if (logs.err) {
+        return
+      }
+      const events = parseTransactionEvents(logs.logs)
+      const gameResult = events.gameResult ?? events.gameResultOld
+      callback({
+        signature: logs.signature,
+        time: Date.now(),
+        event: { gameResult },
+      })
+    },
+  )
+  return () => {
+    connection.removeOnLogsListener(logSubscription)
+  }
 }

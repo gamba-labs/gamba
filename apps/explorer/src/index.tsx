@@ -11,7 +11,7 @@ import './styles.css'
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
 function Inner() {
-  console.log(useConnection())
+  console.debug('Root Connection', useConnection())
   return (
     <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
       <App />

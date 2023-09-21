@@ -12,7 +12,10 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 
 root.render(
   <React.StrictMode>
-    <ConnectionProvider endpoint={import.meta.env.GAMBA_SOLANA_RPC}>
+    <ConnectionProvider
+      endpoint={import.meta.env.GAMBA_SOLANA_RPC}
+      config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'confirmed' }}
+    >
       <BrowserRouter>
         <Theme accentColor="iris" radius="medium" panelBackground="translucent">
           <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">

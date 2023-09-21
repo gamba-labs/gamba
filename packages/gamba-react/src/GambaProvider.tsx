@@ -7,7 +7,7 @@ import { SimulatePlayParams, randomSeed } from './utils'
 interface GambaProviderProps {
   creator: PublicKey | string
   /**
-   * The play method is `useGamba` will simulate bets. Good for testing game UIs
+   * The play method in `useGamba` will simulate bets. Good for testing game UIs.
    * Note that this will not simulate potential errors such as maximum payout exceeded, or insufficent balance.
    * */
   fakePlay?: SimulatePlayParams
@@ -64,8 +64,9 @@ export function Gamba({ children, creator: _creator, fakePlay }: React.PropsWith
 
   const walletAdapter = React.useMemo(
     () => {
-      if (_wallet?.connected && _wallet?.wallet?.adapter?.publicKey)
+      if (_wallet?.connected && _wallet?.wallet?.adapter?.publicKey) {
         return _wallet?.wallet?.adapter
+      }
     }
     , [_wallet, connection],
   )

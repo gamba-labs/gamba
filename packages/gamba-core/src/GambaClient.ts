@@ -58,6 +58,9 @@ export class GambaClient {
     connection: Connection,
     wallet?: Wallet,
   ) {
+    if (!connection) {
+      throw new Error('No Connection provided. If you\'re using React, make sure to provide a ConnectionProvider.')
+    }
     if (wallet) {
       this.connected = true
       this.wallet = wallet

@@ -5,6 +5,12 @@ export interface DailyVolume {
   total_volume: number
 }
 
+interface CreatorMeta {
+  address: string
+  name: string
+  url: string
+}
+
 export const CREATORS = [
   {
     address: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
@@ -21,11 +27,13 @@ export const CREATORS = [
     name: 'Ninja Turtles',
     url: 'https://playninjatss.com/',
   },
-].reduce((prev, { address, name }) => ({
+]
+
+const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({
   ...prev,
-  [address]: { address, name },
-}), {} as Record<string, {address: string, name: string}>)
+  [meta.address]: meta,
+}), {} as Record<string, CreatorMeta>)
 
 export const getCreatorMeta = (address: string | PublicKey) => {
-  return CREATORS[address.toString()] ?? { address, name: address.toString().substring(0, 6) + '...' }
+  return CREATORS_BY_ADDRESS[address.toString()] ?? { address, name: address.toString().substring(0, 6) + '..' }
 }

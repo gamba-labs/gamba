@@ -19,8 +19,8 @@ function Inner() {
   )
 }
 
-root.render(
-  <React.StrictMode>
+function Root() {
+  return (
     <Theme accentColor="iris" radius="medium" panelBackground="translucent">
       <BrowserRouter>
         <ConnectionProvider
@@ -31,5 +31,7 @@ root.render(
         </ConnectionProvider>
       </BrowserRouter>
     </Theme>
-  </React.StrictMode>,
-)
+  )
+}
+
+root.render(<Root />)

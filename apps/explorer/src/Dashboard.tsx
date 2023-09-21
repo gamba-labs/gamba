@@ -1,5 +1,5 @@
-import { ClipboardIcon, InfoCircledIcon, PlusCircledIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Button, Callout, Card, Container, Flex, Grid, Heading, Link, ScrollArea, Table, Text } from '@radix-ui/themes'
+import { PlusCircledIcon } from '@radix-ui/react-icons'
+import { Badge, Box, Button, Card, Container, Flex, Grid, Heading, Link, ScrollArea, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { AreaGraph } from './AreaGraph'
@@ -156,9 +156,15 @@ export function Dashboard() {
 
   return (
     <Container>
+      <Heading mb="4">
+        Stats from the last 30 days
+      </Heading>
       <div style={{ height: '250px' }}>
         <AreaGraph dailyVolume={dailyVolume} />
       </div>
+      {/* <div style={{ height: '250px' }}>
+        <BarGraph dailyVolume={dailyVolume} />
+      </div> */}
       <Box my="4">
         <Grid
           columns={{ initial: '2', sm: '3' }}

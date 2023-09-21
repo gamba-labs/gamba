@@ -4,20 +4,19 @@ import { ParentSize } from '@visx/responsive'
 import { Bar } from '@visx/shape'
 import React, { useMemo } from 'react'
 import { scaleBand, scaleLinear } from '@visx/scale'
-import { DAILY_VOLUME, DailyVolume } from './data'
-
-const data = DAILY_VOLUME
+import { DailyVolume } from './data'
 
 const getLetter = (d: DailyVolume) => d.date
 const getLetterFrequency = (d: DailyVolume) => Number(d.total_volume) * 100
 
 export type BarsProps = {
-  width: number;
-  height: number;
-  events?: boolean;
+  width: number
+  height: number
+  events?: boolean
+  dailyVolume: DailyVolume[]
 };
 
-function _BarGraph({ width, height, events = false }: BarsProps) {
+function _BarGraph({ width, height, events = false, dailyVolume }: BarsProps) {
   // bounds
   const xMax = width
   const yMax = height
@@ -28,19 +27,19 @@ function _BarGraph({ width, height, events = false }: BarsProps) {
       scaleBand<string>({
         range: [0, xMax],
         round: true,
-        domain: data.map(getLetter),
+        domain: dailyVolume.map(getLetter),
         padding: 0.4,
       }),
-    [xMax],
+    [dailyVolume, xMax],
   )
   const yScale = useMemo(
     () =>
       scaleLinear<number>({
         range: [yMax, 0],
         round: true,
-        domain: [0, Math.max(...data.map(getLetterFrequency))],
+        domain: [0, Math.max(...dailyVolume.map(getLetterFrequency))],
       }),
-    [yMax],
+    [dailyVolume, yMax],
   )
 
   return (
@@ -48,7 +47,7 @@ function _BarGraph({ width, height, events = false }: BarsProps) {
       <GradientOrangeRed id="teal" />
       <rect width={width} height={height} fill="url(#teal)" rx={14} />
       <Group>
-        {data.map((d) => {
+        {dailyVolume.map((d) => {
           const letter = getLetter(d)
           const barWidth = xScale.bandwidth()
           const barHeight = yMax - (yScale(getLetterFrequency(d)) ?? 0)
@@ -73,7 +72,7 @@ function _BarGraph({ width, height, events = false }: BarsProps) {
   )
 }
 
-export function BarGraph() {
+export function BarGraph({ dailyVolume }: {dailyVolume: DailyVolume[]}) {
   return (
     <ParentSize>
       {(parent) => (
@@ -81,6 +80,7 @@ export function BarGraph() {
           <_BarGraph
             width={parent.width}
             height={parent.height}
+            dailyVolume={dailyVolume}
           />
         </>
       )}

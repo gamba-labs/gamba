@@ -29,7 +29,6 @@
     "bs58": "^5.0.0",
     "clsx": "^2.0.0",
     "gamba": "workspace:^",
-    "gamba-core": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0"

@@ -3,7 +3,7 @@ import { Badge, Box, Button, Card, Code, Container, Flex, Grid, Heading, IconBut
 import { useConnection } from '@solana/wallet-adapter-react'
 import { ParsedTransactionWithMeta } from '@solana/web3.js'
 import clsx from 'clsx'
-import { GameResult, parseGambaTransaction } from 'gamba-core'
+import { GameResult, parseGambaTransaction } from 'gamba'
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import { Money } from './Money'

@@ -10,24 +10,10 @@ import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withToolti
 import { bisector, extent, max } from '@visx/vendor/d3-array'
 import { timeFormat } from '@visx/vendor/d3-time-format'
 import React, { useCallback, useMemo } from 'react'
-import { DAILY_VOLUME, DailyVolume } from './data'
+import { DailyVolume } from './data'
 
 type TooltipData = DailyVolume;
 
-const stock = DAILY_VOLUME.reduce(
-  (prev, curr) => {
-    const nextTotal = prev.total + curr.total_volume
-    return {
-      arr: [...prev.arr, {
-        total_volume: nextTotal,
-        daily: curr.total_volume,
-        date: curr.date,
-      }],
-      total: nextTotal,
-    }
-  },
-  { arr: [], total: 0 } as { arr: DailyVolume[], total: number },
-).arr
 const accentColor = '#edffea'
 const accentColorDark = '#8888cc'
 const tooltipStyles = {
@@ -42,7 +28,9 @@ const formatDate = timeFormat('%b %d, \'%y')
 
 // accessors
 const getDate = (d: DailyVolume) => new Date(d.date)
-const getStockValue = (d: DailyVolume) => d.total_volume
+const getStockValue = (d: DailyVolume) => {
+  return d.total_volume
+}
 
 const formatLamps = (lamports: number) => parseFloat((lamports / 1e9).toFixed(3))
 
@@ -52,6 +40,7 @@ export type AreaProps = {
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
+  dailyVolume: DailyVolume[]
 };
 
 const _AreaGraph = withTooltip<AreaProps, TooltipData>(
@@ -64,38 +53,57 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
     tooltipData,
     tooltipTop = 0,
     tooltipLeft = 0,
+    dailyVolume,
   }: AreaProps & WithTooltipProvidedProps<TooltipData>) => {
     // bounds
     const innerWidth = width - margin.left - margin.right
     const innerHeight = height - margin.top - margin.bottom
+
+    const dailyVolumeCum = React.useMemo(() => {
+      return dailyVolume.reduce(
+        (prev, curr) => {
+          const nextTotal = prev.total + curr.total_volume
+          return {
+            arr: [...prev.arr, {
+              total_volume: nextTotal,
+              daily: curr.total_volume,
+              date: curr.date,
+            }],
+            total: nextTotal,
+          }
+        },
+        { arr: [], total: 0 } as { arr: DailyVolume[], total: number },
+      ).arr
+    }, [dailyVolume])
 
     // scales
     const dateScale = useMemo(
       () =>
         scaleTime({
           range: [margin.left, innerWidth + margin.left],
-          domain: extent(stock, getDate) as [Date, Date],
+          domain: extent(dailyVolumeCum, getDate) as [Date, Date],
         }),
-      [innerWidth, margin.left],
+      [dailyVolumeCum, innerWidth, margin.left],
     )
     const stockValueScale = useMemo(
       () =>
         scaleLinear({
           range: [innerHeight + margin.top, margin.top],
-          domain: [0, (max(stock, getStockValue) || 0) + innerHeight / 3],
+          domain: [0, (max(dailyVolumeCum, getStockValue) || 0) + innerHeight / 3],
           nice: true,
         }),
-      [margin.top, innerHeight],
+      [dailyVolumeCum, margin.top, innerHeight],
     )
 
     // tooltip handler
     const handleTooltip = useCallback(
       (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
+        if (dailyVolumeCum.length === 0) return
         const { x } = localPoint(event) || { x: 0 }
         const x0 = dateScale.invert(x)
-        const index = bisectDate(stock, x0, 1)
-        const d0 = stock[index - 1]
-        const d1 = stock[index]
+        const index = bisectDate(dailyVolumeCum, x0, 1)
+        const d0 = dailyVolumeCum[index - 1]
+        const d1 = dailyVolumeCum[index]
         let d = d0
         if (d1 && getDate(d1)) {
           d = x0.valueOf() - getDate(d0).valueOf() > getDate(d1).valueOf() - x0.valueOf() ? d1 : d0
@@ -106,7 +114,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
           tooltipTop: stockValueScale(getStockValue(d)),
         })
       },
-      [showTooltip, stockValueScale, dateScale],
+      [dailyVolumeCum, showTooltip, stockValueScale, dateScale],
     )
 
     return (
@@ -141,7 +149,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
             pointerEvents="none"
           />
           <AreaClosed<DailyVolume>
-            data={stock}
+            data={dailyVolumeCum}
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => stockValueScale(getStockValue(d)) ?? 0}
             yScale={stockValueScale}
@@ -224,7 +232,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
   },
 )
 
-export function AreaGraph() {
+export function AreaGraph({ dailyVolume }: {dailyVolume: DailyVolume[]}) {
   return (
     <ParentSize>
       {(parent) => (
@@ -232,6 +240,7 @@ export function AreaGraph() {
           <_AreaGraph
             width={parent.width}
             height={parent.height}
+            dailyVolume={dailyVolume}
           />
         </>
       )}

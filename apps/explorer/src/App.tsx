@@ -1,11 +1,12 @@
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { Box, Button, Container, Flex, Popover, TextField } from '@radix-ui/themes'
+import { InfoCircledIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Box, Button, Callout, Container, Flex, Popover, TextField } from '@radix-ui/themes'
 import React from 'react'
 import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
 import { AddressView } from './Address'
 import styles from './App.module.css'
 import { Dashboard } from './Dashboard'
 import { TransactionView } from './TransactionView'
+import { isPubkey, isSignature } from './utils'
 
 export function App() {
   const [search, setSearch] = React.useState('')
@@ -13,7 +14,14 @@ export function App() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    navigate('/tx/' + search)
+    const _search = search.trim()
+    if (isPubkey(_search)) {
+      navigate('/address/' + _search)
+    } else if (isSignature(_search)) {
+      navigate('/tx/' + _search)
+    } else {
+      return alert('Not a valid transaction or address')
+    }
     setSearch('')
   }
 
@@ -35,7 +43,7 @@ export function App() {
                   </TextField.Slot>
                   <TextField.Input
                     color="gray"
-                    placeholder="Search for bets, players or creators"
+                    placeholder="Search for transactions or addresses"
                     value={search}
                     onChange={(evt) => setSearch(evt.target.value)}
                   />
@@ -64,6 +72,16 @@ export function App() {
         </Container>
       </Box>
       <Container p="2">
+        <Container mb="4">
+          <Callout.Root>
+            <Callout.Icon>
+              <InfoCircledIcon />
+            </Callout.Icon>
+            <Callout.Text>
+              The explorer is in Beta.
+            </Callout.Text>
+          </Callout.Root>
+        </Container>
         <Routes>
           <Route
             path="/"

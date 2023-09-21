@@ -1,10 +1,12 @@
 import { ClipboardIcon, InfoCircledIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import { Badge, Box, Button, Callout, Card, Container, Flex, Grid, Heading, Link, ScrollArea, Table, Text } from '@radix-ui/themes'
-import { lamportsToSol } from 'gamba-core'
-import { useEventFetcher } from './useEventFetcher'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { AreaGraph } from './AreaGraph'
+import { Money } from './Money'
+import { getCreators, getDailyVolume, getPlayers } from './api'
+import { DailyVolume, getCreatorMeta } from './data'
+import { useEventFetcher } from './useEventFetcher'
 
 const timeAgo = (time: number) => {
   const diff = Date.now() - time
@@ -62,7 +64,13 @@ function RecentPlays() {
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeaderCell>
-              Play
+                #
+              </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>
+                Creator
+              </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>
+                Wager
               </Table.ColumnHeaderCell>
               <Table.ColumnHeaderCell>
                 Payout
@@ -78,31 +86,37 @@ function RecentPlays() {
               return (
                 <Table.Row key={transaction.signature}>
                   <Table.Cell>
+                    {1 + i}
+                  </Table.Cell>
+                  <Table.Cell>
                     <Flex align="baseline" gap="2">
-                      {1 + i}
-                      <Button variant="ghost" size="1">
-                        <ClipboardIcon />
-                      </Button>
                       <Link asChild>
                         <NavLink to={'/tx/' + transaction.signature}>
-                          {transaction.signature.substring(0, 30)}..
+                          {getCreatorMeta(game.creator).name}
                         </NavLink>
                       </Link>
                     </Flex>
                   </Table.Cell>
                   <Table.Cell>
                     <Text mr="2">
-                      {parseFloat(lamportsToSol(game.profit).toFixed(3))} SOL
+                      <Money lamports={game.wager} />
                     </Text>
-                    <Badge color={game.profit >= 0 ? 'green' : 'red'}>
-                      {game.multiplier >= 1 ? '+' : '-'}
-                      {Math.abs(game.multiplier * 100 - 100).toFixed(0)}%
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text mr="2">
+                      <Money lamports={game.payout} />
+                    </Text>
+                    <Badge color={game.profit >= 0 ? 'green' : 'gray'}>
+                      {/* {game.multiplier >= 1 ? '+' : '-'} */}
+                      {Math.abs(game.multiplier).toFixed(2)}x
                     </Badge>
                   </Table.Cell>
                   <Table.Cell align="right">
-                    <Text>
-                      {timeAgo(transaction.time)}
-                    </Text>
+                    <Link asChild>
+                      <NavLink to={'/tx/' + transaction.signature}>
+                        {timeAgo(transaction.time)}
+                      </NavLink>
+                    </Link>
                   </Table.Cell>
                 </Table.Row>
               )
@@ -125,24 +139,29 @@ function RecentPlays() {
 }
 
 export function Dashboard() {
+  const [dailyVolume, setDailyVolume] = React.useState<DailyVolume[]>([])
+  const [totalWager, setTotalWager] = React.useState<{creator: string, total_wager: number}[]>([])
+  const [uniquePlayers, setUniquePlayers] = React.useState(0)
+  React.useEffect(() => {
+    getDailyVolume().then(setDailyVolume)
+    getCreators().then(setTotalWager)
+    getPlayers().then((x) => {
+      setUniquePlayers(x)
+    }).catch(console.error)
+  }, [])
+
+  const totalVolume = React.useMemo(() => {
+    return totalWager.reduce((prev, creator) => prev + creator.total_wager, 0)
+  }, [totalWager])
+
   return (
     <Container>
-      <Container mb="4">
-        <Callout.Root>
-          <Callout.Icon>
-            <InfoCircledIcon />
-          </Callout.Icon>
-          <Callout.Text>
-            Data displayed on the dashboard are samples.
-          </Callout.Text>
-        </Callout.Root>
-      </Container>
       <div style={{ height: '250px' }}>
-        <AreaGraph />
+        <AreaGraph dailyVolume={dailyVolume} />
       </div>
       <Box my="4">
         <Grid
-          columns={{ initial: '2', sm: '4' }}
+          columns={{ initial: '2', sm: '3' }}
           gap="4"
         >
           <Box>
@@ -150,18 +169,8 @@ export function Dashboard() {
               <Heading color="orange" size="5">
                 Volume
               </Heading>
-              <Text size="8" weight="bold">
-                -
-              </Text>
-            </Card>
-          </Box>
-          <Box>
-            <Card size="2">
-              <Heading color="orange" size="5">
-                Plays
-              </Heading>
-              <Text size="8" weight="bold">
-                -
+              <Text size="6" weight="bold">
+                <Money lamports={totalVolume} />
               </Text>
             </Card>
           </Box>
@@ -170,8 +179,8 @@ export function Dashboard() {
               <Heading color="orange" size="5">
                 Players
               </Heading>
-              <Text size="8" weight="bold">
-                -
+              <Text size="6" weight="bold">
+                {uniquePlayers}
               </Text>
             </Card>
           </Box>
@@ -180,8 +189,8 @@ export function Dashboard() {
               <Heading color="orange" size="5">
                 Creators
               </Heading>
-              <Text size="8" weight="bold">
-                -
+              <Text size="6" weight="bold">
+                {totalWager.length}
               </Text>
             </Card>
           </Box>

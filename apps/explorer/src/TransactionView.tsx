@@ -6,7 +6,10 @@ import clsx from 'clsx'
 import { GameResult, parseGambaTransaction } from 'gamba-core'
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
+import { Money } from './Money'
+import { getCreatorMeta } from './data'
 import styles from './test.module.css'
+import { isSignature } from './utils'
 
 const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
   const [clientSeed, setClientSeed] = React.useState(parsed.clientSeed)
@@ -101,11 +104,10 @@ export function TransactionView() {
   const { connection } = useConnection()
   const { txid } = useParams<{txid: string}>()
   const [transaction, setTransaction] = React.useState<ParsedTransactionWithMeta>()
-  // const [parsed, setParsed] = React.useState<ParsedGambaTransaction>()
 
   React.useEffect(
     () => {
-      connection.getParsedTransaction(txid!)
+      isSignature(txid!) && connection.getParsedTransaction(txid!)
         .then((transaction) => {
           if (transaction) {
             setTransaction(transaction)
@@ -131,6 +133,7 @@ export function TransactionView() {
   const potentialWin = Math.max(...gameResult.bet)
   const oddsScore = sum / gameResult.bet.length
   const uniqueOutcomes = Array.from(new Set(gameResult.bet)).sort()
+
   return (
     <Container>
       <Box my="4">
@@ -199,7 +202,7 @@ export function TransactionView() {
                   </Text>
                   <Link asChild>
                     <NavLink to={'/address/' + gameResult.creator.toBase58()}>
-                      {gameResult.creator.toBase58()}
+                      {getCreatorMeta(gameResult.creator).name} ({gameResult.creator.toBase58()})
                     </NavLink>
                   </Link>
                 </Grid>
@@ -220,7 +223,7 @@ export function TransactionView() {
                 </Grid>
               </Table.Cell>
             </Table.Row>
-
+            {/*
             <Table.Row>
               <Table.Cell>
                 <Grid columns="2" gap="4">
@@ -232,7 +235,7 @@ export function TransactionView() {
                   </Text>
                 </Grid>
               </Table.Cell>
-            </Table.Row>
+            </Table.Row> */}
 
             <Table.Row>
               <Table.Cell>
@@ -254,7 +257,7 @@ export function TransactionView() {
                     Wager
                   </Text>
                   <Text>
-                    {parseFloat((gameResult.wager / 1e9).toFixed(3))} SOL
+                    <Money lamports={gameResult.wager} />
                   </Text>
                 </Grid>
               </Table.Cell>
@@ -268,7 +271,7 @@ export function TransactionView() {
                   </Text>
                   <Flex>
                     <Text mr="2">
-                      {parseFloat((gameResult.payout / 1e9).toFixed(3))} SOL
+                      <Money lamports={gameResult.payout} />
                     </Text>
                     <Badge color={gameResult.profit >= 0 ? 'green' : 'red'}>
                       {parseFloat((gameResult.multiplier * 100 - 100).toFixed(3))}%

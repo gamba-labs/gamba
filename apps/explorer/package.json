@@ -26,6 +26,7 @@
     "@visx/shape": "^3.3.0",
     "@visx/tooltip": "^3.3.0",
     "@visx/vendor": "^3.3.0",
+    "bs58": "^5.0.0",
     "clsx": "^2.0.0",
     "gamba": "workspace:^",
     "gamba-core": "workspace:*",

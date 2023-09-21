@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js'
-import { PROGRAM_ID, ParsedGambaTransaction, fetchTransactionsWithEvents, listenForEvents } from 'gamba'
+import { PROGRAM_ID, ParsedGambaTransaction, fetchTransactionsWithEvents } from 'gamba'
 import { Event } from './Event'
 
 export interface EventFetcherParams {
@@ -111,13 +111,5 @@ export class EventFetcher {
       })
     this.handleEvents(parsed)
     return parsed
-  }
-
-  public listen() {
-    return listenForEvents(
-      this.connection,
-      this.params.address,
-      (event) => this.handleEvents([event]),
-    )
   }
 }

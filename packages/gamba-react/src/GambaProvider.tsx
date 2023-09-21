@@ -52,8 +52,6 @@ export function Gamba({ children, creator: _creator, fakePlay }: React.PropsWith
   const _wallet = useWallet()
   const { connection } = useConnection()
 
-  console.debug('Gamba Connection', connection)
-
   const creator = React.useMemo(
     () => {
       if (!_creator) {

@@ -130,7 +130,7 @@ function RecentPlays() {
             variant="soft"
             style={{ width: '100%' }}
           >
-            {fetcher.transactions.length} - Load more <PlusCircledIcon />
+            Load more <PlusCircledIcon />
           </Button>
         </Box>
       </ScrollArea>
@@ -162,9 +162,6 @@ export function Dashboard() {
       <div style={{ height: '250px' }}>
         <AreaGraph dailyVolume={dailyVolume} />
       </div>
-      {/* <div style={{ height: '250px' }}>
-        <BarGraph dailyVolume={dailyVolume} />
-      </div> */}
       <Box my="4">
         <Grid
           columns={{ initial: '2', sm: '3' }}

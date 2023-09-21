@@ -32,7 +32,7 @@ export function App() {
           <Flex gap="4" align="center">
             <Box>
               <NavLink to="/">
-                <img alt="Gamba" src="/logo.svg" width="30" height="30" />
+                <img alt="Gamba Explorer" src="/logo2.svg" height="35" />
               </NavLink>
             </Box>
             <Box grow="1">

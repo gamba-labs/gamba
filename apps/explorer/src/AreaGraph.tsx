@@ -3,11 +3,10 @@ import { localPoint } from '@visx/event'
 import { GradientOrangeRed, LinearGradient } from '@visx/gradient'
 import { ParentSize } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
-import { AreaClosed, Bar, Line, LinePath } from '@visx/shape'
-import { Tooltip, TooltipWithBounds, defaultStyles, withTooltip } from '@visx/tooltip'
+import { AreaClosed, Bar, Line } from '@visx/shape'
+import { TooltipWithBounds, defaultStyles, withTooltip } from '@visx/tooltip'
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip'
 import { bisector, extent, max } from '@visx/vendor/d3-array'
-import { timeFormat } from '@visx/vendor/d3-time-format'
 import React, { useCallback, useMemo } from 'react'
 import { Money } from './Money'
 import { DailyVolume } from './data'
@@ -32,8 +31,6 @@ const calculateMovingAverage = (data: DailyVolume[], windowSize: number) => {
     return { ...d, movingAverage: average }
   })
 }
-
-const formatDate = timeFormat('%b %d, \'%y')
 
 // accessors
 const getDate = (d: DailyVolume) => new Date(d.date)
@@ -196,20 +193,9 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
               left={tooltipLeft + 12}
               style={tooltipStyles}
             >
+              <div>{getDate(tooltipData).toDateString()}</div>
               <Money lamports={getStockValue(tooltipData)} />
             </TooltipWithBounds>
-            <Tooltip
-              top={innerHeight - 14}
-              left={tooltipLeft}
-              style={{
-                ...defaultStyles,
-                minWidth: 72,
-                textAlign: 'center',
-                transform: 'translateX(-50%)',
-              }}
-            >
-              {formatDate(getDate(tooltipData))}
-            </Tooltip>
           </div>
         )}
       </div>

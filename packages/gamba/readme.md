@@ -49,7 +49,6 @@ import { Gamba, useGamba } from 'gamba/react'
 
 function DoubleOrNothing() {
   const gamba = useGamba()
-  const [profit, setProfit] = React.useState(0)
 
   const play = async () => {
     // Request user to sign transaction
@@ -59,8 +58,7 @@ function DoubleOrNothing() {
     })
     // Await the result
     const result = await request.result()
-    // Show profit in UI
-    setProfit(profit + result.profit)
+    // ... Visualize the result however you want
   }
 
   return (
@@ -68,9 +66,9 @@ function DoubleOrNothing() {
       <button onClick={play}>
         Double or Nothing
       </button>
-      {profit > 0 && (
-        <button onClick={() => gamba.withdraw(profit)}>
-          Claim {profit / 1e9} SOL
+      {gamba.user.balance > 0 && (
+        <button onClick={() => gamba.withdraw()}>
+          Claim {gamba.user.balance / 1e9} SOL
         </button>
       )}
     </>

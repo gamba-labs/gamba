@@ -65,18 +65,17 @@ export const parseHouseAccount = (info: AccountInfo<Buffer> | null): ParsedHouse
     return createHouseState()
   }
   const houseFee = bnToNumber(state.houseFee) / 1000
-  const creatorFee = bnToNumber(state.creatorFee) / 1000
+  const defaultCreatorFee = bnToNumber(state.creatorFee) / 1000
+  const maxCreatorFee = bnToNumber(state.maxCreatorFee) / 1000
   return {
     created: state?.created,
     rng: state.rng,
     balance: 0,
     bonusMint: state.bonusMint,
     maxPayout: bnToNumber(state.maxPayout),
-    fees: {
-      total: houseFee + creatorFee,
-      house: houseFee,
-      creator: creatorFee,
-    },
+    defaultCreatorFee,
+    maxCreatorFee,
+    fee: houseFee,
   }
 }
 

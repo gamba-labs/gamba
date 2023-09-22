@@ -7,8 +7,8 @@ export function useWagerUtils() {
   const gamba = useGambaClient()
   const balances = useBalances()
 
-  const houseFee = gamba.state.house.fees.house
-  const creatorFee = gamba.state.house.fees.creator
+  const houseFee = gamba.state.house.fee
+  const creatorFee = gamba.state.house.defaultCreatorFee // TODO
   const totalFee = houseFee + creatorFee
 
   return (desiredValue: number, bet?: number[]) => {

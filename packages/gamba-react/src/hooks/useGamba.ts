@@ -19,13 +19,13 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
  * Play parameters within the gamba context.
  * Here creator and seed isn't needed since it's provided by the context state. (But can be overridden)
  */
-interface PlayParams extends Optional<PlayMethodParams, 'creator' | 'seed'> {
-  /** Deducts estimated Gamba fees from the wager. A 1 SOL wager will prompt the player to pay exactly 1 SOL. */
+interface PlayParams extends Optional<PlayMethodParams, 'creator' | 'creatorFee' | 'seed'> {
+  /** Deducts estimated fees from the wager. A 1 SOL wager will prompt the player to pay exactly 1 SOL. */
   excludeFees?: boolean
 }
 
 export function useGamba() {
-  const { creator, seed, setSeed, fakePlay } = React.useContext(GambaContext)
+  const { creator, seed, setSeed, fakePlay, creatorFee: contextFee } = React.useContext(GambaContext)
   const client = useGambaClient()
   const balances = useBalances()
 
@@ -39,21 +39,30 @@ export function useGamba() {
   const play = async (_params: PlayParams) => {
     const {
       excludeFees,
-      wager: _wager,
+      wager: wagerInput,
+      creatorFee: creatorFeeInput,
       ...rest
     } = _params
-    const totalFee = state.house.fees.total
-    const wager = excludeFees ? Math.ceil(_wager / (1 + totalFee)) : _wager
+    const creatorFee = creatorFeeInput ?? contextFee ?? state.house.defaultCreatorFee
+    const houseFee = state.house.fee
+    const totalFees = creatorFee + houseFee
+    const wager = excludeFees ? Math.ceil(wagerInput / (1 + totalFees)) : wagerInput
 
     const params: PlayMethodParams = {
       wager,
       creator,
       seed,
+      creatorFee,
       ...rest,
     }
 
     if (fakePlay) {
-      return simulatePlay(params, fakePlay, addresses.wallet, state.user.nonce)
+      return simulatePlay(
+        params,
+        fakePlay,
+        addresses.wallet,
+        state.user.nonce,
+      )
     }
 
     const res = await methods.play(params)
@@ -148,6 +157,7 @@ export function useGamba() {
     closeAccount,
     withdraw,
     methods,
+    /** @deprecated Await the `result` promise returned from `gamba.play` */
     nextResult,
   }
 }

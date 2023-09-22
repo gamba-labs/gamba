@@ -159,6 +159,10 @@ export type Gamba = {
           'type': 'u64'
         },
         {
+          'name': 'maxCreatorFee',
+          'type': 'u64'
+        },
+        {
           'name': 'maxPayout',
           'type': 'u64'
         }
@@ -371,6 +375,59 @@ export type Gamba = {
       ]
     },
     {
+      'name': 'playWithCustomCreatorFee',
+      'docs': [
+        'Copy of the play method, where the client can input a custom creator fee.\n    This is the newest version of the method and the old one only exists to maintain backwards compatibility.'
+      ],
+      'accounts': [
+        {
+          'name': 'user',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'owner',
+          'isMut': true,
+          'isSigner': true
+        },
+        {
+          'name': 'house',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'creator',
+          'isMut': true,
+          'isSigner': false
+        },
+        {
+          'name': 'systemProgram',
+          'isMut': false,
+          'isSigner': false
+        }
+      ],
+      'args': [
+        {
+          'name': 'wager',
+          'type': 'u64'
+        },
+        {
+          'name': 'options',
+          'type': {
+            'vec': 'u32'
+          }
+        },
+        {
+          'name': 'clientSeed',
+          'type': 'string'
+        },
+        {
+          'name': 'creatorFee',
+          'type': 'u64'
+        }
+      ]
+    },
+    {
       'name': 'settleGame',
       'accounts': [
         {
@@ -500,6 +557,10 @@ export type Gamba = {
           },
           {
             'name': 'maxPayout',
+            'type': 'u64'
+          },
+          {
+            'name': 'maxCreatorFee',
             'type': 'u64'
           }
         ]
@@ -717,53 +778,68 @@ export type Gamba = {
     },
     {
       'code': 6001,
-      'name': 'BadConfig',
-      'msg': 'Bad game config'
+      'name': 'TooFewBetOutcomes',
+      'msg': 'The bet contains less than 2 outcomes'
     },
     {
       'code': 6002,
-      'name': 'WagerTooSmall',
-      'msg': 'WagerTooSmall'
+      'name': 'TooManyBetOutcomes',
+      'msg': 'The bet contains too many outcomes'
     },
     {
       'code': 6003,
-      'name': 'SeedAlreadyProvided',
-      'msg': 'RNG tried to provide initial seed for an account that already has one'
+      'name': 'PlayerEdge',
+      'msg': 'The bet gives the player an advantage'
     },
     {
       'code': 6004,
+      'name': 'WithdrawWhilePlaying',
+      'msg': 'Unable to withdraw while waiting for result. Close the account if needed'
+    },
+    {
+      'code': 6005,
+      'name': 'WagerTooSmall',
+      'msg': 'Wager is too small'
+    },
+    {
+      'code': 6006,
+      'name': 'RNGSeedAlreadyProvided',
+      'msg': 'The account already has an initial RNG seed'
+    },
+    {
+      'code': 6007,
+      'name': 'RNGPlayerResultNotNeeded',
+      'msg': 'The player does not need a result or they already received one'
+    },
+    {
+      'code': 6008,
+      'name': 'RNGIncorrectSeed',
+      'msg': 'RNG provided a seed that is incorrect'
+    },
+    {
+      'code': 6009,
       'name': 'HouseAlreadyInitialized',
       'msg': 'House account has already been initialized'
     },
     {
-      'code': 6005,
+      'code': 6010,
       'name': 'UserAlreadyInitialized',
       'msg': 'User account has already been initialized'
     },
     {
-      'code': 6006,
-      'name': 'IncorrectRngSeed',
-      'msg': 'The provided RNG seed is incorrect'
-    },
-    {
-      'code': 6007,
-      'name': 'BonusNotAvailable',
-      'msg': 'User bonus balance too low'
-    },
-    {
-      'code': 6008,
+      'code': 6011,
       'name': 'PlayInactiveUser',
-      'msg': 'User cannot be played because it isn\'t active'
+      'msg': 'Unable to play because the account isn\'t in a ready state'
     },
     {
-      'code': 6009,
-      'name': 'SettleInactiveUser',
-      'msg': 'User cannot be settled because it isn\'t active'
-    },
-    {
-      'code': 6010,
+      'code': 6012,
       'name': 'MaxPayoutExceeded',
-      'msg': 'Potential payout exceeded limit'
+      'msg': 'Potential payout for this bet is too high'
+    },
+    {
+      'code': 6013,
+      'name': 'CreatorFeeTooHigh',
+      'msg': 'Creator fee is too high'
     }
   ]
 };
@@ -926,6 +1002,10 @@ export const IDL: Gamba = {
         },
         {
           name: 'creatorFee',
+          type: 'u64',
+        },
+        {
+          name: 'maxCreatorFee',
           type: 'u64',
         },
         {
@@ -1139,6 +1219,57 @@ export const IDL: Gamba = {
       ],
     },
     {
+      name: 'playWithCustomCreatorFee',
+      docs: [
+        'Copy of the play method, where the client can input a custom creator fee.\n    This is the newest version of the method and the old one only exists to maintain backwards compatibility.',
+      ],
+      accounts: [
+        {
+          name: 'user',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'owner',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'house',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'creator',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'wager',
+          type: 'u64',
+        },
+        {
+          name: 'options',
+          type: { vec: 'u32' },
+        },
+        {
+          name: 'clientSeed',
+          type: 'string',
+        },
+        {
+          name: 'creatorFee',
+          type: 'u64',
+        },
+      ],
+    },
+    {
       name: 'settleGame',
       accounts: [
         {
@@ -1268,6 +1399,10 @@ export const IDL: Gamba = {
           },
           {
             name: 'maxPayout',
+            type: 'u64',
+          },
+          {
+            name: 'maxCreatorFee',
             type: 'u64',
           },
         ],
@@ -1469,53 +1604,68 @@ export const IDL: Gamba = {
     },
     {
       code: 6001,
-      name: 'BadConfig',
-      msg: 'Bad game config',
+      name: 'TooFewBetOutcomes',
+      msg: 'The bet contains less than 2 outcomes',
     },
     {
       code: 6002,
-      name: 'WagerTooSmall',
-      msg: 'WagerTooSmall',
+      name: 'TooManyBetOutcomes',
+      msg: 'The bet contains too many outcomes',
     },
     {
       code: 6003,
-      name: 'SeedAlreadyProvided',
-      msg: 'RNG tried to provide initial seed for an account that already has one',
+      name: 'PlayerEdge',
+      msg: 'The bet gives the player an advantage',
     },
     {
       code: 6004,
+      name: 'WithdrawWhilePlaying',
+      msg: 'Unable to withdraw while waiting for result. Close the account if needed',
+    },
+    {
+      code: 6005,
+      name: 'WagerTooSmall',
+      msg: 'Wager is too small',
+    },
+    {
+      code: 6006,
+      name: 'RNGSeedAlreadyProvided',
+      msg: 'The account already has an initial RNG seed',
+    },
+    {
+      code: 6007,
+      name: 'RNGPlayerResultNotNeeded',
+      msg: 'The player does not need a result or they already received one',
+    },
+    {
+      code: 6008,
+      name: 'RNGIncorrectSeed',
+      msg: 'RNG provided a seed that is incorrect',
+    },
+    {
+      code: 6009,
       name: 'HouseAlreadyInitialized',
       msg: 'House account has already been initialized',
     },
     {
-      code: 6005,
+      code: 6010,
       name: 'UserAlreadyInitialized',
       msg: 'User account has already been initialized',
     },
     {
-      code: 6006,
-      name: 'IncorrectRngSeed',
-      msg: 'The provided RNG seed is incorrect',
-    },
-    {
-      code: 6007,
-      name: 'BonusNotAvailable',
-      msg: 'User bonus balance too low',
-    },
-    {
-      code: 6008,
+      code: 6011,
       name: 'PlayInactiveUser',
-      msg: 'User cannot be played because it isn\'t active',
+      msg: 'Unable to play because the account isn\'t in a ready state',
     },
     {
-      code: 6009,
-      name: 'SettleInactiveUser',
-      msg: 'User cannot be settled because it isn\'t active',
-    },
-    {
-      code: 6010,
+      code: 6012,
       name: 'MaxPayoutExceeded',
-      msg: 'Potential payout exceeded limit',
+      msg: 'Potential payout for this bet is too high',
+    },
+    {
+      code: 6013,
+      name: 'CreatorFeeTooHigh',
+      msg: 'Creator fee is too high',
     },
   ],
 }

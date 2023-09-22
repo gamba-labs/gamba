@@ -5,7 +5,16 @@ import React from 'react'
 import { SimulatePlayParams, randomSeed } from './utils'
 
 interface GambaProviderProps {
+  /**
+   * The address where a fee should be sent to
+   */
   creator: PublicKey | string
+  /**
+   * Fee sent to the creator address for every play (0.02 = 2%)
+   * See `useGamba().house.defaultCreatorFee` to see default.
+   * See `useGamba().house.maxCreatorFee` to see highest value.
+   */
+  creatorFee?: number
   /**
    * The play method in `useGamba` will simulate bets. Good for testing game UIs.
    * Note that this will not simulate potential errors such as maximum payout exceeded, or insufficent balance.
@@ -15,6 +24,7 @@ interface GambaProviderProps {
 
 interface GambaContext {
   creator: PublicKey
+  creatorFee?: number
   client: GambaClient
   seed: string
   setSeed: (seed: string) => void
@@ -47,18 +57,18 @@ function Inner({ children }: React.PropsWithChildren) {
   )
 }
 
-export function Gamba({ children, creator: _creator, fakePlay }: React.PropsWithChildren<GambaProviderProps>) {
+export function Gamba(props: React.PropsWithChildren<GambaProviderProps>) {
+  const { children, creatorFee, creator: _creator, fakePlay } = props
   const [seed, setSeed] = React.useState(randomSeed())
   const _wallet = useWallet()
   const { connection } = useConnection()
 
+  if (!_creator) {
+    throw new Error('No creator address provided to Gamba.')
+  }
+
   const creator = React.useMemo(
-    () => {
-      if (!_creator) {
-        throw new Error('No creator address provided to Gamba.')
-      }
-      return new PublicKey(_creator)
-    },
+    () => new PublicKey(_creator),
     [_creator],
   )
 
@@ -85,7 +95,7 @@ export function Gamba({ children, creator: _creator, fakePlay }: React.PropsWith
   React.useEffect(() => client.listen(), [client])
 
   return (
-    <GambaContext.Provider value={{ creator, client, seed, setSeed, fakePlay }}>
+    <GambaContext.Provider value={{ creator, client, seed, setSeed, fakePlay, creatorFee }}>
       <Inner>
         {children}
       </Inner>

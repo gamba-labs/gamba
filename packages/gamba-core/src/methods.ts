@@ -8,13 +8,32 @@ import { SentTransaction } from './GambaClient'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 
 export interface PlayMethodParams {
-  creator: PublicKey | string
-  wager: number
-  seed: string
+  /**
+   * Outcomes for the bet
+   */
   bet: number[]
+  /**
+   * Number of lamports to wager
+   */
+  wager: number
+  /**
+   * The address that should receive the fees
+   */
+  creator: PublicKey | string
+  /**
+   * Fee sent to the creator address (0.05 = 5%)
+   */
+  creatorFee: number
+  /**
+   * Client seed used to generate the result
+   */
+  seed: string
 }
 
-export type SendFunction = (instruction: TransactionInstruction | Promise<TransactionInstruction>, params?: {requiresAccount?: boolean}) => Promise<SentTransaction>
+export type SendFunction = (
+  instruction: TransactionInstruction | Promise<TransactionInstruction>,
+  params?: {requiresAccount?: boolean}
+) => Promise<SentTransaction>
 
 export class GambaAnchorClient {
   private program: GambaProgram
@@ -47,10 +66,11 @@ export class GambaAnchorClient {
   play = (params: PlayMethodParams) => {
     return this.sender(
       this.program.methods
-        .play(
+        .playWithCustomCreatorFee(
           new BN(params.wager),
           params.bet.map((x) => x * BET_UNIT),
           params.seed,
+          new BN(params.creatorFee * 1000),
         )
         .accounts({
           owner: this.addresses.wallet,

@@ -113,6 +113,26 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
       [dataWithMovingAverage, showTooltip, stockValueScale, dateScale],
     )
 
+    // scales, memoize for performance
+    // const xScale = useMemo(
+    //   () =>
+    //     scaleBand<string>({
+    //       range: [0, width],
+    //       round: true,
+    //       domain: dailyVolume.map((d) => getDate(d).toString()),
+    //       padding: 0.4,
+    //     }),
+    //   [dailyVolume, width],
+    // )
+    // const yScale = useMemo(
+    //   () =>
+    //     scaleLinear<number>({
+    //       range: [height, 0],
+    //       round: true,
+    //       domain: [0, Math.max(...dailyVolume.map(getStockValue))],
+    //     }),
+    //   [dailyVolume, height],
+    // )
 
     return (
       <div>
@@ -152,6 +172,29 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
             onMouseMove={handleTooltip}
             onMouseLeave={() => hideTooltip()}
           />
+          {/* <Group>
+            {dailyVolume.map((d) => {
+              const date = getDate(d).toString()
+              const barWidth = xScale.bandwidth()
+              const barHeight = height - (yScale(getStockValue(d)) ?? 0)
+              const barX = xScale(date)
+              const barY = height - barHeight
+              return (
+                <Bar
+                  key={`bar-${date}`}
+                  x={barX}
+                  y={barY}
+                  width={barWidth}
+                  height={barHeight}
+                  fill="url(#area-gradient)"
+                  fillOpacity={.4}
+                  // onClick={() => {
+                  //   if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`)
+                  // }}
+                />
+              )
+            })}
+          </Group> */}
           {tooltipData && (
             <g>
               <Line

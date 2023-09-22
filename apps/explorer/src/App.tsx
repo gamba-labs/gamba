@@ -78,7 +78,7 @@ export function App() {
               <InfoCircledIcon />
             </Callout.Icon>
             <Callout.Text>
-              The explorer is in Beta.
+              The explorer is in Beta. Come back soon for more stats and filtering options!
             </Callout.Text>
           </Callout.Root>
         </Container>

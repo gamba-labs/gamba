@@ -60,18 +60,14 @@ const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
   return (
     <Box>
       <Text size="2">
+        This bet is provably fair.
         The result is calculated by combining the <Code>rng_seed</Code> provided by Gamba and the <Code>client_seed</Code> provided by the player, and <Code>nonce</Code>, which increments by 1 after each play.
         <br />
-        The sha256 hash for the next RNG Seed is revealed in this transaction as well just like the one prior, <Code>rng_seed_hashed</Code>.
+        The sha256 hash for the next RNG Seed is revealed in this transaction as well just like the one prior, <Code>rng_seed_hashed</Code>.<br />
+        You can simulate the bet here with a custom client see, to see how it would affect the result:
       </Text>
 
-      <Box my="4">
-        <Code size="1">
-          {script}
-        </Code>
-      </Box>
-
-      <Flex gap="2">
+      <Flex gap="2" my="4">
         <TextField.Root>
           <TextField.Input
             placeholder="Client Seed"
@@ -96,6 +92,15 @@ const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
         </Button>
       </Flex>
 
+      <Text size="2">
+        Here is the code to generate the result:
+      </Text>
+
+      <Box my="4">
+        <Code size="1">
+          {script}
+        </Code>
+      </Box>
     </Box>
   )
 }

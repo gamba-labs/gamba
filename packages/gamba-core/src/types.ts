@@ -36,11 +36,9 @@ export interface ParsedHouse {
   bonusMint: PublicKey | null
   balance: number
   maxPayout: number
-  fees: {
-    total: number
-    house: number
-    creator: number
-  }
+  fee: number
+  defaultCreatorFee: number
+  maxCreatorFee: number
 }
 
 export interface GameResult {

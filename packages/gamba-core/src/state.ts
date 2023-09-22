@@ -21,11 +21,9 @@ export const createHouseState = (): ParsedHouse => ({
   bonusMint: null,
   balance: 0,
   maxPayout: 0,
-  fees: {
-    total: 0,
-    house: 0,
-    creator: 0,
-  },
+  fee: 0.01,
+  defaultCreatorFee: 0.01,
+  maxCreatorFee: 0.05,
 })
 
 export const createWalletState = (): ParsedWallet => ({ balance: 0 })

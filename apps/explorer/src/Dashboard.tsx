@@ -4,15 +4,18 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { AreaGraph } from './AreaGraph'
 import { Money } from './Money'
-import { getCreators, getDailyVolume, getPlayers } from './api'
+import { RecentBet, getBets, getCreators, getDailyVolume, getPlayers } from './api'
 import { DailyVolume, getCreatorMeta } from './data'
-import { useEventFetcher } from './useEventFetcher'
 
 const timeAgo = (time: number) => {
   const diff = Date.now() - time
   const seconds = Math.floor(diff / 1000)
   const minutes = Math.floor(seconds / 60)
   const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+  if (days >= 1) {
+    return days + 'd ago'
+  }
   if (hours >= 1) {
     return hours + 'h ago'
   }
@@ -23,35 +26,31 @@ const timeAgo = (time: number) => {
 }
 
 function RecentPlays() {
+  const [page, setPage] = React.useState(0)
+  const latestPage = React.useRef(-1)
+  const [recentBets, setRecentBets] = React.useState<RecentBet[]>([])
   const [loading, setLoading] = React.useState(false)
-  const fetcher = useEventFetcher()
-  const initialFetch = React.useRef(false)
-
-  const load = async () => {
-    try {
-      setLoading(true)
-      await fetcher.fetch({ signatureLimit: 40 })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const results = React.useMemo(
-    () => fetcher.transactions.filter((x) => !!x.event.gameResult),
-    [fetcher.transactions],
-  )
 
   React.useEffect(
     () => {
-      if (initialFetch.current) return
-      initialFetch.current = true
-      load()
+      if (latestPage.current === page) {
+        return
+      }
+      latestPage.current = page
+      setLoading(true)
+      getBets(page)
+        .then((x) => setRecentBets((previous) => [...previous, ...x]))
+        .catch(console.error)
+        .finally(() => setLoading(false))
     }
-    , [fetcher],
+    , [page],
   )
 
   return (
     <Box my="4">
+      <Heading mb="4" size="4">
+        Recent bets on all platforms
+      </Heading>
       <ScrollArea
         type="always"
         scrollbars="vertical"
@@ -81,8 +80,8 @@ function RecentPlays() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {results.map((transaction, i) => {
-              const game = transaction.event.gameResult!
+            {recentBets.map((transaction, i) => {
+              const payout = transaction.wager * transaction.multiplier
               return (
                 <Table.Row key={transaction.signature}>
                   <Table.Cell>
@@ -92,29 +91,28 @@ function RecentPlays() {
                     <Flex align="baseline" gap="2">
                       <Link asChild>
                         <NavLink to={'/tx/' + transaction.signature}>
-                          {getCreatorMeta(game.creator).name}
+                          {getCreatorMeta(transaction.creator).name}
                         </NavLink>
                       </Link>
                     </Flex>
                   </Table.Cell>
                   <Table.Cell>
                     <Text mr="2">
-                      <Money lamports={game.wager} />
+                      <Money lamports={transaction.wager} />
                     </Text>
                   </Table.Cell>
                   <Table.Cell>
                     <Text mr="2">
-                      <Money lamports={game.payout} />
+                      <Money lamports={payout} />
                     </Text>
-                    <Badge color={game.profit >= 0 ? 'green' : 'gray'}>
-                      {/* {game.multiplier >= 1 ? '+' : '-'} */}
-                      {Math.abs(game.multiplier).toFixed(2)}x
+                    <Badge color={payout >= transaction.wager ? 'green' : 'gray'}>
+                      {Math.abs(transaction.multiplier).toFixed(2)}x
                     </Badge>
                   </Table.Cell>
                   <Table.Cell align="right">
                     <Link asChild>
                       <NavLink to={'/tx/' + transaction.signature}>
-                        {timeAgo(transaction.time)}
+                        {timeAgo(transaction.blockTime * 1000)}
                       </NavLink>
                     </Link>
                   </Table.Cell>
@@ -126,7 +124,7 @@ function RecentPlays() {
         <Box mt="2">
           <Button
             disabled={loading}
-            onClick={load}
+            onClick={() => setPage(page + 1)}
             variant="soft"
             style={{ width: '100%' }}
           >
@@ -134,25 +132,29 @@ function RecentPlays() {
           </Button>
         </Box>
       </ScrollArea>
+      <Text color="gray" size="2">
+        Recent bets are updated every 5 minutes.
+      </Text>
     </Box>
   )
 }
 
 export function Dashboard() {
   const [dailyVolume, setDailyVolume] = React.useState<DailyVolume[]>([])
-  const [totalWager, setTotalWager] = React.useState<{creator: string, total_wager: number}[]>([])
+  const [creators, setCreators] = React.useState<{creator: string, volume: number}[]>([])
   const [uniquePlayers, setUniquePlayers] = React.useState(0)
+  // const [topBets, setTopBets] = React.useState<TopBetResult>({ top_multiplier: [], top_profit: [] })
+
   React.useEffect(() => {
-    getDailyVolume().then(setDailyVolume)
-    getCreators().then(setTotalWager)
-    getPlayers().then((x) => {
-      setUniquePlayers(x)
-    }).catch(console.error)
+    getDailyVolume().then(setDailyVolume).catch(console.error)
+    getCreators().then(setCreators).catch(console.error)
+    getPlayers().then(setUniquePlayers).catch(console.error)
+    // getTopBets().then(setTopBets).catch(console.error)
   }, [])
 
   const totalVolume = React.useMemo(() => {
-    return totalWager.reduce((prev, creator) => prev + creator.total_wager, 0)
-  }, [totalWager])
+    return creators.reduce((prev, creator) => prev + creator.volume, 0)
+  }, [creators])
 
   return (
     <Container>
@@ -193,7 +195,7 @@ export function Dashboard() {
                 Creators
               </Heading>
               <Text size="6" weight="bold">
-                {totalWager.length}
+                {creators.length}
               </Text>
             </Card>
           </Box>
@@ -219,23 +221,20 @@ export function Dashboard() {
 
             <Table.Body>
 
-              {CREATORS.map(({ address, meta, volume }, i) => (
+              {creators.slice(0, 6).map(({ creator, volume }, i) => (
                 <Table.Row key={i}>
                   <Table.Cell>
                     <Flex align="baseline" gap="2">
-                      <Button variant="ghost" size="1">
-                        <ClipboardIcon />
-                      </Button>
                       <Link asChild>
-                        <NavLink to={'/address/' + address}>
-                          {meta?.name ?? (address.substring(0, 24) + '...')}
+                        <NavLink to={'/address/' + creator}>
+                          {getCreatorMeta(creator).name}
                         </NavLink>
                       </Link>
                     </Flex>
                   </Table.Cell>
                   <Table.Cell align="right">
                     <Text>
-                      {volume.toLocaleString()} SOL
+                      <Money lamports={volume} />
                     </Text>
                   </Table.Cell>
                 </Table.Row>
@@ -258,28 +257,20 @@ export function Dashboard() {
             </Table.Header>
 
             <Table.Body>
-              {[...PLAYS].sort((a, b) => b.multiplier - a.multiplier).slice(0, 4).map(({ txid, profit, multiplier }, i) => (
+              {topBets.top_multiplier.slice(0, 6).map(({ signature, player, creator, multiplier }, i) => (
                 <Table.Row key={i}>
                   <Table.Cell>
                     <Flex align="baseline" gap="2">
-                      <Button variant="ghost" size="1">
-                        <ClipboardIcon />
-                      </Button>
-
                       <Link asChild>
-                        <NavLink to={'/tx/' + txid}>
-                          {txid.substring(0, 20)}...
+                        <NavLink to={'/tx/' + signature}>
+                          {player}
                         </NavLink>
                       </Link>
                     </Flex>
                   </Table.Cell>
                   <Table.Cell align="right">
-                    <Text mr="2">
-                      {Math.abs(profit).toFixed(3).toLocaleString()} SOL
-                    </Text>
-                    <Badge color={profit >= 0 ? 'green' : 'red'}>
-                      {multiplier >= 1 ? '+' : '-'}
-                      {Math.abs(multiplier * 100 - 100).toFixed(0)}%
+                    <Badge color="green">
+                      {multiplier.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}x
                     </Badge>
                   </Table.Cell>
                 </Table.Row>

@@ -58,7 +58,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
     const innerWidth = width
     const innerHeight = height
 
-    const movingAverageWindowSize = 6
+    const movingAverageWindowSize = 7
     const dataWithMovingAverage = useMemo(
       () =>
         calculateMovingAverage(dailyVolume, movingAverageWindowSize),

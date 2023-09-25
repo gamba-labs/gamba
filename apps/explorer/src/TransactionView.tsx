@@ -64,7 +64,7 @@ const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
         The result is calculated by combining the <Code>rng_seed</Code> provided by Gamba and the <Code>client_seed</Code> provided by the player, and <Code>nonce</Code>, which increments by 1 after each play.
         <br />
         The sha256 hash for the next RNG Seed is revealed in this transaction as well just like the one prior, <Code>rng_seed_hashed</Code>.<br />
-        You can simulate the bet here with a custom client see, to see how it would affect the result:
+        You can simulate the bet here with a custom client seed, to see how it would affect the result:
       </Text>
 
       <Flex gap="2" my="4">
@@ -203,10 +203,11 @@ export function TransactionView() {
               <Table.Cell>
                 <Grid columns="2" gap="4">
                   <Text weight="bold">
-                    Creator
+                    Platform
                   </Text>
                   <Link asChild>
                     <NavLink to={'/address/' + gameResult.creator.toBase58()}>
+                      <img src={getCreatorMeta(gameResult.creator).image} height="20px" width="20px" style={{ marginRight: '.5em', verticalAlign: 'middle' }} />
                       {getCreatorMeta(gameResult.creator).name} ({gameResult.creator.toBase58()})
                     </NavLink>
                   </Link>

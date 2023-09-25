@@ -14,5 +14,9 @@ export { default as Select } from './Select'
 export { useSounds } from './useSounds'
 
 export const useCurrentGame = () => {
-  return React.useContext(GameUiContext).game
+  const context = React.useContext(GameUiContext)
+  if (!context) {
+    throw new Error('"useCurrentGame" can only be used inside of a <GameUi.Provider>')
+  }
+  return context.game
 }

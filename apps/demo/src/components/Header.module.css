@@ -46,7 +46,7 @@
 .externalLinks {
   gap: 20px;
   display: flex;
-  visibility: hidden;
+  visibility: visible;
 }
 
 .externalLinks > a {
@@ -58,8 +58,9 @@
   color: #ffffffff;
 }
 
-@media (min-width: 800px) {
+@media (max-width: 800px) {
   .externalLinks {
-    visibility: visible;
+    display: none;
+    visibility: hidden;
   }
 }

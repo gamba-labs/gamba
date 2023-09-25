@@ -25,13 +25,13 @@ interface PlayParams extends Optional<PlayMethodParams, 'creator' | 'creatorFee'
 }
 
 export function useGamba() {
-  const { creator, seed, setSeed, fakePlay, creatorFee: contextFee } = React.useContext(GambaContext)
+  const context = React.useContext(GambaContext)
   const client = useGambaClient()
   const balances = useBalances()
 
   const { connected, connection, wallet, state, methods, addresses } = client
 
-  const updateSeed = (seed = randomSeed()) => setSeed(seed)
+  const updateSeed = (seed = randomSeed()) => context.setSeed(seed)
 
   /**
   * Shorthand for `gamba.methods.play` which includes creator address and client seed from the Gamba context.
@@ -40,10 +40,14 @@ export function useGamba() {
     const {
       excludeFees,
       wager: wagerInput,
+      creator: creatorInput,
       creatorFee: creatorFeeInput,
+      seed: seedInput,
       ...rest
     } = _params
-    const creatorFee = creatorFeeInput ?? contextFee ?? state.house.defaultCreatorFee
+    const seed = seedInput ?? context.seed
+    const creator = creatorInput ?? context.creator
+    const creatorFee = creatorFeeInput ?? context.creatorFee ?? state.house.defaultCreatorFee
     const houseFee = state.house.fee
     const totalFees = creatorFee + houseFee
     const wager = excludeFees ? Math.ceil(wagerInput / (1 + totalFees)) : wagerInput
@@ -56,10 +60,10 @@ export function useGamba() {
       ...rest,
     }
 
-    if (fakePlay) {
+    if (context.fakePlay) {
       return simulatePlay(
         params,
-        fakePlay,
+        context.fakePlay,
         addresses.wallet,
         state.user.nonce,
       )
@@ -141,9 +145,9 @@ export function useGamba() {
     /** If a wallet has been connected to the Gamba provider */
     connected,
     connection,
-    creator,
+    creator: context.creator,
     wallet,
-    seed,
+    seed: context.seed,
     updateSeed,
     balances,
     house: state.house,

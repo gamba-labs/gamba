@@ -23,6 +23,7 @@ function Root() {
           </Gamba>
         </ConnectionProvider>
       </BrowserRouter>
+      {/* <ThemePanel /> */}
     </Theme>
   )
 }

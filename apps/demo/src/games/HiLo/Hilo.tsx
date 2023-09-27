@@ -89,21 +89,6 @@ export default function HiLo() {
   const play = async () => {
     try {
       sounds.play.play()
-      const _rank = randomRank()
-      addCard(_rank)
-      setTimeout(() => {
-        setLoading(false)
-        if (bet[_rank] > 0) {
-          const payout = (profit || initialWager) * bet[_rank]
-          setProfit(payout)
-          sounds.win.play()
-        } else {
-          sounds.lose.play()
-          setProfit(0)
-        }
-      }, 500)
-      return
-      sounds.play.play()
       const res = await gamba.play({
         bet,
         wager: profit || initialWager,

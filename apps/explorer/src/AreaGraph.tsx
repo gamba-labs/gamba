@@ -26,7 +26,7 @@ const calculateMovingAverage = (data: DailyVolume[], windowSize: number) => {
   return data.map((d, i) => {
     const startIndex = Math.max(0, i - windowSize + 1)
     const valuesInRange = data.slice(startIndex, i + 1)
-    const sum = valuesInRange.reduce((acc, value) => acc + getStockValue(value), 0)
+    const sum = valuesInRange.reduce((acc, value) => acc + getDailyVolume(value), 0)
     const average = sum / valuesInRange.length
     return { ...d, movingAverage: average }
   })
@@ -34,7 +34,7 @@ const calculateMovingAverage = (data: DailyVolume[], windowSize: number) => {
 
 // accessors
 const getDate = (d: DailyVolume) => new Date(d.date)
-const getStockValue = (d: DailyVolume) => d.total_volume
+const getDailyVolume = (d: DailyVolume) => d.total_volume
 
 const bisectDate = bisector<DailyVolume, Date>((d) => new Date(d.date)).left
 
@@ -129,7 +129,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
     //     scaleLinear<number>({
     //       range: [height, 0],
     //       round: true,
-    //       domain: [0, Math.max(...dailyVolume.map(getStockValue))],
+    //       domain: [0, Math.max(...dailyVolume.map(getDailyVolume))],
     //     }),
     //   [dailyVolume, height],
     // )
@@ -176,7 +176,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
             {dailyVolume.map((d) => {
               const date = getDate(d).toString()
               const barWidth = xScale.bandwidth()
-              const barHeight = height - (yScale(getStockValue(d)) ?? 0)
+              const barHeight = height - (yScale(getDailyVolume(d)) ?? 0)
               const barX = xScale(date)
               const barY = height - barHeight
               return (
@@ -237,7 +237,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
               style={tooltipStyles}
             >
               <div>{getDate(tooltipData).toDateString()}</div>
-              <Money lamports={getStockValue(tooltipData)} />
+              <Money lamports={getDailyVolume(tooltipData)} />
             </TooltipWithBounds>
           </div>
         )}

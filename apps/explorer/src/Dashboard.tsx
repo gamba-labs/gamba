@@ -302,7 +302,7 @@ export function Dashboard() {
                   <Table.Cell>
                     <Flex align="baseline" gap="2">
                       <Link asChild>
-                        <a target="_blank" href={'https://explorer.solana.com/address/' + creator} rel="noreferrer">
+                        <a title={creator} target="_blank" href={'https://explorer.solana.com/address/' + creator} rel="noreferrer">
                           {creatorMeta.image ? (
                             <img src={creatorMeta.image} height="20px" width="20px" style={{ marginRight: '.5em', verticalAlign: 'middle' }} />
                           ) : (

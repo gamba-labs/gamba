@@ -55,6 +55,12 @@ export const CREATORS = [
     url: 'https://playninjatss.com',
     image: '/logos/ninjaturtles.png',
   },
+  {
+    address: '5PAwRPFatXfvhMbLwjCjeKE5Yr6eJrsXnapvEadTdo1z',
+    name: 'Breakpoint Casino',
+    url: 'https://breakpoint.casino/',
+    image: '/logos/breakpointcasino.png',
+  },
 ]
 
 const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({
@@ -62,6 +68,8 @@ const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({
   [meta.address]: meta,
 }), {} as Record<string, CreatorMeta>)
 
+const truncateString = (s: string) => s.slice(0, 3) + '...' + s.slice(-3)
+
 export const getCreatorMeta = (address: string | PublicKey) => {
-  return CREATORS_BY_ADDRESS[address.toString()] ?? { address, name: 'Unknown' }
+  return CREATORS_BY_ADDRESS[address.toString()] ?? { address, name: truncateString(address.toString()) }
 }

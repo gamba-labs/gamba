@@ -1,3 +1,29 @@
 body {
   margin: 0;
 }
+
+.rt-TableRoot.rt-variant-surface {
+  /* border: 1px solid var(--gray-a5); */
+  border: none;
+}
+
+.rt-TableRoot.rt-variant-surface {
+  /* border: 1px solid var(--gray-a5); */
+  border: none;
+}
+
+.CreatorsTable tr>td:first-child {
+  width: 2%;
+  white-space: nowrap;
+}
+
+
+.rt-TableRootTable {
+  --table-row-border-bottom: inset 0 -1px var(--gray-a2);
+}
+
+.rt-Card.rt-variant-surface::after {
+  box-shadow: none;
+  table-layout: auto;
+}
+

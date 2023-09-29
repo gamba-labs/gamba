@@ -10,6 +10,7 @@ import { Money } from './Money'
 import { getCreatorMeta } from './data'
 import styles from './test.module.css'
 import { isSignature } from './utils'
+import { PlatformText } from './components/PlatformText'
 
 const VerificationSection: React.FC<{parsed: GameResult}> = ({ parsed }) => {
   const [clientSeed, setClientSeed] = React.useState(parsed.clientSeed)
@@ -207,8 +208,7 @@ export function TransactionView() {
                   </Text>
                   <Link asChild>
                     <NavLink to={'/address/' + gameResult.creator.toBase58()}>
-                      <img src={getCreatorMeta(gameResult.creator).image} height="20px" width="20px" style={{ marginRight: '.5em', verticalAlign: 'middle' }} />
-                      {getCreatorMeta(gameResult.creator).name} ({gameResult.creator.toBase58()})
+                      <PlatformText address={gameResult.creator} />
                     </NavLink>
                   </Link>
                 </Grid>

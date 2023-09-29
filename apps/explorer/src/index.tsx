@@ -1,4 +1,4 @@
-import { Theme } from '@radix-ui/themes'
+import { Theme, ThemePanel } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import { ConnectionProvider } from '@solana/wallet-adapter-react'
 import { Gamba } from 'gamba/react'
@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 
 function Root() {
   return (
-    <Theme accentColor="iris" radius="medium" panelBackground="translucent">
+    <Theme accentColor="iris" grayColor="slate" radius="large" scaling="110%">
       <BrowserRouter>
         <ConnectionProvider
           endpoint={import.meta.env.GAMBA_SOLANA_RPC}
@@ -23,6 +23,7 @@ function Root() {
           </Gamba>
         </ConnectionProvider>
       </BrowserRouter>
+      {/* <ThemePanel /> */}
     </Theme>
   )
 }

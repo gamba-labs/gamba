@@ -71,9 +71,9 @@ export function App() {
           </Flex>
         </Container>
       </Box>
-      <Container p="2">
-        <Container mb="4">
-          <Callout.Root>
+      <Container p="4">
+        {/* <Container mb="4">
+          <Callout.Root color="red">
             <Callout.Icon>
               <InfoCircledIcon />
             </Callout.Icon>
@@ -81,7 +81,7 @@ export function App() {
               The explorer is in Beta. Come back soon for more stats and filtering options!
             </Callout.Text>
           </Callout.Root>
-        </Container>
+        </Container> */}
         <Routes>
           <Route
             path="/"

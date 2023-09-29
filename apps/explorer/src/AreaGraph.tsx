@@ -2,14 +2,15 @@ import { curveMonotoneX } from '@visx/curve'
 import { localPoint } from '@visx/event'
 import { GradientOrangeRed, LinearGradient } from '@visx/gradient'
 import { ParentSize } from '@visx/responsive'
-import { scaleLinear, scaleTime } from '@visx/scale'
-import { AreaClosed, Bar, Line } from '@visx/shape'
+import { scaleBand, scaleLinear, scaleTime } from '@visx/scale'
+import { AreaClosed, Bar, Line, LinePath } from '@visx/shape'
 import { TooltipWithBounds, defaultStyles, withTooltip } from '@visx/tooltip'
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip'
 import { bisector, extent, max } from '@visx/vendor/d3-array'
 import React, { useCallback, useMemo } from 'react'
 import { Money } from './Money'
 import { DailyVolume } from './data'
+import { Group } from '@visx/group'
 
 type TooltipData = DailyVolume
 
@@ -58,7 +59,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
     const innerWidth = width
     const innerHeight = height
 
-    const movingAverageWindowSize = 7
+    const movingAverageWindowSize = 14
     const dataWithMovingAverage = useMemo(
       () =>
         calculateMovingAverage(dailyVolume, movingAverageWindowSize),
@@ -74,7 +75,7 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
       [dailyVolume, innerWidth],
     )
 
-    const stockValueScale = useMemo(
+    const dailyVolumeScale = useMemo(
       () =>
         scaleLinear({
           range: [innerHeight, 0],
@@ -107,32 +108,33 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
         showTooltip({
           tooltipData: d,
           tooltipLeft: x,
-          tooltipTop: stockValueScale(movingAverage),
+          tooltipTop: dailyVolumeScale(movingAverage),
         })
       },
-      [dataWithMovingAverage, showTooltip, stockValueScale, dateScale],
+      [dataWithMovingAverage, showTooltip, dailyVolumeScale, dateScale],
     )
 
     // scales, memoize for performance
-    // const xScale = useMemo(
-    //   () =>
-    //     scaleBand<string>({
-    //       range: [0, width],
-    //       round: true,
-    //       domain: dailyVolume.map((d) => getDate(d).toString()),
-    //       padding: 0.4,
-    //     }),
-    //   [dailyVolume, width],
-    // )
-    // const yScale = useMemo(
-    //   () =>
-    //     scaleLinear<number>({
-    //       range: [height, 0],
-    //       round: true,
-    //       domain: [0, Math.max(...dailyVolume.map(getDailyVolume))],
-    //     }),
-    //   [dailyVolume, height],
-    // )
+    const xScale = useMemo(
+      () =>
+        scaleBand<string>({
+          range: [0, width],
+          round: true,
+          domain: dailyVolume.map((d) => getDate(d).toString()),
+          padding: 0.2,
+        }),
+      [dailyVolume, width],
+    )
+
+    const yScale = useMemo(
+      () =>
+        scaleLinear<number>({
+          range: [height, 0],
+          round: true,
+          domain: [0, Math.max(...dailyVolume.map(getDailyVolume))],
+        }),
+      [dailyVolume, height],
+    )
 
     return (
       <div>
@@ -145,34 +147,39 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
             fill="url(#area-background-gradient)"
             rx={14}
           />
-          <GradientOrangeRed id="area-background-gradient" />
           <LinearGradient
             id="area-gradient"
-            from={accentColor}
-            to={accentColor}
-            toOpacity={0.1}
+            from="#ff6562"
+            to="#ff255b"
+            toOpacity={1}
           />
-          <AreaClosed
+          <LinePath
             data={dataWithMovingAverage}
             x={(d) => dateScale(getDate(d)) ?? 0}
-            y={(d) => stockValueScale(d.movingAverage) ?? 0}
-            yScale={stockValueScale}
+            y={(d) => dailyVolumeScale(d.movingAverage) ?? 0}
+            // yScale={dailyVolumeScale}
             strokeWidth={1}
+            strokeDasharray={10}
+            opacity={.3}
             stroke="url(#area-gradient)"
-            fill="url(#area-gradient)"
+            // fill="url(#area-gradient)"
+            fill="transparent"
             curve={curveMonotoneX}
           />
-          <Bar
-            width={innerWidth}
-            height={innerHeight}
+          {/* <AreaClosed
+            data={dataWithMovingAverage}
+            x={(d) => dateScale(getDate(d)) ?? 0}
+            y={(d) => dailyVolumeScale(d.movingAverage) ?? 0}
+            yScale={dailyVolumeScale}
+            strokeWidth={1}
+            strokeDasharray={10}
+            opacity={.3}
+            stroke="url(#area-gradient)"
+            // fill="url(#area-gradient)"
             fill="transparent"
-            rx={14}
-            onTouchStart={handleTooltip}
-            onTouchMove={handleTooltip}
-            onMouseMove={handleTooltip}
-            onMouseLeave={() => hideTooltip()}
-          />
-          {/* <Group>
+            curve={curveMonotoneX}
+          /> */}
+          <Group>
             {dailyVolume.map((d) => {
               const date = getDate(d).toString()
               const barWidth = xScale.bandwidth()
@@ -187,14 +194,25 @@ const _AreaGraph = withTooltip<AreaProps, TooltipData>(
                   width={barWidth}
                   height={barHeight}
                   fill="url(#area-gradient)"
-                  fillOpacity={.4}
+                  // fillOpacity={.4}
+                  rx={2}
                   // onClick={() => {
                   //   if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`)
                   // }}
                 />
               )
             })}
-          </Group> */}
+          </Group>
+          <Bar
+            width={innerWidth}
+            height={innerHeight}
+            fill="transparent"
+            rx={14}
+            onTouchStart={handleTooltip}
+            onTouchMove={handleTooltip}
+            onMouseMove={handleTooltip}
+            onMouseLeave={() => hideTooltip()}
+          />
           {tooltipData && (
             <g>
               <Line

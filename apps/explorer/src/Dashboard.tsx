@@ -185,7 +185,7 @@ export function Dashboard() {
         <Box>
           <Card size="2">
               <Grid
-                columns={{ initial: '2', sm: '4' }}
+                columns={{ initial: '1', sm: '3' }}
                 gap="2"
                 align="center"
               >
@@ -195,14 +195,6 @@ export function Dashboard() {
                 </Text>
                 <Text weight="bold">
                   <Money lamports={totalVolume} />
-                </Text>
-              </Flex>
-              <Flex justify="center" gap="4">
-                <Text color="gray">
-                  Plays
-                </Text>
-                <Text weight="bold">
-                  ~{Number(21000).toLocaleString()}
                 </Text>
               </Flex>
               <Flex justify="center" gap="4">

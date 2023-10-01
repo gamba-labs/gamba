@@ -3,8 +3,17 @@ import { DailyVolume } from './data'
 const URL = 'https://209.38.229.113.nip.io:3001'
 
 const ONE_DAY = 1000 * 60 * 60 * 24
-export const START_TIME = (Date.now() - ONE_DAY * 30)
-export const END_TIME = (Date.now())
+
+const daysAgo = (daysAgo: number) => {
+  const now = new Date();
+  const then = new Date();
+  then.setDate(now.getDate() - daysAgo)
+  then.setHours(0, 0, 0, 0);
+  return then.getTime()
+}
+
+export const START_TIME = daysAgo(30)
+export const END_TIME = Date.now()
 
 export const getDailyVolume = async (creator?: string) => {
   const res = await window.fetch(URL + `/daily-volume?start=` + START_TIME / 1000 + '&end=' + END_TIME / 1000 + `&creator=${creator ?? ''}`)

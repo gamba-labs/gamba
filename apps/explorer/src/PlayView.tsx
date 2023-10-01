@@ -372,7 +372,7 @@ export function PlayView() {
     const key = 'Program log: [Gamba] next_rng_seed_hashed: '
     const a = logs?.find((x) => x.startsWith(key))
     return a ? JSON.parse(a.split(key)[1] ?? '""') : ''
-  }, [])
+  }, [logs])
 
   if (loading) {
     return (

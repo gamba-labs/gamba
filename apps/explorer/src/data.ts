@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
+import { truncateString } from './utils'
 
 export interface DailyVolume {
   date: string
@@ -20,21 +21,27 @@ export const CREATORS = [
     image: '/logos/gamba.png',
   },
   {
+    address: 'Adn4whbLyQs5b2rnwu9ngiEMxLjndadKbqDqxK4saqKd',
+    name: 'Apes On Space',
+    url: 'https://gm.apeson.space',
+    image: '/logos/apesonspace.png',
+  },
+  {
     address: 'F1ame86hjDZWG9rqWPBxVo3ELUjMfZYdMikkmfdp7f74',
     name: 'PhoenixBet',
-    url: 'https://bet.phnx.one/',
+    url: 'https://bet.phnx.one',
     image: '/logos/phoenixbet.png',
   },
   {
     address: '43d7KZaysxPeVg8Pj9VH6FJogmpHa95sM4RXUsMm9TbQ',
     name: 'Pepesolana',
-    url: 'https://pepesolana.one/',
+    url: 'https://pepesolana.one',
     image: '/logos/pepesolana.png',
   },
   {
     address: 'BqA8jwLmzapMQPpsjX6e7BJEFGckPTVxhg6gBr16hsZx',
     name: 'Killer Bunnies',
-    url: 'https://skbgaming.solkillerbunnies.io/',
+    url: 'https://skbgaming.solkillerbunnies.io',
     image: '/logos/killerbunnies.png',
   },
   {
@@ -46,20 +53,26 @@ export const CREATORS = [
   {
     address: '5AZYZb7sfB5K7P2GCWnB6v2G7urQ3LjoKtKRop8A79DA',
     name: 'SolarMoon',
-    url: 'https://flip.solarmoon.xyz/',
+    url: 'https://flip.solarmoon.xyz',
     image: '/logos/solarmoon.png',
   },
   {
     address: '399KgE5gpzFvBB8arZLxA2bes3n4FY7rTMmzifHohPzx',
     name: 'Ninja Turtles',
-    url: 'https://playninjatss.com',
+    url: 'https://ninja-casino-ninjatss.vercel.app',
     image: '/logos/ninjaturtles.png',
   },
   {
     address: '5PAwRPFatXfvhMbLwjCjeKE5Yr6eJrsXnapvEadTdo1z',
     name: 'Breakpoint Casino',
-    url: 'https://breakpoint.casino/',
+    url: 'https://breakpoint.casino',
     image: '/logos/breakpointcasino.png',
+  },
+  {
+    address: 'FPVE37GsoKpg87NUQpsuBEhauJ8yFpkidLzAjCdvWiZP',
+    name: 'Wolf Solana Casino',
+    url: 'https://wolf-solana.vercel.app',
+    image: '/logos/wolfsolanacasino.png',
   },
 ]
 
@@ -67,8 +80,6 @@ const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({
   ...prev,
   [meta.address]: meta,
 }), {} as Record<string, CreatorMeta>)
-
-const truncateString = (s: string) => s.slice(0, 3) + '...' + s.slice(-3)
 
 export const getCreatorMeta = (address: string | PublicKey) => {
   return CREATORS_BY_ADDRESS[address.toString()] ?? { address, name: truncateString(address.toString()) }

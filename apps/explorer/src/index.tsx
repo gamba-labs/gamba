@@ -1,4 +1,4 @@
-import { Theme, ThemePanel } from '@radix-ui/themes'
+import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import { ConnectionProvider } from '@solana/wallet-adapter-react'
 import { Gamba } from 'gamba/react'

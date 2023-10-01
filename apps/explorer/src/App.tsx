@@ -1,12 +1,13 @@
-import { InfoCircledIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { Box, Button, Callout, Container, Flex, Popover, TextField } from '@radix-ui/themes'
+import { ExternalLinkIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Box, Container, Flex, Link, TextField } from '@radix-ui/themes'
 import React from 'react'
 import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
-import { AddressView } from './Address'
 import styles from './App.module.css'
 import { Dashboard } from './Dashboard'
-import { TransactionView } from './TransactionView'
-import { isPubkey, isSignature } from './utils'
+import { PlatformView } from './Platform'
+import { PlayView } from './PlayView'
+import { PlayerView } from './Player'
+import { Search } from './Search'
 
 export function App() {
   const [search, setSearch] = React.useState('')
@@ -15,19 +16,13 @@ export function App() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const _search = search.trim()
-    if (isPubkey(_search)) {
-      navigate('/address/' + _search)
-    } else if (isSignature(_search)) {
-      navigate('/tx/' + _search)
-    } else {
-      return alert('Not a valid transaction or address')
-    }
+    navigate('/search/' + _search)
     setSearch('')
   }
 
   return (
     <>
-      <Box className={styles.header} p="4" mb="4">
+      <Box className={styles.header} p="2" px="4">
         <Container>
           <Flex gap="4" align="center">
             <Box>
@@ -51,29 +46,21 @@ export function App() {
               </form>
             </Box>
             <Box>
-              <Popover.Root>
-                <Popover.Trigger>
-                  <Button disabled size="3">
-                    Mainnet Beta
-                  </Button>
-                </Popover.Trigger>
-                <Popover.Content>
-                  <Box grow="1">
-                    <Flex direction="column" gap="3">
-                      <Button variant="soft">
-                        Mainnet Beta
-                      </Button>
-                    </Flex>
-                  </Box>
-                </Popover.Content>
-              </Popover.Root>
+              <Flex gap="4">
+                <Link href="https://github.com/gamba-labs/gamba" target="_blank" rel="noreferrer">
+                  Github <ExternalLinkIcon />
+                </Link>
+                <Link href="https://gamba.so" target="_blank" rel="noreferrer">
+                  About <ExternalLinkIcon />
+                </Link>
+              </Flex>
             </Box>
           </Flex>
         </Container>
       </Box>
       <Container p="4">
-        {/* <Container mb="4">
-          <Callout.Root color="red">
+        {/* <Box mb="4">
+          <Callout.Root>
             <Callout.Icon>
               <InfoCircledIcon />
             </Callout.Icon>
@@ -81,19 +68,31 @@ export function App() {
               The explorer is in Beta. Come back soon for more stats and filtering options!
             </Callout.Text>
           </Callout.Root>
-        </Container> */}
+        </Box> */}
         <Routes>
           <Route
             path="/"
             element={<Dashboard />}
           />
           <Route
-            path="/tx/:txid"
-            element={<TransactionView />}
+            path="/search/:signatureOrAddress"
+            element={<Search />}
           />
           <Route
-            path="/address/:address"
-            element={<AddressView />}
+            path="/tx/:txid"
+            element={<PlayView />}
+          />
+          <Route
+            path="/play/:txid"
+            element={<PlayView />}
+          />
+          <Route
+            path="/platform/:address"
+            element={<PlatformView />}
+          />
+          <Route
+            path="/player/:address"
+            element={<PlayerView />}
           />
         </Routes>
       </Container>

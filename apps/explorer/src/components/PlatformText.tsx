@@ -4,7 +4,7 @@ import { getCreatorMeta } from "../data";
 import { PublicKey } from "@solana/web3.js";
 import styled from 'styled-components'
 
-const PlatformIcon = styled.div`
+export const PlatformIcon = styled.div`
   width: 24px;
   height: 24px;
   position: relative;

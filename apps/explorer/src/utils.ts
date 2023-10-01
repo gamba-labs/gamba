@@ -18,3 +18,5 @@ export const isSignature = (s: string) => {
     return false
   }
 }
+
+export const truncateString = (s: string) => s.slice(0, 3) + '...' + s.slice(-3)

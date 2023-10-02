@@ -43,7 +43,7 @@ export interface RecentBet {
 }
 
 export const getBets = async ({page, creator, player}: {page: number, creator?: string, player?: string}) => {
-  const res = await window.fetch(URL + (`/bets?creator=${creator ?? ''}&limit=20&skip=${page * 20}&player=${player ?? ''}`))
+  const res = await window.fetch(URL + (`/bets?creator=${creator ?? ''}&limit=10&skip=${page * 10}&player=${player ?? ''}`))
   return (await res.json()).bets as RecentBet[]
 }
 

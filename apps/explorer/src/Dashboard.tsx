@@ -1,5 +1,5 @@
-import { LightningBoltIcon, StarFilledIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Card, Container, Flex, Grid, Table, Text } from '@radix-ui/themes'
+import { ArrowRightIcon, LightningBoltIcon, StarFilledIcon } from '@radix-ui/react-icons'
+import { Avatar, Badge, Box, Button, Card, Container, Flex, Grid, Link, ScrollArea, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import Marquee from 'react-fast-marquee'
 import { NavLink } from 'react-router-dom'
@@ -8,13 +8,15 @@ import { Graph } from './Graph'
 import { Money } from './Money'
 import { END_TIME, TopBetResult, getCreators, getDailyVolume, getPlayers, getTopBets } from './api'
 import { Loader } from './components/Loader'
-import { PlatformText } from './components/PlatformText'
+import { PlatformAccountItem } from './components/AccountItem'
 import { TableRowNavLink } from './components/TableRowLink'
 import { DailyVolume, getCreatorMeta } from './data'
+import { RecentPlays } from './RecentPlays'
 
 const TopPlayLink = styled(NavLink)`
   text-decoration: none;
   cursor: pointer;
+  color: unset;
 `
 
 export function VolumeGraph({ creator }: {creator?: string}) {
@@ -100,7 +102,7 @@ function CreatorList({creators}: {creators: {creator: string, volume: number}[]}
               </Text>
             </Table.Cell>
               <Table.Cell>
-                <PlatformText address={address} />
+                <PlatformAccountItem address={address} />
               </Table.Cell>
               <Table.Cell align="right">
                 <Text>
@@ -135,13 +137,14 @@ export function Dashboard() {
   return (
     <Container>
       <Grid gap="4">
+
         <Box>
           <Card size="1">
             <Grid columns="2" style={{ gridTemplateColumns: 'auto 1fr' }}>
               <Flex gap="2" p="2" align="center" pr="4">
                 <StarFilledIcon />
                 <Text color="gray">
-                  Weekly best
+                  Top plays
                 </Text>
               </Flex>
               <Marquee delay={2} speed={33} pauseOnHover>
@@ -201,18 +204,51 @@ export function Dashboard() {
             </Grid>
           </Card>
         </Box>
-        <Box>
-          <Flex gap="2" align="center">
-            <LightningBoltIcon />
-            <Text color="gray">Top Platforms this week</Text>
-          </Flex>
-        </Box>
-        <CreatorList creators={trendingCreators.slice(0, 5)} />
+
+
+        <Flex gap="2" align="center" justify="between">
+          <Text color="gray">
+            Top Platforms this week
+          </Text>
+          <Link asChild>
+            <NavLink to="/platforms">
+              View all <ArrowRightIcon />
+            </NavLink>
+          </Link>
+        </Flex>
+
+          <ScrollArea>
+
+        <Flex gap="2" pb="1">
+          {trendingCreators.slice(0, 8).map((platform, i) => (
+            <TopPlayLink key={platform.creator} to={`/platform/${platform.creator}`}>
+              <Card size="2">
+                <Grid gap="2">
+                  <Flex justify="center">
+                    <Avatar
+                      size="2"
+                      src={getCreatorMeta(platform.creator).image}
+                      fallback={platform.creator.substr(0,3)}
+                    />
+                  </Flex>
+                  <Text size="1" style={{width: '100px', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', whiteSpace: 'nowrap'}}>
+                    {getCreatorMeta(platform.creator).name}
+                  </Text>
+                </Grid>
+                <Badge style={{position: 'absolute', right: 0, top: 0}}>
+                  #{1 + i}
+                </Badge>
+              </Card>
+            </TopPlayLink>
+          ))}
+        </Flex>
+          </ScrollArea>
+
 
         <Box>
-          <Text color="gray">All Platforms</Text>
+          <Text color="gray">Recent Plays</Text>
         </Box>
-        <CreatorList creators={creators} />
+        <RecentPlays />
       </Grid>
     </Container>
   )

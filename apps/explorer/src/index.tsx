@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 
 function Root() {
   return (
-    <Theme accentColor="iris" grayColor="slate" radius="large" scaling="110%">
+    <Theme accentColor="iris" grayColor="slate" radius="large" scaling="105%">
       <BrowserRouter>
         <ConnectionProvider
           endpoint={import.meta.env.GAMBA_SOLANA_RPC}

@@ -1,14 +1,12 @@
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Button, Flex, Link, Table, Text } from '@radix-ui/themes'
+import { Avatar, Badge, Box, Button, Flex, Table, Text } from '@radix-ui/themes'
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import styled from 'styled-components'
 import { Money } from './Money'
 import { RecentBet, getBets } from './api'
-import { PlatformIcon, PlatformText } from './components/PlatformText'
-import { getCreatorMeta } from './data'
-import styled from 'styled-components'
-import { truncateString } from './utils'
+import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 import { TableRowNavLink } from './components/TableRowLink'
+import { truncateString } from './utils'
 
 const timeAgo = (time: number) => {
   const diff = Date.now() - time
@@ -98,15 +96,12 @@ export function RecentPlays({creator, player}: {creator?: string, player?: strin
               <TableRowNavLink to={'/play/' + transaction.signature} key={transaction.signature}>
                 {!creator && (
                   <Table.Cell>
-                    <PlatformText address={transaction.creator} />
+                    <PlatformAccountItem address={transaction.creator} />
                   </Table.Cell>
                 )}
                 {!player && (
                   <Table.Cell>
-                    <Flex gap="2">
-                      <PlatformIcon />
-                      {truncateString(transaction.player)}
-                    </Flex>
+                    <PlayerAccountItem address={transaction.player} />
                   </Table.Cell>
                 )}
                 <Table.Cell>

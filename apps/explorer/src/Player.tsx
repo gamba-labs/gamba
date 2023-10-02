@@ -3,7 +3,7 @@ import { Box, Container, Grid, Link, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import { RecentPlays } from './RecentPlays'
-import { PlatformText } from './components/PlatformText'
+import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 
 export function PlayerView() {
   const { address } = useParams<{address: string}>()
@@ -15,7 +15,7 @@ export function PlayerView() {
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeaderCell>
-                <PlatformText address={address!} />
+                <PlayerAccountItem address={address!} />
               </Table.ColumnHeaderCell>
             </Table.Row>
           </Table.Header>

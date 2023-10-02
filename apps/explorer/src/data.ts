@@ -82,5 +82,5 @@ const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({
 }), {} as Record<string, CreatorMeta>)
 
 export const getCreatorMeta = (address: string | PublicKey) => {
-  return CREATORS_BY_ADDRESS[address.toString()] ?? { address, name: truncateString(address.toString()) }
+  return CREATORS_BY_ADDRESS[address.toString()] ?? { address: address.toString(), name: truncateString(address.toString()) }
 }

@@ -11,7 +11,7 @@ interface Props extends TableRowProps, Omit<React.RefAttributes<HTMLTableRowElem
 const StyledTableRow = styled(Table.Row)`
   cursor: pointer;
   &:hover {
-    background: var(--accent-a2);
+    background: var(--accent-a1);
   }
 `
 

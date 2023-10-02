@@ -7,7 +7,7 @@ import { GameResult, ParsedGambaTransaction, parseGambaTransaction } from 'gamba
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import { Money } from './Money'
-import { PlatformText } from './components/PlatformText'
+import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 import styles from './test.module.css'
 import { isSignature } from './utils'
 import { Loader } from './components/Loader'
@@ -218,7 +218,7 @@ function TransactionDetails({parsed}: {parsed: ParsedGambaTransaction}) {
               </Text>
               <Link asChild>
                 <NavLink to={'/platform/' + gameResult.creator.toBase58()}>
-                  <PlatformText address={gameResult.creator} />
+                  <PlatformAccountItem address={gameResult.creator} />
                 </NavLink>
               </Link>
             </Grid>
@@ -233,7 +233,7 @@ function TransactionDetails({parsed}: {parsed: ParsedGambaTransaction}) {
               </Text>
               <Link asChild>
                 <NavLink to={'/player/' + gameResult.player.toBase58()}>
-                  {gameResult.player.toBase58()}
+                  <PlayerAccountItem address={gameResult.player} />
                 </NavLink>
               </Link>
             </Grid>

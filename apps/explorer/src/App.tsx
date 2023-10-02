@@ -8,6 +8,7 @@ import { PlatformView } from './Platform'
 import { PlayView } from './PlayView'
 import { PlayerView } from './Player'
 import { Search } from './Search'
+import { AllPlatforms } from './AllPlatforms'
 
 export function App() {
   const [search, setSearch] = React.useState('')
@@ -47,10 +48,10 @@ export function App() {
             </Box>
             <Box>
               <Flex gap="4">
-                <Link href="https://github.com/gamba-labs/gamba" target="_blank" rel="noreferrer">
+                <Link size="1" href="https://github.com/gamba-labs/gamba" target="_blank" rel="noreferrer">
                   Github <ExternalLinkIcon />
                 </Link>
-                <Link href="https://gamba.so" target="_blank" rel="noreferrer">
+                <Link size="1" href="https://gamba.so" target="_blank" rel="noreferrer">
                   About <ExternalLinkIcon />
                 </Link>
               </Flex>
@@ -77,6 +78,10 @@ export function App() {
           <Route
             path="/search/:signatureOrAddress"
             element={<Search />}
+          />
+          <Route
+            path="/platforms"
+            element={<AllPlatforms />}
           />
           <Route
             path="/tx/:txid"

@@ -7,7 +7,7 @@ import { Money } from './Money'
 import { RecentPlays } from './RecentPlays'
 import { TopBetResult, TopPlayer, TopPlayerWager, getDailyVolume, getPlayers, getTopBets, getTopPlayers, getTopPlayersByWager } from './api'
 import { Loader } from './components/Loader'
-import { PlatformText } from './components/PlatformText'
+import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 import { TableRowNavLink } from './components/TableRowLink'
 import { DailyVolume, getCreatorMeta } from './data'
 import { truncateString } from './utils'
@@ -88,7 +88,7 @@ export function PlatformView() {
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeaderCell>
-                <PlatformText address={address!} />
+                <PlatformAccountItem address={address!} />
               </Table.ColumnHeaderCell>
             </Table.Row>
           </Table.Header>
@@ -183,9 +183,7 @@ export function PlatformView() {
                     <TableRowNavLink key={i} to={`/player/${player.player}`} style={{flexGrow: '1'}}>
                       <Table.Cell>
                         <Flex gap="2" justify="between">
-                          <Text>
-                            {truncateString(player.player)}
-                          </Text>
+                          <PlayerAccountItem address={player.player} />
                           <Text color="green">
                             <Money lamports={player.total_wager} />
                           </Text>
@@ -210,9 +208,7 @@ export function PlatformView() {
                     <TableRowNavLink key={i} to={`/player/${player.player}`} style={{flexGrow: '1'}}>
                       <Table.Cell>
                         <Flex justify="between" gap="2">
-                          <Text>
-                            {truncateString(player.player)}
-                          </Text>
+                          <PlayerAccountItem address={player.player} />
                           <Text color="green">
                             +<Money lamports={player.net_wins} />
                           </Text>

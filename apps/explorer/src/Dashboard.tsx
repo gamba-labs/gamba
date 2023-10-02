@@ -1,8 +1,9 @@
-import { StarFilledIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Card, Container, Flex, Grid, Link, Table, Text } from '@radix-ui/themes'
+import { LightningBoltIcon, StarFilledIcon } from '@radix-ui/react-icons'
+import { Badge, Box, Card, Container, Flex, Grid, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import Marquee from 'react-fast-marquee'
 import { NavLink } from 'react-router-dom'
+import styled from 'styled-components'
 import { Graph } from './Graph'
 import { Money } from './Money'
 import { END_TIME, TopBetResult, getCreators, getDailyVolume, getPlayers, getTopBets } from './api'
@@ -10,8 +11,6 @@ import { Loader } from './components/Loader'
 import { PlatformText } from './components/PlatformText'
 import { TableRowNavLink } from './components/TableRowLink'
 import { DailyVolume, getCreatorMeta } from './data'
-import styled from 'styled-components'
-import { DocumentTitle } from './useDocumentTitle'
 
 const TopPlayLink = styled(NavLink)`
   text-decoration: none;
@@ -50,6 +49,7 @@ export function VolumeGraph({ creator }: {creator?: string}) {
 function useDashboard() {
   const [loading, setLoading] = React.useState(true)
   const [creators, setCreators] = React.useState<{creator: string, volume: number}[]>([])
+  const [trendingCreators, setTrendingCreators] = React.useState<{creator: string, volume: number}[]>([])
   const [uniquePlayers, setUniquePlayers] = React.useState(0)
   const [topBets, setTopBets] = React.useState<TopBetResult>({ top_multiplier: [], top_profit: [] })
 
@@ -58,6 +58,7 @@ function useDashboard() {
       try {
         setLoading(true)
         setCreators(await getCreators())
+        setTrendingCreators(await getCreators({days: 7}))
         setUniquePlayers(await getPlayers({startTime: 0, endTime: END_TIME}))
         setTopBets(await getTopBets())
       } finally {
@@ -67,11 +68,55 @@ function useDashboard() {
     fetch()
   }, [])
 
-  return {loading, creators, uniquePlayers, topBets}
+  return {loading, creators, trendingCreators, uniquePlayers, topBets}
+}
+
+function CreatorList({creators}: {creators: {creator: string, volume: number}[]}) {
+  return (
+    <Table.Root className="CreatorsTable" variant="surface">
+      <Table.Header>
+        <Table.Row>
+          <Table.ColumnHeaderCell>
+            #
+          </Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>
+            Platform
+          </Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell align="right">
+            Volume
+          </Table.ColumnHeaderCell>
+        </Table.Row>
+      </Table.Header>
+
+      <Table.Body>
+        {creators.map((creator, i) => {
+          const { creator: address, volume } = creator
+          const index = creators.indexOf(creator)
+          return (
+            <TableRowNavLink key={i} to={'/platform/' + address}>
+            <Table.Cell>
+              <Text>
+                {index + 1}
+              </Text>
+            </Table.Cell>
+              <Table.Cell>
+                <PlatformText address={address} />
+              </Table.Cell>
+              <Table.Cell align="right">
+                <Text>
+                  <Money lamports={volume} />
+                </Text>
+              </Table.Cell>
+            </TableRowNavLink>
+          )
+        })}
+      </Table.Body>
+    </Table.Root>
+  )
 }
 
 export function Dashboard() {
-  const {loading, creators, topBets, uniquePlayers} = useDashboard()
+  const {loading, trendingCreators, creators, topBets, uniquePlayers} = useDashboard()
 
   const totalVolume = React.useMemo(() => {
     return creators.reduce((prev, creator) => prev + creator.volume, 0)
@@ -156,51 +201,18 @@ export function Dashboard() {
             </Grid>
           </Card>
         </Box>
+        <Box>
+          <Flex gap="2" align="center">
+            <LightningBoltIcon />
+            <Text color="gray">Top Platforms this week</Text>
+          </Flex>
+        </Box>
+        <CreatorList creators={trendingCreators.slice(0, 5)} />
 
         <Box>
-          <Grid gap="2">
-            <Table.Root className="CreatorsTable" variant="surface">
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeaderCell>
-                    #
-                  </Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>
-                    Platform
-                  </Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell align="right">
-                    Volume
-                  </Table.ColumnHeaderCell>
-                </Table.Row>
-              </Table.Header>
-
-              <Table.Body>
-                {creators.map((creator, i) => {
-                  const { creator: address, volume } = creator
-                  const creatorMeta = getCreatorMeta(address)
-                  const index = creators.indexOf(creator)
-                  return (
-                    <TableRowNavLink key={i} to={'/platform/' + address}>
-                    <Table.Cell>
-                      <Text>
-                        {index + 1}
-                      </Text>
-                    </Table.Cell>
-                      <Table.Cell>
-                        <PlatformText address={address} />
-                      </Table.Cell>
-                      <Table.Cell align="right">
-                        <Text>
-                          <Money lamports={volume} />
-                        </Text>
-                      </Table.Cell>
-                    </TableRowNavLink>
-                  )
-                })}
-              </Table.Body>
-            </Table.Root>
-          </Grid>
+          <Text color="gray">All Platforms</Text>
         </Box>
+        <CreatorList creators={creators} />
       </Grid>
     </Container>
   )

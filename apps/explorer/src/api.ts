@@ -5,10 +5,10 @@ const URL = 'https://209.38.229.113.nip.io:3001'
 const ONE_DAY = 1000 * 60 * 60 * 24
 
 const daysAgo = (daysAgo: number) => {
-  const now = new Date();
-  const then = new Date();
+  const now = new Date()
+  const then = new Date()
   then.setDate(now.getDate() - daysAgo)
-  then.setHours(0, 0, 0, 0);
+  then.setHours(0, 0, 0, 0)
   return then.getTime()
 }
 
@@ -20,8 +20,9 @@ export const getDailyVolume = async (creator?: string) => {
   return (await res.json()).daily_volumes as DailyVolume[]
 }
 
-export const getCreators = async () => {
-  const res = await window.fetch(URL + '/stats/creators?start=' + 0 + '&end=' + END_TIME / 1000 + '&creator=' + '')
+export const getCreators = async (params?: {days?: number}) => {
+  const startTime = !params?.days ? 0 : daysAgo(params.days)
+  const res = await window.fetch(URL + `/stats/creators?start=${startTime/1000}&end=` + END_TIME / 1000 + '&creator=' + '')
   const creators = (await res.json()).creators as {creator: string, volume: number}[]
   return creators.sort((a, b) => b.volume - a.volume)
 }

@@ -140,16 +140,6 @@ function TrendingPlatforms() {
 export function Dashboard() {
   const { data, isLoading } = useApi('/stats/top-bets', {start: seconds(daysAgo(7))})
 
-  if (isLoading || !data) {
-    return (
-      <Container>
-        <Flex align="center" justify="center" p="4">
-          <Loader />
-        </Flex>
-      </Container>
-    )
-  }
-
   return (
     <Container>
       <Grid style={{maxWidth: '100%'}} gap="4">
@@ -164,7 +154,7 @@ export function Dashboard() {
               </Flex>
               <Marquee delay={2} speed={33} pauseOnHover>
                 <Flex gap="4" justify="between">
-                  {data.top_multiplier.slice(0, 10).map((x, i) => (
+                  {data?.top_multiplier.slice(0, 10).map((x, i) => (
                     <TopPlayLink key={i} to={'/play/' + x.signature} style={{ borderRadius: '20px', padding: '0 5px' }}>
                       <Flex justify="center" gap="2" align="center">
                         <Text color="gray">

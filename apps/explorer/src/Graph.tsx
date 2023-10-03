@@ -140,7 +140,7 @@ const _Graph = ({ width, height, dailyVolume: _dailyVolume, onHover }: AreaProps
 
 export function Graph(props: Omit<AreaProps, 'width' | 'height'>) {
   return (
-    <ParentSize>
+    <ParentSize debounceTime={250}>
       {(parent) => (
         <_Graph
           {...props}

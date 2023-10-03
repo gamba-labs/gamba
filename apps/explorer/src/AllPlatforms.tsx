@@ -1,60 +1,10 @@
-import { Box, Card, Container, Flex, Grid, Table, Text } from '@radix-ui/themes'
+import { Box, Container, Flex, Grid, Table, Text } from '@radix-ui/themes'
 import React from 'react'
-import { Graph } from './Graph'
 import { Money } from './Money'
-import { getCreators, getDailyVolume } from './api'
-import { Loader } from './components/Loader'
+import { useApi } from './api'
 import { PlatformAccountItem } from './components/AccountItem'
+import { Loader } from './components/Loader'
 import { TableRowNavLink } from './components/TableRowLink'
-import { DailyVolume } from './data'
-
-export function VolumeGraph({ creator }: {creator?: string}) {
-  const [dailyVolume, setDailyVolume] = React.useState<DailyVolume[]>([])
-  const [hovered, setHovered] = React.useState<DailyVolume | null>(null)
-
-  React.useEffect(() => {
-    getDailyVolume(creator).then(setDailyVolume).catch(console.error)
-  }, [])
-
-  const totalVolume = React.useMemo(() => {
-    return dailyVolume.reduce((prev, creator) => prev + creator.total_volume, 0)
-  }, [dailyVolume])
-
-  return (
-    <Card size="2">
-      <Grid gap="2">
-        <Text color="gray">
-          {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '30d Volume'}
-        </Text>
-        <Text size="7" weight="bold">
-          <Money lamports={hovered?.total_volume ?? totalVolume} />
-        </Text>
-        <Box style={{height: '200px'}}>
-          <Graph onHover={setHovered} dailyVolume={dailyVolume} />
-        </Box>
-      </Grid>
-    </Card>
-  )
-}
-
-function useDashboard() {
-  const [loading, setLoading] = React.useState(true)
-  const [creators, setCreators] = React.useState<{creator: string, volume: number}[]>([])
-
-  React.useEffect(() => {
-    const fetch = async () => {
-      try {
-        setLoading(true)
-        setCreators(await getCreators())
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetch()
-  }, [])
-
-  return {loading, creators}
-}
 
 function CreatorList({creators}: {creators: {creator: string, volume: number}[]}) {
   return (
@@ -101,14 +51,27 @@ function CreatorList({creators}: {creators: {creator: string, volume: number}[]}
 }
 
 export function AllPlatforms() {
-  const {loading, creators} = useDashboard()
+  const { data, isLoading, error } = useApi('/stats/creators')
 
-  if (loading) {
+  const sorted = React.useMemo(
+    () => data?.creators.sort((a, b) => b.volume - a.volume),
+    [data?.creators]
+  )
+
+  if (isLoading) {
     return (
       <Container>
         <Flex align="center" justify="center" p="4">
           <Loader />
         </Flex>
+      </Container>
+    )
+  }
+
+  if (error || !sorted) {
+    return (
+      <Container>
+        Failed to fetch all platforms
       </Container>
     )
   }
@@ -119,7 +82,7 @@ export function AllPlatforms() {
         <Box>
           <Text color="gray">All Platforms</Text>
         </Box>
-        <CreatorList creators={creators} />
+        <CreatorList creators={sorted} />
       </Grid>
     </Container>
   )

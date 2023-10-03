@@ -1,17 +1,18 @@
-import { CodeIcon, ExternalLinkIcon, IconJarLogoIcon, MixIcon, ResetIcon } from '@radix-ui/react-icons'
+import { CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from '@radix-ui/react-icons'
 import { Badge, Box, Button, Callout, Card, Code, Container, Dialog, Flex, Grid, IconButton, Link, Table, Tabs, Text, TextField } from '@radix-ui/themes'
 import { useConnection } from '@solana/wallet-adapter-react'
-import { ParsedTransactionWithMeta } from '@solana/web3.js'
+import { Connection } from '@solana/web3.js'
 import clsx from 'clsx'
 import { GameResult, ParsedGambaTransaction, parseGambaTransaction } from 'gamba'
 import React from 'react'
 import { NavLink, useParams } from 'react-router-dom'
+import useSWR from 'swr'
 import { Money } from './Money'
 import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
+import { CodeBlock } from './components/CodeBlock'
+import { Loader } from './components/Loader'
 import styles from './test.module.css'
 import { isSignature } from './utils'
-import { Loader } from './components/Loader'
-import { CodeBlock } from './components/CodeBlock'
 
 const VerificationSection: React.FC<{parsed: GameResult, nextRngSeed: string}> = ({ parsed, nextRngSeed }) => {
   const [output, setOutput] = React.useState<string>()
@@ -331,50 +332,27 @@ function TransactionDetails({parsed}: {parsed: ParsedGambaTransaction}) {
   )
 }
 
-function useTransaction(txId: string) {
-  const { connection } = useConnection()
-  const [transaction, setTransaction] = React.useState<ParsedTransactionWithMeta>()
-  const [loading, setLoading] = React.useState(true)
-
-  React.useEffect(
-    () => {
-      const fetch = async () => {
-        try {
-          setLoading(true)
-          if (isSignature(txId)) {
-            const tx = await connection.getParsedTransaction(txId)
-            if (tx) {
-              setTransaction(tx)
-            }
-          }
-        } finally {
-          setLoading(false)
-        }
-      }
-      fetch()
-    },
-    [txId],
-  )
+async function fetchGambaTransaction(connection: Connection, txId: string) {
+  if (!isSignature(txId)) throw new Error('Not a valid signature')
+  const transaction = await connection.getParsedTransaction(txId)
+  if (!transaction) throw new Error('Transaction doesnt exist')
+  const parsed = parseGambaTransaction(transaction)
   const logs = transaction?.meta?.logMessages ?? []
-  const parsed = React.useMemo(() => {
-    if (transaction) {
-      return parseGambaTransaction(transaction)
-    }
-  }, [transaction])
-  return {transaction, loading, logs, parsed}
+
+  const key = 'Program log: [Gamba] next_rng_seed_hashed: '
+  const a = logs?.find((x) => x.startsWith(key))
+  const nextRngSeedHashed = a ? JSON.parse(a.split(key)[1] ?? '""') : ''
+
+  return {transaction, logs, parsed, nextRngSeedHashed}
 }
 
 export function PlayView() {
-  const { txid } = useParams<{txid: string}>()
-  const { loading, transaction, parsed, logs } = useTransaction(txid!)
+  const { connection } = useConnection()
+  const params = useParams<{txid: string}>()
+  const txId = params.txid!
+  const { data, isLoading, error } = useSWR('tx-'+txId, () => fetchGambaTransaction(connection, txId))
 
-  const nextRngSeed = React.useMemo(() => {
-    const key = 'Program log: [Gamba] next_rng_seed_hashed: '
-    const a = logs?.find((x) => x.startsWith(key))
-    return a ? JSON.parse(a.split(key)[1] ?? '""') : ''
-  }, [logs])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Container>
         <Flex align="center" justify="center" p="4">
@@ -384,11 +362,15 @@ export function PlayView() {
     )
   }
 
-  if (!parsed || !transaction) {
-    return null
+  if (error || !data) {
+    return (
+      <Container>
+        Failed to fetch transaction: {JSON.stringify(error)}
+      </Container>
+    )
   }
 
-  const gameResult = parsed.event.gameResult!
+  const gameResult = data.parsed.event.gameResult!
 
   const moreThanOne = gameResult.bet.filter((x) => x >= 1)
   const sum = gameResult.bet.reduce((p, x) => p + x, 0)
@@ -439,7 +421,7 @@ export function PlayView() {
                         House Edge
                       </Text>
                       <Text size="6" color="green" weight="bold">
-                        {parseFloat((100 - oddsScore * 100).toFixed(3))}%
+                        {parseFloat((100 - oddsScore * 100).toFixed(1))}%
                       </Text>
                     </Grid>
                   </Card>
@@ -453,14 +435,14 @@ export function PlayView() {
               </Callout.Root>
             )}
 
-              <TransactionDetails parsed={parsed} />
+              <TransactionDetails parsed={data.parsed} />
               <Card>
                 <Grid gap="2">
                   <Text color="gray">
                     Program Logs
                   </Text>
                   <Flex direction="column" gap="1">
-                    {logs.map((x, i) => (
+                    {data.logs.map((x, i) => (
                       <Code style={{wordBreak: 'break-all'}} size="1" key={i}>{x}</Code>
                     ))}
                   </Flex>
@@ -471,7 +453,7 @@ export function PlayView() {
           <Tabs.Content value="verification">
             <VerificationSection
               parsed={gameResult}
-              nextRngSeed={nextRngSeed}
+              nextRngSeed={data.nextRngSeedHashed}
             />
           </Tabs.Content>
         </Grid>

@@ -7,8 +7,8 @@ import { Dashboard } from './Dashboard'
 import { PlatformView } from './Platform'
 import { PlayView } from './PlayView'
 import { PlayerView } from './Player'
-import { Search } from './Search'
 import { AllPlatforms } from './AllPlatforms'
+import { isPubkey, isSignature } from './utils'
 
 export function App() {
   const [search, setSearch] = React.useState('')
@@ -17,7 +17,13 @@ export function App() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     const _search = search.trim()
-    navigate('/search/' + _search)
+    if (isSignature(_search)) {
+      navigate('/play/' + _search)
+    } else if (isPubkey(_search)) {
+      navigate('/creator/' + _search)
+    } else {
+      return alert('Invalid signature or address')
+    }
     setSearch('')
   }
 
@@ -60,24 +66,10 @@ export function App() {
         </Container>
       </Box>
       <Container p="4">
-        {/* <Box mb="4">
-          <Callout.Root>
-            <Callout.Icon>
-              <InfoCircledIcon />
-            </Callout.Icon>
-            <Callout.Text>
-              The explorer is in Beta. Come back soon for more stats and filtering options!
-            </Callout.Text>
-          </Callout.Root>
-        </Box> */}
         <Routes>
           <Route
             path="/"
             element={<Dashboard />}
-          />
-          <Route
-            path="/search/:signatureOrAddress"
-            element={<Search />}
           />
           <Route
             path="/platforms"

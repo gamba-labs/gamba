@@ -39,7 +39,7 @@ export const CREATORS = [
     image: '/logos/pepesolana.png',
   },
   {
-    address: 'BqA8jwLmzapMQPpsjX6e7BJEFGckPTVxhg6gBr16hsZx',
+    address: '3wHhNeDcK69AsPQnFJ6buzA15y8MtdTmX2zkDEABr7c7',
     name: 'Killer Bunnies',
     url: 'https://skbgaming.solkillerbunnies.io',
     image: '/logos/killerbunnies.png',
@@ -73,6 +73,12 @@ export const CREATORS = [
     name: 'Wolf Solana Casino',
     url: 'https://wolf-solana.vercel.app',
     image: '/logos/wolfsolanacasino.png',
+  },
+  {
+    address: 'HTpxLUzG2pgyfsbCW9ANwRxqyEPawQNuw2VA5N6UPhip',
+    name: 'Sweetscoin',
+    url: 'https://play.sweetsmart.xyz',
+    image: '/logos/sweetscoin.png',
   },
 ]
 

@@ -1,12 +1,11 @@
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { Avatar, Badge, Box, Button, Flex, Table, Text } from '@radix-ui/themes'
+import { Badge, Box, Button, Table, Text } from '@radix-ui/themes'
 import React from 'react'
-import styled from 'styled-components'
+import useSWRInfinite from 'swr/infinite'
 import { Money } from './Money'
-import { RecentBet, getBets } from './api'
+import { BetsResponse, apiFetcher, getUrl } from './api'
 import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 import { TableRowNavLink } from './components/TableRowLink'
-import { truncateString } from './utils'
 
 const timeAgo = (time: number) => {
   const diff = Date.now() - time
@@ -26,42 +25,21 @@ const timeAgo = (time: number) => {
   return 'Just now'
 }
 
-const Skeleton = styled.div`
-  @keyframes skeleton-pulse {
-    0%, 100% {
-      opacity: 1
-    }
-    50% {
-      opacity: .5
-    }
-  }
-  display: inline-block;
-  width: 420px;
-  border-radius: 2px;
-  background: #cccccc33;
-  animation: skeleton-pulse 1s infinite ease;
-`
-
 export function RecentPlays({creator, player}: {creator?: string, player?: string}) {
-  const [page, setPage] = React.useState(0)
-  const latestPage = React.useRef(-1)
-  const [recentBets, setRecentBets] = React.useState<RecentBet[]>([])
-  const [loading, setLoading] = React.useState(true)
+  const itemsPerPage = 10
+  const {
+    data,
+    mutate,
+    size,
+    setSize,
+    isValidating,
+    isLoading,
+  } = useSWRInfinite<BetsResponse>(
+    (index) =>
+      getUrl('/bets', {creator, player, limit: itemsPerPage, skip: index * itemsPerPage}),
+    apiFetcher
+  );
 
-  React.useEffect(
-    () => {
-      if (latestPage.current === page) {
-        return
-      }
-      latestPage.current = page
-      setLoading(true)
-      getBets({page, creator, player})
-        .then((x) => setRecentBets((previous) => [...previous, ...x]))
-        .catch(console.error)
-        .finally(() => setLoading(false))
-    }
-    , [page],
-  )
 
   return (
     <Box>
@@ -90,45 +68,49 @@ export function RecentPlays({creator, player}: {creator?: string, player?: strin
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {recentBets.map((transaction, i) => {
-            const payout = transaction.wager * transaction.multiplier
-            return (
-              <TableRowNavLink to={'/play/' + transaction.signature} key={transaction.signature}>
-                {!creator && (
-                  <Table.Cell>
-                    <PlatformAccountItem address={transaction.creator} />
-                  </Table.Cell>
-                )}
-                {!player && (
-                  <Table.Cell>
-                    <PlayerAccountItem address={transaction.player} />
-                  </Table.Cell>
-                )}
-                <Table.Cell>
-                  <Text>
-                    <Money lamports={transaction.wager} />
-                  </Text>
-                </Table.Cell>
-                <Table.Cell>
-                  <Text mr="2">
-                    <Money lamports={payout} />
-                  </Text>
-                  <Badge color={payout >= transaction.wager ? 'green' : 'gray'}>
-                    {Math.abs(transaction.multiplier).toFixed(2)}x
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell align="right">
-                  {timeAgo(transaction.blockTime * 1000)}
-                </Table.Cell>
-              </TableRowNavLink>
+          {data?.flatMap(
+            (page) => page.bets.map(
+              (transaction, i) => {
+                const payout = transaction.wager * transaction.multiplier
+                return (
+                  <TableRowNavLink to={'/play/' + transaction.signature} key={transaction.signature}>
+                    {!creator && (
+                      <Table.Cell>
+                        <PlatformAccountItem address={transaction.creator} />
+                      </Table.Cell>
+                    )}
+                    {!player && (
+                      <Table.Cell>
+                        <PlayerAccountItem address={transaction.player} />
+                      </Table.Cell>
+                    )}
+                    <Table.Cell>
+                      <Text>
+                        <Money lamports={transaction.wager} />
+                      </Text>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Text mr="2">
+                        <Money lamports={payout} />
+                      </Text>
+                      <Badge color={payout >= transaction.wager ? 'green' : 'gray'}>
+                        {Math.abs(transaction.multiplier).toFixed(2)}x
+                      </Badge>
+                    </Table.Cell>
+                    <Table.Cell align="right">
+                      {timeAgo(transaction.blockTime * 1000)}
+                    </Table.Cell>
+                  </TableRowNavLink>
+                )
+              }
             )
-          })}
+          )}
         </Table.Body>
       </Table.Root>
       <Box mt="2">
         <Button
-          disabled={loading}
-          onClick={() => setPage(page + 1)}
+          disabled={isLoading || isValidating}
+          onClick={() => setSize(size + 1)}
           variant="soft"
           style={{ width: '100%' }}
         >

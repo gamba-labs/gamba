@@ -1,88 +1,30 @@
 import { ExternalLinkIcon } from '@radix-ui/react-icons'
-import { Box, Button, Card, Container, Dialog, Flex, Grid, Link, Table, Text } from '@radix-ui/themes'
+import { Box, Button, Container, Dialog, Flex, Grid, Link, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import { Graph } from './Graph'
+import { VolumeGraph } from './Dashboard'
 import { Money } from './Money'
 import { RecentPlays } from './RecentPlays'
-import { TopBetResult, TopPlayer, TopPlayerWager, getDailyVolume, getPlayers, getTopBets, getTopPlayers, getTopPlayersByWager } from './api'
-import { Loader } from './components/Loader'
+import { daysAgo, seconds, useApi } from './api'
 import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 import { TableRowNavLink } from './components/TableRowLink'
-import { DailyVolume, getCreatorMeta } from './data'
-import { truncateString } from './utils'
+import { getCreatorMeta } from './data'
 import { DocumentTitle } from './useDocumentTitle'
-
-function usePlatform(creator: string) {
-  const meta = getCreatorMeta(creator)
-  const [loading, setLoading] = React.useState(true)
-  const [uniquePlayers, setUniquePlayers] = React.useState(0)
-  const [topPlayers, setTopPlayers] = React.useState<TopPlayer[]>([])
-  const [topBets, setTopBets] = React.useState<TopBetResult>(null!)
-  const [topPlayersByWager, setTopPlayersByWager] = React.useState<TopPlayerWager[]>([])
-  const [dailyVolume, setDailyVolume] = React.useState<DailyVolume[]>([])
-
-  React.useEffect(
-    () => {
-      const fetch = async () => {
-        try {
-          setLoading(true)
-          setTopBets(await getTopBets({creator}))
-          setDailyVolume(await getDailyVolume(creator))
-          setUniquePlayers(await getPlayers({creator: creator, startTime: 0, endTime: Date.now()}))
-          setTopPlayers(await getTopPlayers({creator: creator}))
-          setTopPlayersByWager(await getTopPlayersByWager({creator: creator}))
-        } finally {
-          setLoading(false)
-        }
-      }
-      fetch()
-    },
-    [creator]
-  )
-
-  return {meta, topBets, uniquePlayers, dailyVolume, topPlayers, topPlayersByWager, loading}
-}
 
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
-  const { meta, uniquePlayers, dailyVolume, topPlayers, topPlayersByWager, loading } = usePlatform(address!)
-  const [hovered, setHovered] = React.useState<DailyVolume | null>(null)
-
-  const totalVolume = React.useMemo(() => {
-    return dailyVolume.reduce((prev, creator) => prev + creator.total_volume, 0)
-  }, [dailyVolume])
-
-  if (loading) {
-    return (
-      <Container>
-        <DocumentTitle title={meta.name} />
-        <Flex justify="center" align="center" p="4">
-          <Loader />
-        </Flex>
-      </Container>
-    )
-  }
+  const creator = address!
+  const meta = getCreatorMeta(creator)
+  const { data: topPlayersByWagerData } = useApi('/top-players/total-wager', { creator, start: seconds(daysAgo(7)) })
+  const { data: topPlayersByProfitData } = useApi('/top-players/winners', { creator, start: seconds(daysAgo(7)) })
+  const { data: uniquePlayerData } = useApi('/unique-players', { creator })
 
   return (
     <Container>
       <DocumentTitle title={meta.name} />
+      {/* <Button color="green" onClick={() => setIFrame(true)}>Play now</Button> */}
       <Grid gap="4">
-        {dailyVolume.length >= 5 && (
-          <Card size="2">
-            <Grid gap="2">
-              <Text color="gray">
-                {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '30d Volume'}
-              </Text>
-              <Text size="7" weight="bold">
-                <Money lamports={hovered?.total_volume ?? totalVolume} />
-              </Text>
-              <Box style={{height: '200px'}}>
-                <Graph onHover={setHovered} dailyVolume={dailyVolume} />
-              </Box>
-            </Grid>
-          </Card>
-        )}
+        <VolumeGraph creator={address} />
 
         <Table.Root variant="surface">
           <Table.Header>
@@ -154,7 +96,7 @@ export function PlatformView() {
                     Players
                   </Text>
                   <Text>
-                    {uniquePlayers}
+                    {uniquePlayerData?.unique_players}
                   </Text>
                 </Grid>
               </Table.Cell>
@@ -163,7 +105,7 @@ export function PlatformView() {
           </Table.Body>
         </Table.Root>
 
-        {topPlayers.length > 0 && topPlayersByWager.length > 0 && (
+        {topPlayersByWagerData?.players.length && topPlayersByProfitData?.players.length && (
           <>
             <Text color="gray">
               7d Leaderboard
@@ -179,7 +121,7 @@ export function PlatformView() {
                 </Table.Header>
 
                 <Table.Body>
-                  {topPlayersByWager.slice(0, 6).map((player, i) => (
+                  {topPlayersByWagerData?.players.slice(0, 6).map((player, i) => (
                     <TableRowNavLink key={i} to={`/player/${player.player}`} style={{flexGrow: '1'}}>
                       <Table.Cell>
                         <Flex gap="2" justify="between">
@@ -204,7 +146,7 @@ export function PlatformView() {
                 </Table.Header>
 
                 <Table.Body>
-                  {topPlayers.slice(0, 6).map((player, i) => (
+                  {topPlayersByProfitData?.players.slice(0, 6).map((player, i) => (
                     <TableRowNavLink key={i} to={`/player/${player.player}`} style={{flexGrow: '1'}}>
                       <Table.Cell>
                         <Flex justify="between" gap="2">

@@ -32,7 +32,8 @@
     "react-dom": "^18.2.0",
     "react-fast-marquee": "^1.6.1",
     "react-router-dom": "^6.10.0",
-    "styled-components": "^6.0.8"
+    "styled-components": "^6.0.8",
+    "swr": "^2.2.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

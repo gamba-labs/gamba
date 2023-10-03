@@ -14,9 +14,9 @@ export default defineConfig(() => ({
     react(),
     VitePWA({
       base: '/',
-      includeAssets: [
-        '/favicon.png',
-      ],
+      // includeAssets: [
+      //   '/favicon.png',
+      // ],
       manifest: {
         name: 'Gamba Explorer',
         short_name: 'GambaExplorer',
@@ -37,11 +37,11 @@ export default defineConfig(() => ({
           },
         ],
       },
-      devOptions: {
-        enabled: true,
-        type: 'module',
-        navigateFallback: 'index.html',
-      },
+      // devOptions: {
+      //   enabled: true,
+      //   type: 'module',
+      //   navigateFallback: 'index.html',
+      // },
     }),
   ],
 }))

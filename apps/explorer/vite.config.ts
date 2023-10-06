@@ -14,9 +14,9 @@ export default defineConfig(() => ({
     react(),
     VitePWA({
       base: '/',
-      // includeAssets: [
-      //   '/favicon.png',
-      // ],
+      workbox: {
+        cleanupOutdatedCaches: true,
+      },
       manifest: {
         name: 'Gamba Explorer',
         short_name: 'GambaExplorer',

@@ -60,30 +60,30 @@ export function AllPlatforms() {
 
   if (isLoading) {
     return (
-      <Container>
+      <>
         <Flex align="center" justify="center" p="4">
           <Loader />
         </Flex>
-      </Container>
+      </>
     )
   }
 
   if (error || !sorted) {
     return (
-      <Container>
+      <>
         Failed to fetch all platforms
-      </Container>
+      </>
     )
   }
 
   return (
-    <Container>
-      <Grid gap="4">
+    <>
+      <Flex direction="column" gap="4">
         <Box>
           <Text color="gray">All Platforms</Text>
         </Box>
         <CreatorList creators={sorted} />
-      </Grid>
-    </Container>
+      </Flex>
+    </>
   )
 }

@@ -1,17 +1,22 @@
 import { ExternalLinkIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Box, Container, Flex, Link, TextField } from '@radix-ui/themes'
 import React from 'react'
-import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
-import styles from './App.module.css'
+import { NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+import { AllPlatforms } from './AllPlatforms'
 import { Dashboard } from './Dashboard'
 import { PlatformView } from './Platform'
 import { PlayView } from './PlayView'
 import { PlayerView } from './Player'
-import { AllPlatforms } from './AllPlatforms'
 import { isPubkey, isSignature } from './utils'
+
+const Header = styled(Box)`
+  background-color: var(--color-panel);
+`
 
 export function App() {
   const [search, setSearch] = React.useState('')
+  const location = useLocation()
   const navigate = useNavigate()
 
   const submit = (e: React.FormEvent) => {
@@ -27,16 +32,18 @@ export function App() {
     setSearch('')
   }
 
+  React.useEffect(() =>
+    document.body.scrollTo({ top: 0, left: 0 })
+  , [location.key])
+
   return (
     <>
-      <Box className={styles.header} p="2" px="4">
+      <Header p="2" px="4">
         <Container>
           <Flex gap="4" align="center">
-            <Box>
-              <NavLink to="/">
-                <img alt="Gamba Explorer" src="/logo2.svg" height="35" />
-              </NavLink>
-            </Box>
+            <NavLink to="/" style={{height: 40, width: 40, display: 'flex'}}>
+              <img alt="Gamba Explorer" src="/logo.svg" height="40" />
+            </NavLink>
             <Box grow="1">
               <form onSubmit={submit}>
                 <TextField.Root size="3" variant="soft">
@@ -64,7 +71,7 @@ export function App() {
             </Box>
           </Flex>
         </Container>
-      </Box>
+      </Header>
       <Container p="4">
         <Routes>
           <Route

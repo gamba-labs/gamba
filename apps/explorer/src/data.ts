@@ -1,11 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import { truncateString } from './utils'
 
-export interface DailyVolume {
-  date: string
-  total_volume: number
-}
-
 interface CreatorMeta {
   address: string
   name: string
@@ -77,7 +72,7 @@ export const CREATORS = [
   {
     address: 'HTpxLUzG2pgyfsbCW9ANwRxqyEPawQNuw2VA5N6UPhip',
     name: 'Sweetscoin',
-    url: 'https://play.sweetsmart.xyz',
+    url: 'https://playsweets.xyz',
     image: '/logos/sweetscoin.png',
   },
 ]

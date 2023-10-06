@@ -9,43 +9,41 @@ export function PlayerView() {
   const { address } = useParams<{address: string}>()
 
   return (
-    <Container>
-      <Grid gap="4">
-        <Table.Root variant="surface">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeaderCell>
-                <PlayerAccountItem address={address!} />
-              </Table.ColumnHeaderCell>
-            </Table.Row>
-          </Table.Header>
+    <Grid gap="4">
+      <Table.Root variant="surface">
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeaderCell>
+              <PlayerAccountItem address={address!} />
+            </Table.ColumnHeaderCell>
+          </Table.Row>
+        </Table.Header>
 
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    Address
-                  </Text>
-                  <Link target="_blank" href={`https://solscan.io/address/${address}`} rel="noreferrer">
-                    {address} <ExternalLinkIcon />
-                  </Link>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
+                  Address
+                </Text>
+                <Link target="_blank" href={`https://solscan.io/address/${address}`} rel="noreferrer">
+                  {address} <ExternalLinkIcon />
+                </Link>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
 
-          </Table.Body>
-        </Table.Root>
+        </Table.Body>
+      </Table.Root>
 
-        <Box>
-          <Grid gap="2">
-            <Text color="gray">
-              Recent plays
-            </Text>
-            <RecentPlays player={address} />
-          </Grid>
-        </Box>
-      </Grid>
-    </Container>
+      <Box>
+        <Grid gap="2">
+          <Text color="gray">
+            Recent plays
+          </Text>
+          <RecentPlays player={address} />
+        </Grid>
+      </Box>
+    </Grid>
   )
 }

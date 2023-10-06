@@ -5,24 +5,41 @@ import { getCreatorMeta } from "../data";
 import { AvatarProps } from "@radix-ui/themes/dist/cjs/components/avatar";
 import { truncateString } from "../utils";
 
-export function PlatformAccountItem({ address }: {address: PublicKey | string}) {
-  const meta = getCreatorMeta(address)
+interface AccountItemProps {
+  address: PublicKey | string
+  name?: string
+  image?: string
+  color?: AvatarProps['color']
+  avatarSize?: AvatarProps['size']
+}
+
+type AccountItemProps2 = Pick<AccountItemProps, 'avatarSize' | 'address'>
+
+export function PlatformAccountItem(props: AccountItemProps2) {
+  const meta = getCreatorMeta(props.address)
   return (
-    <AccountItem image={meta.image} name={meta.name} address={meta.address} />
+    <AccountItem
+      image={meta.image}
+      name={meta.name}
+      {...props}
+    />
   )
 }
 
-export function PlayerAccountItem({ address }: {address: PublicKey | string}) {
+export function PlayerAccountItem(props: AccountItemProps2) {
   return (
-    <AccountItem color="orange" address={address} />
+    <AccountItem
+      color="orange"
+      {...props}
+    />
   )
 }
 
-export function AccountItem({ address, name, image, color }: {address: PublicKey | string, name?: string, image?: string, color?: AvatarProps['color']}) {
+export function AccountItem({ address, name, image, color, avatarSize }: AccountItemProps) {
   return (
-    <Flex gap="2">
+    <Flex gap={avatarSize ? '4' : '2'} align="center">
       <Avatar
-        size="1"
+        size={avatarSize ?? '1'}
         color={color}
         src={image}
         fallback={address.toString().substring(0, 2)}

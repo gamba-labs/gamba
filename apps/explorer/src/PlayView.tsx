@@ -1,5 +1,5 @@
 import { CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Button, Callout, Card, Code, Container, Dialog, Flex, Grid, IconButton, Link, Table, Tabs, Text, TextField } from '@radix-ui/themes'
+import { Badge, Box, Button, Callout, Card, Code, Dialog, Flex, Grid, IconButton, Link, Table, Tabs, Text, TextField } from '@radix-ui/themes'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { Connection } from '@solana/web3.js'
 import clsx from 'clsx'
@@ -11,8 +11,51 @@ import { Money } from './Money'
 import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 import { CodeBlock } from './components/CodeBlock'
 import { Loader } from './components/Loader'
-import styles from './test.module.css'
 import { isSignature } from './utils'
+import styled, { css } from 'styled-components'
+
+const StyledOutcome = styled.div<{rank: number, active: boolean}>`
+  --rank-0: #ff293b;
+  --rank-1: #ff7142;
+  --rank-2: #ffa557;
+  --rank-3: #ffa557;
+  --rank-4: #ffd166;
+  --rank-5: #fff875;
+  --rank-6: #e1ff80;
+  --rank-7: #60ff9b;
+  background-color: var(--slate-2);
+
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  min-width: 2em;
+  text-align: center;
+  position: relative;
+  border-radius: max(var(--radius-1), var(--radius-full));
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    position: absolute;
+    opacity: .05;
+  }
+
+  ${props => props.active && css`
+    box-shadow: 0 0 0 1px currentColor;
+    &:before {
+      opacity: .15;
+    }
+  `}
+
+  ${props => css`
+    color: var(--rank-${props.rank});
+    &:before {
+      background-color: var(--rank-${props.rank});
+    }
+  `}
+`
 
 const VerificationSection: React.FC<{parsed: GameResult, nextRngSeed: string}> = ({ parsed, nextRngSeed }) => {
   const [output, setOutput] = React.useState<string>()
@@ -49,18 +92,114 @@ const VerificationSection: React.FC<{parsed: GameResult, nextRngSeed: string}> =
   }, [script])
 
   return (
-    <Box>
-      <Grid gap="4">
-        <Text size="4" weight="bold">
-          This game is provably fair.
-        </Text>
-        <Text size="2">
-          The result is calculated by combining the <Code>rng_seed</Code> provided by Gamba, the <Code>client_seed</Code> provided by the player, and a <Code>nonce</Code>, which increments by 1 for each player after every play.
-          <br />
-          The sha256 hash for the next RNG Seed is revealed in this transaction just like the one prior.
-          <br />
-          You can simulate the bet here with a custom client seed, to see how it would affect the result.<br />
+    <Flex direction="column" gap="4">
+      <Table.Root variant="surface">
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeaderCell>
+              Simulation
+            </Table.ColumnHeaderCell>
+          </Table.Row>
+        </Table.Header>
 
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
+                  Client Seed {clientSeed !== parsed.clientSeed && '(Edited)'}
+                </Text>
+                <TextField.Root>
+                  <TextField.Input
+                    value={clientSeed}
+                    onChange={(evt) => setClientSeed(evt.target.value)}
+                  />
+                  <TextField.Slot>
+                    <IconButton onClick={() => setClientSeed(Array.from({ length: 16 })
+                      .map(() => (Math.random() * 16 | 0).toString(16))
+                      .join(''))} size="1" variant="ghost">
+                      <MixIcon />
+                    </IconButton>
+                  </TextField.Slot>
+                  <TextField.Slot>
+                    <IconButton disabled={clientSeed === parsed.clientSeed} onClick={() => setClientSeed(parsed.clientSeed)} size="1" variant="ghost">
+                      <ResetIcon />
+                    </IconButton>
+                  </TextField.Slot>
+                </TextField.Root>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
+
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
+                  Nonce
+                </Text>
+                <Text color="gray">
+                  {parsed.nonce}
+                </Text>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
+
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
+                  RNG Seed
+                </Text>
+                <Text color="gray">
+                  {parsed.rngSeed}
+                </Text>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
+
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
+                  Next Hashed RNG Seed (SHA-256)
+                </Text>
+                <Text color="gray">
+                  {nextRngSeed}
+                </Text>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
+
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
+                  Simulated result
+                </Text>
+                <Flex gap="2" align="center">
+                  <Text>Payout:</Text>
+                  {output && (
+                    <Code>{output}</Code>
+                  )}
+                </Flex>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
+
+        </Table.Body>
+      </Table.Root>
+      <Card>
+        <Flex direction="column" gap="4">
+          <Text size="4" weight="bold">
+            This game is provably fair.
+          </Text>
+          <Text size="2">
+            The result is calculated by combining the <Code>rng_seed</Code> provided by Gamba, the <Code>client_seed</Code> provided by the player, and a <Code>nonce</Code>, which increments by 1 for each player after every play.
+            <br />
+            The sha256 hash for the next RNG Seed is revealed in this transaction just like the one prior.
+            <br />
+            You can simulate the bet here with a custom client seed, to see how it would affect the result.<br />
+          </Text>
           <Dialog.Root>
             <Dialog.Trigger>
               <Link size="2">
@@ -92,108 +231,9 @@ const VerificationSection: React.FC<{parsed: GameResult, nextRngSeed: string}> =
               </Flex>
             </Dialog.Content>
           </Dialog.Root>
-
-        </Text>
-
-        <Table.Root variant="surface">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeaderCell>
-                Simulation
-              </Table.ColumnHeaderCell>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    Client Seed {clientSeed !== parsed.clientSeed && '(Edited)'}
-                  </Text>
-                  <TextField.Root>
-                    <TextField.Input
-                      value={clientSeed}
-                      onChange={(evt) => setClientSeed(evt.target.value)}
-                    />
-                    <TextField.Slot>
-                      <IconButton onClick={() => setClientSeed(Array.from({ length: 16 })
-                        .map(() => (Math.random() * 16 | 0).toString(16))
-                        .join(''))} size="1" variant="ghost">
-                        <MixIcon />
-                      </IconButton>
-                    </TextField.Slot>
-                    <TextField.Slot>
-                      <IconButton disabled={clientSeed === parsed.clientSeed} onClick={() => setClientSeed(parsed.clientSeed)} size="1" variant="ghost">
-                        <ResetIcon />
-                      </IconButton>
-                    </TextField.Slot>
-                  </TextField.Root>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
-
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    Nonce
-                  </Text>
-                  <Text color="gray">
-                    {parsed.nonce}
-                  </Text>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
-
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    RNG Seed
-                  </Text>
-                  <Text color="gray">
-                    {parsed.rngSeed}
-                  </Text>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
-
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    Next Hashed RNG Seed (SHA-256)
-                  </Text>
-                  <Text color="gray">
-                    {nextRngSeed}
-                  </Text>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
-
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    Simulated result
-                  </Text>
-                  <Flex gap="2">
-                    {output && (
-                      <Code>
-                        {output}
-                      </Code>
-                    )}
-                  </Flex>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
-
-          </Table.Body>
-        </Table.Root>
-
-      </Grid>
-    </Box>
+        </Flex>
+      </Card>
+    </Flex>
   )
 }
 
@@ -309,17 +349,15 @@ function TransactionDetails({parsed}: {parsed: ParsedGambaTransaction}) {
                   const rank = Math.floor(uniqueOutcomes.indexOf(x) / (uniqueOutcomes.length - 1) * 7)
                   const active = i === gameResult.resultIndex
                   return (
-                    <Badge
+                    <StyledOutcome
                       key={i}
-                      size="1"
-                      color="gray"
-                      className={clsx(styles.thing, active && styles.active)}
-                      style={{ color: `var(--rank-color-${rank})` }}
+                      active={active}
+                      rank={rank}
                     >
                       <Text size="1">
                         {x}x
                       </Text>
-                    </Badge>
+                    </StyledOutcome>
                   )
                 })}
               </Flex>
@@ -354,19 +392,19 @@ export function PlayView() {
 
   if (isLoading) {
     return (
-      <Container>
+      <>
         <Flex align="center" justify="center" p="4">
           <Loader />
         </Flex>
-      </Container>
+      </>
     )
   }
 
   if (error || !data) {
     return (
-      <Container>
+      <>
         Failed to fetch transaction: {JSON.stringify(error)}
-      </Container>
+      </>
     )
   }
 
@@ -379,88 +417,85 @@ export function PlayView() {
   const oddsScore = sum / gameResult.bet.length
 
   return (
-    <Container>
-    <Grid gap="4">
-      <Tabs.Root defaultValue="details">
-        <Grid gap="4">
-          <Tabs.List size="2">
-            <Tabs.Trigger value="details">Details</Tabs.Trigger>
-            {gameResult.bet.length > 0 && (
-              <Tabs.Trigger value="verification">Verification</Tabs.Trigger>
-            )}
-          </Tabs.List>
+    <Tabs.Root defaultValue="details">
+      <Grid gap="4">
+        <Tabs.List size="2">
+          <Tabs.Trigger value="details">Details</Tabs.Trigger>
+          {gameResult.bet.length > 0 && (
+            <Tabs.Trigger value="verification">
+              Proof
+            </Tabs.Trigger>
+          )}
+        </Tabs.List>
 
-          <Tabs.Content value="details">
-            <Grid gap="4">
-            {gameResult.bet.length > 0 ? (
-              <Box>
-                <Flex gap="4">
-                  <Card size="2">
-                    <Grid>
-                      <Text color="gray" size="1">
-                        Win Chance
-                      </Text>
-                      <Text size="6" color="green" weight="bold">
-                        {parseFloat((winChange * 100).toFixed(3))}%
-                      </Text>
-                    </Grid>
-                  </Card>
-                  <Card size="2">
-                    <Grid>
-                      <Text color="gray" size="1">
-                        Max Win
-                      </Text>
-                      <Text size="6" color="green" weight="bold">
-                        {parseFloat(potentialWin.toFixed(3))}x
-                      </Text>
-                    </Grid>
-                  </Card>
-                  <Card size="2">
-                    <Grid>
-                      <Text color="gray" size="1">
-                        House Edge
-                      </Text>
-                      <Text size="6" color="green" weight="bold">
-                        {parseFloat((100 - oddsScore * 100).toFixed(1))}%
-                      </Text>
-                    </Grid>
-                  </Card>
+        <Tabs.Content value="details">
+          <Grid gap="4">
+          {gameResult.bet.length > 0 ? (
+            <Box>
+              <Flex gap="4">
+                <Card size="2">
+                  <Grid>
+                    <Text color="gray" size="1">
+                      Win Chance
+                    </Text>
+                    <Text size="6" color="green" weight="bold">
+                      {parseFloat((winChange * 100).toFixed(3))}%
+                    </Text>
+                  </Grid>
+                </Card>
+                <Card size="2">
+                  <Grid>
+                    <Text color="gray" size="1">
+                      Max Win
+                    </Text>
+                    <Text size="6" color="green" weight="bold">
+                      {parseFloat(potentialWin.toFixed(3))}x
+                    </Text>
+                  </Grid>
+                </Card>
+                <Card size="2">
+                  <Grid>
+                    <Text color="gray" size="1">
+                      House Edge
+                    </Text>
+                    <Text size="6" color="green" weight="bold">
+                      {parseFloat((100 - oddsScore * 100).toFixed(1))}%
+                    </Text>
+                  </Grid>
+                </Card>
+              </Flex>
+            </Box>
+          ) : (
+            <Callout.Root mb="4">
+              <Callout.Text>
+                This transaction is from an older version of Gamba and can only be verified onchain.
+              </Callout.Text>
+            </Callout.Root>
+          )}
+
+            <TransactionDetails parsed={data.parsed} />
+            <Card>
+              <Grid gap="2">
+                <Text color="gray">
+                  Program Logs
+                </Text>
+                <Flex direction="column" gap="1">
+                  {data.logs.map((x, i) => (
+                    <Code style={{wordBreak: 'break-all'}} size="1" key={i}>{x}</Code>
+                  ))}
                 </Flex>
-              </Box>
-            ) : (
-              <Callout.Root mb="4">
-                <Callout.Text>
-                  This transaction is from an older version of Gamba and can only be verified onchain.
-                </Callout.Text>
-              </Callout.Root>
-            )}
-
-              <TransactionDetails parsed={data.parsed} />
-              <Card>
-                <Grid gap="2">
-                  <Text color="gray">
-                    Program Logs
-                  </Text>
-                  <Flex direction="column" gap="1">
-                    {data.logs.map((x, i) => (
-                      <Code style={{wordBreak: 'break-all'}} size="1" key={i}>{x}</Code>
-                    ))}
-                  </Flex>
-                </Grid>
-              </Card>
-            </Grid>
-          </Tabs.Content>
-          <Tabs.Content value="verification">
-            <VerificationSection
-              parsed={gameResult}
-              nextRngSeed={data.nextRngSeedHashed}
-            />
-          </Tabs.Content>
-        </Grid>
-
-        </Tabs.Root>
+              </Grid>
+            </Card>
+          </Grid>
+        </Tabs.Content>
+        <Tabs.Content value="verification">
+          <VerificationSection
+            parsed={gameResult}
+            nextRngSeed={data.nextRngSeedHashed}
+          />
+        </Tabs.Content>
       </Grid>
 
-    </Container>
+    </Tabs.Root>
   )
 }

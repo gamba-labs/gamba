@@ -3,7 +3,7 @@ import { Badge, Box, Button, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import useSWRInfinite from 'swr/infinite'
 import { Money } from './Money'
-import { BetsResponse, apiFetcher, getUrl } from './api'
+import { BetsResponse, apiFetcher, getApiUrl } from './api'
 import { PlatformAccountItem, PlayerAccountItem } from './components/AccountItem'
 import { TableRowNavLink } from './components/TableRowLink'
 
@@ -36,7 +36,7 @@ export function RecentPlays({creator, player}: {creator?: string, player?: strin
     isLoading,
   } = useSWRInfinite<BetsResponse>(
     (index) =>
-      getUrl('/bets', {creator, player, limit: itemsPerPage, skip: index * itemsPerPage}),
+      getApiUrl('/bets', {creator, player, limit: itemsPerPage, skip: index * itemsPerPage}),
     apiFetcher
   );
 
@@ -117,9 +117,6 @@ export function RecentPlays({creator, player}: {creator?: string, player?: strin
           Load more <PlusCircledIcon />
         </Button>
       </Box>
-      <Text color="gray" size="2">
-        Recent bets are updated every 5 minutes.
-      </Text>
     </Box>
   )
 }

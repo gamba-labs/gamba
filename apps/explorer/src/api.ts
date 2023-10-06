@@ -1,9 +1,7 @@
-import { DailyVolume } from './data'
 import useSWR from 'swr'
 
 const URL = 'https://209.38.229.113.nip.io:3001'
-
-export const NOW = Date.now()
+const NOW = Date.now()
 
 export interface RecentBet {
   signature: string
@@ -12,6 +10,11 @@ export interface RecentBet {
   creator: string
   multiplier: number
   wager: number
+}
+
+export interface DailyVolume {
+  date: string
+  total_volume: number
 }
 
 export interface DailyVolumeResponse {
@@ -93,7 +96,7 @@ export const apiFetcher = async <T>(endpoint: string) => {
 }
 
 export function useApi<T extends Endpoints>(endpoint: T, query?: Record<string, any>) {
-  return useSWR<ApiEndpoints[T]>(getUrl(endpoint, query), apiFetcher)
+  return useSWR<ApiEndpoints[T]>(getApiUrl(endpoint, query), apiFetcher)
 }
 
 export const daysAgo = (daysAgo: number) => {
@@ -107,7 +110,7 @@ export const daysAgo = (daysAgo: number) => {
 // api doesnt use MS :O
 export const seconds = (ms: number) => ms / 1000
 
-export const getUrl = (endpoint: string, _query?: Record<string, any>) => {
+export const getApiUrl = (endpoint: string, _query?: Record<string, any>) => {
   const start = String(_query?.start ?? 0)
   const end = String(_query?.end ?? NOW / 1000)
   const query = {..._query, start, end}

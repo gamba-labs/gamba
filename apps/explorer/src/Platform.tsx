@@ -11,99 +11,108 @@ import { TableRowNavLink } from './components/TableRowLink'
 import { getCreatorMeta } from './data'
 import { DocumentTitle } from './useDocumentTitle'
 
+function Details({creator}: {creator: string}) {
+  const meta = getCreatorMeta(creator)
+  const { data: uniquePlayerData } = useApi('/unique-players', { creator })
+
+  return (
+    <Table.Root variant="surface">
+      <Table.Header>
+        <Table.Row>
+          <Table.ColumnHeaderCell>
+            <PlatformAccountItem address={creator} />
+          </Table.ColumnHeaderCell>
+        </Table.Row>
+      </Table.Header>
+
+      <Table.Body>
+        <Table.Row>
+          <Table.Cell>
+            <Grid columns="2" gap="4">
+              <Text weight="bold">
+                Fee collector
+              </Text>
+              <Link target="_blank" href={`https://solscan.io/address/${creator}`} rel="noreferrer">
+                {creator} <ExternalLinkIcon />
+              </Link>
+            </Grid>
+          </Table.Cell>
+        </Table.Row>
+
+        {meta.url && (
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
+                  URL
+                </Text>
+                <Dialog.Root>
+                  <Dialog.Trigger>
+                    <Link>
+                      {meta.url?.split('https://')[1]}
+                    </Link>
+                  </Dialog.Trigger>
+                  <Dialog.Content style={{ maxWidth: 450 }}>
+                    <Dialog.Title>
+                      Do your own research.
+                    </Dialog.Title>
+                    <Dialog.Description size="2">
+                      Even though the platform is listed here, there is no garantuee that it is safe to interact with.
+                    </Dialog.Description>
+
+                    <Flex gap="3" mt="4" justify="end">
+                      <Dialog.Close>
+                        <Button variant="soft" color="gray">
+                          Cancel
+                        </Button>
+                      </Dialog.Close>
+                      <Dialog.Close>
+                        <Button onClick={() => window.open(meta.url, '_blank')} role="link" variant="solid">
+                          {meta.url} <ExternalLinkIcon />
+                        </Button>
+                      </Dialog.Close>
+                    </Flex>
+                  </Dialog.Content>
+                </Dialog.Root>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
+        )}
+
+        <Table.Row>
+          <Table.Cell>
+            <Grid columns="2" gap="4">
+              <Text weight="bold">
+                Players
+              </Text>
+              <Text>
+                {uniquePlayerData?.unique_players}
+              </Text>
+            </Grid>
+          </Table.Cell>
+        </Table.Row>
+
+      </Table.Body>
+    </Table.Root>
+
+  )
+}
+
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
   const creator = address!
   const meta = getCreatorMeta(creator)
   const { data: topPlayersByWagerData } = useApi('/top-players/total-wager', { creator, start: seconds(daysAgo(7)) })
   const { data: topPlayersByProfitData } = useApi('/top-players/winners', { creator, start: seconds(daysAgo(7)) })
-  const { data: uniquePlayerData } = useApi('/unique-players', { creator })
 
   return (
     <Container>
       <DocumentTitle title={meta.name} />
       {/* <Button color="green" onClick={() => setIFrame(true)}>Play now</Button> */}
-      <Grid gap="4">
+      <Flex direction="column" gap="4">
         <VolumeGraph creator={address} />
 
-        <Table.Root variant="surface">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeaderCell>
-                <PlatformAccountItem address={address!} />
-              </Table.ColumnHeaderCell>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    Fee collector
-                  </Text>
-                  <Link target="_blank" href={`https://solscan.io/address/${address}`} rel="noreferrer">
-                    {address} <ExternalLinkIcon />
-                  </Link>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
-
-            {meta.url && (
-              <Table.Row>
-                <Table.Cell>
-                  <Grid columns="2" gap="4">
-                    <Text weight="bold">
-                      URL
-                    </Text>
-                    <Dialog.Root>
-                      <Dialog.Trigger>
-                        <Link>
-                          {meta.url?.split('https://')[1]}
-                        </Link>
-                      </Dialog.Trigger>
-                      <Dialog.Content style={{ maxWidth: 450 }}>
-                        <Dialog.Title>
-                          Do your own research.
-                        </Dialog.Title>
-                        <Dialog.Description size="2">
-                          Even though the platform is listed here, there is no garantuee that it is safe to interact with.
-                        </Dialog.Description>
-
-                        <Flex gap="3" mt="4" justify="end">
-                          <Dialog.Close>
-                            <Button variant="soft" color="gray">
-                              Cancel
-                            </Button>
-                          </Dialog.Close>
-                          <Dialog.Close>
-                            <Button onClick={() => window.open(meta.url, '_blank')} role="link" variant="solid">
-                              {meta.url} <ExternalLinkIcon />
-                            </Button>
-                          </Dialog.Close>
-                        </Flex>
-                      </Dialog.Content>
-                    </Dialog.Root>
-                  </Grid>
-                </Table.Cell>
-              </Table.Row>
-            )}
-
-            <Table.Row>
-              <Table.Cell>
-                <Grid columns="2" gap="4">
-                  <Text weight="bold">
-                    Players
-                  </Text>
-                  <Text>
-                    {uniquePlayerData?.unique_players}
-                  </Text>
-                </Grid>
-              </Table.Cell>
-            </Table.Row>
-
-          </Table.Body>
-        </Table.Root>
+        <Details creator={address!} />
 
         {topPlayersByWagerData?.players.length && topPlayersByProfitData?.players.length && (
           <>
@@ -172,7 +181,7 @@ export function PlatformView() {
             <RecentPlays creator={address} />
           </Grid>
         </Box>
-      </Grid>
+      </Flex>
     </Container>
   )
 }

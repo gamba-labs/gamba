@@ -114,7 +114,7 @@ export function PlatformView() {
 
         <Details creator={address!} />
 
-        {topPlayersByWagerData?.players.length && topPlayersByProfitData?.players.length && (
+        {topPlayersByWagerData?.players.length && topPlayersByProfitData?.players.length ? (
           <>
             <Text color="gray">
               7d Leaderboard
@@ -171,7 +171,7 @@ export function PlatformView() {
               </Table.Root>
             </Grid>
           </>
-        )}
+        ) : null}
 
         <Box>
           <Grid gap="2">

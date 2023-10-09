@@ -75,6 +75,12 @@ export const CREATORS = [
     url: 'https://playsweets.xyz',
     image: '/logos/sweetscoin.png',
   },
+  {
+    address: 'BirdXG9bZASu6reNwJoixL2MVFCWxJZJV65uJHCTE5wb',
+    name: 'Birdies Solana',
+    url: 'https://xbirdies.com',
+    image: '/logos/xbirdies.png',
+  },
 ]
 
 const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({

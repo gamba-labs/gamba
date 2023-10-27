@@ -87,6 +87,12 @@ export const CREATORS = [
     url: 'https://smashy.gg',
     image: '/logos/smashy.png',
   },
+  {
+    address: 'CHADvZfMKNR37yaeCx9xg2HkML5nhBQUUaPiZ2DnASzB',
+    name: 'Chads on Solana',
+    url: 'https://chadroulette.chadonsolana.xyz/',
+    image: '/logos/chads.png',
+  }
 ]
 
 const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({

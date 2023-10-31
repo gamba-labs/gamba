@@ -92,6 +92,12 @@ export const CREATORS = [
     name: 'Chads on Solana',
     url: 'https://chadroulette.chadonsolana.xyz/',
     image: '/logos/chads.png',
+  },
+  {
+    address: 'BgZYULwffQFARvqreWALeubMQtpGPFxeRaXDBPnmVrqE',
+    name: 'PNDC',
+    url: 'https://pndc-solana.vercel.app/',
+    image: '/logos/pndc.png',
   }
 ]
 

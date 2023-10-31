@@ -1,4 +1,4 @@
-import { Box, Container, Flex, Grid, Table, Text } from '@radix-ui/themes'
+import { Box, Flex, Table, Text } from '@radix-ui/themes'
 import React from 'react'
 import { Money } from './Money'
 import { useApi } from './api'

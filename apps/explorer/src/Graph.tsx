@@ -29,16 +29,17 @@ const _Graph = ({ width, height, dailyVolume: _dailyVolume, onHover }: AreaProps
       const [date1, date2] = extent(_dailyVolume, getDate)
       if (!date1 || !date2) return []
       const days = 1 + unixDay(date2.getTime() - date1.getTime())
+
       const volumeByDay = _dailyVolume.reduce((prev, x) => ({
         ...prev,
-        [new Date(x.date).toString()]: x.total_volume
+        [new Date(x.date).toDateString()]: x.total_volume
       }), {} as Record<string, number>)
 
       return Array.from({length: days}).map((_, dayIndex) => {
         const startDate = new Date(date1)
         const date = new Date(startDate.setDate(startDate.getDate() + dayIndex))
         return {
-          total_volume: volumeByDay[date.toString()] ?? 0,
+          total_volume: volumeByDay[date.toDateString()] ?? 0,
           date: date.toString()
         }
       })

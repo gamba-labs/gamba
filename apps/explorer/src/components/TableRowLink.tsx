@@ -1,7 +1,7 @@
 import { Table } from "@radix-ui/themes"
 import { TableRowProps } from "@radix-ui/themes/dist/cjs/components/table"
 import React from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import styled from "styled-components"
 
 interface Props extends TableRowProps, Omit<React.RefAttributes<HTMLTableRowElement>, 'role'> {
@@ -24,7 +24,7 @@ export const TableRowNavLink = ({to, children, ...rest}: Props) => {
   return (
     <StyledLink to={to}>
       <StyledTableRow {...rest}>
-          {children}
+        {children}
       </StyledTableRow>
     </StyledLink>
   )

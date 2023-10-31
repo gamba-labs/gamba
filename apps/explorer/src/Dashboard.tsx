@@ -1,5 +1,5 @@
 import { ArrowRightIcon } from '@radix-ui/react-icons'
-import { Badge, Box, Button, Card, Flex, Grid, Link, ScrollArea, Text } from '@radix-ui/themes'
+import { Badge, Box, Card, Flex, Grid, Link, Text } from '@radix-ui/themes'
 import React from 'react'
 import Marquee from 'react-fast-marquee'
 import { NavLink, useNavigate } from 'react-router-dom'
@@ -144,11 +144,10 @@ function TopPlays() {
 
 function TrendingPlatforms() {
   const { data, isLoading } = useApi('/stats/creators', { start: seconds(daysAgo(7)) })
-  const navigate = useNavigate()
 
   const sorted = React.useMemo(
     () =>
-      data?.creators.sort((a, b) => b.volume - a.volume).slice(0, 10).filter((x) => x.volume > 1e9) ?? [],
+      data?.creators.sort((a, b) => b.volume - a.volume).slice(0, 10).filter((x) => x.volume > 1e8) ?? [],
     [data?.creators]
   )
 

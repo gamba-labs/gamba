@@ -98,7 +98,27 @@ export const CREATORS = [
     name: 'PNDC',
     url: 'https://pndc-solana.vercel.app/',
     image: '/logos/pndc.png',
-  }
+  },
+  {
+    address: '2n8R9ukU9U1y8hdtRLRdNQea84LyCzseQP74Y6Ui2wHE',
+    name: 'Kongz Casino',
+    url: 'https://kongzcasino.vercel.app/',
+    image: '/logos/kongz.png',
+  },
+  {
+    address: 'Fdm2bFvGVrtddqwQecYYsff9kR4zES9D2WpvmPUczpaY',
+    name: 'Solana Street Bulls',
+    url: 'https://casino.solanastreetbulls.com/',
+    image: '/logos/solanastreetbulls.png',
+  },
+  {
+    address: '2hHmrohtRqA56iawxioxk37ENsganghf5iqUXBYSp8Br',
+    name: 'Mario Pepe Casino',
+    url: 'https://mpepe-casino.vercel.app/',
+    image: '/logos/mariopepe.png',
+  },
+
+  
 ]
 
 const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({

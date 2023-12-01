@@ -117,8 +117,12 @@ export const CREATORS = [
     url: 'https://mpepe-casino.vercel.app/',
     image: '/logos/mariopepe.png',
   },
-
-  
+  {
+    address: 'HBQpKxK2Wdscn4kEBZWyXQ2GuCAEVeH6yinVnc736MVL',
+    name: '$SOS Casino',
+    url: 'https://soscasino.vercel.app/',
+    image: '/logos/soscasino.png',
+  }
 ]
 
 const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({

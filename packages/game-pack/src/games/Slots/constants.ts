@@ -31,11 +31,11 @@ export const SLOT_ITEMS = [
 ].flat()
 
 export const NUM_SLOTS = 3
-/** MS that it takes for spin to finish and reveal to start */
+// MS that it takes for spin to finish and reveal to start
 export const SPIN_DELAY = 1000
-/** MS between each slot reveal */
+// MS between each slot reveal
 export const REVEAL_SLOT_DELAY = 500
-/** MS after reveal until win / lose effect is played */
+// MS after reveal until win / lose effect is played
 export const FINAL_DELAY = 500
-/** */
+//
 export const LEGENDARY_THRESHOLD = 5

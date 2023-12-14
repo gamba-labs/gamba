@@ -3,8 +3,8 @@ import { Button, Card, Flex, Grid, Heading, Text, TextField } from "@radix-ui/th
 import { useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
-import { useAccount, useGambaProgram, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import { useTokenMeta } from "gamba-react-ui-v2"
+import { useAccount, useGambaProgram, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React, { useState } from "react"
 import { useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
@@ -23,14 +23,15 @@ const Thing = ({ title, children }: { title: string; children: React.ReactNode }
 )
 
 interface PoolConfigInput {
-  poolDepositLimit: string;
-  poolMinWager: string;
-  customPoolFee: string;
-  customJackpotFee: string;
-  customMaxCreatorFee: string;
-  customMaxPayout: string;
-  depositWhitelistRequired: boolean;
-  depositWhitelistAddress: string;
+  minWager: string
+  depositLimit: boolean
+  depositLimitAmount: string
+  customPoolFee: boolean
+  customPoolFeeBps: string
+  customMaxPayout: boolean
+  customMaxPayoutBps: string
+  depositWhitelistRequired: boolean
+  depositWhitelistAddress: string
 }
 
 function PoolConfigDialog({ pool }: { pool: UiPool }) {
@@ -45,12 +46,13 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
   const isGambaStateAuthority = userPublicKey && gambaState?.authority?.equals(userPublicKey)
 
   const [input, setInput] = useState<PoolConfigInput>({
-    poolDepositLimit: String(pool.state.depositLimit.toNumber() / Math.pow(10, token.decimals)),
-    poolMinWager: String(pool.state.minWager.toNumber() / Math.pow(10, token.decimals)),
-    customPoolFee: String(pool.state.customPoolFeeBps.toNumber() / BPS_PER_WHOLE),
-    customJackpotFee: String(pool.state.customJackpotFeeBps.toNumber() / BPS_PER_WHOLE),
-    customMaxCreatorFee: String(pool.state.customMaxCreatorFeeBps.toNumber() / BPS_PER_WHOLE),
-    customMaxPayout: String(pool.state.customMaxPayoutBps.toNumber() / BPS_PER_WHOLE),
+    minWager: String(pool.state.minWager.toNumber() / Math.pow(10, token.decimals)),
+    depositLimit: pool.state.depositLimit,
+    depositLimitAmount: String(pool.state.depositLimitAmount.toNumber() / Math.pow(10, token.decimals)),
+    customPoolFee: pool.state.customPoolFee,
+    customPoolFeeBps: String(pool.state.customPoolFeeBps.toNumber() / BPS_PER_WHOLE),
+    customMaxPayout: pool.state.customMaxPayout,
+    customMaxPayoutBps: String(pool.state.customMaxPayoutBps.toNumber() / BPS_PER_WHOLE),
     depositWhitelistRequired: pool.state.depositWhitelistRequired,
     depositWhitelistAddress: pool.state.depositWhitelistAddress.toBase58(),
   })
@@ -65,29 +67,32 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
 
   const updateConfig = async () => {
     const {
+      depositLimit,
       customPoolFee,
-      customMaxCreatorFee,
+      customPoolFeeBps,
       customMaxPayout,
+      customMaxPayoutBps,
       depositWhitelistRequired,
       depositWhitelistAddress,
     } = input
 
-    const poolDepositLimitInSmallestUnit = handleDecimalChange(input.poolDepositLimit, token.decimals)
-    const poolMinWagerInSmallestUnit = handleDecimalChange(input.poolMinWager, token.decimals)
-    const customPoolFeeBps = parseFloat(customPoolFee) * BPS_PER_WHOLE
-    const customMaxCreatorFeeBps = parseFloat(customMaxCreatorFee) * BPS_PER_WHOLE
-    const customMaxPayoutBps = parseFloat(customMaxPayout) * BPS_PER_WHOLE
+    const poolDepositLimitInSmallestUnit = handleDecimalChange(input.depositLimitAmount, token.decimals)
+    const poolMinWagerInSmallestUnit = handleDecimalChange(input.minWager, token.decimals)
+    const customPoolFeeBpsValue = parseFloat(customPoolFeeBps) * BPS_PER_WHOLE
+    const customMaxPayoutBpsValue = parseFloat(customMaxPayoutBps) * BPS_PER_WHOLE
 
     const depositWhitelistPublicKey = new PublicKey(depositWhitelistAddress)
 
     await sendTx(
       program.methods
         .poolAuthorityConfig(
-          new anchor.BN(poolDepositLimitInSmallestUnit),
           new anchor.BN(poolMinWagerInSmallestUnit),
-          new anchor.BN(customPoolFeeBps),
-          new anchor.BN(customMaxCreatorFeeBps),
-          new anchor.BN(customMaxPayoutBps),
+          depositLimit,
+          new anchor.BN(poolDepositLimitInSmallestUnit),
+          customPoolFee,
+          new anchor.BN(customPoolFeeBpsValue),
+          customMaxPayout,
+          new anchor.BN(customMaxPayoutBpsValue),
           depositWhitelistRequired,
           depositWhitelistPublicKey,
         )
@@ -103,49 +108,58 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
       <Card size="3">
         <Heading>Config</Heading>
         <Flex gap="2" direction="column">
-          <Thing title="Deposit Limit">
-            <TextField.Root>
-              <TextField.Input
-                value={input.poolDepositLimit}
-                onChange={e => updateInput({ poolDepositLimit: e.target.value })}
-              />
-            </TextField.Root>
-          </Thing>
           <Thing title="Min Wager Amount">
             <TextField.Root>
               <TextField.Input
-                value={input.poolMinWager}
-                onChange={e => updateInput({ poolMinWager: e.target.value })}
+                value={input.minWager}
+                onChange={e => updateInput({ minWager: e.target.value })}
               />
             </TextField.Root>
           </Thing>
-          <Thing title="Custom Fee (%)">
+          <Thing title="Deposit Limit Enabled">
+            <input
+              type="checkbox"
+              checked={input.depositLimit}
+              onChange={e => updateInput({ depositLimit: e.target.checked })}
+            />
+          </Thing>
+          <Thing title="Deposit Limit Amount">
             <TextField.Root>
               <TextField.Input
-                value={input.customPoolFee}
-                onChange={e => updateInput({ customPoolFee: e.target.value })}
-                type="number"
-                step="0.01"
+                value={input.depositLimitAmount}
+                onChange={e => updateInput({ depositLimitAmount: e.target.value })}
               />
             </TextField.Root>
           </Thing>
-          <Thing title="Max Creator Fee (%)">
+          <Thing title="Custom Pool Fee Enabled">
+            <input
+              type="checkbox"
+              checked={input.customPoolFee}
+              onChange={e => updateInput({ customPoolFee: e.target.checked })}
+            />
+          </Thing>
+          <Thing title="Custom Pool Fee (BPS)">
             <TextField.Root>
               <TextField.Input
-                value={input.customMaxCreatorFee}
-                onChange={e => updateInput({ customMaxCreatorFee: e.target.value })}
+                value={input.customPoolFeeBps}
+                onChange={e => updateInput({ customPoolFeeBps: e.target.value })}
                 type="number"
-                step="0.01"
               />
             </TextField.Root>
           </Thing>
-          <Thing title="Max Payout (%)">
+          <Thing title="Custom max Payout Enabled">
+            <input
+              type="checkbox"
+              checked={input.customMaxPayout}
+              onChange={e => updateInput({ customMaxPayout: e.target.checked })}
+            />
+          </Thing>
+          <Thing title="Max Payout (BPS)">
             <TextField.Root>
               <TextField.Input
-                value={input.customMaxPayout}
-                onChange={e => updateInput({ customMaxPayout: e.target.value })}
+                value={input.customMaxPayoutBps}
+                onChange={e => updateInput({ customMaxPayoutBps: e.target.value })}
                 type="number"
-                step="0.01"
               />
             </TextField.Root>
           </Thing>
@@ -165,7 +179,7 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
             </TextField.Root>
           </Thing>
           <Button onClick={updateConfig}>
-          Update
+            Update
           </Button>
         </Flex>
       </Card>

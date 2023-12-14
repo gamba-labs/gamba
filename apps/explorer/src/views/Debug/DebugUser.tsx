@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor"
 import { Box, Button, Card, Flex, Grid, Heading, Text } from "@radix-ui/themes"
-import { PublicKey } from "@solana/web3.js"
+import { PublicKey, TransactionInstruction } from "@solana/web3.js"
 import { decodeGame, decodePlayer, getGameAddress, getPlayerAddress, getPlayerUnderlyingAta, getUserUnderlyingAta } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
@@ -40,13 +40,13 @@ export default function DebugUserView() {
     )
   }
 
-  const claim = async (underlyingTokenMint: PublicKey, amount: number) => {
+  const claim = async (underlyingTokenMint: PublicKey) => {
     const playerAta = getPlayerUnderlyingAta(publicKey, underlyingTokenMint)
     const userUnderlyingAta = getUserUnderlyingAta(publicKey, underlyingTokenMint)
     await sendTransaction(
       [
         program.methods
-          .playerClaim(new anchor.BN(amount))
+          .playerClaim()
           .accounts({
             playerAta,
             underlyingTokenMint,
@@ -58,6 +58,29 @@ export default function DebugUserView() {
     )
     mutate("token-accounts-" + playerAddress)
   }
+
+  const claimAll = async () => {
+    const instructions = playerTokenList.map((token) => {
+      if (!token.amount) return null
+      const playerAta = getPlayerUnderlyingAta(publicKey, token.mint)
+      const userUnderlyingAta = getUserUnderlyingAta(publicKey, token.mint)
+      return program.methods
+      .playerClaim()
+        .accounts({
+          playerAta,
+          underlyingTokenMint: token.mint,
+          userUnderlyingAta,
+        })
+        .instruction()
+    }).filter((x) => !!x) as Promise<TransactionInstruction>[]
+
+    if (instructions.length > 0) {
+      await sendTransaction(instructions, { confirmation: "confirmed" })
+      mutate("token-accounts-" + playerAddress)
+    }
+  }
+
+  const isClaimable = playerTokenList.some(token => token.amount > 0)
 
   return (
     <Grid gap="4">
@@ -79,6 +102,11 @@ export default function DebugUserView() {
                   If you are stuck in a bet, you can claim back the tokens you used to play. Doing so will cancel your current bet and reset your account status.
                 </Text>
               </Box>
+              <Flex justify={"end"}>
+                <Button size="2" onClick={claimAll} disabled={!isClaimable}>
+                  Claim All
+                </Button>
+              </Flex>
               <Grid gap="2">
                 {playerTokenList.map((token, i) => (
                   <Card key={i}>
@@ -86,7 +114,7 @@ export default function DebugUserView() {
                       mint={token.mint}
                       balance={token.amount}
                       stuff={(
-                        <Button disabled={token.amount === 0} size="2" variant="soft" onClick={() => claim(token.mint, token.amount)}>
+                        <Button disabled={token.amount === 0} size="2" variant="soft" onClick={() => claim(token.mint)}>
                           Claim
                         </Button>
                       )}

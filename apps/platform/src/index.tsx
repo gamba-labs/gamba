@@ -1,7 +1,7 @@
 /**
  * ! Notes for devs:
  * We encourage to you change as much as possible. Layout, styling, etc..
- * This template uses components (such as buttons) from "gamba-react-ui-v2",
+ * This template uses components (such as buttons) from "gamba-react-ui",
  * but feel free to change that to any other component library you want.
  * However, it is recommended use the GambaUi components when creating controls for games.
  */

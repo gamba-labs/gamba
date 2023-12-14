@@ -7,17 +7,17 @@ import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styl
 import { ShareModal } from './ShareModal'
 import { useRecentPlays } from './useRecentPlays'
 
-function TimeDiff({ time }: {time: number}) {
+function TimeDiff({ time, suffix = 'ago' }: {time: number, suffix?: string}) {
   const diff = (Date.now() - time)
   return React.useMemo(() => {
     const seconds = Math.floor(diff / 1000)
     const minutes = Math.floor(seconds / 60)
     const hours = Math.floor(minutes / 60)
     if (hours >= 1) {
-      return hours + 'h ago'
+      return hours + 'h ' + suffix
     }
     if (minutes >= 1) {
-      return minutes + 'm ago'
+      return minutes + 'm ' + suffix
     }
     return 'Just now'
   }, [diff])
@@ -58,7 +58,6 @@ function RecentPlay({ event }: {event: GambaTransaction<'GameSettled'>}) {
               +<TokenValue mint={game.tokenMint} amount={game.jackpotWin.toNumber()} />
             </Jackpot>
           )}
-          in {meta?.game?.name}
         </>
       )}
     </>
@@ -68,6 +67,7 @@ function RecentPlay({ event }: {event: GambaTransaction<'GameSettled'>}) {
 export default function RecentPlays() {
   const events = useRecentPlays()
   const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
+  const md = useMediaQuery('md')
 
   return (
     <Container>
@@ -83,7 +83,7 @@ export default function RecentPlays() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '.5em' }}>
               <RecentPlay event={tx} />
             </div>
-            <TimeDiff time={tx.time} />
+            <TimeDiff time={tx.time} suffix={md ? 'ago' : ''} />
           </Recent>
         ),
       )}

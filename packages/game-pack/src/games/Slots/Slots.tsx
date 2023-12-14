@@ -1,8 +1,10 @@
-import { useGamba } from 'gamba-react-v2'
+import { GameResult } from 'gamba-core-v2'
 import { EffectTest, GambaUi, TokenValue, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { ItemPreview } from './ItemPreview'
 import { Slot } from './Slot'
+import { StyledSlots } from './Slots.styles'
 import {
   FINAL_DELAY,
   LEGENDARY_THRESHOLD,
@@ -19,11 +21,6 @@ import {
   SlotItem,
 } from './constants'
 import { generateBetArray, getSlotCombination } from './utils'
-import { StyledSlots } from './Slots.styles'
-
-interface Result {
-  payout: number
-}
 
 const Messages: React.FC<{messages: string[]}> = ({ messages }) => {
   const [messageIndex, setMessageIndex] = React.useState(0)
@@ -48,7 +45,7 @@ export default function Slots() {
   const game = GambaUi.useGame()
   const pool = GambaUi.useCurrentPool()
   const [spinning, setSpinning] = React.useState(false)
-  const [result, setResult] = React.useState<Result>()
+  const [result, setResult] = React.useState<GameResult>()
   const [good, setGood] = React.useState(false)
   const [revealedSlots, setRevealedSlots] = React.useState(NUM_SLOTS)
   const [wager, setWager] = useWagerInput()
@@ -132,7 +129,7 @@ export default function Slots() {
 
       setCombination(combination)
 
-      setResult({ payout: result.payout })
+      setResult(result)
 
       setTimeout(() => revealSlot(combination), revealDelay)
     } catch (err) {
@@ -163,7 +160,7 @@ export default function Slots() {
                   />
                 ))}
               </div>
-              <div className={'result'} data-good={good}>
+              <div className="result" data-good={good}>
                 {spinning ? (
                   <Messages
                     messages={[
@@ -173,7 +170,7 @@ export default function Slots() {
                   />
                 ) : result ? (
                   <>
-                    Payout: <TokenValue amount={result.payout} />
+                    Payout: <TokenValue mint={result.token} amount={result.payout} />
                   </>
                 ) : valid ? (
                   <Messages

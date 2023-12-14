@@ -12,13 +12,13 @@ export const PLATFORMS = [
     address: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
     name: 'Gamba Demo',
     url: 'https://play.gamba.so',
-    image: '/logos/gamba.png',
+    image: '/logos/gamba-v1.png',
   },
   {
     address: 'V2grJiwjs25iJYqumbHyKo5MTK7SFqZSdmoRaj8QWb9',
     name: 'V2 Demo',
     url: 'https://v2-play.gamba.so',
-    image: 'https://v2-play.gamba.so/favicon.png',
+    image: '/logos/gamba.png',
   },
   {
     address: 'Adn4whbLyQs5b2rnwu9ngiEMxLjndadKbqDqxK4saqKd',

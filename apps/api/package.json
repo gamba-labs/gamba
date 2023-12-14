@@ -21,7 +21,6 @@
     "gamba-core-v2": "workspace:*",
     "ngrok": "5.0.0-beta.2",
     "node-cron": "^3.0.3",
-    "serveonet": "^0.0.2",
     "sqlite3": "^5.1.6",
     "zod": "^3.22.4"
   },

@@ -1,7 +1,5 @@
 # Gamba
 
-`pnpm i gamba-core gamba-react gamba-react-ui`
-
 ## Packages:
 * `gamba-core` - Core package with a provider for the Anchor program + utilities
 

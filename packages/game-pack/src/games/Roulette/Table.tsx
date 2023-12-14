@@ -1,10 +1,23 @@
+import { GambaUi } from 'gamba-react-ui-v2'
 import React from 'react'
 import { Chip } from './Chip'
-import { ChipContainer, StyledBetButton, StyledTable } from './Table.styles'
-import { tableLayout } from './constants'
+import { ChipContainer, StyledBetButton, StyledTable } from './Roulette.styles'
+import { SOUND_CHIP, tableLayout } from './constants'
 import { addChips, getChips, hover, hovered, removeChips, selectedChip } from './signals'
 
 export function Table() {
+  const sounds = GambaUi.useSound({ chip: SOUND_CHIP })
+
+  const add = (id: string) => {
+    sounds.play('chip', { playbackRate: 1 })
+    addChips(id, selectedChip.value)
+  }
+
+  const remove = (id: string) => {
+    sounds.play('chip', { playbackRate: .8 })
+    removeChips(id)
+  }
+
   return (
     <StyledTable>
       {Object.entries(tableLayout)
@@ -15,12 +28,13 @@ export function Table() {
               key={id}
               onClick={(evt) => {
                 evt.preventDefault()
-                if (evt.button !== 2)
-                  addChips(id, selectedChip.value)
-                else
-                  removeChips(id)
+                if (evt.button !== 2) {
+                  add(id)
+                } else {
+                  remove(id)
+                }
               }}
-              onContextMenu={() => removeChips(id)}
+              onContextMenu={() => remove(id)}
               style={{
                 gridRow: square.row,
                 gridColumn: square.column,

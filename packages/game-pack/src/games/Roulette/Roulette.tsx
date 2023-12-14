@@ -3,10 +3,10 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import styled from 'styled-components'
 import { Chip } from './Chip'
-import { Results } from './Results'
+import { StyledResults } from './Roulette.styles'
 import { Table } from './Table'
 import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
-import { bet, clearChips, selectedChip, totalChipValue, addResult } from './signals'
+import { addResult, bet, clearChips, results, selectedChip, totalChipValue } from './signals'
 
 const Wrapper = styled.div`
   display: grid;
@@ -16,6 +16,63 @@ const Wrapper = styled.div`
   -webkit-user-select: none;
   color: white;
 `
+function Results() {
+  return (
+    <StyledResults>
+      {results.value.map((index, i) => {
+        return (
+          <div key={i}>
+            {index + 1}
+          </div>
+        )
+      })}
+    </StyledResults>
+  )
+}
+
+function Stats() {
+  const pool = GambaUi.useCurrentPool()
+  const token = GambaUi.useCurrentToken()
+  const balance = GambaUi.useUserBalance()
+  const wager = totalChipValue.value * token.baseWager / 10_000
+
+  const multiplier = Math.max(...bet.value)
+  const maxPayout = multiplier * wager
+  const maxPayoutExceeded = maxPayout > pool.maxPayout
+  const balanceExceeded = wager > (balance.balance + balance.bonusBalance)
+
+  return (
+    <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+      <div>
+        {balanceExceeded ? (
+          <span style={{ color: '#ff0066' }}>
+            TOO HIGH
+          </span>
+        ) : (
+          <>
+            <TokenValue amount={wager} />
+          </>
+        )}
+        <div>Wager</div>
+      </div>
+      <div>
+        <div>
+          {maxPayoutExceeded ? (
+            <span style={{ color: '#ff0066' }}>
+              TOO HIGH
+            </span>
+          ) : (
+            <>
+              <TokenValue amount={maxPayout} />
+              ({multiplier.toFixed(2)}x)
+            </>
+          )}
+        </div>
+        <div>Potential win</div>
+      </div>
+    </div>
+  )
+}
 
 export default function Roulette() {
   const game = GambaUi.useGame()
@@ -57,35 +114,7 @@ export default function Roulette() {
       <GambaUi.Portal target="screen">
         <GambaUi.Responsive>
           <Wrapper onContextMenu={(e) => e.preventDefault()}>
-            <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-              <div>
-                {balanceExceeded ? (
-                  <span style={{ color: '#ff0066' }}>
-                    TOO HIGH
-                  </span>
-                ) : (
-                  <>
-                    <TokenValue amount={wager} />
-                  </>
-                )}
-                <div>Wager</div>
-              </div>
-              <div>
-                <div>
-                  {maxPayoutExceeded ? (
-                    <span style={{ color: '#ff0066' }}>
-                      TOO HIGH
-                    </span>
-                  ) : (
-                    <>
-                      <TokenValue amount={maxPayout} />
-                      ({multiplier.toFixed(2)}x)
-                    </>
-                  )}
-                </div>
-                <div>Potential win</div>
-              </div>
-            </div>
+            <Stats />
             <Results />
             <Table />
           </Wrapper>

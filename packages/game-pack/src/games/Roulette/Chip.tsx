@@ -47,7 +47,7 @@ const color = (value: number) => {
   return 'white'
 }
 
-export const Chip: React.FC<{value: number}> = ({ value }) => {
+export function Chip({ value }: {value: number}) {
   return (
     <StyledChip $color={color(value)}>
       {value}

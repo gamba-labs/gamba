@@ -7,6 +7,7 @@ import { StyledResults } from './Roulette.styles'
 import { Table } from './Table'
 import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { addResult, bet, clearChips, results, selectedChip, totalChipValue } from './signals'
+import { computed } from '@preact/signals-react'
 
 const Wrapper = styled.div`
   display: grid;
@@ -17,9 +18,10 @@ const Wrapper = styled.div`
   color: white;
 `
 function Results() {
+  const _results = computed(() => [...results.value].reverse())
   return (
     <StyledResults>
-      {results.value.map((index, i) => {
+      {_results.value.map((index, i) => {
         return (
           <div key={i}>
             {index + 1}
@@ -132,7 +134,7 @@ export default function Roulette() {
           )}
         />
         <GambaUi.Button
-          disabled={!wager}
+          disabled={!wager || gamba.isPlaying}
           onClick={clearChips}
         >
           Clear

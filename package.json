@@ -2,20 +2,14 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --no-cache --continue",
-    "lint": "turbo run lint",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
-    "release": "turbo run build && changeset publish"
+    "dev": "turbo run dev --no-cache --continue --filter=!gamba-api",
+    "api": "turbo run api --filter=gamba-api",
+    "api-dev": "turbo run dev --filter=gamba-api",
+    "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.2",
-    "@typescript-eslint/eslint-plugin": "^6.6.0",
-    "@typescript-eslint/parser": "^6.6.0",
-    "eslint": "^8.48.0",
-    "eslint-plugin-react": "^7.33.2",
-    "turbo": "^1.10.13",
+    "turbo": "^1.10.15",
     "typescript": "^5.2.2"
-  }
+  },
+  "packageManager": "pnpm@8.6.10"
 }

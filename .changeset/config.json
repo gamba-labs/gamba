@@ -8,7 +8,8 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "gamba-demo",
-    "explorer"
+    "gamba-platform-template",
+    "gamba-explorer",
+    "gamba-api"
   ]
 }

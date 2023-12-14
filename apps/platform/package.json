@@ -1,0 +1,39 @@
+{
+  "name": "gamba-platform-template",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.27.0",
+    "@solana/spl-token": "^0.3.8",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react-ui": "^0.9.34",
+    "@solana/wallet-adapter-wallets": "^0.19.18",
+    "@solana/web3.js": "^1.78.5",
+    "buffer": "^6.0.3",
+    "gamba-core-v2": "workspace:*",
+    "gamba-game-pack": "workspace:*",
+    "gamba-react-v2": "workspace:*",
+    "gamba-react-ui-v2": "workspace:*",
+    "html2canvas": "^1.4.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.10.0",
+    "styled-components": "^6.0.8",
+    "swr": "^2.2.4",
+    "zustand": "^4.4.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^3.1.0",
+    "unplugin-fonts": "^1.0.3",
+    "vite": "^4.2.1",
+    "vite-plugin-pwa": "^0.17.4"
+  }
+}

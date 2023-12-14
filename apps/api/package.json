@@ -1,0 +1,41 @@
+{
+  "name": "gamba-api",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "api": "pm2 start pm2.config.js",
+    "build": "tsup src/index.ts --format cjs",
+    "kill": "pm2 kill",
+    "restart": "pm2 restart api",
+    "reload": "pm2 reload api",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.27.0",
+    "@ngrok/ngrok": "^0.9.1",
+    "@solana/spl-token": "^0.3.8",
+    "@solana/web3.js": "^1.73.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "gamba-core-v2": "workspace:*",
+    "ngrok": "5.0.0-beta.2",
+    "node-cron": "^3.0.3",
+    "serveonet": "^0.0.2",
+    "sqlite3": "^5.1.6",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^18.15.3",
+    "@types/node-cron": "^3.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
+    "eslint": "^8.35.0",
+    "nodemon": "^3.0.1",
+    "pm2": "^5.2.2",
+    "ts-node": "^10.9.1",
+    "tsup": "^6.7.0",
+    "typescript": "^4.9.5"
+  }
+}

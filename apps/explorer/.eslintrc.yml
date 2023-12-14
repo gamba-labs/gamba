@@ -1,0 +1,65 @@
+env:
+  browser: true
+  es2021: true
+parser: '@typescript-eslint/parser'
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 12
+  sourceType: module
+plugins:
+  - react
+  - '@typescript-eslint'
+  - simple-import-sort
+rules:
+  simple-import-sort/imports: error
+  simple-import-sort/exports: error
+  arrow-parens: [error, as-needed]
+  no-trailing-spaces: error
+  no-multi-spaces: error
+  no-irregular-whitespace: error
+  quotes: [error, double]
+  array-bracket-spacing: [error, never]
+  comma-dangle: [error, always-multiline]
+  comma-spacing: [error, {before: false, after: true}]
+  comma-style: [error, last]
+  space-before-blocks: [error, always]
+  space-before-function-paren: [error, {anonymous: never, named: never, asyncArrow: always}]
+  space-in-parens: [error, never]
+  space-infix-ops: error
+  space-unary-ops: error
+  arrow-spacing: [error, {before: true, after: true}]
+  key-spacing: [error, {beforeColon: false, afterColon: true}]
+  keyword-spacing: error
+  computed-property-spacing: [error, never]
+  eol-last: [error, always]
+  func-call-spacing: [error, never]
+  brace-style: [error, 1tbs]
+  jsx-quotes: [error, prefer-double]
+  quote-props: [error, as-needed]
+  padded-blocks: [error, never]
+  no-multiple-empty-lines: [error, {max: 1, maxBOF: 0, maxEOF: 0}]
+  object-property-newline: [error, {allowAllPropertiesOnSameLine: true}]
+  object-curly-newline: [error, {multiline: true}]
+  array-element-newline: [error, consistent]
+  operator-linebreak: [2, before]
+  implicit-arrow-linebreak: [error, beside]
+  object-curly-spacing: ['error', 'always']
+
+  "@typescript-eslint/semi": [error, never]
+  '@typescript-eslint/indent': [error, 2]
+  '@typescript-eslint/type-annotation-spacing': error
+
+  react/jsx-space-before-closing: [error, always]
+  react/jsx-closing-tag-location: error
+  react/jsx-wrap-multilines: [
+    error, {
+      declaration: parens-new-line,
+      assignment: parens-new-line,
+      return: parens-new-line,
+      arrow: parens-new-line,
+      condition: parens-new-line,
+      logical: parens-new-line,
+      prop: parens-new-line
+    }
+  ]

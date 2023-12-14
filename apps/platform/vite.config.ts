@@ -10,7 +10,7 @@ export default defineConfig(() => ({
   server: { port: 4001, host: true },
   define: { 'process.env.ANCHOR_BROWSER': true },
   plugins: [
-    react(),
+    react({ jsxRuntime: 'classic' }),
     Unfonts({
       google: {
         families: [
@@ -27,9 +27,7 @@ export default defineConfig(() => ({
     }),
     VitePWA({
       base: '/',
-      workbox: {
-        cleanupOutdatedCaches: true,
-      },
+      workbox: { cleanupOutdatedCaches: true },
       manifest: {
         name: 'Gamba Play',
         short_name: 'Gamba',

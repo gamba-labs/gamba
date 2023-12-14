@@ -122,7 +122,13 @@ export const CREATORS = [
     name: '$SOS Casino',
     url: 'https://soscasino.vercel.app/',
     image: '/logos/soscasino.png',
-  }
+  },
+  {
+    address: 'HNcGGH7y3QfQvjx4wrZ2MAGsrzBw6mUDciQGHVwMcLwN',
+    name: 'Fronk Arcade',
+    url: 'https://arcade.fronk.xyz/',
+    image: '/logos/fronk.png',
+  },
 ]
 
 const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({

@@ -9,7 +9,7 @@ export default defineConfig(() => ({
   server: { port: 4000, host: false },
   define: { "process.env.ANCHOR_BROWSER": true },
   plugins: [
-    react(),
+    react({ jsxRuntime: 'classic' }),
   ],
   resolve: {
     alias: [

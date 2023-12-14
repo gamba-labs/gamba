@@ -103,7 +103,7 @@ export const PLATFORMS = [
     name: 'PNDC',
     url: 'https://pndc-solana.vercel.app/',
     image: '/logos/pndc.png',
-  }
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

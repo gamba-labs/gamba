@@ -1,4 +1,3 @@
-import * as anchor from "@coral-xyz/anchor"
 import { Box, Button, Card, Flex, Grid, Heading, Text } from "@radix-ui/themes"
 import { PublicKey, TransactionInstruction } from "@solana/web3.js"
 import { decodeGame, decodePlayer, getGameAddress, getPlayerAddress, getPlayerUnderlyingAta, getUserUnderlyingAta } from "gamba-core-v2"

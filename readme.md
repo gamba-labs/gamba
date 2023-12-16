@@ -7,7 +7,7 @@
 
 * `gamba-react-ui` - Framework for building platform UIs and games
 
-* `gamba-game-pack` - Collection of configurable games that can be imported into a platform built with gamba-platform
+* `gamba-game-pack` - Collection of configurable games that can be imported into a platform built with gamba-react-ui
 
 ## Apps:
 * `platform` - A game platform template built in React

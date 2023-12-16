@@ -12,12 +12,6 @@ export const PLATFORMS = [
     address: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
     name: 'Gamba Demo',
     url: 'https://play.gamba.so',
-    image: '/logos/gamba-v1.png',
-  },
-  {
-    address: 'V2grJiwjs25iJYqumbHyKo5MTK7SFqZSdmoRaj8QWb9',
-    name: 'V2 Demo',
-    url: 'https://v2-play.gamba.so',
     image: '/logos/gamba.png',
   },
   {
@@ -103,6 +97,36 @@ export const PLATFORMS = [
     name: 'PNDC',
     url: 'https://pndc-solana.vercel.app/',
     image: '/logos/pndc.png',
+  },
+  {
+    address: '2n8R9ukU9U1y8hdtRLRdNQea84LyCzseQP74Y6Ui2wHE',
+    name: 'Kongz Casino',
+    url: 'https://kongzcasino.vercel.app/',
+    image: '/logos/kongz.png',
+  },
+  {
+    address: 'Fdm2bFvGVrtddqwQecYYsff9kR4zES9D2WpvmPUczpaY',
+    name: 'Solana Street Bulls',
+    url: 'https://casino.solanastreetbulls.com/',
+    image: '/logos/solanastreetbulls.png',
+  },
+  {
+    address: '2hHmrohtRqA56iawxioxk37ENsganghf5iqUXBYSp8Br',
+    name: 'Mario Pepe Casino',
+    url: 'https://mpepe-casino.vercel.app/',
+    image: '/logos/mariopepe.png',
+  },
+  {
+    address: 'HBQpKxK2Wdscn4kEBZWyXQ2GuCAEVeH6yinVnc736MVL',
+    name: '$SOS Casino',
+    url: 'https://soscasino.vercel.app/',
+    image: '/logos/soscasino.png',
+  },
+  {
+    address: 'HNcGGH7y3QfQvjx4wrZ2MAGsrzBw6mUDciQGHVwMcLwN',
+    name: 'Fronk Casino',
+    url: 'https://casino.fronk.xyz/',
+    image: '/logos/fronk.png',
   },
 ]
 

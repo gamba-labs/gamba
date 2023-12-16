@@ -125,8 +125,8 @@ export const CREATORS = [
   },
   {
     address: 'HNcGGH7y3QfQvjx4wrZ2MAGsrzBw6mUDciQGHVwMcLwN',
-    name: 'Fronk Arcade',
-    url: 'https://arcade.fronk.xyz/',
+    name: 'Fronk Casino',
+    url: 'https://casino.fronk.xyz/',
     image: '/logos/fronk.png',
   },
 ]

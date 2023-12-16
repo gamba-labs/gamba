@@ -60,7 +60,6 @@ const StyledContent = styled.div`
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 10px;
   width: 100%;
   overflow: scroll visible;
   scroll-snap-type: x mandatory;
@@ -76,6 +75,8 @@ const StyledContent = styled.div`
 
   & > * {
     scroll-snap-align: start;
+    flex-grow: 0;
+    flex-shrink: 0;
   }
 `
 

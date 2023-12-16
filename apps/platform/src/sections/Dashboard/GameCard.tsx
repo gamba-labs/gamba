@@ -12,23 +12,23 @@ const tileAnimation = keyframes`
   }
 `
 
-const StyledGameCard = styled(NavLink)<{$small: boolean}>`
-  width: 120px;
+const StyledGameCard = styled(NavLink)<{$small: boolean, $background: string}>`
+  width: 100%;
 
   @media (min-width: 800px) {
-    width: 170px;
+    width: 100%;
   }
 
-  display: block;
-  aspect-ratio: ${(props) => props.$small ? '2.25/1' : '2/1.3'};
+  aspect-ratio: ${(props) => props.$small ? '1/.5' : '1/.6'};
   background-size: cover;
   border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
   color: white;
   text-decoration: none;
   font-size: 24px;
+
+  transition: transform .2s ease;
+  /* border-bottom: 2px solid #00000033; */
 
   & > .background {
     position: absolute;
@@ -36,12 +36,12 @@ const StyledGameCard = styled(NavLink)<{$small: boolean}>`
     top: 0;
     width: 100%;
     height: 100%;
-    background-size: 100px;
+    background-size: 100%;
     background-position: center;
     background-image: url(/stuff.png);
     background-repeat: repeat;
     transition: transform .2s ease, opacity .3s;
-    animation: ${tileAnimation} 10s linear infinite;
+    animation: ${tileAnimation} 5s linear infinite;
     opacity: 0;
   }
 
@@ -58,29 +58,36 @@ const StyledGameCard = styled(NavLink)<{$small: boolean}>`
     transition: transform .2s ease;
   }
 
-  &:hover .image {
-    transform: scale(1);
-  }
+  &:hover {
+    transform: scale(1.01);
+    .image {
+      transform: scale(1);
+    }
 
-  &:hover .background {
-    opacity: .35;
+    .background {
+      opacity: .35;
+    }
   }
 
   position: relative;
   transform: scale(1);
-  background: linear-gradient(0deg, #9564ff, #7c40ff);
+  background: ${(props) => props.$background};
+  /* linear-gradient(0deg, #9564ff, #7c40ff) */
   max-height: 100%;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   flex-grow: 0;
   flex-shrink: 0;
   background-size: 100% auto;
   background-position: center;
   font-weight: bold;
   .play {
-    font-size: 12px;
-    border-radius: 10px;
-    padding: 1px 5px;
-    background: #ffffff66;
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background: #00000066;
     position: absolute;
     right: 5px;
     bottom: 5px;
@@ -104,10 +111,11 @@ export function GameCard({ game }: {game: GameBundle}) {
     <StyledGameCard
       to={'/' + game.id}
       $small={small ?? false}
+      $background={game.meta?.background}
     >
       <div className="background" />
       <div className="image" style={{ backgroundImage: `url(${game.image})` }} />
-      <div className="play">Play</div>
+      <div className="play">Play {game.name}</div>
     </StyledGameCard>
   )
 }

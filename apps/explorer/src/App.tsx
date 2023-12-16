@@ -16,7 +16,6 @@ import DebugView from "@/views/Debug/DebugView"
 
 import { PoolList } from "./PoolList"
 import AllUsers from "./views/Debug/AllUsers"
-import Treasury from "./views/Debug/Treasury"
 import { PlatformView } from "./views/Platform/PlatformView"
 import PlayView from "./views/Play/Play"
 import { PlayerView } from "./views/Player/PlayerView"
@@ -149,10 +148,6 @@ export function App() {
           <Route
             path="/player/:address"
             element={<PlayerView />}
-          />
-          <Route
-            path="/treasury"
-            element={<Treasury />}
           />
           <Route
             path="/users"

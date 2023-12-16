@@ -1,5 +1,5 @@
 import { ProgramAccount } from "@coral-xyz/anchor"
-import { Avatar, Badge, Flex, Table, Text } from "@radix-ui/themes"
+import { Avatar, Badge, Button, Flex, IconButton, Table, Text } from "@radix-ui/themes"
 import { NATIVE_MINT } from "@solana/spl-token"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
@@ -15,6 +15,7 @@ import { decodeAta } from "@/hooks"
 import { TokenAvatar } from "./components"
 import { TableRowNavLink } from "./components/TableRowLink"
 import { SYSTEM_PROGRAM } from "./constants"
+import { ArrowRightIcon } from "@radix-ui/react-icons"
 
 const SkeletonText = styled.div`
   height: 1em;
@@ -222,7 +223,11 @@ export function PoolList() {
                 <StyledTableCell>
                   -
                 </StyledTableCell>
-                <Table.ColumnHeaderCell></Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>
+                  <Button size="1" variant="soft" onClick={() => window.open("https://old.gamba.so")}>
+                    V1 Explorer <ArrowRightIcon />
+                  </Button>
+                </Table.ColumnHeaderCell>
               </Table.Row>
             </>
           )}

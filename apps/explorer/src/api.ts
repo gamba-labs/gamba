@@ -1,8 +1,7 @@
 import { Connection, PublicKey } from "@solana/web3.js"
-import { fetchGambaTransactionsFromSignatures, GambaTransaction } from "gamba-core-v2"
+import { GambaTransaction, fetchGambaTransactionsFromSignatures } from "gamba-core-v2"
 
-// const API_ENDPOINT = "http://127.0.0.1:4949"
-const API_ENDPOINT = "https://bc9f-24-144-90-53.ngrok-free.app"
+const API_ENDPOINT = import.meta.env.VITE_GAMBA_API_ENDPOINT
 
 export interface DailyVolume {
   total_volume: number

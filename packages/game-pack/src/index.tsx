@@ -7,6 +7,7 @@ import Roulette from './games/Roulette/Roulette'
 const GambaGamePack = {
   dice: {
     id: 'dice',
+    meta: { background: '#ff6490' },
     name: 'Dice',
     image: '/games/dice.png',
     description: `
@@ -18,6 +19,7 @@ const GambaGamePack = {
     id: 'slots',
     name: 'Slots',
     image: '/games/slots.png',
+    meta: { background: '#5465ff' },
     description: `
       SlotsSlotsSlotsSlotsSlotsSlotsSlotsSlotsSlots
     `,
@@ -29,6 +31,7 @@ const GambaGamePack = {
     description: `
     Flip.
     `,
+    meta: { background: '#ffe694' },
     image: '/games/flip.png',
     app: React.lazy(() => import('./games/Flip/Flip')),
   },
@@ -38,6 +41,7 @@ const GambaGamePack = {
     description: `
       Plinko
     `,
+    meta: { background: '#7272ff' },
     image: '/games/plinko.png',
     app: React.lazy(() => import('./games/Plinko/Plinko')),
   },
@@ -45,6 +49,7 @@ const GambaGamePack = {
     id: 'hilo',
     name: 'HiLo',
     image: '/games/hilo.png',
+    meta: { background: '#77bbff' },
     description: 'Guess if the next card is going to be higher or lower than the current one. Continue until you want to cash out!',
     app: () => <HiLo logo="/logo.svg" />,
   },
@@ -54,6 +59,7 @@ const GambaGamePack = {
     description: `
       MinesMinesMinesMinesMinesMinesMines
     `,
+    meta: { background: '#8376ff' },
     image: '/games/mines.png',
     app: () => <Mines />,
   },
@@ -61,6 +67,7 @@ const GambaGamePack = {
     id: 'roulette',
     name: 'Roulette',
     image: '/games/roulette.png',
+    meta: { background: '#1de87e' },
     description: `
       A miniature version of Roulette.
     `,

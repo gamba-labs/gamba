@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { Modal } from '../../components/Modal'
 import { GAMES } from '../../games'
+import { Games } from '../Dashboard/Dashboard'
 import { Container, Controls, IconButton, LoadingIndicator, Screen, SettingControls, Splash } from './Game.styles'
 import { ProvablyFairModal } from './ProvablyFairModal'
 
@@ -46,7 +47,7 @@ function CustomRenderer() {
       )}
       <Container>
         <Splash>
-          <img height="100px" src={game.image} />
+          <img height="150px" src={game.image} />
         </Splash>
         <Screen>
           <GambaUi.PortalTarget target="error" />
@@ -90,6 +91,9 @@ export default function Game() {
       ) : (
         <h1>Game not found! 👎</h1>
       )}
+      <>
+        <Games />
+      </>
     </>
   )
 }

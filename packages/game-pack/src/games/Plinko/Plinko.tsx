@@ -3,9 +3,9 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
 
-import { default as BUMP } from './bump.mp3'
-import { default as WIN } from './win.mp3'
-import { default as FALL } from './fall.mp3'
+const BUMP = require('./bump.mp3')
+const WIN = require('./win.mp3')
+const FALL = require('./fall.mp3')
 
 function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
   const [plinko, set] = React.useState<PlinkoGame>(null!)

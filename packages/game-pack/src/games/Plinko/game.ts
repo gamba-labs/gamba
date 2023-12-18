@@ -206,14 +206,14 @@ export class Plinko {
   collisionHandler = (event: Matter.IEventCollision<Matter.Engine>) => {
     const contactEvent: PlinkoContactEvent = {}
     for (const pair of event.pairs) {
-      const getBody = (label: string) => {
-        if (pair.bodyA.label === label) return pair.bodyA
-        if (pair.bodyB.label === label) return pair.bodyB
+      const assignBody = (key: keyof PlinkoContactEvent, label: string) => {
+        if (pair.bodyA.label === label) contactEvent[key] = pair.bodyA
+        if (pair.bodyB.label === label) contactEvent[key] = pair.bodyB
       }
-      contactEvent.peg = getBody('Peg')
-      contactEvent.bucket = getBody('Bucket')
-      contactEvent.barrier = getBody('Barrier')
-      contactEvent.plinko = getBody('Plinko')
+      assignBody('peg', 'Peg')
+      assignBody('bucket', 'Bucket')
+      assignBody('barrier', 'Barrier')
+      assignBody('plinko', 'Plinko')
     }
 
     this.props.onContact && this.props.onContact(contactEvent)

@@ -31,7 +31,7 @@ function Game({ game, children, errorFallback }: GameProps) {
     <GameContext.Provider key={game.id} value={{ game }}>
       <ErrorBoundary fallback={errorFallback}>
         <React.Suspense fallback={<React.Fragment />}>
-          <game.app />
+          <game.app {...game.props} />
         </React.Suspense>
       </ErrorBoundary>
       {children}

@@ -1,14 +1,14 @@
 import { GambaUi } from 'gamba-react-ui-v2'
 import React from 'react'
+import styled from 'styled-components'
 import { Modal } from '../../components/Modal'
 import { SlideSection } from '../../components/Slider'
 import { GAMES } from '../../games'
 import { useUserStore } from '../../hooks/useUserStore'
 import { GameCard } from './GameCard'
 import { WelcomeBanner } from './WelcomeBanner'
-import styled from 'styled-components'
 
-export function Games() {
+export function GameSlider() {
   return (
     <SlideSection>
       {GAMES.map((game) => (
@@ -30,9 +30,12 @@ const Grid = styled.div`
   @media (min-width: 800px) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 `
 
-export function Games2() {
+export function GameGrid() {
   return (
     <Grid>
       {GAMES.map((game) => (
@@ -65,12 +68,9 @@ export default function Dashboard() {
           </GambaUi.Button>
         </Modal>
       )}
-      <SlideSection>
-        <WelcomeBanner />
-        <WelcomeBanner />
-      </SlideSection>
+      <WelcomeBanner />
       <h2 style={{ textAlign: 'center' }}>Games</h2>
-      <Games2 />
+      <GameGrid />
     </>
   )
 }

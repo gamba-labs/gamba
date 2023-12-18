@@ -17,6 +17,8 @@ export interface GameBundle {
   description: string
   image?: string
   app: any
+  meta?: any
+  props?: any
 }
 
 export function useWagerInput(initial?: number) {

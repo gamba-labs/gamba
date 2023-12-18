@@ -159,14 +159,6 @@ export function PoolList() {
 
   return (
     <Flex direction="column" gap="4">
-      {/* <Welcome p="6">
-        <Flex direction="column" gap="2">
-          <Heading>WWWWWWWelcome to GGGGGGGamba 👋</Heading>
-          <Text>
-            A fair, simple and decentralized betting platform on Solana.
-          </Text>
-        </Flex>
-      </Welcome> */}
       <Table.Root variant="surface">
         <Table.Header>
           <Table.Row>

@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { Modal } from '../../components/Modal'
 import { GAMES } from '../../games'
-import { Games } from '../Dashboard/Dashboard'
+import { GameSlider } from '../Dashboard/Dashboard'
 import { Container, Controls, IconButton, LoadingIndicator, Screen, SettingControls, Splash } from './Game.styles'
 import { ProvablyFairModal } from './ProvablyFairModal'
 
@@ -91,9 +91,7 @@ export default function Game() {
       ) : (
         <h1>Game not found! 👎</h1>
       )}
-      <>
-        <Games />
-      </>
+      <GameSlider />
     </>
   )
 }

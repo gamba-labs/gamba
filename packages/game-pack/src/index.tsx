@@ -1,8 +1,4 @@
 import React from 'react'
-import Dice from './games/Dice/Dice'
-import HiLo from './games/HiLo/Hilo'
-import Mines from './games/Mines/Mines'
-import Roulette from './games/Roulette/Roulette'
 
 const GambaGamePack = {
   dice: {
@@ -13,7 +9,7 @@ const GambaGamePack = {
     description: `
       Use the slider to pick a number, then roll below that number to win. Lower numbers will increase your potential payout, while higher ones are safer.
     `,
-    app: () => <Dice />,
+    app: React.lazy(() => import('./games/Dice/Dice')),
   },
   slots: {
     id: 'slots',
@@ -51,7 +47,8 @@ const GambaGamePack = {
     image: '/games/hilo.png',
     meta: { background: '#77bbff' },
     description: 'Guess if the next card is going to be higher or lower than the current one. Continue until you want to cash out!',
-    app: () => <HiLo logo="/logo.svg" />,
+    props: { logo: '/logo.svg' },
+    app: React.lazy(() => import('./games/HiLo/Hilo')),
   },
   mines: {
     id: 'mines',
@@ -61,7 +58,7 @@ const GambaGamePack = {
     `,
     meta: { background: '#8376ff' },
     image: '/games/mines.png',
-    app: () => <Mines />,
+    app: React.lazy(() => import('./games/Mines/Mines')),
   },
   roulette: {
     id: 'roulette',
@@ -71,7 +68,7 @@ const GambaGamePack = {
     description: `
       A miniature version of Roulette.
     `,
-    app: () => <Roulette />,
+    app: React.lazy(() => import('./games/Roulette/Roulette')),
   },
 }
 

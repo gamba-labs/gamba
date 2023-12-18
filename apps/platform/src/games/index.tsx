@@ -1,5 +1,6 @@
 import GamePack from 'gamba-game-pack'
 import { GameBundle } from 'gamba-react-ui-v2'
+// import { GameBundle } from 'gamba-react-ui-v2'
 import React from 'react'
 import ExampleGame from './ExampleGame/ExampleGame'
 
@@ -19,6 +20,7 @@ import ExampleGame from './ExampleGame/ExampleGame'
  *   },
  * })
  */
+
 export const GAMES: GameBundle[] = [
   GamePack.dice,
   GamePack.slots,
@@ -30,6 +32,7 @@ export const GAMES: GameBundle[] = [
   {
     id: 'test',
     name: 'Test',
+    meta: { background: '#c578ff' },
     description: `
       Test
     `,

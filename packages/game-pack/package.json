@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.tsx --format cjs,esm --external react --dts",
-    "dev": "tsup src/index.tsx --watch --format cjs,esm --external react --dts",
+    "dev": "tsup --watch --format cjs,esm --external react --dts",
     "lint": "tsc",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },

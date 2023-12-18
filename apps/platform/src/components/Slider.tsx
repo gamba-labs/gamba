@@ -58,7 +58,6 @@ export const StyledSection = styled.div`
 
 const StyledContent = styled.div`
   display: flex;
-  align-items: center;
   gap: 15px;
   width: 100%;
   overflow: scroll visible;

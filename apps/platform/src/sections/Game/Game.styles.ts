@@ -97,8 +97,6 @@ export const LoadingIndicator = styled.div<{$active: boolean}>`
   position: relative;
   height: 3px;
   width: 100%;
-  background: #ffffff22;
-  background: var(--box-color);
   overflow: hidden;
   &:after {
     content: " ";

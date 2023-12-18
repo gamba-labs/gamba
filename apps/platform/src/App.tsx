@@ -5,7 +5,7 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 import { Modal } from './components/Modal'
 import { StyledSection } from './components/Slider'
 import { useToast } from './hooks/useToast'
-import Dashboard, { Games } from './sections/Dashboard/Dashboard'
+import Dashboard from './sections/Dashboard/Dashboard'
 import Game from './sections/Game/Game'
 import Header from './sections/Header'
 import RecentPlays from './sections/RecentPlays/RecentPlays'
@@ -32,22 +32,6 @@ function ErrorHandler() {
     },
   )
 
-  // const walletAddress = useWalletAddress()
-  // useGambaEventListener(
-  //   'GameSettled',
-  //   (event) => {
-  //     if (event.data.user.equals(walletAddress)) {
-  //       setTimeout(() => {
-  //         if (event.data.payout.toNumber() > 0) {
-  //           // const profit = event.data.payout.toNumber() - event.data.wager.toNumber()
-  //           // toast({title: `🎉 ${(profit / (10 ** token.decimals))} ${token.symbol}`, description: ""})
-  //         }
-  //       }, 1000)
-  //     }
-  //   },
-  //   [walletAddress],
-  // )
-
   return (
     <>
       {error && (
@@ -72,10 +56,6 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/:gameId" element={<Game />} />
         </Routes>
-        {/* <div>
-          <div>Demo Games</div>
-          <Games />
-        </div> */}
         <h2 style={{ textAlign: 'center' }}>Recent Plays</h2>
         <RecentPlays />
       </StyledSection>

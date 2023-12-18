@@ -64,7 +64,12 @@ const Welcome = styled.div`
   border-radius: 10px;
   position: relative;
   overflow: hidden;
-  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+
   & img {
     animation-duration: 5s;
     animation-iteration-count: infinite;
@@ -77,12 +82,7 @@ const Welcome = styled.div`
     &:nth-child(2) {animation-delay: 1s;}
   }
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
 
-  padding: 20px;
   & > div {
     padding: 0px;
   }

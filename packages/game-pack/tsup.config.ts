@@ -5,7 +5,7 @@ export default defineConfig({
   noExternal: ['lib'],
   sourcemap: true,
   esbuildOptions(options, context) {
-    options.assetNames = 'assets/[name]';
+    options.assetNames = 'assets/[name]'
   },
   loader: {
     '.mp3': 'dataurl',

@@ -3,9 +3,9 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
 
-const BUMP = require('./bump.mp3')
-const WIN = require('./win.mp3')
-const FALL = require('./fall.mp3')
+import { default as BUMP } from './bump.mp3'
+import { default as WIN } from './win.mp3'
+import { default as FALL } from './fall.mp3'
 
 function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
   const [plinko, set] = React.useState<PlinkoGame>(null!)
@@ -22,6 +22,9 @@ function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
   return plinko
 }
 
+const DEGEN_BET = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 10, 10, 10, 15]
+const BET = [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 3, 3, 3, 3, 3, 3, 3, 6]
+
 export default function Plinko() {
   const game = GambaUi.useGame()
   const gamba = useGamba()
@@ -37,16 +40,7 @@ export default function Plinko() {
   const pegAnimations = React.useRef<Record<number, number>>({})
   const bucketAnimations = React.useRef<Record<number, number>>({})
 
-  const bet = React.useMemo(
-    () => {
-      if (degen) {
-        return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 10, 10, 10, 15]
-      }
-      return [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 3, 3, 3, 3, 3, 3, 3, 6]
-    },
-    [degen],
-  )
-
+  const bet = degen ? DEGEN_BET : BET
   const rows = degen ? 12 : 14
 
   const multipliers = React.useMemo(() => Array.from(new Set(bet)), [bet])

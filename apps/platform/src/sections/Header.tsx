@@ -87,7 +87,6 @@ export default function Header() {
           )}
           <TokenSelect />
           <UserButton />
-          {/* <button onClick={() => toast({title: "Toast", description: "This is a toast that is fabricated"})}>T</button> */}
         </div>
       </StyledHeader>
     </>

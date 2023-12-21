@@ -1,33 +1,27 @@
-import { Card, Grid, Text, Flex, Heading, Box, Button } from "@radix-ui/themes"
-import React, { useEffect } from "react"
-import { decodeGambaState, getGambaStateAddress } from "gamba-core"
 import { TokenItem } from "@/components"
 import { useTokenAccountsByOwner } from "@/hooks"
-import { useAccount, useGambaProgram, useSendTransaction } from "gamba-react"
-import { PublicKey, SystemProgram } from "@solana/web3.js"
-import { getAssociatedTokenAddressSync } from "@solana/spl-token"
+import { Button, Card, Flex, Grid, Heading, Text } from "@radix-ui/themes"
+import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
+import { PublicKey } from "@solana/web3.js"
+import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
+import { useAccount, useGambaProgram, useSendTransaction } from "gamba-react-v2"
+import React from "react"
+
+function useTreasuryNativeBalance() {
+  const userAccount = useAccount(getGambaStateAddress(), info => info)
+  const nativeBalance = Number(userAccount?.lamports ?? 0)
+  return nativeBalance
+}
 
 export default function Treasury() {
-  const [solBalance, setSolBalance] = React.useState(0)
   const treasuryAddress = getGambaStateAddress()
+  const solBalance = useTreasuryNativeBalance()
   const tokens = useTokenAccountsByOwner(treasuryAddress)
   const program = useGambaProgram()
   const sendTransaction = useSendTransaction()
-  const gambastate = useAccount(getGambaStateAddress(), decodeGambaState)
-  const connection = useGambaProgram().provider.connection
-
-  useEffect(() => {
-    const fetchSolBalance = async () => {
-      const balance = await connection.getBalance(new PublicKey(treasuryAddress))
-      setSolBalance(balance / Math.pow(10, 9))
-    }
-
-    fetchSolBalance()
-  }, [treasuryAddress, connection])
+  const gambastate = useAccount(treasuryAddress, decodeGambaState)
 
   const distributeFees = async (underlyingTokenMint: PublicKey, isNative: boolean) => {
-    const effectiveMint = isNative ? new PublicKey("So11111111111111111111111111111111111111112") : underlyingTokenMint //if native sol shove in placeholder address so method passes
-
     const gambaStateAtaAddress = getAssociatedTokenAddressSync(
       underlyingTokenMint,
       treasuryAddress,
@@ -41,11 +35,11 @@ export default function Treasury() {
       true,
     )
 
-    const IX = program.methods
+    const instruction = program.methods
       .distributeFees(isNative)
       .accounts({
-        gambaState: getGambaStateAddress(),
-        underlyingTokenMint: effectiveMint,
+        gambaState: treasuryAddress,
+        underlyingTokenMint,
         gambaStateAta: gambaStateAtaAddress,
         distributionRecipient: distributionRecipient,
         distributionRecipientAta: distributionRecipientAta,
@@ -53,10 +47,20 @@ export default function Treasury() {
       })
       .instruction()
 
-    await sendTransaction([IX], { confirmation: "confirmed" })
+    await sendTransaction([instruction], { confirmation: "confirmed" })
   }
 
-  const combinedTokens = [{ mint: null, amount: solBalance }, ...tokens]
+  const combinedTokens = React.useMemo(
+    () => [
+      // Always include Native SOL (Not WSOL)
+      { mint: NATIVE_MINT, amount: solBalance, isNative: true },
+      ...tokens.map((token) => ({
+        ...token,
+        isNative: false,
+      }))
+    ],
+    [tokens, solBalance]
+  )
 
   return (
     <Grid gap="4">
@@ -71,17 +75,14 @@ export default function Treasury() {
             {combinedTokens.map((token, i) => (
               <Card key={i}>
                 <Flex justify="between" >
-                  {token.mint ? (
-                    <TokenItem
-                      mint={token.mint}
-                      balance={token.amount}
-                    />
-                  ) : (
-                    <Text>Native SOL: {token.amount.toFixed(4)} SOL</Text>
-                  )}
+                  <TokenItem
+                    mint={token.mint}
+                    balance={token.amount}
+                    stuff="(Native)"
+                  />
                   <Button onClick={() => distributeFees(
-                    token.mint === null ? new PublicKey("So11111111111111111111111111111111111111112") : token.mint,
-                    token.mint === null,
+                    token.mint,
+                    token.isNative,
                   )}>
                     Distribute
                   </Button>

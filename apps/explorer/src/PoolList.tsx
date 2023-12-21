@@ -141,7 +141,7 @@ export function usePopulatedPool(account: ProgramAccount<PoolState>) {
 
 export function PoolList() {
   const program = useGambaProgram()
-  const legacyTreasury = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
+  const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
 
   const sortedPools = React.useMemo(
@@ -209,7 +209,7 @@ export function PoolList() {
                 </StyledTableCell>
                 <StyledTableCell>
                   <Flex gap="2" align="center">
-                    <TokenValue mint={NATIVE_MINT} amount={legacyTreasury} />
+                    <TokenValue mint={NATIVE_MINT} amount={legacyPool} />
                   </Flex>
                 </StyledTableCell>
                 <StyledTableCell>

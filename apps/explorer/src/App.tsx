@@ -16,7 +16,7 @@ import DebugView from "@/views/Debug/DebugView"
 
 import { PoolList } from "./PoolList"
 import AllUsers from "./views/Debug/AllUsers"
-import Treasury from "./views/Debug/Treasury"
+import DaoView from "./views/Debug/DaoView"
 import { PlatformView } from "./views/Platform/PlatformView"
 import PlayView from "./views/Play/Play"
 import { PlayerView } from "./views/Player/PlayerView"
@@ -143,8 +143,8 @@ export function App() {
             element={<DebugView />}
           />
           <Route
-            path="/treasury"
-            element={<Treasury />}
+            path="/dao"
+            element={<DaoView />}
           />
           <Route
             path="/platform/:address"

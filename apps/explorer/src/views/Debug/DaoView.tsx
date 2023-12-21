@@ -1,4 +1,5 @@
 import { TokenItem } from "@/components"
+import { SolanaAddress } from "@/components/SolanaAddress"
 import { useTokenAccountsByOwner } from "@/hooks"
 import { Button, Card, Flex, Grid, Heading, Text } from "@radix-ui/themes"
 import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
@@ -7,24 +8,24 @@ import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useSendTransaction } from "gamba-react-v2"
 import React from "react"
 
-function useTreasuryNativeBalance() {
+function useDaoNativeBalance() {
   const userAccount = useAccount(getGambaStateAddress(), info => info)
   const nativeBalance = Number(userAccount?.lamports ?? 0)
   return nativeBalance
 }
 
-export default function Treasury() {
-  const treasuryAddress = getGambaStateAddress()
-  const solBalance = useTreasuryNativeBalance()
-  const tokens = useTokenAccountsByOwner(treasuryAddress)
+export default function DaoView() {
+  const daoAddress = getGambaStateAddress()
+  const solBalance = useDaoNativeBalance()
+  const tokens = useTokenAccountsByOwner(daoAddress)
   const program = useGambaProgram()
   const sendTransaction = useSendTransaction()
-  const gambaState = useAccount(treasuryAddress, decodeGambaState)
+  const gambaState = useAccount(daoAddress, decodeGambaState)
 
   const distributeFees = async (underlyingTokenMint: PublicKey, isNative = false) => {
     const gambaStateAtaAddress = getAssociatedTokenAddressSync(
       underlyingTokenMint,
-      treasuryAddress,
+      daoAddress,
       true,
     )
 
@@ -38,7 +39,7 @@ export default function Treasury() {
     const instruction = program.methods
       .distributeFees(isNative)
       .accounts({
-        gambaState: treasuryAddress,
+        gambaState: daoAddress,
         underlyingTokenMint,
         gambaStateAta: gambaStateAtaAddress,
         distributionRecipient: distributionRecipient,
@@ -59,12 +60,12 @@ export default function Treasury() {
   return (
     <Grid gap="4">
       <Flex justify="between">
-        <Text>Treasury</Text>
-        <Text>{treasuryAddress.toBase58()}</Text>
+        <Text>DAO</Text>
+        <SolanaAddress address={daoAddress} />
       </Flex>
       <Card>
         <Grid gap="4">
-          <Heading>Treasury accounts</Heading>
+          <Heading>Token accounts</Heading>
           <Grid gap="2">
             {combinedTokens.map((token, i) => (
               <Card key={i}>
@@ -74,7 +75,7 @@ export default function Treasury() {
                   stuff={
                     <>
                       {token.isNative && '(Native)'}
-                      <Button size="1" variant="ghost" onClick={() => distributeFees(
+                      <Button size="2" variant="soft" onClick={() => distributeFees(
                         token.mint,
                         token.isNative,
                       )}>

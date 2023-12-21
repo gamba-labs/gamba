@@ -1,6 +1,6 @@
 import * as anchor from '@coral-xyz/anchor'
 import { getAssociatedTokenAddressSync } from '@solana/spl-token'
-import { ConfirmOptions, Connection, PublicKey } from '@solana/web3.js'
+import { AddressLookupTableProgram, ConfirmOptions, Connection, PublicKey } from '@solana/web3.js'
 import { PROGRAM_ID } from './constants'
 import { Gamba as GambaIdl, IDL } from './idl'
 import { GambaProviderWallet } from './types'
@@ -41,11 +41,14 @@ export class GambaProvider {
   }
 
   /**
-   * Creates a pool for the specified token
+   * Creates a pool for the specified token with address lookup table
    * @param underlyingTokenMint The token to use for the pool
    * @param authority The authority for the pool
+   * @param slot The slot to use for the lookup table instruction
+   * @returns Multiple TransactionInstruction in an array
    */
-  createPool(underlyingTokenMint: PublicKey, authority: PublicKey) {
+  createPool(underlyingTokenMint: PublicKey, authority: PublicKey, slot: number) {
+
     const gambaStateAta = getAssociatedTokenAddressSync(
       underlyingTokenMint,
       getGambaStateAddress(),
@@ -61,8 +64,41 @@ export class GambaProvider {
     const lpMintMetadata = PublicKey.findProgramAddressSync([Buffer.from(METADATA_SEED), TOKEN_METADATA_PROGRAM_ID.toBuffer(), lp_mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID)[0]
     const bonusMintMetadata = PublicKey.findProgramAddressSync([Buffer.from(METADATA_SEED), TOKEN_METADATA_PROGRAM_ID.toBuffer(), bonus_mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID)[0]
 
-    return this.gambaProgram.methods
-      .poolInitialize(authority)
+    //more addresses for lookup table
+    const gamba_state = getGambaStateAddress()
+    const pool_jackpot_token_account = PublicKey.findProgramAddressSync([Buffer.from('POOL_JACKPOT'), pool.toBuffer()], PROGRAM_ID)[0]
+    
+    const [lookupTableInst, lookupTableAddress] = AddressLookupTableProgram.createLookupTable({
+      authority: this.anchorProvider.wallet.publicKey,
+      payer : this.anchorProvider.wallet.publicKey,
+      recentSlot: slot-1,
+    })
+
+    
+
+    const addAddressesInstruction = AddressLookupTableProgram.extendLookupTable({
+      payer: this.anchorProvider.wallet.publicKey,
+      authority: this.anchorProvider.wallet.publicKey,
+      lookupTable: lookupTableAddress,
+      addresses:[
+        pool,
+        underlyingTokenMint,
+        pool_underlying_token_account,
+        pool_bonus_underlying_token_account,
+        gamba_state,
+        gambaStateAta,
+        bonus_mint,
+        pool_jackpot_token_account,
+        ],
+    })
+    
+    const freezeInstruction = AddressLookupTableProgram.freezeLookupTable({
+      authority: this.anchorProvider.wallet.publicKey,
+      lookupTable: lookupTableAddress,
+    })
+
+    const createPoolInstruction = this.gambaProgram.methods
+      .poolInitialize(authority, lookupTableAddress)
       .accounts({
         initializer: this.anchorProvider.wallet.publicKey,
         gambaState: getGambaStateAddress(),
@@ -82,6 +118,8 @@ export class GambaProvider {
         tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
       })
       .instruction()
+
+      return [lookupTableInst, addAddressesInstruction, freezeInstruction, createPoolInstruction]
   }
 
   /**

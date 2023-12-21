@@ -2,9 +2,9 @@ import * as anchor from "@coral-xyz/anchor"
 import { Button, Card, Flex, Grid, Heading, Text, TextField } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
-import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
-import { useTokenMeta } from "gamba-react-ui-v2"
-import { useAccount, useGambaProgram, useSendTransaction, useWalletAddress } from "gamba-react-v2"
+import { decodeGambaState, getGambaStateAddress } from "gamba-core"
+import { useAccount, useGambaProgram, useSendTransaction, useWalletAddress } from "gamba-react"
+import { useTokenMeta } from "gamba-react-ui"
 import React, { useState } from "react"
 import { useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
@@ -50,9 +50,9 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
     depositLimit: pool.state.depositLimit,
     depositLimitAmount: String(pool.state.depositLimitAmount.toNumber() / Math.pow(10, token.decimals)),
     customPoolFee: pool.state.customPoolFee,
-    customPoolFeeBps: String(pool.state.customPoolFeeBps.toNumber() / BPS_PER_WHOLE),
+    customPoolFeeBps: String(pool.state.customPoolFeeBps.toNumber() / 100),
     customMaxPayout: pool.state.customMaxPayout,
-    customMaxPayoutBps: String(pool.state.customMaxPayoutBps.toNumber() / BPS_PER_WHOLE),
+    customMaxPayoutBps: String(pool.state.customMaxPayoutBps.toNumber() / 100),
     depositWhitelistRequired: pool.state.depositWhitelistRequired,
     depositWhitelistAddress: pool.state.depositWhitelistAddress.toBase58(),
   })
@@ -78,8 +78,8 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
 
     const poolDepositLimitInSmallestUnit = handleDecimalChange(input.depositLimitAmount, token.decimals)
     const poolMinWagerInSmallestUnit = handleDecimalChange(input.minWager, token.decimals)
-    const customPoolFeeBpsValue = parseFloat(customPoolFeeBps) * BPS_PER_WHOLE
-    const customMaxPayoutBpsValue = parseFloat(customMaxPayoutBps) * BPS_PER_WHOLE
+    const customPoolFeeBpsValue = parseFloat(customPoolFeeBps) * 100
+    const customMaxPayoutBpsValue = parseFloat(customMaxPayoutBps) * 100
 
     const depositWhitelistPublicKey = new PublicKey(depositWhitelistAddress)
 
@@ -128,6 +128,8 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
               <TextField.Input
                 value={input.depositLimitAmount}
                 onChange={e => updateInput({ depositLimitAmount: e.target.value })}
+                type="number"
+                disabled={!input.depositLimit}
               />
             </TextField.Root>
           </Thing>
@@ -138,12 +140,13 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
               onChange={e => updateInput({ customPoolFee: e.target.checked })}
             />
           </Thing>
-          <Thing title="Custom Pool Fee (BPS)">
+          <Thing title="Custom Pool Fee %">
             <TextField.Root>
               <TextField.Input
                 value={input.customPoolFeeBps}
                 onChange={e => updateInput({ customPoolFeeBps: e.target.value })}
                 type="number"
+                disabled={!input.customPoolFee}
               />
             </TextField.Root>
           </Thing>
@@ -154,12 +157,13 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
               onChange={e => updateInput({ customMaxPayout: e.target.checked })}
             />
           </Thing>
-          <Thing title="Max Payout (BPS)">
+          <Thing title="Max Payout %">
             <TextField.Root>
               <TextField.Input
                 value={input.customMaxPayoutBps}
                 onChange={e => updateInput({ customMaxPayoutBps: e.target.value })}
                 type="number"
+                disabled={!input.customMaxPayout}
               />
             </TextField.Root>
           </Thing>
@@ -175,6 +179,7 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
               <TextField.Input
                 value={input.depositWhitelistAddress}
                 onChange={e => updateInput({ depositWhitelistAddress: e.target.value })}
+                disabled={!input.depositWhitelistRequired}
               />
             </TextField.Root>
           </Thing>

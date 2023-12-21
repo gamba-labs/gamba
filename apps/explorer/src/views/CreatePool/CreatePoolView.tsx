@@ -2,9 +2,9 @@ import { ArrowRightIcon, ExclamationTriangleIcon, PlusIcon } from "@radix-ui/rea
 import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { ComputeBudgetProgram } from "@solana/web3.js"
-import { decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
-import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
-import { GAMBA_STANDARD_TOKEN_LIST } from "gamba-react-ui-v2"
+import { decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core"
+import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react"
+import { GAMBA_STANDARD_TOKEN_LIST } from "gamba-react-ui"
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import useSWR from "swr"
@@ -57,11 +57,13 @@ export default function CreatePoolView() {
 
       const pool = getPoolAddress(selectedToken.mint, authority)
 
-      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 600_000 })
+      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 })
+      const slot = await connection.getSlot()
 
       const combinedInstructions = [
         modifyComputeUnits,
-        gamba.createPool(selectedToken.mint, authority),
+        ...gamba.createPool(selectedToken.mint, authority, slot),
+        // gamba.createPoolLocalnet(selectedToken.mint, authority),
       ]
 
       await sendTx(

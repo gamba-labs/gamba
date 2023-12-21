@@ -1,8 +1,8 @@
 import * as anchor from "@coral-xyz/anchor"
 import { Button, Flex, Grid, Heading, Text, TextField } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
-import { BPS_PER_WHOLE } from "gamba-core-v2"
-import { useGambaProgram, useSendTransaction } from "gamba-react-v2"
+import { BPS_PER_WHOLE } from "gamba-core"
+import { useGambaProgram, useSendTransaction } from "gamba-react"
 import React, { useState } from "react"
 import { mutate } from "swr"
 
@@ -16,8 +16,9 @@ const Thing = ({ title, children }: { title: string; children: React.ReactNode }
 )
 
 interface PoolConfigInput {
-  antiSpamFeeExemption: boolean
-  customGambaFee: string
+  antiSpamFeeExemption: boolean;
+  customGambaFeeEnabled: boolean;
+  customGambaFeePercent: string; // Representing the fee as a percentage
 }
 
 export default function PoolGambaConfigDialog({ pool }: { pool: UiPool }) {
@@ -27,7 +28,8 @@ export default function PoolGambaConfigDialog({ pool }: { pool: UiPool }) {
 
   const [input, setInput] = useState<PoolConfigInput>({
     antiSpamFeeExemption: pool.state.antiSpamFeeExempt,
-    customGambaFee: String(pool.state.customGambaFeeBps.toNumber() / BPS_PER_WHOLE),
+    customGambaFeeEnabled: pool.state.customGambaFee,
+    customGambaFeePercent: String(pool.state.customGambaFeeBps / BPS_PER_WHOLE * 100), // Convert basis points to percentage
   })
 
   const updateInput = (update: Partial<PoolConfigInput>) => {
@@ -35,17 +37,16 @@ export default function PoolGambaConfigDialog({ pool }: { pool: UiPool }) {
   }
 
   const updateConfig = async () => {
-    const {
-      antiSpamFeeExemption,
-      customGambaFee,
-    } = input
+    const { antiSpamFeeExemption, customGambaFeeEnabled, customGambaFeePercent } = input
 
-    const customGambaFeeBps = parseFloat(customGambaFee) * BPS_PER_WHOLE
+    // Convert the input percentage to basis points
+    const customGambaFeeBps = parseFloat(customGambaFeePercent) / 100 * BPS_PER_WHOLE
 
     await sendTx(
       program.methods
         .poolGambaConfig(
           antiSpamFeeExemption,
+          customGambaFeeEnabled,
           new anchor.BN(customGambaFeeBps),
         )
         .accounts({ user: publicKey!, pool: pool.publicKey })
@@ -66,19 +67,26 @@ export default function PoolGambaConfigDialog({ pool }: { pool: UiPool }) {
             onChange={e => updateInput({ antiSpamFeeExemption: e.target.checked })}
           />
         </Thing>
+        <Thing title="Enable Custom Gamba Fee">
+          <input
+            type="checkbox"
+            checked={input.customGambaFeeEnabled}
+            onChange={e => updateInput({ customGambaFeeEnabled: e.target.checked })}
+          />
+        </Thing>
         <Thing title="Custom Gamba Fee (%)">
           <TextField.Root>
             <TextField.Input
-              value={input.customGambaFee}
-              onChange={e => updateInput({ customGambaFee: e.target.value })}
+              value={input.customGambaFeePercent}
+              onChange={e => updateInput({ customGambaFeePercent: e.target.value })}
               type="number"
               step="0.01"
+              disabled={!input.customGambaFeeEnabled}
+              placeholder="Enter fee percentage"
             />
           </TextField.Root>
         </Thing>
-        <Button onClick={updateConfig}>
-          Update
-        </Button>
+        <Button onClick={updateConfig}>Update</Button>
       </Flex>
     </>
   )

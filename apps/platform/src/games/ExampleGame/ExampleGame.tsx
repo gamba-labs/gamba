@@ -24,16 +24,15 @@ export default function ExampleGame() {
     <>
       <GambaUi.Portal target="screen">
         <GambaUi.Canvas
-          render={(canvas, ctx, clock, { width, height }) => {
+          render={({ ctx, size }, clock) => {
             const scale = 3 + Math.cos(clock.time) * .5
             const hue = _hue.current
 
             ctx.fillStyle = 'hsla(' + hue + ', 50%, 3%, 1)'
-            ctx.fillRect(0, 0, width, height)
+            ctx.fillRect(0, 0, size.width, size.height)
 
             ctx.save()
-            ctx.translate(width / 2, height / 2)
-
+            ctx.translate(size.width / 2, size.height / 2)
 
             for (let i = 0; i < 5; i++) {
               ctx.save()

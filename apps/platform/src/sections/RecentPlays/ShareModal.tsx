@@ -9,6 +9,20 @@ import { PLATFORM_SHARABLE_URL } from '../../constants'
 import { useToast } from '../../hooks/useToast'
 import { extractMetadata } from '../../utils'
 
+// const saveBlob = (function() {
+//   const a = document.createElement('a')
+//   document.body.appendChild(a)
+//   a.setAttribute('style', 'display: none')
+
+//   return function(blob: Blob, fileName: string) {
+//     const url = window.URL.createObjectURL(blob)
+//     a.href = url
+//     a.download = fileName
+//     a.click()
+//     window.URL.revokeObjectURL(url)
+//   }
+// })()
+
 const canvasToClipboard = async (canvas: HTMLCanvasElement) => {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -17,6 +31,8 @@ const canvasToClipboard = async (canvas: HTMLCanvasElement) => {
           return reject()
         }
         if (blob) {
+          // saveBlob(blob, 'play.png')
+          // resolve(true)
           navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
             .then(resolve)
             .catch(reject)
@@ -28,9 +44,9 @@ const canvasToClipboard = async (canvas: HTMLCanvasElement) => {
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
   const navigate = useNavigate()
-  const meta = extractMetadata(event)
+  const { game } = extractMetadata(event)
   const gotoGame = () => {
-    navigate('/' + meta?.game?.id)
+    navigate('/' + game?.id)
     onClose()
   }
   const tokenMeta = useTokenMeta(event.data.tokenMint)
@@ -75,7 +91,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
                 )}
               </div>
               <div style={{ padding: '10px', textAlign: 'center' }}>
-                <img src={meta?.game?.image} width="100px" />
+                <img src={game?.meta?.image} width="100px" />
               </div>
             </div>
             <div style={{ background: '#00000033', color: '#ffffff99', fontStyle: 'italic', display: 'flex', alignContent: 'center', gap: '10px', padding: '10px' }}>
@@ -86,7 +102,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
         </div>
         <Flex>
           <GambaUi.Button size="small" onClick={gotoGame}>
-            Play {meta?.game?.name}
+            Play {game?.meta?.name}
           </GambaUi.Button>
           <GambaUi.Button size="small" disabled={copying} onClick={copyImage}>
             Share

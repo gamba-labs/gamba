@@ -24,27 +24,27 @@ function TimeDiff({ time, suffix = 'ago' }: {time: number, suffix?: string}) {
 }
 
 function RecentPlay({ event }: {event: GambaTransaction<'GameSettled'>}) {
-  const game = event.data
-  const token = useTokenMeta(game.tokenMint)
+  const data = event.data
+  const token = useTokenMeta(data.tokenMint)
   const md = useMediaQuery('md')
 
-  const multiplier = game.bet[game.resultIndex.toNumber()] / BPS_PER_WHOLE
-  const wager = game.wager.toNumber()
+  const multiplier = data.bet[data.resultIndex.toNumber()] / BPS_PER_WHOLE
+  const wager = data.wager.toNumber()
   const payout = multiplier * wager
   const profit = payout - wager
 
-  const meta = extractMetadata(event)
+  const { game } = extractMetadata(event)
 
   return (
     <>
-      <img src={meta?.game?.image} style={{ height: '1.5em' }} />
+      <img src={game?.meta.image} style={{ height: '1.5em' }} />
       <div style={{ color: '#a079ff' }}>
-        {game.user.toBase58().substring(0, 4)}...
+        {data.user.toBase58().substring(0, 4)}...
       </div>
       {md && (profit >= 0 ? ' won ' : ' lost ')}
       <Profit $win={profit > 0}>
         <img src={token.image} height="15px" />
-        <TokenValue amount={Math.abs(profit)} mint={game.tokenMint} />
+        <TokenValue amount={Math.abs(profit)} mint={data.tokenMint} />
       </Profit>
       {md && (
         <>
@@ -53,9 +53,9 @@ function RecentPlay({ event }: {event: GambaTransaction<'GameSettled'>}) {
               ({multiplier.toFixed(2)}x)
             </div>
           )}
-          {game.jackpotWin.toNumber() > 0 && (
+          {data.jackpotWin.toNumber() > 0 && (
             <Jackpot>
-              +<TokenValue mint={game.tokenMint} amount={game.jackpotWin.toNumber()} />
+              +<TokenValue mint={data.tokenMint} amount={data.jackpotWin.toNumber()} />
             </Jackpot>
           )}
         </>

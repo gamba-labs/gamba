@@ -74,20 +74,20 @@ export default function Plinko() {
     <>
       <GambaUi.Portal target="screen">
         <GambaUi.Canvas
-          render={(canvas, ctx, _, { width, height }) => {
+          render={({ ctx, size }, clock) => {
             if (!plinko) return
 
             const bodies = plinko.getBodies()
 
-            const xx = width / plinko.width
-            const yy = height / plinko.height
+            const xx = size.width / plinko.width
+            const yy = size.height / plinko.height
             const s = Math.min(xx, yy)
 
-            ctx.clearRect(0, 0, width, height)
+            ctx.clearRect(0, 0, size.width, size.height)
             ctx.fillStyle = '#0b0b13'
-            ctx.fillRect(0, 0, width, height)
+            ctx.fillRect(0, 0, size.width, size.height)
             ctx.save()
-            ctx.translate(width / 2 - plinko.width / 2 * s, height / 2 - plinko.height / 2 * s)
+            ctx.translate(size.width / 2 - plinko.width / 2 * s, size.height / 2 - plinko.height / 2 * s)
             ctx.scale(s, s)
             if (debug) {
               ctx.beginPath()

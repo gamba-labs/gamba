@@ -11,13 +11,10 @@ export * from './components/TokenValue'
 export * from './hooks'
 export * from './tokens'
 
-export interface GameBundle {
+export interface GameBundle<T = any> {
   id: string
-  name: string
-  description: string
-  image?: string
   app: any
-  meta?: any
+  meta?: T
   props?: any
 }
 

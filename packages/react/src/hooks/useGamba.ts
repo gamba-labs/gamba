@@ -1,6 +1,6 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
-import { decodeGame, getGameAddress, getNextResult, getPoolAddress } from 'gamba-core-v2'
+import { NATIVE_MINT, decodeGame, getGameAddress, getNextResult, getPoolAddress } from 'gamba-core-v2'
 import { useAccount, useGambaProvider } from '.'
 import { useWalletAddress } from './useBalances'
 import { throwTransactionError, useSendTransaction, useTransactionStore } from './useSendTransaction'
@@ -8,11 +8,11 @@ import { throwTransactionError, useSendTransaction, useTransactionStore } from '
 export interface GambaPlayInput {
   wager: number
   bet: number[]
-  creator: PublicKey
-  creatorFee: number
-  jackpotFee: number
-  clientSeed: string
-  token: PublicKey
+  creator: string | PublicKey
+  creatorFee?: number
+  jackpotFee?: number
+  clientSeed?: string
+  token?: string | PublicKey
   metadata?: (string | number)[]
   useBonus?: boolean
 }
@@ -55,24 +55,24 @@ export function useGambaPlay() {
   const provider = useGambaProvider()
 
   const play = (input: GambaPlayInput) => {
-    const creator = input.creator
-    const creatorFee = input.creatorFee
-    const jackpotFee = input.jackpotFee
+    const creator = new PublicKey(input.creator)
+    const creatorFee = input.creatorFee ?? 0
+    const jackpotFee = input.jackpotFee ?? 0
     const meta = input.metadata?.join(':') ?? ''
-
+    const token = new PublicKey(input.token ?? NATIVE_MINT)
     if (!connected) {
       throw throwTransactionError(new Error('NOT_CONNECTED'))
     }
 
-    const pool = getPoolAddress(input.token)
+    const pool = getPoolAddress(token)
 
     return sendTx(
       provider.play(
         input.wager,
         input.bet,
-        input.clientSeed,
+        input.clientSeed ?? '',
         pool,
-        input.token,
+        token,
         creator,
         creatorFee,
         jackpotFee,

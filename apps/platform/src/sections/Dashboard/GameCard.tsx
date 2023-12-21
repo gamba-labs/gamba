@@ -113,8 +113,8 @@ export function GameCard({ game }: {game: GameBundle}) {
       $background={game.meta?.background}
     >
       <div className="background" />
-      <div className="image" style={{ backgroundImage: `url(${game.image})` }} />
-      <div className="play">Play {game.name}</div>
+      <div className="image" style={{ backgroundImage: `url(${game.meta.image})` }} />
+      <div className="play">Play {game.meta.name}</div>
     </StyledGameCard>
   )
 }

@@ -1,4 +1,4 @@
-import GamePack from 'gamba-game-pack'
+import GamePack from 'gamba-game-pack-v2'
 import { GameBundle } from 'gamba-react-ui-v2'
 // import { GameBundle } from 'gamba-react-ui-v2'
 import React from 'react'
@@ -31,11 +31,13 @@ export const GAMES: GameBundle[] = [
   GamePack.mines,
   {
     id: 'test',
-    name: 'Test',
-    meta: { background: '#c578ff' },
-    description: `
-      Test
-    `,
+    meta: {
+      name: 'Test',
+      background: '#c578ff',
+      description: `
+        Test
+      `,
+    },
     app: () => <ExampleGame />,
   },
 ]

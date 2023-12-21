@@ -1,13 +1,17 @@
 import React from 'react'
 import useAnimationFrame, { AnimationFrameData } from '../hooks/useAnimationFrame'
 
+interface CanvasContext {
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  size: {width: number, height: number}
+}
+
 export interface CanvasProps extends React.InputHTMLAttributes<HTMLCanvasElement> {
   zIndex?: number
   render: (
-    canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D,
+    context: CanvasContext,
     time: AnimationFrameData,
-    stuff: {width: number, height: number},
   ) => void
 }
 
@@ -24,13 +28,18 @@ export const GambaCanvas = React.forwardRef<HTMLCanvasElement, CanvasProps>(func
       ctx.save()
       ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
       render(
-        canvas.current,
-        ctx,
+        {
+          canvas: canvas.current,
+          ctx,
+          size: {
+            width: wrapper.current.clientWidth,
+            height: wrapper.current.clientHeight,
+          },
+        },
         time,
-        {width: wrapper.current.clientWidth, height: wrapper.current.clientHeight}
       )
       ctx.restore()
-    }
+    },
   )
 
   React.useLayoutEffect(() => {
@@ -62,7 +71,7 @@ export const GambaCanvas = React.forwardRef<HTMLCanvasElement, CanvasProps>(func
   }, [])
 
   return (
-    <div ref={wrapper} style={{position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', zIndex}}>
+    <div ref={wrapper} style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', zIndex }}>
       <canvas {...rest} style={{ width: '100%', height: '100%', ...style }} ref={canvas} />
     </div>
   )

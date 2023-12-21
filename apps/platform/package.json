@@ -17,7 +17,7 @@
     "@solana/web3.js": "^1.78.5",
     "buffer": "^6.0.3",
     "gamba-core-v2": "workspace:*",
-    "gamba-game-pack": "workspace:*",
+    "gamba-game-pack-v2": "workspace:*",
     "gamba-react-v2": "workspace:*",
     "gamba-react-ui-v2": "workspace:*",
     "html2canvas": "^1.4.1",

@@ -5,9 +5,12 @@
     "dev": "turbo run dev --no-cache --continue --filter=!gamba-api",
     "api": "turbo run api --filter=gamba-api",
     "api-dev": "turbo run dev --filter=gamba-api",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "changeset": "changeset",
+    "version-packages": "changeset version"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "turbo": "^1.10.15",
     "typescript": "^5.2.2"
   },

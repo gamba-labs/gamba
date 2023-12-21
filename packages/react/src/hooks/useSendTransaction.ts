@@ -1,6 +1,6 @@
 import { AnchorError } from '@coral-xyz/anchor'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { Commitment, TransactionInstruction, TransactionMessage, VersionedTransaction, PublicKey} from '@solana/web3.js'
+import { Commitment, TransactionInstruction, TransactionMessage, VersionedTransaction, PublicKey } from '@solana/web3.js'
 import React from 'react'
 import { StoreApi, create } from 'zustand'
 import { PubSub } from '../PubSub'
@@ -33,7 +33,7 @@ export function useTransactionError(callback: (error: Error) => void) {
 
 interface SendTransactionOptions {
   confirmation?: Commitment
-  lookupTable?: PublicKey // Optional ALT public key
+  lookupTable?: PublicKey
 }
 
 const getErrorLogs = (error: unknown) => {
@@ -66,11 +66,11 @@ export function useSendTransaction() {
       const resolvedInstructions = await Promise.all(instructions)
 
       // If a lookup table is provided, fetch it
-      const lookupTable = [];
+      const lookupTable = []
       if (opts?.lookupTable) {
-        const lookupTableResponse = await connection.getAddressLookupTable(opts.lookupTable);
+        const lookupTableResponse = await connection.getAddressLookupTable(opts.lookupTable)
         if (lookupTableResponse?.value) {
-          lookupTable.push(lookupTableResponse.value);
+          lookupTable.push(lookupTableResponse.value)
         }
       }
 

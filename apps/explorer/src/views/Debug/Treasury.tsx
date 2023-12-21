@@ -19,16 +19,16 @@ export default function Treasury() {
   const tokens = useTokenAccountsByOwner(treasuryAddress)
   const program = useGambaProgram()
   const sendTransaction = useSendTransaction()
-  const gambastate = useAccount(treasuryAddress, decodeGambaState)
+  const gambaState = useAccount(treasuryAddress, decodeGambaState)
 
-  const distributeFees = async (underlyingTokenMint: PublicKey, isNative: boolean) => {
+  const distributeFees = async (underlyingTokenMint: PublicKey, isNative = false) => {
     const gambaStateAtaAddress = getAssociatedTokenAddressSync(
       underlyingTokenMint,
       treasuryAddress,
       true,
     )
 
-    const distributionRecipient = gambastate.distributionRecipient
+    const distributionRecipient = gambaState.distributionRecipient
     const distributionRecipientAta = getAssociatedTokenAddressSync(
       underlyingTokenMint,
       distributionRecipient,
@@ -50,17 +50,11 @@ export default function Treasury() {
     await sendTransaction([instruction], { confirmation: "confirmed" })
   }
 
-  const combinedTokens = React.useMemo(
-    () => [
-      // Always include Native SOL (Not WSOL)
-      { mint: NATIVE_MINT, amount: solBalance, isNative: true },
-      ...tokens.map((token) => ({
-        ...token,
-        isNative: false,
-      }))
-    ],
-    [tokens, solBalance]
-  )
+  const combinedTokens = [
+    // Always include Native SOL (Not WSOL)
+    { mint: NATIVE_MINT, amount: solBalance, isNative: true },
+    ...tokens,
+  ] as {mint: PublicKey, amount: number, isNative: true | undefined}[]
 
   return (
     <Grid gap="4">
@@ -74,19 +68,21 @@ export default function Treasury() {
           <Grid gap="2">
             {combinedTokens.map((token, i) => (
               <Card key={i}>
-                <Flex justify="between" >
-                  <TokenItem
-                    mint={token.mint}
-                    balance={token.amount}
-                    stuff="(Native)"
-                  />
-                  <Button onClick={() => distributeFees(
-                    token.mint,
-                    token.isNative,
-                  )}>
-                    Distribute
-                  </Button>
-                </Flex>
+                <TokenItem
+                  mint={token.mint}
+                  balance={token.amount}
+                  stuff={
+                    <>
+                      {token.isNative && '(Native)'}
+                      <Button size="1" variant="ghost" onClick={() => distributeFees(
+                        token.mint,
+                        token.isNative,
+                      )}>
+                        Distribute
+                      </Button>
+                    </>
+                  }
+                />
               </Card>
             ))}
           </Grid>

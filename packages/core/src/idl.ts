@@ -1799,6 +1799,10 @@ export type Gamba = {
             "type": "publicKey"
           },
           {
+            "name": "rngAddress2",
+            "type": "publicKey"
+          },
+          {
             "name": "antiSpamFee",
             "type": "u64"
           },
@@ -3990,6 +3994,10 @@ export const IDL: Gamba = {
           },
           {
             "name": "rngAddress",
+            "type": "publicKey"
+          },
+          {
+            "name": "rngAddress2",
             "type": "publicKey"
           },
           {

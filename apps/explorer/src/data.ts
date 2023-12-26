@@ -129,6 +129,18 @@ export const CREATORS = [
     url: 'https://casino.fronk.xyz/',
     image: '/logos/fronk.png',
   },
+  {
+    address: '7hSpQrpDXCddqLWPg6aWcFCnnYwCsUnuFYiBTe3rRxjL',
+    name: 'Queckz Babiez',
+    url: 'https://www.quekzbabiez.games/',
+    image: '/logos/quekzbabiez.png',
+  },
+  {
+    address: '6eBxsBoLNuJYJzA5HGadfw4FRZRJNf3aAJQBsAKhPoGu',
+    name: 'Broosters',
+    url: 'https://www.broosters.xyz/',
+    image: '/logos/broosters.png',
+  }
 ]
 
 const CREATORS_BY_ADDRESS = CREATORS.reduce((prev, meta) => ({

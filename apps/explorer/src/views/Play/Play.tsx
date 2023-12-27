@@ -1,6 +1,5 @@
 import { CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from "@radix-ui/react-icons"
 import { Badge, Box, Button, Card, Code, Dialog, Flex, Grid, IconButton, Link, Table, Tabs, Text, TextField } from "@radix-ui/themes"
-import { NATIVE_MINT } from "@solana/spl-token"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection } from "@solana/web3.js"
 import { BPS_PER_WHOLE, GambaTransaction, parseGambaTransaction } from "gamba-core-v2"
@@ -57,7 +56,7 @@ const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
   `}
 `
 
-function VerificationSection({ parsed, nextRngSeed }: { nextRngSeed: string, parsed: GambaTransaction<"GameSettled">}) {
+function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled">}) {
   const data = parsed.data
   const [output, setOutput] = React.useState<number>()
   const [clientSeed, setClientSeed] = React.useState(data.clientSeed)
@@ -163,7 +162,7 @@ function VerificationSection({ parsed, nextRngSeed }: { nextRngSeed: string, par
                   Next Hashed RNG Seed (SHA-256)
                 </Text>
                 <Text color="gray">
-                  {nextRngSeed}
+                  {data.nextRngSeedHashed}
                 </Text>
               </Grid>
             </Table.Cell>
@@ -281,11 +280,6 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               <Text weight="bold">
                 Player
               </Text>
-              {/* <Flex gap="2">
-                <Avatar color="orange" size="1" fallback={game.user.toBase58().substring(0, 3)} />
-                <SolanaAddress address={game.user} />
-              </Flex> */}
-              {/* <PlayerAccountItem address={game.user} /> */}
               <Link asChild>
                 <NavLink to={"/player/" + game.user.toBase58()}>
                   <PlayerAccountItem address={game.user} />
@@ -304,10 +298,6 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               <Link asChild>
                 <NavLink to={"/platform/" + game.creator.toBase58()}>
                   <PlatformAccountItem address={game.creator} />
-                  {/* <Flex gap="2">
-                <Avatar size="1" fallback={game.creator.toBase58().substring(0, 3)} />
-                <SolanaAddress address={game.creator} />
-              </Flex> */}
                 </NavLink>
               </Link>
             </Grid>
@@ -397,10 +387,10 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
                   </Badge>
                 </Flex>
 
-                {game.jackpotWin.toNumber() > 0 && (
+                {game.jackpotPayoutToUser.toNumber() > 0 && (
                   <Flex gap="2" align="center">
                     <TokenAvatar size="1" mint={game.tokenMint} />
-                    <TokenValue amount={game.jackpotWin.toNumber()} mint={game.tokenMint} /> Jackpot
+                    <TokenValue amount={game.jackpotPayoutToUser.toNumber()} mint={game.tokenMint} /> Jackpot
                   </Flex>
                 )}
 
@@ -472,11 +462,7 @@ async function fetchGambaTransaction(connection: Connection, txId: string) {
   }
   const logs = transaction?.meta?.logMessages ?? []
 
-  const key = "Program log: [Gamba] next_rng_seed_hashed: "
-  const a = logs?.find(x => x.startsWith(key))
-  const nextRngSeedHashed = a ? JSON.parse(a.split(key)[1] ?? "\"\"") : ""
-
-  return { transaction, logs, parsed, nextRngSeedHashed }
+  return { transaction, logs, parsed }
 }
 
 export default function PlayView() {
@@ -564,10 +550,7 @@ export default function PlayView() {
           </Grid>
         </Tabs.Content>
         <Tabs.Content value="verification">
-          <VerificationSection
-            parsed={data.parsed}
-            nextRngSeed={data.nextRngSeedHashed}
-          />
+          <VerificationSection parsed={data.parsed} />
         </Tabs.Content>
         <Tabs.Content value="logs">
           <Card>
@@ -581,7 +564,6 @@ export default function PlayView() {
           </Card>
         </Tabs.Content>
       </Grid>
-
     </Tabs.Root>
   )
 }

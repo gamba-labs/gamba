@@ -224,7 +224,7 @@ export const parseResult = (
     multiplier,
     token: state.tokenMint,
     bonusUsed: state.bonusUsed.toNumber(),
-    jackpotWin: 0, // TODO
+    jackpotWin: state.jackpotPayout.toNumber(),
   }
 }
 

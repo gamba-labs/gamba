@@ -1,5 +1,5 @@
+import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import { GambaUi, TokenValue, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import React from 'react'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit } from './styles'
@@ -52,7 +52,7 @@ const adjustBetArray = (betArray: number[]) => {
 export default function HiLo(props: HiLoConfig) {
   const game = GambaUi.useGame()
   const gamba = useGamba()
-  const pool = GambaUi.useCurrentPool()
+  const pool = useCurrentPool()
   const [cards, setCards] = React.useState([card()])
   const [claiming, setClaiming] = React.useState(false)
   const [initialWager, setInitialWager] = useWagerInput()

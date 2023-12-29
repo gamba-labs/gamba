@@ -29,7 +29,7 @@ function CustomError() {
  */
 function CustomRenderer() {
   const gamba = useGamba()
-  const { game } = GambaUi.useGameContext()
+  const { game } = GambaUi.useGame()
   const [info, setInfo] = React.useState(false)
   const [provablyFair, setProvablyFair] = React.useState(false)
   const audioStore = useGambaAudioStore()
@@ -38,8 +38,8 @@ function CustomRenderer() {
     <>
       {info && (
         <Modal onClose={() => setInfo(false)}>
-          <h1>{game.name}</h1>
-          <p>{game.description}</p>
+          <h1>{game.meta.name}</h1>
+          <p>{game.meta.description}</p>
         </Modal>
       )}
       {provablyFair && (
@@ -47,7 +47,7 @@ function CustomRenderer() {
       )}
       <Container>
         <Splash>
-          <img height="150px" src={game.image} />
+          <img height="150px" src={game.meta.image} />
         </Splash>
         <Screen>
           <GambaUi.PortalTarget target="error" />

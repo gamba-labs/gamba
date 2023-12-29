@@ -1,8 +1,7 @@
 import { useBalance, useGamba, useWalletAddress } from 'gamba-react-v2'
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { GambaUi } from '../GambaUi'
-import { useFees } from '../hooks'
+import { useCurrentToken, useFees } from '../hooks'
 import { TokenValue } from './TokenValue'
 
 export interface WagerInputProps {
@@ -79,8 +78,8 @@ const WagerAmount = styled.div`
 
 export function WagerInput(props: WagerInputProps) {
   const gamba = useGamba()
-  const token = GambaUi.useCurrentToken()
-  const [input, setInput] = React.useState("")
+  const token = useCurrentToken()
+  const [input, setInput] = React.useState('')
   const walletAddress = useWalletAddress()
   const balance = useBalance(walletAddress, token.mint)
   const fees = useFees()
@@ -105,7 +104,7 @@ export function WagerInput(props: WagerInputProps) {
   return (
     <StyledWagerInput $edit={edit}>
       <Flex onClick={() => !gamba.isPlaying && start()}>
-        <img src={token.image} height="25px" style={{margin: '0 5px', borderRadius: '50%', aspectRatio: '1/1'}} />
+        <img src={token.image} height="25px" style={{ margin: '0 5px', borderRadius: '50%', aspectRatio: '1/1' }} />
         {!edit ? (
           <WagerAmount
             title={(props.value / (10 ** token.decimals)).toLocaleString()}
@@ -119,7 +118,7 @@ export function WagerInput(props: WagerInputProps) {
             max={balance.balance / (10 ** token.decimals)}
             min={0}
             step={.05}
-            style={{width: '100px'}}
+            style={{ width: '100px' }}
             onChange={(evt) => setInput(evt.target.value)}
             onKeyDown={(e) => e.code === 'Enter' && apply()}
             onBlur={(evt) => apply()}

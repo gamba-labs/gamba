@@ -1,4 +1,4 @@
-import { GambaUi, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import React from 'react'
 import SOUND from './test.mp3'
 
@@ -6,7 +6,7 @@ export default function ExampleGame() {
   const _hue = React.useRef(0)
   const [wager, setWager] = useWagerInput()
   const game = GambaUi.useGame()
-  const sound = GambaUi.useSound({ test: SOUND })
+  const sound = useSound({ test: SOUND })
 
   const click = () => {
     _hue.current = (_hue.current + 30) % 360
@@ -18,6 +18,8 @@ export default function ExampleGame() {
       wager,
       bet: [2, 0],
     })
+    const result = await game.result()
+    console.log(result)
   }
 
   return (

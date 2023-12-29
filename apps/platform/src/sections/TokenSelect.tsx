@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
-import { GambaPlatformContext, GambaUi, TokenValue, useTokenList } from 'gamba-react-ui-v2'
+import { GambaPlatformContext, GambaUi, TokenValue, useCurrentToken, useTokenList, useUserBalance } from 'gamba-react-ui-v2'
 import React from 'react'
 import styled from 'styled-components'
 import { Dropdown } from '../components/Dropdown'
@@ -31,8 +31,8 @@ const StyledTokenButton = styled.button`
 export default function TokenSelect() {
   const [visible, setVisible] = React.useState(false)
   const context = React.useContext(GambaPlatformContext)
-  const selectedToken = GambaUi.useCurrentToken()
-  const balance = GambaUi.useUserBalance()
+  const selectedToken = useCurrentToken()
+  const balance = useUserBalance()
   const tokenList = useTokenList()
 
   const setToken = (token: PublicKey) => {

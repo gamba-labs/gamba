@@ -1,13 +1,13 @@
 import { Canvas } from '@react-three/fiber'
+import { GambaUi, useCurrentToken, useSound } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import { GambaUi, useSound } from 'gamba-react-ui-v2'
 import React from 'react'
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
 import { Effect } from './Effect'
 
-const SOUND_COIN = require('./coin.mp3')
-const SOUND_LOSE = require('./lose.mp3')
-const SOUND_WIN = require('./win.mp3')
+import SOUND_COIN from './coin.mp3'
+import SOUND_LOSE from './lose.mp3'
+import SOUND_WIN from './win.mp3'
 
 const SIDES = {
   heads: [2, 0],
@@ -16,9 +16,9 @@ const SIDES = {
 
 type Side = keyof typeof SIDES
 
-export default function Flip() {
+function Flip() {
   const game = GambaUi.useGame()
-  const token = GambaUi.useCurrentToken()
+  const token = useCurrentToken()
   const gamba = useGamba()
   const [flipping, setFlipping] = React.useState(false)
   const [win, setWin] = React.useState(false)
@@ -122,3 +122,5 @@ export default function Flip() {
     </>
   )
 }
+
+export default Flip

@@ -1,11 +1,11 @@
-import { GambaUi, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
 
-const BUMP = require('./bump.mp3')
-const WIN = require('./win.mp3')
-const FALL = require('./fall.mp3')
+import BUMP from './bump.mp3'
+import FALL from './fall.mp3'
+import WIN from './win.mp3'
 
 function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
   const [plinko, set] = React.useState<PlinkoGame>(null!)
@@ -31,7 +31,7 @@ export default function Plinko() {
   const [wager, setWager] = useWagerInput()
   const [debug, setDebug] = React.useState(false)
   const [degen, setDegen] = React.useState(false)
-  const sounds = GambaUi.useSound({
+  const sounds = useSound({
     bump: BUMP,
     win: WIN,
     fall: FALL,

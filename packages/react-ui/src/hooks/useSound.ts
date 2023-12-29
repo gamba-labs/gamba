@@ -19,7 +19,7 @@ export const useGambaAudioStore = () => {
     masterGain: materGain.value,
     set: (gain: number) => {
       materGain.value = gain
-    }
+    },
   }
 }
 
@@ -80,16 +80,16 @@ export function useSound<T extends {[s: string]: string}>(definition: T) {
         Object.entries(sounds).map(([_, s]) => s.player.stop())
       }
     },
-    [sounds]
+    [sounds],
   )
 
   const play = React.useCallback(
     (s: keyof typeof sounds, x?: PlaySoundParams) => {
       const gain = x?.gain ?? 1
-      const opts: PlaySoundParams = {...x, gain: gain * materGain.value}
+      const opts: PlaySoundParams = { ...x, gain: gain * materGain.value }
       sounds[s].play(opts)
     },
-    [sounds]
+    [sounds],
   )
 
   return {

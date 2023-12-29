@@ -1,7 +1,6 @@
-import { PublicKey } from '@solana/web3.js'
-import { GambaPlayInput, useBalance, useGamba, useGambaPlay, usePool, useWalletAddress } from 'gamba-react-v2'
-import React, { useContext } from 'react'
-import { GambaPlatformContext, GameBundle, useTokenMeta } from '.'
+import { useGamba } from 'gamba-react-v2'
+import React from 'react'
+import { GameBundle, useGame } from '.'
 import { EffectTest } from './EffectTest'
 import ErrorBoundary from './ErrorBoundary'
 import { Portal, PortalTarget } from './PortalContext'
@@ -39,36 +38,6 @@ function Game({ game, children, errorFallback }: GameProps) {
   )
 }
 
-function useGameContext() {
-  return React.useContext(GameContext)
-}
-
-function useGame() {
-  const game = useGameContext()
-  const context = React.useContext(GambaPlatformContext)
-  const balances = useUserBalance()
-  const gambaPlay = useGambaPlay()
-
-  const play = async (input: Pick<GambaPlayInput, 'wager' | 'bet' | 'metadata'>) => {
-    const metaArgs = input.metadata ?? []
-    return await gambaPlay({
-      ...input,
-      creator: new PublicKey(context.platform.creator),
-      metadata: ['0', game.game.id, ...metaArgs],
-      clientSeed: context.clientSeed,
-      creatorFee: context.defaultCreatorFee,
-      jackpotFee: context.defaultJackpotFee,
-      token: context.token,
-      useBonus: balances.bonusBalance > 0,
-    })
-  }
-
-  return {
-    play,
-    game: game.game,
-  }
-}
-
 export function PlayButton(props: ButtonProps) {
   const gamba = useGamba()
   return (
@@ -84,26 +53,8 @@ export function PlayButton(props: ButtonProps) {
   )
 }
 
-const useCurrentPool = () => {
-  const token = useContext(GambaPlatformContext).token
-  return usePool(token)
-}
-
-const useCurrentToken = () => {
-  const token = useContext(GambaPlatformContext).token
-  const meta = useTokenMeta(token)
-  return meta
-}
-
-const useUserBalance = () => {
-  const token = useContext(GambaPlatformContext).token
-  const userAddress = useWalletAddress()
-  return useBalance(userAddress, token)
-}
-
 export const GambaUi = {
   useGame,
-  useGameContext,
   useSound,
   Portal,
   PortalTarget: PortalTarget,
@@ -118,7 +69,4 @@ export const GambaUi = {
   PlayButton,
   Select: Select,
   TextInput: TextInput,
-  useCurrentPool,
-  useUserBalance,
-  useCurrentToken,
 }

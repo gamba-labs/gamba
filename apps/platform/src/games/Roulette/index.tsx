@@ -1,4 +1,5 @@
-import { GambaUi, TokenValue, useSound } from 'gamba-react-ui-v2'
+import { computed } from '@preact/signals-react'
+import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useUserBalance } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import styled from 'styled-components'
@@ -7,7 +8,6 @@ import { StyledResults } from './Roulette.styles'
 import { Table } from './Table'
 import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { addResult, bet, clearChips, results, selectedChip, totalChipValue } from './signals'
-import { computed } from '@preact/signals-react'
 
 const Wrapper = styled.div`
   display: grid;
@@ -33,9 +33,9 @@ function Results() {
 }
 
 function Stats() {
-  const pool = GambaUi.useCurrentPool()
-  const token = GambaUi.useCurrentToken()
-  const balance = GambaUi.useUserBalance()
+  const pool = useCurrentPool()
+  const token = useCurrentToken()
+  const balance = useUserBalance()
   const wager = totalChipValue.value * token.baseWager / 10_000
 
   const multiplier = Math.max(...bet.value)
@@ -78,9 +78,9 @@ function Stats() {
 
 export default function Roulette() {
   const game = GambaUi.useGame()
-  const token = GambaUi.useCurrentToken()
-  const pool = GambaUi.useCurrentPool()
-  const balance = GambaUi.useUserBalance()
+  const token = useCurrentToken()
+  const pool = useCurrentPool()
+  const balance = useUserBalance()
   const gamba = useGamba()
 
   const sounds = useSound({

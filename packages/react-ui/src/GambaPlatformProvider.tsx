@@ -31,16 +31,18 @@ interface GambaPlatformContext {
 export const GambaPlatformContext = React.createContext<GambaPlatformContext>(null!)
 
 interface GambaPlatformProviderProps extends React.PropsWithChildren {
-  platformName: string
-  creator: string
+  creator: string | PublicKey
   games: GameBundle[]
+  /** Stylings for inputs shown in games */
   theme: GambaPlatformTheme
+  /** How much the player should pay in fees to the platform */
   defaultCreatorFee?: number
+  /** How much the player should pay in fees to play for the jackpot in every game. 0.001 = 0.1% */
   defaultJackpotFee?: number
 }
 
 export function GambaPlatformProvider(props: GambaPlatformProviderProps) {
-  const { platformName, creator, children, games, theme } = props
+  const { creator, children, games, theme } = props
   const [token, setToken] = React.useState(new PublicKey('So11111111111111111111111111111111111111112'))
   const [clientSeed, setClientSeed] = React.useState(String(Math.random() * 1e9 | 0))
   const defaultJackpotFee = props.defaultJackpotFee ?? 0.001
@@ -49,7 +51,7 @@ export function GambaPlatformProvider(props: GambaPlatformProviderProps) {
     <GambaPlatformContext.Provider
       value={{
         platform: {
-          name: platformName,
+          name: '',
           creator: new PublicKey(creator),
         },
         games,

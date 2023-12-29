@@ -1,4 +1,4 @@
-import { GambaUi, TokenValue } from 'gamba-react-ui-v2'
+import { TokenValue, useCurrentPool, useUserBalance } from 'gamba-react-ui-v2'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
@@ -47,8 +47,8 @@ const Logo = styled(NavLink)`
 `
 
 export default function Header() {
-  const pool = GambaUi.useCurrentPool()
-  const balance = GambaUi.useUserBalance()
+  const pool = useCurrentPool()
+  const balance = useUserBalance()
   const [bonusHelp, setBonusHelp] = React.useState(false)
   const [jackpotHelp, setJackpotHelp] = React.useState(false)
 

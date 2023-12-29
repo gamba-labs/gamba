@@ -9,8 +9,8 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { GambaProvider } from 'gamba-react-v2'
 import { GambaPlatformProvider, TokenListProvider } from 'gamba-react-ui-v2'
+import { GambaProvider } from 'gamba-react-v2'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
@@ -41,7 +41,6 @@ function Root() {
             <TokenListProvider tokens={TOKEN_LIST}>
               <GambaProvider>
                 <GambaPlatformProvider
-                  platformName={PLATFORM_NAME}
                   creator={PLATFORM_CREATOR_ADDRESS}
                   defaultCreatorFee={0.01}
                   defaultJackpotFee={0.001}

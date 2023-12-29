@@ -56,34 +56,3 @@ export function EffectTest({ src }: {src: string}) {
     />
   )
 }
-
-export function EffectTest2() {
-  return (
-    <GambaUi.Canvas
-      style={{ pointerEvents: 'none' }}
-      zIndex={99}
-      render={({ ctx, size }, clock) => {
-        ctx.save()
-        ctx.clearRect(0, 0, size.width, size.height)
-
-        ctx.font = '30px arial'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillStyle = '#eaffe9cc'
-        for (let i = 25; i--;) {
-          const speed = (1 + Math.sin(i * 44213.3) / 2) * 100
-          const y = (clock.time * speed + Math.cos(i * 4213.3) * size.height * 2)
-          ctx.save()
-          ctx.translate(i / 25 * size.width + Math.cos(clock.time + i * 4.444) * 20, size.height - (y % (size.height + 50)) - 25)
-          ctx.scale(.5, .5)
-          ctx.beginPath()
-          ctx.arc(0, 0, 5, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.restore()
-        }
-        ctx.fillText('WINNER', size.width / 2, size.height / 2)
-        ctx.restore()
-      }}
-    />
-  )
-}

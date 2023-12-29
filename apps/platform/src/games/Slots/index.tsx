@@ -1,5 +1,5 @@
 import { GameResult } from 'gamba-core-v2'
-import { EffectTest, GambaUi, TokenValue, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { EffectTest, GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { ItemPreview } from './ItemPreview'
@@ -43,7 +43,7 @@ const Messages: React.FC<{messages: string[]}> = ({ messages }) => {
 export default function Slots() {
   const gamba = useGamba()
   const game = GambaUi.useGame()
-  const pool = GambaUi.useCurrentPool()
+  const pool = useCurrentPool()
   const [spinning, setSpinning] = React.useState(false)
   const [result, setResult] = React.useState<GameResult>()
   const [good, setGood] = React.useState(false)

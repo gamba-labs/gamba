@@ -19,9 +19,8 @@ export const RANK_SYMBOLS: Record<number, string> = {
 }
 export const RANKS = Object.keys(RANK_SYMBOLS).length
 
-export const SOUND_CARD = require('./card.mp3')
-export const SOUND_FINISH = require('./finish.mp3')
-export const SOUND_LOSE = require('./lose.mp3')
-export const SOUND_PLAY = require('./play.mp3')
-export const SOUND_WIN = require('./win.mp3')
-
+export { default as SOUND_CARD } from './card.mp3'
+export { default as SOUND_FINISH } from './finish.mp3'
+export { default as SOUND_LOSE } from './lose.mp3'
+export { default as SOUND_PLAY } from './play.mp3'
+export { default as SOUND_WIN } from './win.mp3'

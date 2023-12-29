@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor"
-import { EnterIcon, ExclamationTriangleIcon, ExitIcon, MagicWandIcon, PlusIcon, StackIcon } from "@radix-ui/react-icons"
+import { EnterIcon, ExitIcon, MagicWandIcon, PlusIcon, StackIcon } from "@radix-ui/react-icons"
 import * as Toast from "@radix-ui/react-toast"
-import { Box, Button, Callout, Container, Flex, Link } from "@radix-ui/themes"
+import { Box, Button, Container, Flex, Link } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { useTransactionError } from "gamba-react-v2"
@@ -101,14 +101,6 @@ export function App() {
       </Header>
 
       <Container p="4">
-        <Callout.Root color="red" mb="4">
-          <Callout.Icon>
-            <ExclamationTriangleIcon />
-          </Callout.Icon>
-          <Callout.Text>
-            Gamba v2 is unaudited. Interact with the program at your own risk.
-          </Callout.Text>
-        </Callout.Root>
         <Toast.Viewport className="ToastViewport" />
 
         {toasts.map((toast, index) => (

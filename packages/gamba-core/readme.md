@@ -1,1 +1,0 @@
-# gamba-core

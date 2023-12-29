@@ -1,0 +1,49 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --background-color: #0b0b0e;
+  --text-color: #ffffff;
+  --box-color: rgb(26, 27, 40);
+}
+
+body, input, button, textarea, pre {
+  font-family: 'DM Sans', 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+}
+
+h1, h2 {
+  margin: 0;
+}
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+  cursor: default;
+  margin: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body::-webkit-scrollbar {
+  width: 4px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #9564ff;
+}
+
+.wallet-adapter-button.wallet-adapter-button-trigger {
+  height: 40px;
+  line-height: 40px;
+  font-weight: normal;
+  background: rgb(55, 57, 82);
+  border-radius: 10px;
+}

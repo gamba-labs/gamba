@@ -1,18 +1,12 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "declaration": true,
-    "strict": true,
-    "jsx": "react-jsx",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true
-  },
   "include": [
     "packages/**/src/**/*",
     "apps/**/src/**/*"
   ],
-  "exclude": ["node_modules", "dist"]
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types"],
+    "module": "commonjs",
+    "target": "es6",
+    "esModuleInterop": true
+  }
 }

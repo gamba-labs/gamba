@@ -1,22 +1,23 @@
-import { Avatar, Flex, Text } from "@radix-ui/themes";
-import { PublicKey } from "@solana/web3.js";
-import React from 'react';
-import { getCreatorMeta } from "../data";
-import { AvatarProps } from "@radix-ui/themes/dist/cjs/components/avatar";
-import { truncateString } from "../utils";
+import { getPlatformMeta } from "@/platforms"
+import { Avatar, Flex, Text } from "@radix-ui/themes"
+import { AvatarProps } from "@radix-ui/themes/dist/cjs/components/avatar"
+import { PublicKey } from "@solana/web3.js"
+import React from "react"
 
 interface AccountItemProps {
   address: PublicKey | string
   name?: string
   image?: string
-  color?: AvatarProps['color']
-  avatarSize?: AvatarProps['size']
+  color?: AvatarProps["color"]
+  avatarSize?: AvatarProps["size"]
 }
 
-type AccountItemProps2 = Pick<AccountItemProps, 'avatarSize' | 'address'>
+const truncateString = (s: string, startLen = 4, endLen = startLen) => s.slice(0, startLen) + "..." + s.slice(-endLen)
+
+type AccountItemProps2 = Pick<AccountItemProps, "avatarSize" | "address">
 
 export function PlatformAccountItem(props: AccountItemProps2) {
-  const meta = getCreatorMeta(props.address)
+  const meta = getPlatformMeta(props.address)
   return (
     <AccountItem
       image={meta.image}
@@ -37,9 +38,9 @@ export function PlayerAccountItem(props: AccountItemProps2) {
 
 export function AccountItem({ address, name, image, color, avatarSize }: AccountItemProps) {
   return (
-    <Flex gap={avatarSize ? '4' : '2'} align="center">
+    <Flex gap="2" align="center">
       <Avatar
-        size={avatarSize ?? '1'}
+        size={avatarSize ?? "1"}
         color={color}
         src={image}
         fallback={address.toString().substring(0, 2)}

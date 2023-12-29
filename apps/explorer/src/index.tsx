@@ -1,29 +1,66 @@
-import { Theme } from '@radix-ui/themes'
-import '@radix-ui/themes/styles.css'
-import { ConnectionProvider } from '@solana/wallet-adapter-react'
-import { Gamba } from 'gamba/react'
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { App } from './App'
-import './styles.css'
+import "@radix-ui/themes/styles.css"
+import "@solana/wallet-adapter-react-ui/styles.css"
+import "./styles.css"
 
-const root = ReactDOM.createRoot(document.getElementById('root')!)
+import * as Toast from "@radix-ui/react-toast"
+import { Theme } from "@radix-ui/themes"
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react"
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"
+import { clusterApiUrl } from "@solana/web3.js"
+import { GambaProvider } from "gamba-react-v2"
+import React from "react"
+import ReactDOM from "react-dom/client"
+import { HashRouter } from "react-router-dom"
+import { create } from "zustand"
+import { createJSONStorage, persist } from "zustand/middleware"
+
+import { App } from "./App"
+
+const root = ReactDOM.createRoot(document.getElementById("root")!)
+
+interface RpcThingyStore {
+  endpoint: string
+  set: (endpoint: string) => void
+}
+
+export const useRpcThingy = create(
+  persist<RpcThingyStore>(
+    set => ({
+      endpoint: clusterApiUrl(),
+      set: endpoint => set({ endpoint }),
+    }),
+    {
+      name: "rpc",
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+)
 
 function Root() {
+  const wallets = React.useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+    ],
+    [],
+  )
+
   return (
-    <Theme accentColor="iris" grayColor="slate" radius="large" scaling="105%">
-      <BrowserRouter>
-        <ConnectionProvider
-          endpoint={import.meta.env.GAMBA_SOLANA_RPC}
-          config={{ wsEndpoint: import.meta.env.GAMBA_SOLANA_RPC_WS, commitment: 'confirmed' }}
-        >
-          <Gamba creator="DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV">
-            <App />
-          </Gamba>
+    <Theme accentColor="iris" radius="large" panelBackground="translucent">
+      <HashRouter>
+        <ConnectionProvider endpoint={import.meta.env.VITE_RPC_ENDPOINT} config={{ commitment: "processed" }}>
+          <WalletProvider autoConnect wallets={wallets}>
+            <WalletModalProvider>
+              <GambaProvider>
+                <Toast.Provider swipeDirection="right">
+                  <App />
+                </Toast.Provider>
+              </GambaProvider>
+            </WalletModalProvider>
+          </WalletProvider>
         </ConnectionProvider>
-      </BrowserRouter>
-      {/* <ThemePanel /> */}
+      </HashRouter>
     </Theme>
   )
 }

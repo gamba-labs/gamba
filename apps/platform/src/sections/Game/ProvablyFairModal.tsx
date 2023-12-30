@@ -25,7 +25,7 @@ export function ProvablyFairModal(props: {onClose: () => void}) {
       {!gamba.userCreated && (
         <>
           <p>
-            Provably Fair works by providing a hashed seed which will be revealed after every bet. If you are playing from a wallet for the first time, you can request the initial hashed seed ahead of time. After this it will be done automatically for each play.
+            Provably Fair allows you to verify that the result of each game was randomly generated. Since you are playing from this wallet for the first time, you can request the initial hashed seed ahead of time. After this it will be done automatically for each play.
           </p>
           <GambaUi.Button main onClick={initialize}>
             Get hashed seed

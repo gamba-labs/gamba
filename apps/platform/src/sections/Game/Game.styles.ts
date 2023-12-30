@@ -20,6 +20,8 @@ export const loadingAnimation = keyframes`
 export const Container = styled.div`
   width: 100%;
   position: relative;
+  display: grid;
+  gap: 5px;
 `
 
 export const SettingControls = styled.div`
@@ -64,8 +66,7 @@ export const Screen = styled.div`
   position: relative;
   flex-grow: 1;
   background: #0c0c11;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-radius: 10px;
   overflow: hidden;
   transition: height .2s ease;
   height: 500px;
@@ -98,6 +99,7 @@ export const LoadingIndicator = styled.div<{$active: boolean}>`
   height: 3px;
   width: 100%;
   overflow: hidden;
+  border-radius: 10px;
   &:after {
     content: " ";
     position: absolute;
@@ -115,11 +117,10 @@ export const LoadingIndicator = styled.div<{$active: boolean}>`
 
 export const Controls = styled.div`
   width: 100%;
-  background: var(--box-color);
+  background: rgb(26, 27, 40);
   padding: 20px;
   color: white;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border-radius: 10px;
 
   @media (max-width: 800px) {
     padding: 10px;

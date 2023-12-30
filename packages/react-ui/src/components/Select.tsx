@@ -15,8 +15,6 @@ const StyledWrapper = styled.div`
 `
 
 const StyledPopup = styled.div`
-  --background-color: #0e0e16;
-  --background-color-hover: #11111d;
   position: absolute;
   bottom: 100%;
   left: 0;
@@ -26,7 +24,8 @@ const StyledPopup = styled.div`
   gap: 5px;
   border-radius: 10px;
   padding: 5px;
-  background-color: var(--background-color);
+  color: var(--gamba-ui-input-color);
+  background: var(--gamba-ui-input-background);
   white-space: nowrap;
   transform: translateY(-5px);
   & > button {
@@ -35,7 +34,7 @@ const StyledPopup = styled.div`
     font-size: inherit;
     padding: 5px;
     &:hover {
-      background: var(--background-color-hover);
+      background: var(--gamba-ui-input-background-hover);
     }
   }
 `

@@ -12,7 +12,9 @@ export interface WagerInputProps {
 const StyledWagerInput = styled.div<{$edit: boolean}>`
   display: flex;
   justify-content: space-between;
-  background: #0e0e16;
+  color: var(--gamba-ui-input-color);
+  background: var(--gamba-ui-input-background);
+
   border-radius: 10px;
   overflow: hidden;
   ${(props) => props.$edit && css`
@@ -36,9 +38,9 @@ const Input = styled.input`
   padding: 10px;
   padding-left: 0;
   padding-right: 0;
-  background: #0e0e16;
+  color: var(--gamba-ui-input-color);
+  background: var(--gamba-ui-input-background);
   outline: none;
-  color: white;
   flex-grow: 1;
 
   &::-webkit-outer-spin-button,
@@ -58,9 +60,9 @@ const InputButton = styled.button`
   border-radius: 0;
   margin: 0;
   padding: 2px 10px;
-  background: #0e0e16;
+  color: var(--gamba-ui-input-color);
+  background: var(--gamba-ui-input-background);
   cursor: pointer;
-  color: white;
 `
 
 const Buttons = styled.div`

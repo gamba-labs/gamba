@@ -9,13 +9,13 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { GambaPlatformProvider, TokenListProvider } from 'gamba-react-ui-v2'
+import { GambaPlatformProvider } from 'gamba-react-ui-v2'
 import { GambaProvider } from 'gamba-react-v2'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import App from './App'
-import { PLATFORM_CREATOR_ADDRESS, PLATFORM_NAME, TOKEN_LIST } from './constants'
+import { PLATFORM_CREATOR_ADDRESS, TOKENS } from './constants'
 import { GAMES } from './games'
 import './styles.css'
 
@@ -38,24 +38,23 @@ function Root() {
       >
         <WalletProvider autoConnect wallets={wallets}>
           <WalletModalProvider>
-            <TokenListProvider tokens={TOKEN_LIST}>
-              <GambaProvider>
-                <GambaPlatformProvider
-                  creator={PLATFORM_CREATOR_ADDRESS}
-                  defaultCreatorFee={0.01}
-                  defaultJackpotFee={0.001}
-                  games={GAMES}
-                  theme={{
-                    button: {
-                      background: '#8851ff',
-                      backgroundHover: '#9564ff',
-                    },
-                  }}
-                >
-                  <App />
-                </GambaPlatformProvider>
-              </GambaProvider>
-            </TokenListProvider>
+            <GambaProvider>
+              <GambaPlatformProvider
+                creator={PLATFORM_CREATOR_ADDRESS}
+                games={GAMES}
+                tokens={TOKENS}
+                defaultCreatorFee={0.01}
+                defaultJackpotFee={0.001}
+                theme={{
+                  button: {
+                    background: '#8851ff',
+                    backgroundHover: '#9564ff',
+                  },
+                }}
+              >
+                <App />
+              </GambaPlatformProvider>
+            </GambaProvider>
           </WalletModalProvider>
         </WalletProvider>
       </ConnectionProvider>

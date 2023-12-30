@@ -1,7 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import React from 'react'
-import { ThemeProvider } from 'styled-components'
-import { GameBundle } from '.'
+import { GameBundle, TokenListProvider, TokenMeta } from '.'
 import { PortalProvider } from './PortalContext'
 
 interface PlatformMeta {
@@ -9,17 +8,9 @@ interface PlatformMeta {
   creator: PublicKey
 }
 
-interface GambaPlatformTheme {
-  button: {
-    background: string
-    backgroundHover: string
-  }
-}
-
 interface GambaPlatformContext {
   platform: PlatformMeta
   games: GameBundle[]
-  theme: GambaPlatformTheme
   token: PublicKey
   defaultCreatorFee: number
   defaultJackpotFee: number
@@ -32,9 +23,8 @@ export const GambaPlatformContext = React.createContext<GambaPlatformContext>(nu
 
 interface GambaPlatformProviderProps extends React.PropsWithChildren {
   creator: string | PublicKey
+  tokens?: TokenMeta[]
   games: GameBundle[]
-  /** Stylings for inputs shown in games */
-  theme: GambaPlatformTheme
   /** How much the player should pay in fees to the platform */
   defaultCreatorFee?: number
   /** How much the player should pay in fees to play for the jackpot in every game. 0.001 = 0.1% */
@@ -42,7 +32,7 @@ interface GambaPlatformProviderProps extends React.PropsWithChildren {
 }
 
 export function GambaPlatformProvider(props: GambaPlatformProviderProps) {
-  const { creator, children, games, theme } = props
+  const { creator, children, games, tokens = [] } = props
   const [token, setToken] = React.useState(new PublicKey('So11111111111111111111111111111111111111112'))
   const [clientSeed, setClientSeed] = React.useState(String(Math.random() * 1e9 | 0))
   const defaultJackpotFee = props.defaultJackpotFee ?? 0.001
@@ -55,7 +45,6 @@ export function GambaPlatformProvider(props: GambaPlatformProviderProps) {
           creator: new PublicKey(creator),
         },
         games,
-        theme,
         token,
         setToken,
         clientSeed,
@@ -64,11 +53,11 @@ export function GambaPlatformProvider(props: GambaPlatformProviderProps) {
         defaultCreatorFee,
       }}
     >
-      <PortalProvider>
-        <ThemeProvider theme={{ gamba: theme }}>
+      <TokenListProvider tokens={tokens}>
+        <PortalProvider>
           {children}
-        </ThemeProvider>
-      </PortalProvider>
+        </PortalProvider>
+      </TokenListProvider>
     </GambaPlatformContext.Provider>
   )
 }

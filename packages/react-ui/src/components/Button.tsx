@@ -4,27 +4,26 @@ import styled, { css } from 'styled-components'
 type ButtonSize = 'small' | 'medium' | 'large'
 
 const StyledButton = styled.button<{$main?: boolean, $size: ButtonSize}>`
-  --background-color: #0e0e16;
-  --background-color-hover: #11111d;
+  --background-color: var(--gamba-ui-button-default-background);
+  --background-color-hover: var(--gamba-ui-button-default-background);
 
   ${(props) => props.$main && css`
-    --background-color: ${({theme}) => theme.gamba.button.background};
-    --background-color-hover: ${({theme}) => theme.gamba.button.backgroundHover};
+    --background-color: var(--gamba-ui-button-main-background);
+    --background-color-hover: var(--gamba-ui-button-main-background);
   `}
 
   ${(props) => css`
     --padding: ${props.$size === 'small' ? '5px' : props.$size === 'medium' ? '10px' : props.$size === 'large' && '15px'};
   `}
 
-  color: white;
-
   background: var(--background-color);
+  color: white;
   &:hover {
     background: var(--background-color-hover);
   }
 
   border: none;
-  border-radius: 10px;
+  border-radius: var(--gamba-ui-border-radius);
   padding: var(--padding);
   cursor: pointer;
   /* min-width: 100px; */
@@ -32,8 +31,6 @@ const StyledButton = styled.button<{$main?: boolean, $size: ButtonSize}>`
   align-items: center;
 
   &:disabled {
-    background: #0e0e16;
-    color: #333333;
     cursor: default;
     opacity: .7;
   }

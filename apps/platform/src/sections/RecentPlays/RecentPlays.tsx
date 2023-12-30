@@ -53,9 +53,9 @@ function RecentPlay({ event }: {event: GambaTransaction<'GameSettled'>}) {
               ({multiplier.toFixed(2)}x)
             </div>
           )}
-          {data.jackpotWin.toNumber() > 0 && (
+          {data.jackpotPayoutToUser.toNumber() > 0 && (
             <Jackpot>
-              +<TokenValue mint={data.tokenMint} amount={data.jackpotWin.toNumber()} />
+              +<TokenValue mint={data.tokenMint} amount={data.jackpotPayoutToUser.toNumber()} />
             </Jackpot>
           )}
         </>

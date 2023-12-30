@@ -1,10 +1,3 @@
-/**
- * ! Notes for devs:
- * We encourage to you change as much as possible. Layout, styling, etc..
- * This template uses components (such as buttons) from "gamba-react-ui",
- * but feel free to change that to any other component library you want.
- * However, it is recommended use the GambaUi components when creating controls for games.
- */
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
@@ -45,12 +38,6 @@ function Root() {
                 tokens={TOKENS}
                 defaultCreatorFee={0.01}
                 defaultJackpotFee={0.001}
-                theme={{
-                  button: {
-                    background: '#8851ff',
-                    backgroundHover: '#9564ff',
-                  },
-                }}
               >
                 <App />
               </GambaPlatformProvider>

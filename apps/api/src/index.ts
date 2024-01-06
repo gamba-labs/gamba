@@ -30,8 +30,8 @@ if (process.env.NGROK_AUTH) {
   ngrok.forward({
     authtoken: process.env.NGROK_AUTH,
     addr: port,
-  }).then((url) => {
-    console.log('NGROK:', url)
+  }).then((listener) => {
+    console.log('NGROK:', listener.url())
   })
 
   // Cleanup ngrok connection

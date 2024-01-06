@@ -4,6 +4,7 @@ import { config } from 'dotenv'
 import express from 'express'
 import api from './api'
 import { run } from './db'
+import { PROGRAM_ID } from 'gamba-core-v2'
 
 config()
 
@@ -22,6 +23,7 @@ app.use(cors())
 app.use(api)
 
 app.listen(port, () => {
+  console.log('Program ID:', PROGRAM_ID.toBase58())
   console.log(`Api running at http://localhost:${port}`)
 })
 

@@ -157,7 +157,7 @@ const storeEvents = async (
             wager,
             payout,
             multiplier,
-            gameSettled.jackpotWin.toNumber(),
+            gameSettled.jackpotPayoutToUser.toNumber(),
             gameSettled.poolLiquidity.toNumber(),
           )
         }

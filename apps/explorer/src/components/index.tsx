@@ -35,6 +35,8 @@ export const Address = (props: {children: string}) => {
 interface TokenItemProps {
   mint: PublicKey
   balance: number
+  name: string;   
+  logo: string;   
   stuff?: React.ReactNode
 }
 
@@ -51,17 +53,21 @@ export function TokenAvatar(props: {mint: PublicKey, size?: "1" | "2" | "3"}) {
   )
 }
 
-export function TokenItem({ mint, balance, stuff }: TokenItemProps) {
-  const metaData = useTokenMeta(mint)
-
+export function TokenItem({ mint, balance, name, logo }: TokenItemProps) {
   return (
     <Flex gap="4" justify="between" align="center">
       <Flex grow="1" gap="4" align="center">
-        <TokenAvatar mint={mint} />
+        <Avatar
+          radius="full"
+          fallback="?"
+          size="3"
+          color="green"
+          src={logo} 
+        />
         <Flex grow="1" direction="column">
           <Flex justify="between">
             <Text weight="bold">
-              {metaData.name}
+              {name}
             </Text>
           </Flex>
           <Flex justify="between">
@@ -76,7 +82,6 @@ export function TokenItem({ mint, balance, stuff }: TokenItemProps) {
       <Text>
         <TokenValue mint={mint} amount={balance} />
       </Text>
-      {stuff}
     </Flex>
   )
 }

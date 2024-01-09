@@ -1,7 +1,7 @@
 import { ArrowRightIcon, ExclamationTriangleIcon, PlusIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
-import { ComputeBudgetProgram } from "@solana/web3.js"
+import { ComputeBudgetProgram, PublicKey } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
 import { GAMBA_STANDARD_TOKEN_LIST } from "gamba-react-ui-v2"
 import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
@@ -11,7 +11,7 @@ import useSWR from "swr"
 
 import { SelectableButton, TokenItem } from "@/components"
 import { SYSTEM_PROGRAM } from "@/constants"
-import { ParsedTokenAccount, useTokenList } from "@/hooks"
+import { ParsedTokenAccount, useTokenList, fetchJupiterTokenList } from "@/hooks"
 import { fetchPool } from "@/PoolList"
 
 export default function CreatePoolView() {
@@ -32,6 +32,29 @@ export default function CreatePoolView() {
     () => selectedPoolId && fetchPool(connection, selectedPoolId),
   )
 
+  const [jupiterTokens, setJupiterTokens] = React.useState([])
+
+  React.useEffect(() => {
+    fetchJupiterTokenList()
+      .then(setJupiterTokens)
+      .catch(console.error)
+  }, [])
+
+  // Match user tokens with Jupiter tokens
+  const matchedTokens = React.useMemo(() => {
+    return tokens.map(token => {
+      const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(token.mint))
+      return {
+        ...token,
+        name: jupiterToken?.name || token.name, 
+        logo: jupiterToken?.image || token.logo, 
+      };
+    }).filter(token => token.name)
+  }, [tokens, jupiterTokens])
+  
+
+  console.log(matchedTokens)
+  
   // Sort by 1. Sol, 2. Known tokens 3. Balance 4. Pubkey
   const sortedTokens = React.useMemo(
     () => {
@@ -97,7 +120,7 @@ export default function CreatePoolView() {
           </Text>
           <ScrollArea style={{ maxHeight: "300px" }}>
             <Grid gap="1">
-              {sortedTokens.map((token, i) => (
+              {matchedTokens.map((token, i) => (
                 <div key={i}>
                   <SelectableButton
                     selected={selectedToken?.mint.equals(token.mint)}
@@ -106,6 +129,8 @@ export default function CreatePoolView() {
                     <TokenItem
                       mint={token.mint}
                       balance={token.amount}
+                      name={token.name}
+                      logo={token.logo}
                     />
                   </SelectableButton>
                 </div>

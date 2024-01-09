@@ -10,7 +10,7 @@ import React from "react"
 import styled from "styled-components"
 import useSWR from "swr"
 
-import { decodeAta } from "@/hooks"
+import { decodeAta, fetchJupiterTokenList} from "@/hooks"
 
 import { TokenAvatar } from "./components"
 import { TableRowNavLink } from "./components/TableRowLink"
@@ -49,17 +49,25 @@ export const SkeletonFallback = (props: React.PropsWithChildren<{loading: boolea
   return props.children
 }
 
-function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
-  const populated = usePopulatedPool(pool)
-  const token = useTokenMeta(pool.account.underlyingTokenMint)
+function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>; jupiterTokens: any[] }) {
+  const populated = usePopulatedPool(pool);
+
+  // Find the Jupiter token that matches the pool's underlying token mint
+  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.account.underlyingTokenMint));
 
   return (
     <TableRowNavLink to={"/pool/" + pool.publicKey.toBase58()}>
       <StyledTableCell>
         <Flex gap="4" align="center">
-          <TokenAvatar mint={token.mint} size="2" />
-          <Text>{token.name}</Text>
-          <Text size="2" color="gray">{token.symbol}</Text>
+          <Avatar
+            radius="full"
+            fallback="?"
+            size="2"
+            color="green"
+            src={jupiterToken?.image} // Use Jupiter token logo
+          />
+          <Text>{jupiterToken?.name || 'Unknown'}</Text> 
+          <Text size="2" color="gray">{jupiterToken?.symbol || pool.account.underlyingTokenMint.toBase58().substring(0, 3)}</Text>
           {!pool.account.poolAuthority.equals(SYSTEM_PROGRAM) ? (
             <Badge color="orange">PRIVATE</Badge>
           ) : (
@@ -68,12 +76,18 @@ function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
         </Flex>
       </StyledTableCell>
       <StyledTableCell>
-        <SkeletonFallback loading={populated.isLoading}>
-          <TokenValue
-            exact
-            mint={token.mint}
-            amount={Number(populated.data?.liquidity)}
-          />
+      <SkeletonFallback loading={populated.isLoading}>
+      {populated.data ? (
+            <Flex align="center">
+              <TokenValue
+                exact
+                mint={pool.account.underlyingTokenMint}
+                amount={Number(populated.data.liquidity)}
+              />
+            </Flex>
+          ) : (
+            <SkeletonText />
+          )}
         </SkeletonFallback>
       </StyledTableCell>
       <StyledTableCell>
@@ -144,6 +158,14 @@ export function PoolList() {
   const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
 
+  const [jupiterTokens, setJupiterTokens] = React.useState([]);
+
+  React.useEffect(() => {
+    fetchJupiterTokenList()
+      .then(setJupiterTokens)
+      .catch(console.error);
+  }, [])
+
   const sortedPools = React.useMemo(
     () => {
       return pools.sort((a, b) => {
@@ -196,6 +218,7 @@ export function PoolList() {
                 <PoolTableRow
                   key={pool.publicKey.toBase58()}
                   pool={pool}
+                  jupiterTokens={jupiterTokens} 
                 />
               ))}
               <Table.Row style={{ cursor: "not-allowed" }}>

@@ -1,5 +1,5 @@
 import { GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
-import { Badge, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Text } from "@radix-ui/themes"
+import { Avatar, Badge, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Text } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
@@ -22,6 +22,7 @@ import RecentPlays, { TimeDiff } from "@/RecentPlays"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
+import { fetchJupiterTokenList } from "@/hooks"
 
 function ThingCard(props: {title: string, children: ReactNode}) {
   return (
@@ -71,7 +72,7 @@ const SelectableButton = styled.button<{$selected: boolean}>`
   `}
 `
 
-export function PoolHeader({ pool }: {pool: UiPool}) {
+export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
   const token = useTokenMeta(pool.underlyingTokenMint)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const maxPayoutPercent = gambaState && gambaState.maxPayoutBps ? gambaState.maxPayoutBps.toNumber() / BPS_PER_WHOLE : 0
@@ -81,16 +82,24 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
   const isPoolAuthority = userPublicKey && pool?.state?.poolAuthority?.equals(userPublicKey)
   const isGambaStateAuthority = userPublicKey && gambaState?.authority?.equals(userPublicKey)
 
+  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
+
   return (
     <Flex gap="4" align="center">
       <NavLink to={"/pool/" + pool.publicKey.toBase58()} style={{ display: "contents", color: "unset" }}>
-        <TokenAvatar mint={token.mint} size="3" />
+        <Avatar
+          radius="full"
+          fallback="?"
+          size="3"
+          color="green"
+          src={jupiterToken?.image || ''} 
+        />
         <Flex align="center" gap="2">
           <Heading>
-            {token.name}
+            {jupiterToken?.name || 'Unknown'}
           </Heading>
           <Text color="gray" size="4">
-          ({token.symbol})
+            ({jupiterToken?.symbol || 'Unknown'})
           </Text>
         </Flex>
       </NavLink>
@@ -151,7 +160,7 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
     </Flex>
   )
 }
-function PoolManager({ pool }: {pool: UiPool}) {
+function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
   const { connection } = useConnection()
   const navigate = useNavigate()
   const token = useTokenMeta(pool.underlyingTokenMint)
@@ -209,7 +218,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
     <Grid gap="4">
       <Flex justify={{ sm: "between" }} align={{ sm: "end" }} py="4" direction={{ initial: "column", sm: "row" }} gap="4">
         <Flex direction="column" gap="4">
-          <PoolHeader pool={pool} />
+          <PoolHeader pool={pool} jupiterTokens={jupiterTokens} />
         </Flex>
         <Flex align="center" gap="4">
           <Dialog.Root>
@@ -390,6 +399,12 @@ export default function PoolView() {
   const poolId = React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
   const { data, isLoading } = useSWR("pool-" + params.poolId!, () => fetchPool(program.provider.connection, poolId))
 
+  const [jupiterTokens, setJupiterTokens] = React.useState([])
+
+  React.useEffect(() => {
+    fetchJupiterTokenList().then(setJupiterTokens).catch(console.error)
+  }, [])
+
   if (isLoading) {
     return (
       <Flex align="center" justify="center" p="4">
@@ -400,7 +415,7 @@ export default function PoolView() {
   return (
     <>
       {data && (
-        <PoolManager pool={data} />
+        <PoolManager pool={data} jupiterTokens={jupiterTokens}/>
       )}
     </>
   )

@@ -57,3 +57,17 @@ export function useTokenList() {
     [tokens],
   )
 }
+
+
+export async function fetchJupiterTokenList() {
+  const response = await fetch('https://cache.jup.ag/tokens')
+  const tokenList = await response.json()
+
+  return tokenList.map(token => ({
+    mint: new PublicKey(token.address),
+    name: token.name,
+    symbol: token.symbol,
+    image: token.logoURI,
+    decimals: token.decimals,
+  }))
+}

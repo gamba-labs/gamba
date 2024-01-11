@@ -50,9 +50,9 @@ function PoolConfigDialog({ pool, jupiterTokens }: { pool: UiPool, jupiterTokens
   const isGambaStateAuthority = userPublicKey && gambaState?.authority?.equals(userPublicKey)
 
   const [input, setInput] = useState<PoolConfigInput>({
-    minWager: String(pool.state.minWager.toNumber() / Math.pow(10, token.decimals)),
+    minWager: String(pool.state.minWager.toNumber() / Math.pow(10, decimals)),
     depositLimit: pool.state.depositLimit,
-    depositLimitAmount: String(pool.state.depositLimitAmount.toNumber() / Math.pow(10, token.decimals)),
+    depositLimitAmount: String(pool.state.depositLimitAmount.toNumber() / Math.pow(10, decimals)),
     customPoolFee: pool.state.customPoolFee,
     customPoolFeeBps: String(pool.state.customPoolFeeBps.toNumber() / 100),
     customMaxPayout: pool.state.customMaxPayout,
@@ -81,7 +81,7 @@ function PoolConfigDialog({ pool, jupiterTokens }: { pool: UiPool, jupiterTokens
     } = input
 
     const poolDepositLimitInSmallestUnit = handleDecimalChange(input.depositLimitAmount, decimals)
-  const poolMinWagerInSmallestUnit = handleDecimalChange(input.minWager, decimals)
+    const poolMinWagerInSmallestUnit = handleDecimalChange(input.minWager, decimals)
     const customPoolFeeBpsValue = parseFloat(customPoolFeeBps) * 100
     const customMaxPayoutBpsValue = parseFloat(customMaxPayoutBps) * 100
 

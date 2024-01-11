@@ -8,7 +8,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
 
 import { Spinner } from "@/components/Spinner"
-import { useBalance, useToast } from "@/hooks"
+import { useBalance, useToast, fetchJupiterTokenList } from "@/hooks"
 import { fetchPool, UiPool } from "@/PoolList"
 
 import { PoolHeader } from "./PoolView"
@@ -138,12 +138,18 @@ export default function PoolDepositView() {
   const poolId = React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
   const { data } = useSWR("pool-" + params.poolId!, () => fetchPool(program.provider.connection, poolId))
 
+  const [jupiterTokens, setJupiterTokens] = React.useState([])
+
+  React.useEffect(() => {
+    fetchJupiterTokenList().then(setJupiterTokens).catch(console.error)
+  }, [])
+
   return (
     <>
       {data && (
         <Grid gap="4">
           <Flex justify="between" align="end" py="4">
-            <PoolHeader pool={data} />
+            <PoolHeader pool={data} jupiterTokens={jupiterTokens}/>
           </Flex>
           <Card size="3">
             <PoolDeposit pool={data} />

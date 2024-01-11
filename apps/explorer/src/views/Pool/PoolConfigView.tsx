@@ -14,6 +14,7 @@ import { fetchPool, UiPool } from "@/PoolList"
 
 import PoolGambaConfigDialog from "./PoolGambaConfig"
 import { PoolHeader } from "./PoolView"
+import { fetchJupiterTokenList } from "@/hooks"
 
 const Thing = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <Grid columns="2">
@@ -203,6 +204,12 @@ export default function PoolConfigureView() {
   const poolId = React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
   const { data, isLoading } = useSWR("pool-" + params.poolId!, () => fetchPool(program.provider.connection, poolId))
 
+  const [jupiterTokens, setJupiterTokens] = React.useState([])
+
+  React.useEffect(() => {
+    fetchJupiterTokenList().then(setJupiterTokens).catch(console.error)
+  }, [])
+
   if (isLoading) {
     return (
       <Flex align="center" justify="center" p="4">
@@ -215,7 +222,7 @@ export default function PoolConfigureView() {
       {data && (
         <Grid gap="4">
           <Flex justify="between" align="end" py="4">
-            <PoolHeader pool={data} />
+            <PoolHeader pool={data} jupiterTokens={jupiterTokens} />
           </Flex>
           <PoolConfigDialog pool={data} />
         </Grid>

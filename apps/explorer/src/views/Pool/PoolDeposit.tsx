@@ -13,7 +13,7 @@ import { fetchPool, UiPool } from "@/PoolList"
 
 import { PoolHeader } from "./PoolView"
 
-export function PoolDeposit({ pool }: {pool: UiPool}) {
+export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
   const navigate = useNavigate()
   const gamba = useGambaProvider()
   const user = useWalletAddress()
@@ -21,10 +21,16 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
   const [amountText, setAmountText] = React.useState("")
   const token = useTokenMeta(pool.state.underlyingTokenMint)
   const balance = useBalance(pool.state.underlyingTokenMint)
-  const amount = Math.round(Number(amountText) * (10 ** (token?.decimals ?? 0)))
   const sendTransaction = useSendTransaction()
   const toast = useToast()
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
+
+  // Find the Jupiter token that matches the pool's underlying token mint
+  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.state.underlyingTokenMint));
+
+  // Use the decimals from Jupiter token if available, otherwise fallback to token's metadata
+  const decimals = jupiterToken?.decimals ?? token?.decimals ?? 0;
+  const amount = Math.round(Number(amountText) * (10 ** decimals));
 
   const deposit = async () => {
     try {
@@ -83,7 +89,7 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
             onFocus={event => event.target.focus()}
           />
           <TextField.Slot>
-            <IconButton onClick={() => setAmountText(String(balance.balance / (10 ** (token?.decimals ?? 0))))} size="1" variant="ghost">
+            <IconButton onClick={() => setAmountText(String(balance.balance / (10 ** decimals)))} size="1" variant="ghost">
               MAX
             </IconButton>
           </TextField.Slot>
@@ -152,7 +158,7 @@ export default function PoolDepositView() {
             <PoolHeader pool={data} jupiterTokens={jupiterTokens}/>
           </Flex>
           <Card size="3">
-            <PoolDeposit pool={data} />
+            <PoolDeposit pool={data} jupiterTokens={jupiterTokens}/>
           </Card>
         </Grid>
       )}

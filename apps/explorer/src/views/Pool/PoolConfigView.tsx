@@ -35,11 +35,14 @@ interface PoolConfigInput {
   depositWhitelistAddress: string
 }
 
-function PoolConfigDialog({ pool }: { pool: UiPool }) {
+function PoolConfigDialog({ pool, jupiterTokens }: { pool: UiPool, jupiterTokens: any[] }) {
   const sendTx = useSendTransaction()
   const program = useGambaProgram()
   const { publicKey } = useWallet()
   const token = useTokenMeta(pool.state.underlyingTokenMint)
+
+  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.state.underlyingTokenMint))
+  const decimals = jupiterToken?.decimals ?? token?.decimals ?? 0
 
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const userPublicKey = useWalletAddress()
@@ -77,8 +80,8 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
       depositWhitelistAddress,
     } = input
 
-    const poolDepositLimitInSmallestUnit = handleDecimalChange(input.depositLimitAmount, token.decimals)
-    const poolMinWagerInSmallestUnit = handleDecimalChange(input.minWager, token.decimals)
+    const poolDepositLimitInSmallestUnit = handleDecimalChange(input.depositLimitAmount, decimals)
+  const poolMinWagerInSmallestUnit = handleDecimalChange(input.minWager, decimals)
     const customPoolFeeBpsValue = parseFloat(customPoolFeeBps) * 100
     const customMaxPayoutBpsValue = parseFloat(customMaxPayoutBps) * 100
 
@@ -224,7 +227,7 @@ export default function PoolConfigureView() {
           <Flex justify="between" align="end" py="4">
             <PoolHeader pool={data} jupiterTokens={jupiterTokens} />
           </Flex>
-          <PoolConfigDialog pool={data} />
+          <PoolConfigDialog pool={data} jupiterTokens={jupiterTokens} />
         </Grid>
       )}
     </>

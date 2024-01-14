@@ -373,7 +373,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
               No position
             </Heading>
             <Text align="center" color="gray">
-              You can stake your {token.symbol} in this pool.
+              You can stake your {jupiterToken?.symbol} in this pool.
             </Text>
             <Flex align="center" justify="center">
               <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
@@ -398,7 +398,8 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
                       </Link>
                       <Badge color={change.data.action.deposit ? "green" : "red"}>
                         {change.data.action.deposit ? "+" : "-"}
-                        <TokenValue exact mint={pool.underlyingTokenMint} amount={change.data.amount.toNumber()} />
+                        {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={change.data.amount.toNumber()} /> */}
+                        {formatTokenAmount(change.data.amount.toNumber(), jupiterToken?.decimals)} {jupiterToken?.symbol}
                       </Badge>
                     </Flex>
                     <TimeDiff time={change.time} />

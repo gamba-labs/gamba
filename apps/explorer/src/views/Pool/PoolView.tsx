@@ -183,6 +183,11 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
 
   const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
 
+  const lpBalanceBigInt = BigInt(Math.round(balances.lpBalance * (10 ** jupiterToken?.decimals)))
+  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** jupiterToken?.decimals)))
+  const calculatedAmount = lpBalanceBigInt * ratioBigInt / BigInt(10 ** jupiterToken?.decimals)
+
+
   const chart = React.useMemo(
     () => {
       if (chartId === "volume")
@@ -360,7 +365,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
               </Text>
               <Text weight="bold">
                 {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={balances.lpBalance * pool.ratio} /> */}
-                {formatTokenAmount(balances.lpBalance * pool.ratio, jupiterToken?.decimals)} {jupiterToken?.symbol}
+                {formatTokenAmount(calculatedAmount, jupiterToken?.decimals)} {jupiterToken?.symbol}
               </Text>
             </Text>
             <PoolWithdraw pool={pool} jupiterTokens={jupiterTokens} />

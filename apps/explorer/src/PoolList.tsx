@@ -10,7 +10,7 @@ import React from "react"
 import styled from "styled-components"
 import useSWR from "swr"
 
-import { decodeAta, fetchJupiterTokenList} from "@/hooks"
+import { decodeAta, fetchJupiterTokenList, formatTokenAmount} from "@/hooks"
 
 import { TokenAvatar } from "./components"
 import { TableRowNavLink } from "./components/TableRowLink"
@@ -54,7 +54,7 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
 
   // Find the Jupiter token that matches the pool's underlying token mint
   const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.account.underlyingTokenMint));
-
+  
   return (
     <TableRowNavLink to={"/pool/" + pool.publicKey.toBase58()}>
       <StyledTableCell>
@@ -79,11 +79,7 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
       <SkeletonFallback loading={populated.isLoading}>
       {populated.data ? (
             <Flex align="center">
-              <TokenValue
-                exact
-                mint={pool.account.underlyingTokenMint}
-                amount={Number(populated.data.liquidity)}
-              />
+              {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)} {/*placeholder until we fix TokenValue */}
             </Flex>
           ) : (
             <SkeletonText />

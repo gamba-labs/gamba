@@ -6,10 +6,10 @@ import React from "react"
 import { mutate } from "swr"
 
 import { Spinner } from "@/components/Spinner"
-import { useBalance, useToast } from "@/hooks"
+import { useBalance, useToast, formatTokenAmount } from "@/hooks"
 import { UiPool } from "@/PoolList"
 
-export function PoolWithdraw({ pool }: {pool: UiPool}) {
+export function PoolWithdraw({ pool, jupiterTokens }: { pool: UiPool, jupiterTokens: any[] }) {
   const toast = useToast()
   const gamba = useGambaProvider()
   const user = useWalletAddress()
@@ -19,7 +19,14 @@ export function PoolWithdraw({ pool }: {pool: UiPool}) {
   const balances = useBalance(pool.underlyingTokenMint)
   const sendTransaction = useSendTransaction()
 
-  const amount = Math.round(Number(amountText) * (10 ** (token?.decimals ?? 0)))
+  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint));
+  const decimals = jupiterToken?.decimals ?? token?.decimals ?? 0;
+
+  const amount = Math.round(Number(amountText) * (10 ** (jupiterToken?.decimals ?? 0)))
+
+  const amountBigInt = BigInt(amount)
+  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** decimals)))
+  const calculatedAmount = amountBigInt * BigInt(10 ** decimals) / ratioBigInt
 
   const withdraw = async () => {
     try {
@@ -98,7 +105,8 @@ export function PoolWithdraw({ pool }: {pool: UiPool}) {
             Receive
           </Text>
           <Text size="2">
-            <TokenValue exact amount={amount * pool.ratio} mint={pool.underlyingTokenMint} />
+            {/* <TokenValue exact amount={amount * pool.ratio} mint={pool.underlyingTokenMint} /> */}
+            {formatTokenAmount(calculatedAmount, decimals)} {jupiterToken?.symbol}
           </Text>
         </Flex>
         <Button size="3" variant="soft" onClick={withdraw} disabled={loading || !amount}>

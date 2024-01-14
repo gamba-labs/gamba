@@ -8,7 +8,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
 
 import { Spinner } from "@/components/Spinner"
-import { useBalance, useToast, fetchJupiterTokenList } from "@/hooks"
+import { useBalance, useToast, fetchJupiterTokenList, formatTokenAmount } from "@/hooks"
 import { fetchPool, UiPool } from "@/PoolList"
 
 import { PoolHeader } from "./PoolView"
@@ -74,6 +74,15 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
     }
   }
 
+  // Calculate the amount of LP tokens to receive in formatTokenAmount
+  const amountBigInt = BigInt(amount) 
+  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** decimals))) 
+  const calculatedAmount = amountBigInt * BigInt(10 ** decimals) / ratioBigInt
+
+  if (!pool || !jupiterTokens.length) {
+    return <Spinner />
+  }
+
   return (
     <>
       <Grid gap="2">
@@ -99,7 +108,8 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
             Balance
           </Text>
           <Text size="2">
-            <TokenValue exact amount={balance.balance} mint={token.mint} />
+            {/* <TokenValue exact amount={balance.balance} mint={token.mint} /> */}
+            {formatTokenAmount(balance.balance, decimals)} {jupiterToken.symbol}
           </Text>
         </Flex>
         <Flex justify="between">
@@ -107,7 +117,8 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
             Receive
           </Text>
           <Text size="2">
-            <TokenValue exact amount={amount / pool.ratio} mint={pool.underlyingTokenMint} suffix="LP" />
+            {/* <TokenValue exact amount={amount / pool.ratio} mint={pool.underlyingTokenMint} suffix="LP" /> */}
+            {formatTokenAmount(calculatedAmount, decimals)} LP
           </Text>
         </Flex>
         <Dialog.Root>
@@ -149,6 +160,10 @@ export default function PoolDepositView() {
   React.useEffect(() => {
     fetchJupiterTokenList().then(setJupiterTokens).catch(console.error)
   }, [])
+
+  if ( !jupiterTokens.length) {
+    return <Spinner />
+  }
 
   return (
     <>

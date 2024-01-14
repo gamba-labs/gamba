@@ -71,3 +71,28 @@ export async function fetchJupiterTokenList() {
     decimals: token.decimals,
   }))
 }
+
+export const formatTokenAmount = (amount, decimals, symbol = "") => {
+  // Ensure amount is a BigInt
+  const bigIntAmount = BigInt(amount);
+
+  // Calculate the divisor as a BigInt
+  const divisor = BigInt(10 ** decimals);
+
+  // Divide and get remainder as BigInt
+  const formattedAmount = bigIntAmount / divisor;
+  const fractionalPart = bigIntAmount % divisor;
+
+  // Combine integer and fractional parts for display
+  const displayAmount = Number(formattedAmount) + Number(fractionalPart) / Number(divisor);
+
+  // Format with commas and decimal places
+  const formattedWithCommas = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(displayAmount);
+
+  return symbol ? `${formattedWithCommas} ${symbol}` : formattedWithCommas;
+}
+
+

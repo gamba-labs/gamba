@@ -182,11 +182,11 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
   const { data: poolChanges = [] } = useSWR("poolChanges-" + pool.publicKey.toBase58(), () => fetchPoolChanges(connection, pool.publicKey))
 
   const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
+  const decimals = jupiterToken?.decimals ?? token?.decimals ?? 0
 
-  const lpBalanceBigInt = BigInt(Math.round(balances.lpBalance * (10 ** jupiterToken?.decimals)))
-  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** jupiterToken?.decimals)))
-  const calculatedAmount = lpBalanceBigInt * ratioBigInt / BigInt(10 ** jupiterToken?.decimals)
-
+  const lpBalanceBigInt = BigInt(balances.lpBalance)
+  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** decimals)))
+  const calculatedAmount = (lpBalanceBigInt * ratioBigInt) / BigInt(10 ** decimals)
 
   const chart = React.useMemo(
     () => {

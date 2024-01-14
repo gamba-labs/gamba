@@ -24,9 +24,11 @@ export function PoolWithdraw({ pool, jupiterTokens }: { pool: UiPool, jupiterTok
 
   const amount = Math.round(Number(amountText) * (10 ** (jupiterToken?.decimals ?? 0)))
 
-  const amountBigInt = BigInt(amount)
-  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** decimals)))
-  const calculatedAmount = amountBigInt * BigInt(10 ** decimals) / ratioBigInt
+
+  const amountBigInt = BigInt(Math.round(Number(amountText) * 10 ** decimals));
+  const ratioBigInt = BigInt(Math.round(pool.ratio * 10 ** decimals));
+  const calculatedAmount = amountBigInt * ratioBigInt / BigInt(10 ** decimals);
+
 
   const withdraw = async () => {
     try {

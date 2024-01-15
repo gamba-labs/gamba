@@ -198,6 +198,10 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
   const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
   const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
 
+  const hoveredValueBigInt = hovered?.value 
+    ? BigInt(Math.round(hovered.value * (10 ** jupiterToken.decimals)))
+    : null;
+
   const chart = React.useMemo(
     () => {
       if (chartId === "volume")
@@ -319,15 +323,23 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
                     amount={hovered?.value ?? totalVolume}
                   />
                 )} */}
+
+                
                 {chartId === "liquidity" && (
-                    <>
-                      {formatTokenAmount(hovered?.value ?? Number(pool.liquidity), jupiterToken?.decimals)} {jupiterToken?.symbol}
-                    </>
+                      <>
+                          {hoveredValueBigInt !== null 
+                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals) 
+                              : formatTokenAmount(Number(pool.liquidity), jupiterToken?.decimals)
+                          } {jupiterToken?.symbol}
+                      </>
                   )}
                   {chartId === "volume" && (
-                    <>
-                      {formatTokenAmount(hovered?.value ?? totalVolume, jupiterToken?.decimals)} {jupiterToken?.symbol}
-                    </>
+                      <>
+                          {hoveredValueBigInt !== null 
+                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals) 
+                              : formatTokenAmount(totalVolume, jupiterToken?.decimals)
+                          } {jupiterToken?.symbol}
+                      </>
                   )}
                 {chartId === "price" && (
                   <>

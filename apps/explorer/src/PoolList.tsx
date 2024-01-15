@@ -79,12 +79,12 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
       <SkeletonFallback loading={populated.isLoading}>
       {populated.data ? (
             <Flex align="center">
-              <TokenValue
+              {/* <TokenValue
                 exact
                 mint={pool.account.underlyingTokenMint}
                 amount={Number(populated.data.liquidity)}
-              />
-              {/* {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)} placeholder until we fix TokenValue */}
+              /> */}
+              {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)} 
             </Flex>
           ) : (
             <SkeletonText />
@@ -164,7 +164,7 @@ export function PoolList() {
   React.useEffect(() => {
     fetchJupiterTokenList()
       .then(setJupiterTokens)
-      .catch(console.error);
+      .catch(console.error)
   }, [])
 
   const sortedPools = React.useMemo(
@@ -180,6 +180,8 @@ export function PoolList() {
     [pools],
   )
 
+  const isLoadingJupiterTokens = jupiterTokens.length === 0
+
   return (
     <Flex direction="column" gap="4">
       <Table.Root variant="surface">
@@ -192,7 +194,7 @@ export function PoolList() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {isLoadingPools ? (
+          {isLoadingPools || isLoadingJupiterTokens ? (
             <>
               {Array.from({ length: 3 }).map((_, i) => (
                 <Table.Row key={i}>

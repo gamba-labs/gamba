@@ -79,7 +79,12 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
       <SkeletonFallback loading={populated.isLoading}>
       {populated.data ? (
             <Flex align="center">
-              {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)} {/*placeholder until we fix TokenValue */}
+              <TokenValue
+                exact
+                mint={pool.account.underlyingTokenMint}
+                amount={Number(populated.data.liquidity)}
+              />
+              {/* {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)} placeholder until we fix TokenValue */}
             </Flex>
           ) : (
             <SkeletonText />

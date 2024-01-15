@@ -84,6 +84,12 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
 
   const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
 
+
+  // inefficient way to deal with max payout big intstuff
+  const liquidityCheckpointBigInt = BigInt(pool.state.liquidityCheckpoint)
+  const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
+  const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
+
   return (
     <Flex gap="4" align="center">
       <NavLink to={"/pool/" + pool.publicKey.toBase58()} style={{ display: "contents", color: "unset" }}>
@@ -145,7 +151,7 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
             </ThingCard>
             <ThingCard title="Max Payout">
               {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} /> */}
-              {formatTokenAmount(Number(pool.state.liquidityCheckpoint) * maxPayoutPercent, jupiterToken?.decimals)}
+              {formatTokenAmount(maxPayoutAmount, jupiterToken?.decimals)}
             </ThingCard>
             <ThingCard title="Circulating Bonus">
               {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} /> */}
@@ -187,6 +193,10 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
   const lpBalanceBigInt = BigInt(balances.lpBalance)
   const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** decimals)))
   const calculatedAmount = (lpBalanceBigInt * ratioBigInt) / BigInt(10 ** decimals)
+
+  const liquidityCheckpointBigInt = BigInt(pool.state.liquidityCheckpoint)
+  const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
+  const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
 
   const chart = React.useMemo(
     () => {
@@ -277,7 +287,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
           </ThingCard>
           <ThingCard title="Max Payout">
             {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} /> */}
-            {formatTokenAmount(Number(pool.state.liquidityCheckpoint) * maxPayoutPercent, jupiterToken?.decimals)}
+            {formatTokenAmount(maxPayoutAmount, jupiterToken?.decimals)}
           </ThingCard>
           <ThingCard title="Circulating Bonus">
             {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} /> */}

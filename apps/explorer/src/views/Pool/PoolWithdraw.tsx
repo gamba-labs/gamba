@@ -83,13 +83,13 @@ export function PoolWithdraw({ pool, jupiterTokens }: { pool: UiPool, jupiterTok
             onFocus={event => event.target.select()}
           />
           <TextField.Slot>
-            <IconButton onClick={() => setAmountText(String(.25 * balances.lpBalance / (10 ** token.decimals)))} variant="ghost">
+            <IconButton onClick={() => setAmountText(String(.25 * balances.lpBalance / (10 ** decimals)))} variant="ghost">
               25%
             </IconButton>
-            <IconButton onClick={() => setAmountText(String(.5 * balances.lpBalance / (10 ** token.decimals)))} variant="ghost">
+            <IconButton onClick={() => setAmountText(String(.5 * balances.lpBalance / (10 ** decimals)))} variant="ghost">
               50%
             </IconButton>
-            <IconButton onClick={() => setAmountText(String(balances.lpBalance / (10 ** token.decimals)))} variant="ghost">
+            <IconButton onClick={() => setAmountText(String(balances.lpBalance / (10 ** decimals)))} variant="ghost">
               MAX
             </IconButton>
           </TextField.Slot>

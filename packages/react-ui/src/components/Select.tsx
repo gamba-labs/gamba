@@ -18,7 +18,7 @@ const StyledPopup = styled.div`
   position: absolute;
   bottom: 100%;
   left: 0;
-  width: 100%;
+  width: max-content;
   display: flex;
   flex-direction: column;
   gap: 5px;

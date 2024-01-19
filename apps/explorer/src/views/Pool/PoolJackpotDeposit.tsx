@@ -5,10 +5,10 @@ import { useAccount, useSendTransaction, useWalletAddress } from "gamba-react-v2
 import { TokenValue, useTokenMeta } from "gamba-react-ui-v2"
 import React from "react"
 
-import { useBalance, useToast } from "@/hooks"
+import { useBalance, useToast, formatTokenAmount} from "@/hooks"
 import { UiPool } from "@/PoolList"
 
-export function PoolJackpotDeposit({ pool }: { pool: UiPool }) {
+export function PoolJackpotDeposit({ pool, jupiterToken }: { pool: UiPool, jupiterToken: any }) {
   const [donateAmountText, setDonateAmountText] = React.useState("")
   const sendTransaction = useSendTransaction()
   const user = useWalletAddress()
@@ -17,7 +17,7 @@ export function PoolJackpotDeposit({ pool }: { pool: UiPool }) {
   const balances = useBalance(pool.underlyingTokenMint)
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
 
-  const amount = Math.round(Number(donateAmountText) * (10 ** (token?.decimals ?? 0)))
+  const amount = Math.round(Number(donateAmountText) * (10 ** (jupiterToken?.decimals ?? 0)))
 
   const donateToJackpot = async () => {
     const { publicKey, state } = pool
@@ -48,7 +48,7 @@ export function PoolJackpotDeposit({ pool }: { pool: UiPool }) {
         Fund Jackpot
       </Heading>
       <Text color="gray">
-        Donate {token.symbol} to this pool's jackpot.
+        Donate {jupiterToken.symbol} to this pool's jackpot.
       </Text>
       <TextField.Root>
         <TextField.Input
@@ -59,7 +59,7 @@ export function PoolJackpotDeposit({ pool }: { pool: UiPool }) {
           onChange={event => setDonateAmountText(event.target.value)}
         />
         <TextField.Slot>
-          <IconButton onClick={() => setDonateAmountText(String(balances.balance / (10 ** token.decimals)))} size="1" variant="ghost">
+          <IconButton onClick={() => setDonateAmountText(String(balances.balance / (10 ** jupiterToken.decimals)))} size="1" variant="ghost">
             MAX
           </IconButton>
         </TextField.Slot>
@@ -69,7 +69,8 @@ export function PoolJackpotDeposit({ pool }: { pool: UiPool }) {
           Balance
         </Text>
         <Text size="2">
-          <TokenValue exact amount={balances.balance} mint={pool.underlyingTokenMint} />
+          {/* <TokenValue exact amount={balances.balance} mint={pool.underlyingTokenMint} /> */}
+          {formatTokenAmount(Number(balances.balance), jupiterToken?.decimals)}
         </Text>
       </Flex>
       <Dialog.Root>
@@ -88,7 +89,8 @@ export function PoolJackpotDeposit({ pool }: { pool: UiPool }) {
             </Text>
             <Dialog.Close>
               <Button size="3" color="red" variant="soft" onClick={donateToJackpot}>
-                Donate <TokenValue exact amount={amount} mint={pool.underlyingTokenMint} />
+                {/* Donate <TokenValue exact amount={amount} mint={pool.underlyingTokenMint} /> */}
+                Donate {formatTokenAmount(amount, jupiterToken?.decimals)} {jupiterToken?.symbol}
               </Button>
             </Dialog.Close>
           </Grid>

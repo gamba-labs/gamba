@@ -72,6 +72,12 @@ const SelectableButton = styled.button<{$selected: boolean}>`
   `}
 `
 
+const ResponsiveButtonContainer = styled(Flex)`
+  @media (max-width: 576px) { 
+    flex-direction: column;
+  }
+`;
+
 export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
   const token = useTokenMeta(pool.underlyingTokenMint)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
@@ -245,6 +251,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
         <Flex direction="column" gap="4">
           <PoolHeader pool={pool} jupiterTokens={jupiterTokens} />
         </Flex>
+        <ResponsiveButtonContainer align="center" gap="4">
         <Flex align="center" gap="4">
           <Dialog.Root>
             <Dialog.Trigger>
@@ -253,7 +260,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
               </Button>
             </Dialog.Trigger>
             <Dialog.Content>
-              <PoolMintBonus pool={pool} />
+              <PoolMintBonus pool={pool} jupiterToken={jupiterToken} />
             </Dialog.Content>
           </Dialog.Root>
           <Dialog.Root>
@@ -263,9 +270,11 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
               </Button>
             </Dialog.Trigger>
             <Dialog.Content>
-              <PoolJackpotDeposit pool={pool} />
+              <PoolJackpotDeposit pool={pool} jupiterToken={jupiterToken} />
             </Dialog.Content>
           </Dialog.Root>
+          </Flex>
+          <Flex align="center" gap="4">
           <Button variant="soft" onClick={() => window.open(`https://jup.ag/swap/SOL-${token.mint.toBase58()}`)} size="3">
             Buy ${jupiterToken.symbol}
           </Button>
@@ -273,6 +282,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
             Add Liqudity <RocketIcon />
           </Button>
         </Flex>
+        </ResponsiveButtonContainer>
       </Flex>
       <Grid gap="2" columns="1">
         <Flex gap="2" wrap="wrap">

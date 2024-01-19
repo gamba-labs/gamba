@@ -213,7 +213,7 @@ export default function PoolConfigureView() {
     fetchJupiterTokenList().then(setJupiterTokens).catch(console.error)
   }, [])
 
-  if (isLoading) {
+  if (isLoading  || jupiterTokens.length === 0) {
     return (
       <Flex align="center" justify="center" p="4">
         <Spinner />

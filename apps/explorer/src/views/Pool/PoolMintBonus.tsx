@@ -5,10 +5,10 @@ import { TokenValue, useTokenMeta } from "gamba-react-ui-v2"
 import React from "react"
 import { mutate } from "swr"
 
-import { useBalance, useToast } from "@/hooks"
+import { formatTokenAmount, useBalance, useToast } from "@/hooks"
 import { UiPool } from "@/PoolList"
 
-export function PoolMintBonus({ pool }: {pool: UiPool}) {
+export function PoolMintBonus({ pool, jupiterToken }: { pool: UiPool, jupiterToken: any }) {
   const gamba = useGambaProvider()
   const [amountText, setAmountText] = React.useState("")
   const sendTransaction = useSendTransaction()
@@ -18,9 +18,11 @@ export function PoolMintBonus({ pool }: {pool: UiPool}) {
   const balances = useBalance(pool.underlyingTokenMint)
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
 
+  
+
   const mintBonusTokens = async () => {
     try {
-      const amount = Math.round(Number(amountText) * (10 ** (token?.decimals ?? 0)))
+      const amount = Math.round(Number(amountText) * (10 ** (jupiterToken?.decimals ?? 0)))
 
       const { publicKey, state } = pool
       const underlyingTokenMint = state.underlyingTokenMint
@@ -72,7 +74,7 @@ export function PoolMintBonus({ pool }: {pool: UiPool}) {
           onChange={event => setAmountText(event.target.value)}
         />
         <TextField.Slot>
-          <IconButton onClick={() => setAmountText(String(balances.balance / (10 ** token.decimals)))} size="1" variant="ghost">
+          <IconButton onClick={() => setAmountText(String(balances.balance / (10 ** jupiterToken.decimals)))} size="1" variant="ghost">
             MAX
           </IconButton>
         </TextField.Slot>
@@ -82,7 +84,8 @@ export function PoolMintBonus({ pool }: {pool: UiPool}) {
           Balance
         </Text>
         <Text size="2">
-          <TokenValue exact amount={balances.balance} mint={pool.underlyingTokenMint} />
+          {/* <TokenValue exact amount={balances.balance} mint={pool.underlyingTokenMint} /> */}
+          {formatTokenAmount(balances.balance, jupiterToken.decimals)} {jupiterToken?.symbol}
         </Text>
       </Flex>
       <Button size="3" variant="soft" onClick={mintBonusTokens}>

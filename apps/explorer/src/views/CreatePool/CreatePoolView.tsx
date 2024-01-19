@@ -166,6 +166,14 @@ export default function CreatePoolView() {
                     You are about to create a public pool. Please read before doing so.
                   </Text>
                 )}
+                <Callout.Root color="blue">
+                  <Callout.Icon>
+                    <ExclamationTriangleIcon />
+                  </Callout.Icon>
+                  <Callout.Text>
+                    Note: Creating a pool requires a fee of 1 SOL + rent.
+                  </Callout.Text>
+                </Callout.Root>
                 <Button variant="soft" color="red" onClick={createPool}>
                   I know what I'm doing. Create
                 </Button>

@@ -1,7 +1,7 @@
 {
   "name": "gamba-core-v2",
   "private": false,
-  "version": "0.1.3",
+  "version": "0.1.7",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -9,6 +9,9 @@
   "files": [
     "dist/**"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
     "build": "tsup src/index.ts --format cjs,esm --dts",

@@ -1,5 +1,29 @@
 # gamba-core-v2
 
+## 0.1.7
+
+### Patch Changes
+
+- Styling fix
+
+## 0.1.6
+
+### Patch Changes
+
+- Select component style fix
+
+## 0.1.5
+
+### Patch Changes
+
+- Ts
+
+## 0.1.4
+
+### Patch Changes
+
+- Ts
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,5 +1,37 @@
 # gamba-react-v2
 
+## 0.1.8
+
+### Patch Changes
+
+- Styling fix
+- Updated dependencies
+  - gamba-core-v2@0.1.7
+
+## 0.1.7
+
+### Patch Changes
+
+- Select component style fix
+- Updated dependencies
+  - gamba-core-v2@0.1.6
+
+## 0.1.6
+
+### Patch Changes
+
+- Ts
+- Updated dependencies
+  - gamba-core-v2@0.1.5
+
+## 0.1.5
+
+### Patch Changes
+
+- Ts
+- Updated dependencies
+  - gamba-core-v2@0.1.4
+
 ## 0.1.4
 
 ### Patch Changes

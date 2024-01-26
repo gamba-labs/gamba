@@ -1,13 +1,16 @@
 {
   "name": "gamba-react-ui-v2",
   "private": false,
-  "version": "0.1.4",
+  "version": "0.1.8",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist/**"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --external react --dts",
     "dev": "tsup src/index.ts --watch --format cjs,esm --external react --dts",

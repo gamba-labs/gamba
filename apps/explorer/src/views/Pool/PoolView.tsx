@@ -90,6 +90,11 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
 
   const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
 
+  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps 
+    ? BigInt(Math.round(jackpotPayoutPercentage * (10 ** jupiterToken.decimals)))
+    : BigInt(0)
+
+
 
   // inefficient way to deal with max payout big intstuff
   const liquidityCheckpointBigInt = BigInt(pool.state.liquidityCheckpoint)
@@ -165,7 +170,7 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
             </ThingCard>
             <ThingCard title="Jackpot">
               {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} /> */}
-              {formatTokenAmount(Number(pool.jackpotBalance) * jackpotPayoutPercentage, jupiterToken?.decimals)}
+              {formatTokenAmount(Number(pool.jackpotBalance * jackpotPayoutPercentageBigInt / BigInt(10 ** jupiterToken.decimals)), jupiterToken?.decimals)}
             </ThingCard>
             <ThingCard title="Total Plays">
               {pool.plays.toLocaleString(undefined)}
@@ -203,6 +208,10 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
   const liquidityCheckpointBigInt = BigInt(pool.state.liquidityCheckpoint)
   const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
   const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
+
+  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps 
+    ? BigInt(Math.round(jackpotPayoutPercentage * (10 ** jupiterToken.decimals)))
+    : BigInt(0)
 
   const hoveredValueBigInt = hovered?.value 
     ? BigInt(Math.round(hovered.value))
@@ -309,7 +318,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
           </ThingCard>
           <ThingCard title="Jackpot">
             {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} /> */}
-            {formatTokenAmount(Number(pool.jackpotBalance) * jackpotPayoutPercentage, jupiterToken?.decimals)}
+            {formatTokenAmount(Number(pool.jackpotBalance * jackpotPayoutPercentageBigInt / BigInt(10 ** jupiterToken.decimals)), jupiterToken?.decimals)}
           </ThingCard>
           <ThingCard title="Total Plays">
             {pool.plays.toLocaleString(undefined)}

@@ -73,13 +73,13 @@ const SelectableButton = styled.button<{$selected: boolean}>`
 `
 
 const ResponsiveButtonContainer = styled(Flex)`
-  @media (max-width: 576px) { 
+  @media (max-width: 576px) {
     flex-direction: column;
   }
 `;
 
 export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
-  const token = useTokenMeta(pool.underlyingTokenMint)
+  // const token = useTokenMeta(pool.underlyingTokenMint)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const maxPayoutPercent = gambaState && gambaState.maxPayoutBps ? gambaState.maxPayoutBps.toNumber() / BPS_PER_WHOLE : 0
   const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
@@ -90,13 +90,10 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
 
   const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
 
-  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps 
+  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps
     ? BigInt(Math.round(jackpotPayoutPercentage * (10 ** jupiterToken.decimals)))
     : BigInt(0)
 
-
-
-  // inefficient way to deal with max payout big intstuff
   const liquidityCheckpointBigInt = BigInt(pool.state.liquidityCheckpoint)
   const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
   const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
@@ -109,7 +106,7 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
           fallback="?"
           size="3"
           color="green"
-          src={jupiterToken?.image || ''} 
+          src={jupiterToken?.image || ''}
         />
         <Flex align="center" gap="2">
           <Heading>
@@ -158,7 +155,7 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
             </Flex>
             <ThingCard title="LP Token Supply">
               {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} /> */}
-              {formatTokenAmount(pool.lpSupply, jupiterToken?.decimals)} 
+              {formatTokenAmount(pool.lpSupply, jupiterToken?.decimals)}
             </ThingCard>
             <ThingCard title="Max Payout">
               {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} /> */}
@@ -187,7 +184,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
   const token = useTokenMeta(pool.underlyingTokenMint)
   const balances = useBalance(pool.underlyingTokenMint)
 
-  const [chartId, setChart] = React.useState<ChartId>("liquidity")
+  const [chartId, setChart] = React.useState<ChartId>("price")
   const [hovered, hover] = React.useState<LineChartDataPoint | null>(null)
 
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
@@ -209,14 +206,14 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
   const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
   const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
 
-  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps 
+  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps
     ? BigInt(Math.round(jackpotPayoutPercentage * (10 ** jupiterToken.decimals)))
     : BigInt(0)
 
-  const hoveredValueBigInt = hovered?.value 
+  const hoveredValueBigInt = hovered?.value
     ? BigInt(Math.round(hovered.value))
     : null
-    
+
   const chart = React.useMemo(
     () => {
       if (chartId === "volume")
@@ -344,16 +341,16 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
                 )} */}
                  {chartId === "liquidity" && (
                       <>
-                          {hoveredValueBigInt !== null 
-                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals) 
+                          {hoveredValueBigInt !== null
+                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals)
                               : formatTokenAmount(Number(pool.liquidity), jupiterToken?.decimals)
                           } {jupiterToken?.symbol}
                       </>
                   )}
                   {chartId === "volume" && (
                       <>
-                          {hoveredValueBigInt !== null 
-                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals) 
+                          {hoveredValueBigInt !== null
+                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals)
                               : formatTokenAmount(totalVolume, jupiterToken?.decimals)
                           } {jupiterToken?.symbol}
                       </>

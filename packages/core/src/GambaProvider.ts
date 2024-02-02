@@ -48,7 +48,6 @@ export class GambaProvider {
    * @returns Multiple TransactionInstruction in an array
    */
   createPool(underlyingTokenMint: PublicKey, authority: PublicKey, slot: number) {
-
     const gambaStateAta = getAssociatedTokenAddressSync(
       underlyingTokenMint,
       getGambaStateAddress(),
@@ -67,20 +66,20 @@ export class GambaProvider {
     //more addresses for lookup table
     const gamba_state = getGambaStateAddress()
     const pool_jackpot_token_account = PublicKey.findProgramAddressSync([Buffer.from('POOL_JACKPOT'), pool.toBuffer()], PROGRAM_ID)[0]
-    
+
     const [lookupTableInst, lookupTableAddress] = AddressLookupTableProgram.createLookupTable({
       authority: this.anchorProvider.wallet.publicKey,
-      payer : this.anchorProvider.wallet.publicKey,
-      recentSlot: slot-1,
+      payer: this.anchorProvider.wallet.publicKey,
+      recentSlot: slot - 1,
     })
 
-    
+
 
     const addAddressesInstruction = AddressLookupTableProgram.extendLookupTable({
       payer: this.anchorProvider.wallet.publicKey,
       authority: this.anchorProvider.wallet.publicKey,
       lookupTable: lookupTableAddress,
-      addresses:[
+      addresses: [
         pool,
         underlyingTokenMint,
         pool_underlying_token_account,
@@ -89,9 +88,9 @@ export class GambaProvider {
         gambaStateAta,
         bonus_mint,
         pool_jackpot_token_account,
-        ],
+      ],
     })
-    
+
     const freezeInstruction = AddressLookupTableProgram.freezeLookupTable({
       authority: this.anchorProvider.wallet.publicKey,
       lookupTable: lookupTableAddress,
@@ -119,7 +118,7 @@ export class GambaProvider {
       })
       .instruction()
 
-      return [lookupTableInst, addAddressesInstruction, freezeInstruction, createPoolInstruction]
+    return [lookupTableInst, addAddressesInstruction, freezeInstruction, createPoolInstruction]
   }
 
   /**

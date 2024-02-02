@@ -28,8 +28,10 @@ export const fetchRecentPlays = async (connection: Connection, pool?: PublicKey)
   const e = !pool ? "/events/settledGames?pool=" : "/events/settledGames?pool=" + pool?.toBase58()
   const res = await window.fetch(API_ENDPOINT + e, { headers: { "ngrok-skip-browser-warning": "true" } })
   const { signatures } = await res.json()
-  const events = await fetchGambaTransactionsFromSignatures(connection, signatures)
-  return events as GambaTransaction<"GameSettled">[]
+  const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<"GameSettled">[]
+  return events.sort((a, b) => {
+    return b.time - a.time
+  })
 }
 
 export const fetchPoolChanges = async (connection: Connection, pool: PublicKey) => {

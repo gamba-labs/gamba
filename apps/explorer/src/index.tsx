@@ -11,7 +11,7 @@ import { clusterApiUrl } from "@solana/web3.js"
 import { GambaProvider } from "gamba-react-v2"
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { HashRouter } from "react-router-dom"
+import { BrowserRouter } from "react-router-dom"
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 
@@ -48,7 +48,7 @@ function Root() {
 
   return (
     <Theme accentColor="iris" radius="large" panelBackground="translucent">
-      <HashRouter>
+      <BrowserRouter>
         <ConnectionProvider endpoint={import.meta.env.VITE_RPC_ENDPOINT} config={{ commitment: "processed" }}>
           <WalletProvider autoConnect wallets={wallets}>
             <WalletModalProvider>
@@ -60,7 +60,7 @@ function Root() {
             </WalletModalProvider>
           </WalletProvider>
         </ConnectionProvider>
-      </HashRouter>
+      </BrowserRouter>
     </Theme>
   )
 }

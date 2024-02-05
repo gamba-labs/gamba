@@ -30,6 +30,7 @@ app.listen(port, () => {
 // Create ngrok connection (TODO setup with pm2)
 if (process.env.NGROK_AUTH) {
   ngrok.forward({
+    domain: process.env.NGROK_DOMAIN,
     authtoken: process.env.NGROK_AUTH,
     addr: port,
   }).then((listener) => {

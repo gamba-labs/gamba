@@ -14,6 +14,11 @@ export interface RatioData {
   pool_liquidity: number
 }
 
+export interface TopCreatorsData {
+  creator: string
+  usd_volume: number
+}
+
 export const fetchDailyVolume = async (pool: PublicKey) => {
   const res = await window.fetch(API_ENDPOINT + "/daily?pool=" + pool.toBase58(), { headers: { "ngrok-skip-browser-warning": "true" } })
   return await res.json() as DailyVolume[]
@@ -22,6 +27,11 @@ export const fetchDailyVolume = async (pool: PublicKey) => {
 export const fetchChart = async (pool: PublicKey) => {
   const res = await window.fetch(API_ENDPOINT + "/ratio?pool=" + pool.toBase58(), { headers: { "ngrok-skip-browser-warning": "true" } })
   return await res.json() as RatioData[]
+}
+
+export const fetchTopCreators = async () => {
+  const res = await window.fetch(API_ENDPOINT + "/top-creators", { headers: { "ngrok-skip-browser-warning": "true" } })
+  return await res.json() as TopCreatorsData[]
 }
 
 export const fetchRecentPlays = async (connection: Connection, pool?: PublicKey) => {

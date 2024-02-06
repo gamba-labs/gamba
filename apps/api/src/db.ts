@@ -2,9 +2,36 @@ import { ConfirmedSignatureInfo, Connection, PublicKey, SignaturesForAddressOpti
 import { BPS_PER_WHOLE, GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import sqlite3 from 'sqlite3'
 
-const VERSION = 1
+const VERSION = 2
 
 export const db = new sqlite3.Database('gamba-v' + VERSION + '.db')
+
+const decimalsByMint: Record<string, number> = {}
+const priceByMint: Record<string, {lastFetch: number, price: number}> = {}
+
+const needsFetch = (x: string) => {
+  if (!priceByMint[x]) return true
+  return priceByMint[x].lastFetch < Date.now() - 1000 * 60 * 5
+}
+
+const fetchPriceData = async (tokens: string[]) => {
+  const tokensToFetch = Array.from(new Set(tokens.filter(needsFetch)))
+  if (!tokensToFetch.length) {
+    console.log('No tokens to fetch')
+    return
+  }
+  console.log('Fetching', tokensToFetch)
+  const req = await fetch(`https://price.jup.ag/v4/price?ids=${tokensToFetch.join(',')}`)
+  const res = await req.json()
+  const data = res.data as Record<string, {price: number}>
+
+  for (const key of tokens) {
+    priceByMint[key] = {
+      price: data[key]?.price ?? 0,
+      lastFetch: Date.now(),
+    }
+  }
+}
 
 export async function fetchGambaTransactions(
   connection: Connection,
@@ -52,7 +79,8 @@ export const initDb = async () => {
       user TEXT,
       amount INTEGER,
       lp_supply INTEGER,
-      post_liquidity INTEGER
+      post_liquidity INTEGER,
+      usd_per_unit REAL
     );
 
     CREATE TABLE IF NOT EXISTS settled_games (
@@ -66,7 +94,8 @@ export const initDb = async () => {
       payout INTEGER,
       multiplier_bps INTEGER,
       jackpot INTEGER,
-      pool_liquidity INTEGER
+      pool_liquidity INTEGER,
+      usd_per_unit REAL
     );
 
     CREATE TABLE IF NOT EXISTS meta (
@@ -109,14 +138,24 @@ const storeEvents = async (
   `)
 
   const insertSettledGames = db.prepare(`
-    INSERT INTO settled_games (signature, block_time, creator, user, token, pool, wager, payout, multiplier_bps, jackpot, pool_liquidity)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    INSERT INTO settled_games (signature, block_time, creator, user, token, pool, wager, payout, multiplier_bps, jackpot, pool_liquidity, usd_per_unit)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
 
   const insertPoolChanges = db.prepare(`
-    INSERT INTO pool_changes (signature, block_time, token, pool, user, amount, lp_supply, post_liquidity)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    INSERT INTO pool_changes (signature, block_time, token, pool, usd_per_unit, user, amount, lp_supply, post_liquidity)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
+
+  const tokens = events.map((x) => x.data.tokenMint.toString())
+
+  await fetchPriceData(tokens)
+
+  const getPricePerUnit = (mint: PublicKey) => {
+    const price = priceByMint[mint.toBase58()]?.price ?? 0
+    const decimals = decimalsByMint[mint.toBase58()] ?? 9
+    return price / (10 ** decimals)
+  }
 
   db.serialize(() => {
     insertMeta.run(
@@ -140,6 +179,7 @@ const storeEvents = async (
             poolChange.amount.toNumber(),
             poolChange.lpSupply.toNumber(),
             poolChange.postLiquidity.toNumber(),
+            getPricePerUnit(poolChange.tokenMint),
           )
         }
         if (event.name === 'GameSettled') {
@@ -159,6 +199,7 @@ const storeEvents = async (
             multiplier,
             gameSettled.jackpotPayoutToUser.toNumber(),
             gameSettled.poolLiquidity.toNumber(),
+            getPricePerUnit(gameSettled.tokenMint),
           )
         }
       },
@@ -223,6 +264,19 @@ async function search(
 }
 
 export async function run(rpcEndpoint: string) {
+  (
+    async () => {
+      const req = await fetch('https://cache.jup.ag/tokens')
+      const res = await req.json()
+      const data = res as {address: string, decimals: number}[]
+      for (const x of data) {
+        decimalsByMint[x.address] = x.decimals
+      }
+    }
+  )()
+
+  console.log('Done fetching token data')
+
   const connection = new Connection(rpcEndpoint, { commitment: 'confirmed' })
 
   await initDb()

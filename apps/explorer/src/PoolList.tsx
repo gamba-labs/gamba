@@ -1,21 +1,25 @@
 import { ProgramAccount } from "@coral-xyz/anchor"
-import { Avatar, Badge, Button, Flex, IconButton, Table, Text } from "@radix-ui/themes"
+import { Avatar, Badge, Box, Button, Card, Flex, Table, Text } from "@radix-ui/themes"
 import { NATIVE_MINT } from "@solana/spl-token"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
-import { decodePool, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress, PoolState } from "gamba-core-v2"
+import { PoolState, decodePool, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from "gamba-core-v2"
+import { TokenValue } from "gamba-react-ui-v2"
 import { useAccount, useGambaProgram } from "gamba-react-v2"
-import { TokenValue, useTokenMeta } from "gamba-react-ui-v2"
 import React from "react"
 import styled from "styled-components"
 import useSWR from "swr"
 
-import { decodeAta, fetchJupiterTokenList, formatTokenAmount} from "@/hooks"
+import { decodeAta, fetchJupiterTokenList, formatTokenAmount } from "@/hooks"
 
+import { ArrowRightIcon } from "@radix-ui/react-icons"
+import { NavLink } from "react-router-dom"
+import { fetchTopCreators } from "./api"
 import { TokenAvatar } from "./components"
+import { PlatformAccountItem } from "./components/AccountItem"
 import { TableRowNavLink } from "./components/TableRowLink"
 import { SYSTEM_PROGRAM } from "./constants"
-import { ArrowRightIcon } from "@radix-ui/react-icons"
+import { getPlatformMeta } from "./platforms"
 
 const SkeletonText = styled.div`
   height: 1em;
@@ -54,7 +58,7 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
 
   // Find the Jupiter token that matches the pool's underlying token mint
   const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.account.underlyingTokenMint));
-  
+
   return (
     <TableRowNavLink to={"/pool/" + pool.publicKey.toBase58()}>
       <StyledTableCell>
@@ -66,7 +70,7 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
             color="green"
             src={jupiterToken?.image} // Use Jupiter token logo
           />
-          <Text>{jupiterToken?.name || 'Unknown'}</Text> 
+          <Text>{jupiterToken?.name || 'Unknown'}</Text>
           <Text size="2" color="gray">{jupiterToken?.symbol || pool.account.underlyingTokenMint.toBase58().substring(0, 3)}</Text>
           {!pool.account.poolAuthority.equals(SYSTEM_PROGRAM) ? (
             <Badge color="orange">PRIVATE</Badge>
@@ -84,7 +88,7 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
                 mint={pool.account.underlyingTokenMint}
                 amount={Number(populated.data.liquidity)}
               /> */}
-              {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)} 
+              {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)}
             </Flex>
           ) : (
             <SkeletonText />
@@ -154,18 +158,39 @@ export function usePopulatedPool(account: ProgramAccount<PoolState>) {
   return useSWR("populated-pool-" + account.publicKey.toBase58(), () => populatePool(connection, account.publicKey, account.account))
 }
 
+const StyledLink = styled(NavLink)`
+  cursor: pointer;
+  text-decoration: unset;
+  color: unset;
+`
+
+function TopCreators() {
+  const { data: topCreators = [], isLoading } = useSWR("top-creators", fetchTopCreators)
+
+  return (
+    <Box>
+      <Flex wrap="wrap" gap="4">
+        {topCreators.slice(0, 6).map((x, i) => {
+          const meta = getPlatformMeta(x.creator)
+          return (
+            <StyledLink key={i} to={`/platform/${x.creator}`}>
+              <Card>
+                <PlatformAccountItem avatarSize="1" address={x.creator} />
+                <Text weight="bold">${x.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 2})}</Text>
+              </Card>
+            </StyledLink>
+          )
+        })}
+      </Flex>
+    </Box>
+  )
+}
+
 export function PoolList() {
   const program = useGambaProgram()
   const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
-
-  const [jupiterTokens, setJupiterTokens] = React.useState([]);
-
-  React.useEffect(() => {
-    fetchJupiterTokenList()
-      .then(setJupiterTokens)
-      .catch(console.error)
-  }, [])
+  const { data: jupiterTokens = [], isLoading: isLoadingJupiterTokens } = useSWR("jupiter-tokens", fetchJupiterTokenList)
 
   const sortedPools = React.useMemo(
     () => {
@@ -180,10 +205,9 @@ export function PoolList() {
     [pools],
   )
 
-  const isLoadingJupiterTokens = jupiterTokens.length === 0
-
   return (
     <Flex direction="column" gap="4">
+      <TopCreators />
       <Table.Root variant="surface">
         <Table.Header>
           <Table.Row>
@@ -221,7 +245,7 @@ export function PoolList() {
                 <PoolTableRow
                   key={pool.publicKey.toBase58()}
                   pool={pool}
-                  jupiterTokens={jupiterTokens} 
+                  jupiterTokens={jupiterTokens}
                 />
               ))}
               <Table.Row style={{ cursor: "not-allowed" }}>
@@ -230,7 +254,6 @@ export function PoolList() {
                     <TokenAvatar mint={NATIVE_MINT} size="2" />
                     <Text>Legacy Pool</Text>
                     <Text size="2" color="gray">SOL</Text>
-                    <Badge color="orange">DEPRECATED</Badge>
                   </Flex>
                 </StyledTableCell>
                 <StyledTableCell>

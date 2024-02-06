@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --no-cache --continue --filter=!gamba-api",
+    "dev": "turbo run dev --no-cache --continue",
     "api": "turbo run api --filter=gamba-api",
     "api-dev": "turbo run dev --filter=gamba-api",
     "clean": "turbo run clean && rm -rf node_modules",

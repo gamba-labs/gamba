@@ -113,6 +113,29 @@ api.get('/total', validate(volumeSchema), async (req, res) => {
   res.send(tx)
 })
 
+api.get('/creators-by-pool', validate(volumeSchema), async (req, res) => {
+  const tx = await all(`
+    SELECT creator, SUM(wager) as volume
+    FROM settled_games
+    WHERE pool = ?
+    AND block_time BETWEEN ? AND ?
+    GROUP BY creator
+    ORDER BY volume DESC
+  `, [req.query.pool, 0, Date.now()])
+  res.send(tx)
+})
+
+api.get('/top-creators', async (req, res) => {
+  const tx = await all(`
+    SELECT creator, SUM(wager * usd_per_unit) as usd_volume
+    FROM settled_games
+    WHERE block_time BETWEEN ? AND ?
+    GROUP BY creator
+    ORDER BY usd_volume DESC
+  `, [0, Date.now()])
+  res.send(tx)
+})
+
 api.get('/daily', validate(volumeSchema), async (req, res) => {
   const tx = await all(`
   SELECT

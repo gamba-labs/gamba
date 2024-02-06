@@ -139,7 +139,7 @@ api.get('/top-creators', async (req, res) => {
 api.get('/daily', validate(volumeSchema), async (req, res) => {
   const tx = await all(`
   SELECT
-    strftime('%Y-%m-%d %H:00', block_time / 1000, 'unixepoch') as date,
+    strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
     SUM(wager) as total_volume
     FROM settled_games
     WHERE pool = ?

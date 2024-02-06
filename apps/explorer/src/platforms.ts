@@ -139,6 +139,24 @@ export const PLATFORMS = [
     name: 'Broosters',
     url: 'https://www.broosters.xyz/',
     image: '/logos/broosters.png',
+  },
+  {
+    address: '6SaxsBTCRRK1xFT2c7iPSirx2aSZLsuY28S28shmLm11',
+    name: 'Beebets',
+    url: 'https://www.beebets.net/',
+    image: '/logos/beebets.png',
+  },
+  {
+    address: '3WdcfH6Gwe5bT6sXueUu7gb7U7dMq1yUFm351RJ4zLQT',
+    name: 'Topia Casino',
+    url: 'https://topia.casino/',
+    image: '/logos/topiacasino.png',
+  },
+  {
+    address: 'GpDqKcF2K5xuoiPHpKNipb7oiYwC6aYgLY6FPsX9HHRL',
+    name: 'SolVegas',
+    url: 'https://solvegas.net/',
+    image: '/logos/solvegas.png',
   }
 ]
 

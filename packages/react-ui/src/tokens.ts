@@ -34,6 +34,7 @@ export const GambaStandardTokens = {
     decimals: 5,
     baseWager: 1000000 * 1e5,
   },
+
 }
 
 /**

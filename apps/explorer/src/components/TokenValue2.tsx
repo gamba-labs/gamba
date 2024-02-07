@@ -1,4 +1,4 @@
-import { useTokenMeta } from '@/hooks'
+import { useTokenMeta, useTokenPrice } from '@/hooks'
 import { PublicKey } from '@solana/web3.js'
 import React from 'react'
 
@@ -7,34 +7,44 @@ export interface TokenValueProps {
   amount: number
   suffix?: string
   exact?: boolean
+  dollar?: boolean
 }
 
 export function TokenValue2(props: TokenValueProps) {
-  // const price = useTokenPrice(props.mint)
+  const price = useTokenPrice(props.mint)
   const token = useTokenMeta(props.mint)
   const suffix = props.suffix ?? token.symbol
   const tokenAmount = props.amount / (10 ** token.decimals)
+  const amount = props.dollar ? price * tokenAmount : tokenAmount
+
   const displayedAmount = (
     () => {
       if (!props.exact) {
-        if (tokenAmount >= 1e9) {
-          return (tokenAmount / 1e9).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'B'
+        if (amount >= 1e9) {
+          return (amount / 1e9).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'B'
         }
-        if (tokenAmount >= 1e6) {
-          return (tokenAmount / 1e6).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'M'
+        if (amount >= 1e6) {
+          return (amount / 1e6).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'M'
         }
-        if (tokenAmount > 1000) {
-          return (tokenAmount / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'K'
+        if (amount > 1000) {
+          return (amount / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'K'
         }
       }
-      return tokenAmount.toLocaleString(undefined, { maximumFractionDigits: Math.floor(tokenAmount) > 100 ? 1 : 4 })
+      return amount.toLocaleString(undefined, { maximumFractionDigits: Math.floor(amount) > 100 ? 1 : 4 })
     }
   )()
 
   return (
     <>
-      {/* ${(price * props.amount / (10**token.decimals)).toLocaleString(undefined, {maximumFractionDigits: 3})} */}
-      {displayedAmount} {suffix}
+      {props.dollar ? (
+        <>
+          ${displayedAmount}
+        </>
+      ) : (
+        <>
+          {displayedAmount} {suffix}
+        </>
+      )}
     </>
   )
 }

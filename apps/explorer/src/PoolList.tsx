@@ -72,18 +72,24 @@ function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
         </Flex>
       </StyledTableCell>
       <StyledTableCell>
-      <SkeletonFallback loading={populated.isLoading}>
-        {populated.data ? (
-            <Flex align="center">
-              <TokenValue2
-                exact
-                mint={pool.account.underlyingTokenMint}
-                amount={Number(populated.data.liquidity)}
-              />
-            </Flex>
-          ) : (
-            <SkeletonText />
-          )}
+        <SkeletonFallback loading={populated.isLoading}>
+          <Flex align="center">
+            <TokenValue2
+              mint={pool.account.underlyingTokenMint}
+              amount={Number(populated.data?.liquidity)}
+            />
+          </Flex>
+        </SkeletonFallback>
+      </StyledTableCell>
+      <StyledTableCell>
+        <SkeletonFallback loading={populated.isLoading}>
+          <Flex align="center">
+            <TokenValue2
+              dollar
+              mint={pool.account.underlyingTokenMint}
+              amount={Number(populated.data?.liquidity)}
+            />
+          </Flex>
         </SkeletonFallback>
       </StyledTableCell>
       <StyledTableCell>
@@ -188,6 +194,7 @@ export function PoolList() {
           <Table.Row>
             <Table.ColumnHeaderCell>Token</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell>Liquidity</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell>TVL</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell>Ratio</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell></Table.ColumnHeaderCell>
           </Table.Row>
@@ -231,9 +238,10 @@ export function PoolList() {
                   </Flex>
                 </StyledTableCell>
                 <StyledTableCell>
-                  <Flex gap="2" align="center">
-                    <TokenValue2 mint={NATIVE_MINT} amount={legacyPool} />
-                  </Flex>
+                  <TokenValue2 mint={NATIVE_MINT} amount={legacyPool} />
+                </StyledTableCell>
+                <StyledTableCell>
+                  <TokenValue2 dollar mint={NATIVE_MINT} amount={legacyPool} />
                 </StyledTableCell>
                 <StyledTableCell>
                   -

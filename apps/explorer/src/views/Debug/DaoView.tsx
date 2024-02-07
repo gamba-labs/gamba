@@ -1,5 +1,6 @@
-import { TokenItem } from "@/components"
+import { TokenAvatar, TokenItem } from "@/components"
 import { SolanaAddress } from "@/components/SolanaAddress"
+import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenAccountsByOwner } from "@/hooks"
 import { Button, Card, Flex, Grid, Heading, Text } from "@radix-ui/themes"
 import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
@@ -74,6 +75,7 @@ export default function DaoView() {
                   balance={token.amount}
                   stuff={
                     <>
+                      <TokenValue2 dollar mint={token.mint} amount={token.amount} />
                       {token.isNative && '(Native)'}
                       <Button size="2" variant="soft" onClick={() => distributeFees(
                         token.mint,

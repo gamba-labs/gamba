@@ -11,13 +11,14 @@ import React from "react"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
 import useSWR from "swr"
-import { fetchTopCreators } from "./api"
+import { DailyVolume, fetchDailyTotalVolume, fetchTopCreators } from "./api"
 import { TokenAvatar } from "./components"
 import { PlatformAccountItem } from "./components/AccountItem"
 import { TableRowNavLink } from "./components/TableRowLink"
 import { TokenValue2 } from "./components/TokenValue2"
 import { SYSTEM_PROGRAM } from "./constants"
 import { useTokenMeta } from "./hooks/useTokenMeta"
+import { BarChart } from "./charts/BarChart"
 
 const SkeletonText = styled.div`
   height: 1em;
@@ -168,6 +169,34 @@ function TopCreators() {
   )
 }
 
+function TotalVolume() {
+  const { data: daily = [] } = useSWR("daily-usd", fetchDailyTotalVolume)
+  const [hovered, setHovered] = React.useState<DailyVolume | null>(null)
+  const total = React.useMemo(
+    () => daily.reduce((p, x) => p + x.total_volume, 0),
+    [daily]
+  )
+
+  return (
+    <Card size="2">
+      <Flex direction="column" gap="2">
+        <Text color="gray">
+          {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '30d Volume'}
+        </Text>
+        <Text size="7" weight="bold">
+          ${(hovered?.total_volume ?? total).toLocaleString(undefined, {maximumFractionDigits: 1})}
+        </Text>
+      </Flex>
+      <div style={{height: '200px'}}>
+        <BarChart
+          dailyVolume={daily}
+          onHover={setHovered}
+        />
+      </div>
+    </Card>
+  )
+}
+
 export function PoolList() {
   const program = useGambaProgram()
   const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
@@ -189,6 +218,7 @@ export function PoolList() {
   return (
     <Flex direction="column" gap="4">
       <TopCreators />
+      <TotalVolume />
       <Table.Root variant="surface">
         <Table.Header>
           <Table.Row>

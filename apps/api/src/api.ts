@@ -150,4 +150,17 @@ api.get('/daily', validate(volumeSchema), async (req, res) => {
   res.send(tx)
 })
 
+api.get('/daily-total', async (req, res) => {
+  const tx = await all(`
+  SELECT
+    strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
+    SUM(wager * usd_per_unit) as total_volume
+    FROM settled_games
+    WHERE block_time BETWEEN ? AND ?
+    GROUP BY date
+    ORDER BY date ASC
+  `, [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()])
+  res.send(tx)
+})
+
 export default api

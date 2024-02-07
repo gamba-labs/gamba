@@ -24,6 +24,11 @@ export const fetchDailyVolume = async (pool: PublicKey) => {
   return await res.json() as DailyVolume[]
 }
 
+export const fetchDailyTotalVolume = async () => {
+  const res = await window.fetch(API_ENDPOINT + "/daily-total", { headers: { "ngrok-skip-browser-warning": "true" } })
+  return await res.json() as DailyVolume[]
+}
+
 export const fetchChart = async (pool: PublicKey) => {
   const res = await window.fetch(API_ENDPOINT + "/ratio?pool=" + pool.toBase58(), { headers: { "ngrok-skip-browser-warning": "true" } })
   return await res.json() as RatioData[]

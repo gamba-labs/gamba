@@ -2,7 +2,7 @@ import { ConfirmedSignatureInfo, Connection, PublicKey, SignaturesForAddressOpti
 import { BPS_PER_WHOLE, GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import sqlite3 from 'sqlite3'
 
-const VERSION = 3
+const VERSION = 6
 
 export const db = new sqlite3.Database('gamba-v' + VERSION + '.db')
 
@@ -17,10 +17,9 @@ const needsFetch = (x: string) => {
 const fetchPriceData = async (tokens: string[]) => {
   const tokensToFetch = Array.from(new Set(tokens.filter(needsFetch)))
   if (!tokensToFetch.length) {
-    console.log('No tokens to fetch')
     return
   }
-  console.log('Fetching', tokensToFetch)
+  console.log('Fetching token prices', tokensToFetch)
   const req = await fetch(`https://price.jup.ag/v4/price?ids=${tokensToFetch.join(',')}`)
   const res = await req.json()
   const data = res.data as Record<string, {price: number}>
@@ -143,7 +142,7 @@ const storeEvents = async (
   )
 
   const insertPoolChanges = db.prepare(`
-    INSERT INTO pool_changes (signature, block_time, token, pool, usd_per_unit, user, amount, lp_supply, post_liquidity)
+    INSERT INTO pool_changes (signature, block_time, token, pool, user, amount, lp_supply, post_liquidity, usd_per_unit)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
 
@@ -239,7 +238,7 @@ async function search(
     connection,
     PROGRAM_ID,
     {
-      limit: 100,
+      limit: 150,
       before: earliestSignature,
       until: latestSignature,
     },
@@ -263,7 +262,8 @@ async function search(
   return await search(connection, nextMeta, data.earliest.signature, latestSignature)
 }
 
-export async function run(rpcEndpoint: string) {
+export async function sync(rpcEndpoint: string) {
+  // Fetch token data
   (
     async () => {
       const req = await fetch('https://cache.jup.ag/tokens')
@@ -291,9 +291,9 @@ export async function run(rpcEndpoint: string) {
   try {
     await search(connection, meta, meta.earliest_signature)
   } catch (err) {
-    console.error('❌ Bot error', err)
-    console.log('Rerunning..')
+    console.error('❌ Sync error', err)
+    console.log('Retrying sync..')
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    run(rpcEndpoint)
+    sync(rpcEndpoint)
   }
 }

@@ -3,7 +3,7 @@ import cors from 'cors'
 import { config } from 'dotenv'
 import express from 'express'
 import api from './api'
-import { run } from './db'
+import { sync } from './db'
 import { PROGRAM_ID } from 'gamba-core-v2'
 
 config()
@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000
 if (!process.env.SOLANA_RPC_ENDPOINT) {
   throw new Error('RPC not specified')
 } {
-  run(process.env.SOLANA_RPC_ENDPOINT)
+  sync(process.env.SOLANA_RPC_ENDPOINT)
 }
 
 app.use(express.json())

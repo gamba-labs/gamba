@@ -3,7 +3,6 @@ import { Badge, Box, Button, Card, Code, Dialog, Flex, Grid, IconButton, Link, T
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection } from "@solana/web3.js"
 import { BPS_PER_WHOLE, GambaTransaction, parseGambaTransaction } from "gamba-core-v2"
-import { TokenValue } from "gamba-react-ui-v2"
 import React from "react"
 import { NavLink, useParams } from "react-router-dom"
 import styled, { css } from "styled-components"
@@ -12,6 +11,7 @@ import useSWR from "swr"
 import { TokenAvatar } from "@/components"
 import { PlatformAccountItem, PlayerAccountItem } from "@/components/AccountItem"
 import { Spinner } from "@/components/Spinner"
+import { TokenValue2 } from "@/components/TokenValue2"
 
 const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
   --rank-0: #ff293b;
@@ -178,7 +178,7 @@ function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled
                   <Text>Payout:</Text>
                   {output !== undefined && (
                     <Code>
-                      <TokenValue mint={data.tokenMint} amount={output} />
+                      <TokenValue2 mint={data.tokenMint} amount={output} />
                     </Code>
                   )}
                 </Flex>
@@ -359,10 +359,10 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               </Text>
               <Flex gap="2" align="center">
                 <TokenAvatar size="1" mint={game.tokenMint} />
-                <TokenValue amount={wager - game.bonusUsed.toNumber()} mint={game.tokenMint} />
+                <TokenValue2 amount={wager - game.bonusUsed.toNumber()} mint={game.tokenMint} />
                 {game.bonusUsed.toNumber() > 0 && (
                   <>
-                    {" "}(Bonus: <TokenValue exact amount={game.bonusUsed.toNumber()} mint={game.tokenMint} />)
+                    {" "}(Bonus: <TokenValue2 exact amount={game.bonusUsed.toNumber()} mint={game.tokenMint} />)
                   </>
                 )}
               </Flex>
@@ -380,7 +380,7 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
                 <Flex gap="2" align="center">
                   <Flex gap="2" align="center">
                     <TokenAvatar size="1" mint={game.tokenMint} />
-                    <TokenValue amount={payout} mint={game.tokenMint} />
+                    <TokenValue2 amount={payout} mint={game.tokenMint} />
                   </Flex>
                   <Badge color={profit >= 0 ? "green" : "red"}>
                     {(multiplier * 100 - 100).toLocaleString(undefined, { maximumFractionDigits: 3 })}%
@@ -390,7 +390,7 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
                 {game.jackpotPayoutToUser.toNumber() > 0 && (
                   <Flex gap="2" align="center">
                     <TokenAvatar size="1" mint={game.tokenMint} />
-                    <TokenValue amount={game.jackpotPayoutToUser.toNumber()} mint={game.tokenMint} /> Jackpot
+                    <TokenValue2 amount={game.jackpotPayoutToUser.toNumber()} mint={game.tokenMint} /> Jackpot
                   </Flex>
                 )}
 
@@ -408,11 +408,11 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               <Flex direction="column" gap="2">
                 <Flex gap="2" align="center">
                   <TokenAvatar size="1" mint={game.tokenMint} />
-                  <TokenValue amount={game.jackpotFee.toNumber() + game.poolFee.toNumber() + game.creatorFee.toNumber() + game.gambaFee.toNumber()} mint={game.tokenMint} />
+                  <TokenValue2 amount={game.jackpotFee.toNumber() + game.poolFee.toNumber() + game.creatorFee.toNumber() + game.gambaFee.toNumber()} mint={game.tokenMint} />
                 </Flex>
                 {/* <Flex gap="2" align="center">
                   <TokenAvatar size="1" mint={NATIVE_MINT} />
-                  <TokenValue amount={0} mint={NATIVE_MINT} /> (TODO: antiSpamFee?)
+                  <TokenValue2 amount={0} mint={NATIVE_MINT} /> (TODO: antiSpamFee?)
                 </Flex> */}
               </Flex>
             </Grid>

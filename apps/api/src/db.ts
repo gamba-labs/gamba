@@ -2,7 +2,7 @@ import { ConfirmedSignatureInfo, Connection, PublicKey, SignaturesForAddressOpti
 import { BPS_PER_WHOLE, GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import sqlite3 from 'sqlite3'
 
-const VERSION = 6
+const VERSION = 9
 
 export const db = new sqlite3.Database('gamba-v' + VERSION + '.db')
 
@@ -24,7 +24,10 @@ const fetchPriceData = async (tokens: string[]) => {
   const res = await req.json()
   const data = res.data as Record<string, {price: number}>
 
-  for (const key of tokens) {
+  for (const key of tokensToFetch) {
+    if (!data[key]) {
+      console.log('‼️ No price data for', key)
+    }
     priceByMint[key] = {
       price: data[key]?.price ?? 0,
       lastFetch: Date.now(),
@@ -238,7 +241,7 @@ async function search(
     connection,
     PROGRAM_ID,
     {
-      limit: 150,
+      limit: 200,
       before: earliestSignature,
       until: latestSignature,
     },

@@ -1,23 +1,18 @@
+import { useTokenMeta } from '@/hooks'
 import { PublicKey } from '@solana/web3.js'
 import React from 'react'
-import { GambaPlatformContext } from '../GambaPlatformProvider'
-import { useTokenMeta } from '../TokenListContext'
 
 export interface TokenValueProps {
-  mint?: PublicKey
+  mint: PublicKey
   amount: number
   suffix?: string
   exact?: boolean
 }
 
-export function TokenValue(props: TokenValueProps) {
-  const context = React.useContext(GambaPlatformContext)
-  const mint = props.mint ?? context?.token
-  if (!mint) {
-    throw new Error('"mint" prop is required when not using GambaPlatformProvider')
-  }
-  const token = useTokenMeta(mint)
-  const suffix = props.suffix ?? token?.symbol ?? '?'
+export function TokenValue2(props: TokenValueProps) {
+  // const price = useTokenPrice(props.mint)
+  const token = useTokenMeta(props.mint)
+  const suffix = props.suffix ?? token.symbol
   const tokenAmount = props.amount / (10 ** token.decimals)
   const displayedAmount = (
     () => {
@@ -38,6 +33,7 @@ export function TokenValue(props: TokenValueProps) {
 
   return (
     <>
+      {/* ${(price * props.amount / (10**token.decimals)).toLocaleString(undefined, {maximumFractionDigits: 3})} */}
       {displayedAmount} {suffix}
     </>
   )

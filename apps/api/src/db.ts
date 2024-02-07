@@ -2,7 +2,7 @@ import { ConfirmedSignatureInfo, Connection, PublicKey, SignaturesForAddressOpti
 import { BPS_PER_WHOLE, GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import sqlite3 from 'sqlite3'
 
-const VERSION = 2
+const VERSION = 3
 
 export const db = new sqlite3.Database('gamba-v' + VERSION + '.db')
 

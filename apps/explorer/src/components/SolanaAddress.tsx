@@ -4,7 +4,13 @@ import { Flex, IconButton, Link } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 
-export function SolanaAddress(props: {address: PublicKey}) {
+interface Props {
+  address: PublicKey
+  truncate?: boolean
+  plain?: boolean
+}
+
+export function SolanaAddress(props: Props) {
   const toast = useToast()
 
   const copy = () => {
@@ -12,11 +18,21 @@ export function SolanaAddress(props: {address: PublicKey}) {
     toast({ title: "Copied", description: "Copied to clipboard" })
   }
 
+  const address = props.address.toBase58()
+
+  const text = props.truncate ? address.slice(0, 6) + "..." + address.slice(-6) : address
+
   return (
     <Flex align="center" gap="2">
-      <Link target="_blank" href={`https://solscan.io/address/${props.address.toBase58()}?cluster=devnet`} rel="noreferrer">
-        {props.address.toBase58()}
-      </Link>
+      {props.plain ? (
+        <>
+          {text}
+        </>
+      ) : (
+        <Link target="_blank" href={`https://solscan.io/address/${props.address.toBase58()}?cluster=devnet`} rel="noreferrer">
+          {text}
+        </Link>
+      )}
       <IconButton variant="ghost" onClick={copy} size="1">
         <ClipboardIcon />
       </IconButton>

@@ -11,6 +11,7 @@ import { TableRowNavLink } from "@/components/TableRowLink"
 
 import { fetchRecentPlays } from "./api"
 import { PlatformAccountItem, PlayerAccountItem } from "./components/AccountItem"
+import { TokenValue2 } from "./components/TokenValue2"
 
 export function TimeDiff({ time }: {time: number}) {
   const diff = (Date.now() - time)
@@ -78,7 +79,7 @@ export default function RecentPlays({ pool }: {pool?: PublicKey}) {
                         size="1"
                         mint={game.tokenMint}
                       />
-                      <TokenValue
+                      <TokenValue2
                         amount={wager}
                         mint={game.tokenMint}
                       />
@@ -90,7 +91,7 @@ export default function RecentPlays({ pool }: {pool?: PublicKey}) {
                         size="1"
                         mint={game.tokenMint}
                       />
-                      <TokenValue
+                      <TokenValue2
                         amount={payout}
                         mint={game.tokenMint}
                       />

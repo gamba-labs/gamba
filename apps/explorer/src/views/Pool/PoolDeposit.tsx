@@ -2,18 +2,19 @@ import { Button, Card, Dialog, Flex, Grid, Heading, IconButton, Text, TextField 
 import { PublicKey } from "@solana/web3.js"
 import { decodeAta, getUserWsolAccount, isNativeMint, wrapSol } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
-import { TokenValue, useTokenMeta } from "gamba-react-ui-v2"
 import React from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
 
 import { Spinner } from "@/components/Spinner"
-import { useBalance, useToast, fetchJupiterTokenList, formatTokenAmount } from "@/hooks"
+import { useBalance, useToast } from "@/hooks"
 import { fetchPool, UiPool } from "@/PoolList"
 
+import { TokenValue2 } from "@/components/TokenValue2"
+import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { PoolHeader } from "./PoolView"
 
-export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
+export function PoolDeposit({ pool }: {pool: UiPool}) {
   const navigate = useNavigate()
   const gamba = useGambaProvider()
   const user = useWalletAddress()
@@ -25,12 +26,7 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
   const toast = useToast()
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
 
-  // Find the Jupiter token that matches the pool's underlying token mint
-  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.state.underlyingTokenMint));
-
-  // Use the decimals from Jupiter token if available, otherwise fallback to token's metadata
-  const decimals = jupiterToken?.decimals ?? token?.decimals ?? 0;
-  const amount = Math.round(Number(amountText) * (10 ** decimals));
+  const amount = Math.round(Number(amountText) * (10 ** token.decimals))
 
   const deposit = async () => {
     try {
@@ -74,15 +70,6 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
     }
   }
 
-  // Calculate the amount of LP tokens to receive in formatTokenAmount
-  const amountBigInt = BigInt(amount) 
-  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** decimals))) 
-  const calculatedAmount = amountBigInt * BigInt(10 ** decimals) / ratioBigInt
-
-  if (!pool || !jupiterTokens.length) {
-    return <Spinner />
-  }
-
   return (
     <>
       <Grid gap="2">
@@ -98,7 +85,7 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
             onFocus={event => event.target.focus()}
           />
           <TextField.Slot>
-            <IconButton onClick={() => setAmountText(String(balance.balance / (10 ** decimals)))} size="1" variant="ghost">
+            <IconButton onClick={() => setAmountText(String(balance.balance / (10 ** token.decimals)))} size="1" variant="ghost">
               MAX
             </IconButton>
           </TextField.Slot>
@@ -108,8 +95,7 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
             Balance
           </Text>
           <Text size="2">
-            {/* <TokenValue exact amount={balance.balance} mint={token.mint} /> */}
-            {formatTokenAmount(balance.balance, decimals)} {jupiterToken.symbol}
+            <TokenValue2 exact amount={balance.balance} mint={token.mint} />
           </Text>
         </Flex>
         <Flex justify="between">
@@ -117,8 +103,7 @@ export function PoolDeposit({ pool, jupiterTokens }: {pool: UiPool, jupiterToken
             Receive
           </Text>
           <Text size="2">
-            {/* <TokenValue exact amount={amount / pool.ratio} mint={pool.underlyingTokenMint} suffix="LP" /> */}
-            {formatTokenAmount(calculatedAmount, decimals)} LP
+            <TokenValue2 exact amount={amount / pool.ratio} mint={pool.underlyingTokenMint} suffix="LP" />
           </Text>
         </Flex>
         <Dialog.Root>
@@ -155,25 +140,15 @@ export default function PoolDepositView() {
   const poolId = React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
   const { data } = useSWR("pool-" + params.poolId!, () => fetchPool(program.provider.connection, poolId))
 
-  const [jupiterTokens, setJupiterTokens] = React.useState([])
-
-  React.useEffect(() => {
-    fetchJupiterTokenList().then(setJupiterTokens).catch(console.error)
-  }, [])
-
-  if ( !jupiterTokens.length) {
-    return <Spinner />
-  }
-
   return (
     <>
       {data && (
         <Grid gap="4">
           <Flex justify="between" align="end" py="4">
-            <PoolHeader pool={data} jupiterTokens={jupiterTokens}/>
+            <PoolHeader pool={data} />
           </Flex>
           <Card size="3">
-            <PoolDeposit pool={data} jupiterTokens={jupiterTokens}/>
+            <PoolDeposit pool={data} />
           </Card>
         </Grid>
       )}

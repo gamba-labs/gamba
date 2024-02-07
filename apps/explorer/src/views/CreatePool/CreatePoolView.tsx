@@ -1,25 +1,25 @@
 import { ArrowRightIcon, ExclamationTriangleIcon, PlusIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
-import { ComputeBudgetProgram, PublicKey } from "@solana/web3.js"
+import { ComputeBudgetProgram } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
-import { GAMBA_STANDARD_TOKEN_LIST } from "gamba-react-ui-v2"
 import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import useSWR from "swr"
 
+import { fetchPool } from "@/PoolList"
 import { SelectableButton, TokenItem } from "@/components"
 import { SYSTEM_PROGRAM } from "@/constants"
-import { ParsedTokenAccount, useTokenList, fetchJupiterTokenList } from "@/hooks"
-import { fetchPool } from "@/PoolList"
+import { ParsedTokenAccount, useTokenList } from "@/hooks"
+import { useJupiterList } from "@/hooks/useTokenMeta"
 
 export default function CreatePoolView() {
   const navigate = useNavigate()
   const { connection } = useConnection()
   const publicKey = useWalletAddress()
   const gamba = useGambaProvider()
-
+  const jupiterList = useJupiterList()
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const [selectedToken, setSelectedToken] = React.useState<ParsedTokenAccount>()
   const tokens = useTokenList()
@@ -32,29 +32,6 @@ export default function CreatePoolView() {
     () => selectedPoolId && fetchPool(connection, selectedPoolId),
   )
 
-  const [jupiterTokens, setJupiterTokens] = React.useState([])
-
-  React.useEffect(() => {
-    fetchJupiterTokenList()
-      .then(setJupiterTokens)
-      .catch(console.error)
-  }, [])
-
-  // Match user tokens with Jupiter tokens
-  const matchedTokens = React.useMemo(() => {
-    return tokens.map(token => {
-      const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(token.mint))
-      return {
-        ...token,
-        name: jupiterToken?.name || token.name, 
-        logo: jupiterToken?.image || token.logo, 
-      };
-    }).filter(token => token.name)
-  }, [tokens, jupiterTokens])
-  
-
-  console.log(matchedTokens)
-  
   // Sort by 1. Sol, 2. Known tokens 3. Balance 4. Pubkey
   const sortedTokens = React.useMemo(
     () => {
@@ -62,8 +39,8 @@ export default function CreatePoolView() {
         .sort((a, b) => {
           const nativeMintDiff = Number(isNativeMint(b.mint)) - Number(isNativeMint(a.mint))
           if (nativeMintDiff) return nativeMintDiff
-          const aKnown = GAMBA_STANDARD_TOKEN_LIST.some(x => x.mint.equals(a.mint))
-          const bKnown = GAMBA_STANDARD_TOKEN_LIST.some(x => x.mint.equals(b.mint))
+          const aKnown = !!jupiterList[a.mint.toBase58()]
+          const bKnown = !!jupiterList[b.mint.toBase58()]
           const knownDiff = Number(bKnown) - Number(aKnown)
           if (knownDiff) return knownDiff
           const balanceDiff = b.amount - a.amount
@@ -71,7 +48,7 @@ export default function CreatePoolView() {
           return a.mint.toBase58() > b.mint.toBase58() ? 1 : -1
         })
     },
-    [tokens],
+    [tokens, jupiterList],
   )
 
   const createPool = async () => {
@@ -120,18 +97,13 @@ export default function CreatePoolView() {
           </Text>
           <ScrollArea style={{ maxHeight: "300px" }}>
             <Grid gap="1">
-              {matchedTokens.map((token, i) => (
+              {sortedTokens.map((token, i) => (
                 <div key={i}>
                   <SelectableButton
                     selected={selectedToken?.mint.equals(token.mint)}
                     onClick={() => setSelectedToken(token)}
                   >
-                    <TokenItem
-                      mint={token.mint}
-                      balance={token.amount}
-                      name={token.name}
-                      logo={token.logo}
-                    />
+                    <TokenItem mint={token.mint} balance={token.amount} />
                   </SelectableButton>
                 </div>
               ))}
@@ -149,7 +121,7 @@ export default function CreatePoolView() {
                 size="3"
                 color="green"
                 variant="soft"
-                disabled={!selectedToken || isLoading || !gambaState.poolCreationAllowed || !!selectedPool}
+                disabled={!selectedToken || isLoading || !gambaState?.poolCreationAllowed || !!selectedPool}
               >
                 Create Pool <PlusIcon />
               </Button>

@@ -3,7 +3,7 @@ import { Avatar, Badge, Button, Card, Dialog, Flex, Grid, Heading, IconButton, L
 import { useConnection } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
-import { TokenValue, useTokenMeta } from "gamba-react-ui-v2"
+import { TokenValue } from "gamba-react-ui-v2"
 import { useAccount, useGambaProgram, useWalletAddress } from "gamba-react-v2"
 import React, { ReactNode } from "react"
 import { NavLink, useNavigate, useParams } from "react-router-dom"
@@ -12,17 +12,18 @@ import useSWR from "swr"
 
 import { fetchChart, fetchDailyVolume, fetchPoolChanges } from "@/api"
 import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
-import { TokenAvatar } from "@/components"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { Spinner } from "@/components/Spinner"
 import { useBalance } from "@/hooks"
 import { fetchPool, UiPool } from "@/PoolList"
 import RecentPlays, { TimeDiff } from "@/RecentPlays"
 
+import { TokenValue2 } from "@/components/TokenValue2"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
-import { fetchJupiterTokenList, formatTokenAmount} from "@/hooks"
+import { useTokenMeta } from "@/hooks/useTokenMeta"
+import { TokenAvatar } from "@/components"
 
 function ThingCard(props: {title: string, children: ReactNode}) {
   return (
@@ -78,8 +79,8 @@ const ResponsiveButtonContainer = styled(Flex)`
   }
 `;
 
-export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
-  // const token = useTokenMeta(pool.underlyingTokenMint)
+export function PoolHeader({ pool }: {pool: UiPool}) {
+  const token = useTokenMeta(pool.underlyingTokenMint)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const maxPayoutPercent = gambaState && gambaState.maxPayoutBps ? gambaState.maxPayoutBps.toNumber() / BPS_PER_WHOLE : 0
   const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
@@ -88,32 +89,19 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
   const isPoolAuthority = userPublicKey && pool?.state?.poolAuthority?.equals(userPublicKey)
   const isGambaStateAuthority = userPublicKey && gambaState?.authority?.equals(userPublicKey)
 
-  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
-
-  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps
-    ? BigInt(Math.round(jackpotPayoutPercentage * (10 ** jupiterToken.decimals)))
-    : BigInt(0)
-
-  const liquidityCheckpointBigInt = BigInt(pool.state.liquidityCheckpoint)
-  const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
-  const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
-
   return (
     <Flex gap="4" align="center">
       <NavLink to={"/pool/" + pool.publicKey.toBase58()} style={{ display: "contents", color: "unset" }}>
-        <Avatar
-          radius="full"
-          fallback="?"
+        <TokenAvatar
           size="3"
-          color="green"
-          src={jupiterToken?.image || ''}
+          mint={pool.underlyingTokenMint}
         />
         <Flex align="center" gap="2">
           <Heading>
-            {jupiterToken?.name || 'Unknown'}
+            {token.name}
           </Heading>
           <Text color="gray" size="4">
-            ({jupiterToken?.symbol || 'Unknown'})
+            {token.symbol}
           </Text>
         </Flex>
       </NavLink>
@@ -150,24 +138,20 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
           <Flex gap="2" wrap="wrap">
             <Flex gap="2" wrap="wrap">
             <ThingCard title="LP price">
-              {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {jupiterToken?.symbol}
+              {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
             </ThingCard>
             </Flex>
             <ThingCard title="LP Token Supply">
-              {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} /> */}
-              {formatTokenAmount(pool.lpSupply, jupiterToken?.decimals)}
+              <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} />
             </ThingCard>
             <ThingCard title="Max Payout">
-              {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} /> */}
-              {formatTokenAmount(maxPayoutAmount, jupiterToken?.decimals)}
+              <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} />
             </ThingCard>
             <ThingCard title="Circulating Bonus">
-              {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} /> */}
-              {formatTokenAmount(Number(pool.bonusBalance), jupiterToken?.decimals)}
+              <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} />
             </ThingCard>
             <ThingCard title="Jackpot">
-              {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} /> */}
-              {formatTokenAmount(Number(pool.jackpotBalance * jackpotPayoutPercentageBigInt / BigInt(10 ** jupiterToken.decimals)), jupiterToken?.decimals)}
+              <TokenValue2 exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} />
             </ThingCard>
             <ThingCard title="Total Plays">
               {pool.plays.toLocaleString(undefined)}
@@ -178,7 +162,7 @@ export function PoolHeader({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens
     </Flex>
   )
 }
-function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[]}) {
+function PoolManager({ pool }: {pool: UiPool}) {
   const { connection } = useConnection()
   const navigate = useNavigate()
   const token = useTokenMeta(pool.underlyingTokenMint)
@@ -194,25 +178,6 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
   const { data: dailyVolume = [] } = useSWR("daily-" + pool.publicKey.toBase58(), () => fetchDailyVolume(pool.publicKey))
   const { data: ratioData = [] } = useSWR("ratio-" + pool.publicKey.toBase58(), () => fetchChart(pool.publicKey))
   const { data: poolChanges = [] } = useSWR("poolChanges-" + pool.publicKey.toBase58(), () => fetchPoolChanges(connection, pool.publicKey))
-
-  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.underlyingTokenMint))
-  const decimals = jupiterToken?.decimals ?? token?.decimals ?? 0
-
-  const lpBalanceBigInt = BigInt(balances.lpBalance)
-  const ratioBigInt = BigInt(Math.round(pool.ratio * (10 ** decimals)))
-  const calculatedAmount = (lpBalanceBigInt * ratioBigInt) / BigInt(10 ** decimals)
-
-  const liquidityCheckpointBigInt = BigInt(pool.state.liquidityCheckpoint)
-  const maxPayoutPercentBigInt = BigInt(Math.round(maxPayoutPercent * (10 ** jupiterToken.decimals)))
-  const maxPayoutAmount = (liquidityCheckpointBigInt * maxPayoutPercentBigInt) / BigInt(10 ** jupiterToken.decimals)
-
-  const jackpotPayoutPercentageBigInt = gambaState && gambaState.jackpotPayoutToUserBps
-    ? BigInt(Math.round(jackpotPayoutPercentage * (10 ** jupiterToken.decimals)))
-    : BigInt(0)
-
-  const hoveredValueBigInt = hovered?.value
-    ? BigInt(Math.round(hovered.value))
-    : null
 
   const chart = React.useMemo(
     () => {
@@ -255,7 +220,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
     <Grid gap="4">
       <Flex justify={{ sm: "between" }} align={{ sm: "end" }} py="4" direction={{ initial: "column", sm: "row" }} gap="4">
         <Flex direction="column" gap="4">
-          <PoolHeader pool={pool} jupiterTokens={jupiterTokens} />
+          <PoolHeader pool={pool} />
         </Flex>
         <ResponsiveButtonContainer align="center" gap="4">
         <Flex align="center" gap="4">
@@ -266,7 +231,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
               </Button>
             </Dialog.Trigger>
             <Dialog.Content>
-              <PoolMintBonus pool={pool} jupiterToken={jupiterToken} />
+              <PoolMintBonus pool={pool} />
             </Dialog.Content>
           </Dialog.Root>
           <Dialog.Root>
@@ -276,13 +241,13 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
               </Button>
             </Dialog.Trigger>
             <Dialog.Content>
-              <PoolJackpotDeposit pool={pool} jupiterToken={jupiterToken} />
+              <PoolJackpotDeposit pool={pool} />
             </Dialog.Content>
           </Dialog.Root>
           </Flex>
           <Flex align="center" gap="4">
           <Button variant="soft" onClick={() => window.open(`https://jup.ag/swap/SOL-${token.mint.toBase58()}`)} size="3">
-            Buy ${jupiterToken.symbol}
+            Buy {token.symbol}
           </Button>
           <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
             Add Liqudity <RocketIcon />
@@ -294,28 +259,23 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
         <Flex gap="2" wrap="wrap">
           <Flex gap="2" wrap="wrap">
             <ThingCard title="LP price">
-              {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {jupiterToken.symbol}
+              {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
             </ThingCard>
           </Flex>
           <ThingCard title="Liqudity">
-            {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.liquidity)} /> */}
-            {formatTokenAmount(Number(pool.liquidity), jupiterToken?.decimals)}
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.liquidity)} />
           </ThingCard>
           <ThingCard title="LP Token Supply">
-            {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} /> */}
-            {formatTokenAmount(Number(pool.lpSupply), jupiterToken?.decimals)}
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} />
           </ThingCard>
           <ThingCard title="Max Payout">
-            {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} /> */}
-            {formatTokenAmount(maxPayoutAmount, jupiterToken?.decimals)}
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} />
           </ThingCard>
           <ThingCard title="Circulating Bonus">
-            {/* <TokenValue mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} /> */}
-            {formatTokenAmount(Number(pool.bonusBalance), jupiterToken?.decimals)}
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} />
           </ThingCard>
           <ThingCard title="Jackpot">
-            {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} /> */}
-            {formatTokenAmount(Number(pool.jackpotBalance * jackpotPayoutPercentageBigInt / BigInt(10 ** jupiterToken.decimals)), jupiterToken?.decimals)}
+            <TokenValue2 exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} />
           </ThingCard>
           <ThingCard title="Total Plays">
             {pool.plays.toLocaleString(undefined)}
@@ -325,7 +285,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
           <Flex justify="between" align="start">
             <Flex direction="column" gap="2">
               <Text size="7" weight="bold">
-                {/* {chartId === "liquidity" && (
+                {chartId === "liquidity" && (
                   <TokenValue
                     exact
                     mint={pool.underlyingTokenMint}
@@ -338,23 +298,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
                     mint={pool.underlyingTokenMint}
                     amount={hovered?.value ?? totalVolume}
                   />
-                )} */}
-                 {chartId === "liquidity" && (
-                      <>
-                          {hoveredValueBigInt !== null
-                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals)
-                              : formatTokenAmount(Number(pool.liquidity), jupiterToken?.decimals)
-                          } {jupiterToken?.symbol}
-                      </>
-                  )}
-                  {chartId === "volume" && (
-                      <>
-                          {hoveredValueBigInt !== null
-                              ? formatTokenAmount(hoveredValueBigInt, jupiterToken?.decimals)
-                              : formatTokenAmount(totalVolume, jupiterToken?.decimals)
-                          } {jupiterToken?.symbol}
-                      </>
-                  )}
+                )}
                 {chartId === "price" && (
                   <>
                     {(hovered?.value ?? pool.ratio).toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
@@ -395,16 +339,14 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
             </Text>
             <Text size="5">
               <Text color="gray">
-                {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={balances.lpBalance} suffix="LP" /> */}
-                {formatTokenAmount(balances.lpBalance, jupiterToken?.decimals)} LP
+                <TokenValue2 exact mint={pool.underlyingTokenMint} amount={balances.lpBalance} suffix="LP" />
                 {" = "}
               </Text>
               <Text weight="bold">
-                {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={balances.lpBalance * pool.ratio} /> */}
-                {formatTokenAmount(calculatedAmount, jupiterToken?.decimals)} {jupiterToken?.symbol}
+                <TokenValue2 exact mint={pool.underlyingTokenMint} amount={balances.lpBalance * pool.ratio} />
               </Text>
             </Text>
-            <PoolWithdraw pool={pool} jupiterTokens={jupiterTokens} />
+            <PoolWithdraw pool={pool} />
           </Grid>
         </Card>
       ) : (
@@ -414,7 +356,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
               No position
             </Heading>
             <Text align="center" color="gray">
-              You can stake your {jupiterToken?.symbol} in this pool.
+              You can stake your {token?.symbol} in this pool.
             </Text>
             <Flex align="center" justify="center">
               <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
@@ -439,8 +381,7 @@ function PoolManager({ pool, jupiterTokens }: {pool: UiPool, jupiterTokens: any[
                       </Link>
                       <Badge color={change.data.action.deposit ? "green" : "red"}>
                         {change.data.action.deposit ? "+" : "-"}
-                        {/* <TokenValue exact mint={pool.underlyingTokenMint} amount={change.data.amount.toNumber()} /> */}
-                        {formatTokenAmount(change.data.amount.toNumber(), jupiterToken?.decimals)} {jupiterToken?.symbol}
+                        <TokenValue2 exact mint={pool.underlyingTokenMint} amount={change.data.amount.toNumber()} />
                       </Badge>
                     </Flex>
                     <TimeDiff time={change.time} />
@@ -464,23 +405,17 @@ export default function PoolView() {
   const poolId = React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
   const { data, isLoading } = useSWR("pool-" + params.poolId!, () => fetchPool(program.provider.connection, poolId))
 
-  const [jupiterTokens, setJupiterTokens] = React.useState([])
-
-  React.useEffect(() => {
-    fetchJupiterTokenList().then(setJupiterTokens).catch(console.error)
-  }, [])
-
-  if (isLoading || !jupiterTokens.length) {
+  if (isLoading) {
     return (
-        <Flex align="center" justify="center" p="4">
-            <Spinner />
-        </Flex>
+      <Flex align="center" justify="center" p="4">
+        <Spinner />
+      </Flex>
     );
-}
+  }
   return (
     <>
       {data && (
-        <PoolManager pool={data} jupiterTokens={jupiterTokens}/>
+        <PoolManager pool={data} />
       )}
     </>
   )

@@ -1,8 +1,10 @@
+import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { Avatar, Flex, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
-import { TokenValue, useTokenMeta } from "gamba-react-ui-v2"
 import React from "react"
 import styled, { css } from "styled-components"
+import { TokenValue2 } from "./TokenValue2"
+import { SolanaAddress } from "./SolanaAddress"
 
 export const SelectableButton = styled.button<{selected?: boolean}>`
   all: unset;
@@ -24,63 +26,49 @@ export const SelectableButton = styled.button<{selected?: boolean}>`
   `}
 `
 
-export const Address = (props: {children: string}) => {
-  return (
-    <span title={props.children}>
-      {props.children.slice(0, 6) + "..." + props.children.slice(-6)}
-    </span>
-  )
-}
-
 interface TokenItemProps {
   mint: PublicKey
   balance: number
-  name: string;   
-  logo: string;   
   stuff?: React.ReactNode
 }
 
 export function TokenAvatar(props: {mint: PublicKey, size?: "1" | "2" | "3"}) {
-  const metaData = useTokenMeta(props.mint)
+  const meta = useTokenMeta(props.mint)
   return (
     <Avatar
       radius="full"
       fallback="?"
       size={props.size ?? "3"}
       color="green"
-      src={metaData.image}
+      src={meta.image}
     />
   )
 }
 
-export function TokenItem({ mint, balance, name, logo }: TokenItemProps) {
+export function TokenItem({ mint, balance }: TokenItemProps) {
+  const meta = useTokenMeta(mint)
   return (
     <Flex gap="4" justify="between" align="center">
       <Flex grow="1" gap="4" align="center">
-        <Avatar
-          radius="full"
-          fallback="?"
+        <TokenAvatar
           size="3"
-          color="green"
-          src={logo} 
+          mint={meta.mint}
         />
         <Flex grow="1" direction="column">
           <Flex justify="between">
             <Text weight="bold">
-              {name}
+              {meta.name}
             </Text>
           </Flex>
           <Flex justify="between">
             <Text color="gray">
-              <Address>
-                {mint.toBase58()}
-              </Address>
+              <SolanaAddress plain truncate address={mint} />
             </Text>
           </Flex>
         </Flex>
       </Flex>
       <Text>
-        <TokenValue mint={mint} amount={balance} />
+        <TokenValue2 mint={mint} amount={balance} />
       </Text>
     </Flex>
   )

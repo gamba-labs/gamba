@@ -1,25 +1,23 @@
+import { decodeAta } from "@/hooks"
 import { ProgramAccount } from "@coral-xyz/anchor"
+import { ArrowRightIcon } from "@radix-ui/react-icons"
 import { Avatar, Badge, Box, Button, Card, Flex, Table, Text } from "@radix-ui/themes"
 import { NATIVE_MINT } from "@solana/spl-token"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { PoolState, decodePool, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from "gamba-core-v2"
-import { TokenValue } from "gamba-react-ui-v2"
 import { useAccount, useGambaProgram } from "gamba-react-v2"
 import React from "react"
+import { NavLink } from "react-router-dom"
 import styled from "styled-components"
 import useSWR from "swr"
-
-import { decodeAta, fetchJupiterTokenList, formatTokenAmount } from "@/hooks"
-
-import { ArrowRightIcon } from "@radix-ui/react-icons"
-import { NavLink } from "react-router-dom"
 import { fetchTopCreators } from "./api"
 import { TokenAvatar } from "./components"
 import { PlatformAccountItem } from "./components/AccountItem"
 import { TableRowNavLink } from "./components/TableRowLink"
+import { TokenValue2 } from "./components/TokenValue2"
 import { SYSTEM_PROGRAM } from "./constants"
-import { getPlatformMeta } from "./platforms"
+import { useTokenMeta } from "./hooks/useTokenMeta"
 
 const SkeletonText = styled.div`
   height: 1em;
@@ -53,25 +51,19 @@ export const SkeletonFallback = (props: React.PropsWithChildren<{loading: boolea
   return props.children
 }
 
-function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>; jupiterTokens: any[] }) {
-  const populated = usePopulatedPool(pool);
-
-  // Find the Jupiter token that matches the pool's underlying token mint
-  const jupiterToken = jupiterTokens.find(jt => jt.mint.equals(pool.account.underlyingTokenMint));
+function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
+  const populated = usePopulatedPool(pool)
+  const token = useTokenMeta(pool.account.underlyingTokenMint)
 
   return (
     <TableRowNavLink to={"/pool/" + pool.publicKey.toBase58()}>
       <StyledTableCell>
         <Flex gap="4" align="center">
-          <Avatar
-            radius="full"
-            fallback="?"
-            size="2"
-            color="green"
-            src={jupiterToken?.image} // Use Jupiter token logo
-          />
-          <Text>{jupiterToken?.name || 'Unknown'}</Text>
-          <Text size="2" color="gray">{jupiterToken?.symbol || pool.account.underlyingTokenMint.toBase58().substring(0, 3)}</Text>
+          <TokenAvatar mint={pool.account.underlyingTokenMint} size="2" />
+          <Text>{token.name}</Text>
+          <Text size="2" color="gray">
+            {token.symbol}
+          </Text>
           {!pool.account.poolAuthority.equals(SYSTEM_PROGRAM) ? (
             <Badge color="orange">PRIVATE</Badge>
           ) : (
@@ -81,14 +73,13 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
       </StyledTableCell>
       <StyledTableCell>
       <SkeletonFallback loading={populated.isLoading}>
-      {populated.data ? (
+        {populated.data ? (
             <Flex align="center">
-              {/* <TokenValue
+              <TokenValue2
                 exact
                 mint={pool.account.underlyingTokenMint}
                 amount={Number(populated.data.liquidity)}
-              /> */}
-              {formatTokenAmount(populated.data.liquidity, jupiterToken?.decimals ?? 0, jupiterToken?.symbol)}
+              />
             </Flex>
           ) : (
             <SkeletonText />
@@ -101,20 +92,6 @@ function PoolTableRow({ pool, jupiterTokens }: { pool: ProgramAccount<PoolState>
         </SkeletonFallback>
       </StyledTableCell>
       <StyledTableCell />
-      {/* <StyledTableCell>
-        <SkeletonFallback loading={populated.isLoading}>
-          <TokenValue mint={token.mint} amount={Number(populated.data?.jackpotBalance)} />
-        </SkeletonFallback>
-      </StyledTableCell> */}
-      {/* <StyledTableCell align="center">
-        <SkeletonFallback loading={populated.isLoading}>
-          {populated.data?.poolAuthority.equals(SYSTEM_PROGRAM) && (
-            <Button variant="soft" size="1" radius="full">
-              Stake <ArrowRightIcon />
-            </Button>
-          )}
-        </SkeletonFallback>
-      </StyledTableCell> */}
     </TableRowNavLink>
   )
 }
@@ -165,13 +142,12 @@ const StyledLink = styled(NavLink)`
 `
 
 function TopCreators() {
-  const { data: topCreators = [], isLoading } = useSWR("top-creators", fetchTopCreators)
+  const { data: topCreators = [] } = useSWR("top-creators", fetchTopCreators)
 
   return (
     <Box>
       <Flex wrap="wrap" gap="4">
         {topCreators.slice(0, 6).map((x, i) => {
-          const meta = getPlatformMeta(x.creator)
           return (
             <StyledLink key={i} to={`/platform/${x.creator}`}>
               <Card>
@@ -190,7 +166,6 @@ export function PoolList() {
   const program = useGambaProgram()
   const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
-  const { data: jupiterTokens = [], isLoading: isLoadingJupiterTokens } = useSWR("jupiter-tokens", fetchJupiterTokenList)
 
   const sortedPools = React.useMemo(
     () => {
@@ -218,7 +193,7 @@ export function PoolList() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {isLoadingPools || isLoadingJupiterTokens ? (
+          {isLoadingPools ? (
             <>
               {Array.from({ length: 3 }).map((_, i) => (
                 <Table.Row key={i}>
@@ -245,7 +220,6 @@ export function PoolList() {
                 <PoolTableRow
                   key={pool.publicKey.toBase58()}
                   pool={pool}
-                  jupiterTokens={jupiterTokens}
                 />
               ))}
               <Table.Row style={{ cursor: "not-allowed" }}>
@@ -258,7 +232,7 @@ export function PoolList() {
                 </StyledTableCell>
                 <StyledTableCell>
                   <Flex gap="2" align="center">
-                    <TokenValue mint={NATIVE_MINT} amount={legacyPool} />
+                    <TokenValue2 mint={NATIVE_MINT} amount={legacyPool} />
                   </Flex>
                 </StyledTableCell>
                 <StyledTableCell>

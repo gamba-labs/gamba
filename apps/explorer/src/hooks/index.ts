@@ -3,10 +3,10 @@ import { PublicKey } from "@solana/web3.js"
 import { decodeAta, getPoolAddress, getUserBonusAtaForPool, getUserLpAtaForPool, getUserUnderlyingAta, isNativeMint } from "gamba-core-v2"
 import { useAccount, useWalletAddress } from "gamba-react-v2"
 import React from "react"
-
-import { ParsedTokenAccount, useTokenAccountsByOwner } from "@/hooks"
-
+import { ParsedTokenAccount, useTokenAccountsByOwner } from "./useTokens"
 export * from "./useToast"
+export * from "./useTokenMeta"
+export * from "./useTokenPrice"
 export * from "./useTokens"
 
 export function useNativeBalance() {
@@ -38,6 +38,7 @@ export function useBalance(mint: PublicKey) {
     lpBalance,
   }
 }
+
 // Modified to always include SOL even when the user doesn't have wSOL
 export function useTokenList() {
   const publicKey = useWalletAddress()
@@ -57,42 +58,3 @@ export function useTokenList() {
     [tokens],
   )
 }
-
-
-export async function fetchJupiterTokenList() {
-  const response = await fetch('https://cache.jup.ag/tokens')
-  const tokenList = await response.json()
-
-  return tokenList.map(token => ({
-    mint: new PublicKey(token.address),
-    name: token.name,
-    symbol: token.symbol,
-    image: token.logoURI,
-    decimals: token.decimals,
-  }))
-}
-
-export const formatTokenAmount = (amount, decimals, symbol = "") => {
-  // Ensure amount is a BigInt
-  const bigIntAmount = BigInt(amount);
-
-  // Calculate the divisor as a BigInt
-  const divisor = BigInt(10 ** decimals);
-
-  // Divide and get remainder as BigInt
-  const formattedAmount = bigIntAmount / divisor;
-  const fractionalPart = bigIntAmount % divisor;
-
-  // Combine integer and fractional parts for display
-  const displayAmount = Number(formattedAmount) + Number(fractionalPart) / Number(divisor);
-
-  // Format with commas and decimal places
-  const formattedWithCommas = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(displayAmount);
-
-  return symbol ? `${formattedWithCommas} ${symbol}` : formattedWithCommas;
-}
-
-

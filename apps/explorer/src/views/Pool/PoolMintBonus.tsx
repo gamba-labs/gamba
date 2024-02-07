@@ -1,14 +1,15 @@
 import { Button, Flex, Grid, Heading, IconButton, Text, TextField } from "@radix-ui/themes"
 import { decodeAta, getPoolBonusAddress, getUserWsolAccount, isNativeMint, wrapSol } from "gamba-core-v2"
 import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
-import { TokenValue, useTokenMeta } from "gamba-react-ui-v2"
 import React from "react"
 import { mutate } from "swr"
 
-import { formatTokenAmount, useBalance, useToast } from "@/hooks"
 import { UiPool } from "@/PoolList"
+import { TokenValue2 } from "@/components/TokenValue2"
+import { useBalance, useToast } from "@/hooks"
+import { useTokenMeta } from "@/hooks/useTokenMeta"
 
-export function PoolMintBonus({ pool, jupiterToken }: { pool: UiPool, jupiterToken: any }) {
+export function PoolMintBonus({ pool }: { pool: UiPool }) {
   const gamba = useGambaProvider()
   const [amountText, setAmountText] = React.useState("")
   const sendTransaction = useSendTransaction()
@@ -18,11 +19,9 @@ export function PoolMintBonus({ pool, jupiterToken }: { pool: UiPool, jupiterTok
   const balances = useBalance(pool.underlyingTokenMint)
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
 
-  
-
   const mintBonusTokens = async () => {
     try {
-      const amount = Math.round(Number(amountText) * (10 ** (jupiterToken?.decimals ?? 0)))
+      const amount = Math.round(Number(amountText) * (10 ** token.decimals))
 
       const { publicKey, state } = pool
       const underlyingTokenMint = state.underlyingTokenMint
@@ -74,7 +73,7 @@ export function PoolMintBonus({ pool, jupiterToken }: { pool: UiPool, jupiterTok
           onChange={event => setAmountText(event.target.value)}
         />
         <TextField.Slot>
-          <IconButton onClick={() => setAmountText(String(balances.balance / (10 ** jupiterToken.decimals)))} size="1" variant="ghost">
+          <IconButton onClick={() => setAmountText(String(balances.balance / (10 ** token.decimals)))} size="1" variant="ghost">
             MAX
           </IconButton>
         </TextField.Slot>
@@ -84,8 +83,7 @@ export function PoolMintBonus({ pool, jupiterToken }: { pool: UiPool, jupiterTok
           Balance
         </Text>
         <Text size="2">
-          {/* <TokenValue exact amount={balances.balance} mint={pool.underlyingTokenMint} /> */}
-          {formatTokenAmount(balances.balance, jupiterToken.decimals)} {jupiterToken?.symbol}
+          <TokenValue2 exact amount={balances.balance} mint={pool.underlyingTokenMint} />
         </Text>
       </Flex>
       <Button size="3" variant="soft" onClick={mintBonusTokens}>

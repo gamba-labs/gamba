@@ -45,7 +45,7 @@ export function TokenAvatar(props: {mint: PublicKey, size?: "1" | "2" | "3"}) {
   )
 }
 
-export function TokenItem({ mint, balance }: TokenItemProps) {
+export function TokenItem({ mint, balance, stuff }: TokenItemProps) {
   const meta = useTokenMeta(mint)
   return (
     <Flex gap="4" justify="between" align="center">
@@ -70,6 +70,7 @@ export function TokenItem({ mint, balance }: TokenItemProps) {
       <Text>
         <TokenValue2 mint={mint} amount={balance} />
       </Text>
+      {stuff}
     </Flex>
   )
 }

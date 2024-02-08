@@ -195,7 +195,7 @@ export function PoolList() {
                 pool={pool}
               />
             ))}
-            <TableRowHref href="https://old.gamba.so">
+            <TableRowHref href="https://v1.gamba.so">
               <StyledTableCell>
                 <Flex gap="4" align="center">
                   <TokenAvatar mint={NATIVE_MINT} size="2" />

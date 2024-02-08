@@ -1,5 +1,5 @@
-import { CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from "@radix-ui/react-icons"
-import { Badge, Box, Button, Card, Code, Dialog, Flex, Grid, IconButton, Link, Table, Tabs, Text, TextField } from "@radix-ui/themes"
+import { ArrowRightIcon, CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from "@radix-ui/react-icons"
+import { Badge, Box, Button, Card, Code, Dialog, Flex, Grid, Heading, IconButton, Link, Table, Tabs, Text, TextField } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection } from "@solana/web3.js"
 import { BPS_PER_WHOLE, GambaTransaction, parseGambaTransaction } from "gamba-core-v2"
@@ -455,14 +455,14 @@ async function fetchGambaTransaction(connection: Connection, txId: string) {
   const transaction = await connection.getParsedTransaction(txId, { commitment: "confirmed", maxSupportedTransactionVersion: 0 })
 
   if (!transaction) throw new Error("Transaction doesnt exist")
+
+  const isV1 = transaction.transaction.message.accountKeys.some((x) => x.pubkey.toBase58() === "GambaXcmhJg1vgPm1Gn6mnMKGyyR3X2eSmF6yeU6XWtT")
+
   const [parsed] = parseGambaTransaction(transaction)
 
-  if (parsed.name !== "GameSettled") {
-    throw new Error("Not a game")
-  }
   const logs = transaction?.meta?.logMessages ?? []
 
-  return { transaction, logs, parsed }
+  return { transaction, logs, parsed, isV1, notAGame: parsed?.name !== 'GameSettled' }
 }
 
 export default function PlayView() {
@@ -485,6 +485,32 @@ export default function PlayView() {
     return (
       <>
         Failed to fetch transaction: {JSON.stringify(error?.message)}
+      </>
+    )
+  }
+
+  if (data.isV1) {
+    return (
+      <>
+        <Heading mb="4">
+          This is a legacy transaction
+        </Heading>
+        <Button onClick={() => window.open('https://v1.gamba.so/tx/' + txId)}>
+          Verify in V1 Explorer <ArrowRightIcon />
+        </Button>
+      </>
+    )
+  }
+
+  if (data.parsed?.name !== 'GameSettled') {
+    return (
+      <>
+        <Heading mb="4">
+          This transaction is not a game event
+        </Heading>
+        <Button onClick={() => window.open('https://solscan.io/tx/' + txId)}>
+          View in Solana explorer <ArrowRightIcon />
+        </Button>
       </>
     )
   }

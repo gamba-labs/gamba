@@ -63,7 +63,7 @@ function TopPlayers() {
 export default function Dashboard() {
   return (
     <Flex direction="column" gap="4">
-      <Grid gap="2" columns="2">
+      <Grid gap="4" columns="2">
         <TotalVolume />
         <TopPlayers />
       </Grid>

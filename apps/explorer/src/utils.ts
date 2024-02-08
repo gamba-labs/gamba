@@ -17,8 +17,6 @@ export const setupSplToken = async (
   const airdropTx = await connection.requestAirdrop(fromWallet.publicKey, 1e9 * .1)
   await connection.confirmTransaction(airdropTx, "confirmed")
 
-  console.log("Airdropped??")
-
   // Create new token mint
   const mint = await SplToken.createMint(
     connection,

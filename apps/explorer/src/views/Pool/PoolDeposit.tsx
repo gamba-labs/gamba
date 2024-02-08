@@ -8,7 +8,7 @@ import useSWR, { mutate } from "swr"
 
 import { Spinner } from "@/components/Spinner"
 import { useBalance, useToast } from "@/hooks"
-import { fetchPool, UiPool } from "@/PoolList"
+import { UiPool, fetchPool } from "@/views/Dashboard/PoolList"
 
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks/useTokenMeta"

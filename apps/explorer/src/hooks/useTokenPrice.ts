@@ -9,7 +9,7 @@ const priceData = signal<Record<string, number>>({})
 
 let priceFetchTimeout: any
 
-const fetchTokenPrice2 = async (token: string) => {
+const fetchTokenPrice = async (token: string) => {
   tokenMints.value = new Set([...Array.from(tokenMints.value), token])
 
   clearTimeout(priceFetchTimeout)
@@ -36,7 +36,7 @@ const fetchTokenPrice2 = async (token: string) => {
 
 export function useTokenPrice(mint: string | PublicKey) {
   React.useEffect(() => {
-    fetchTokenPrice2(mint.toString())
+    fetchTokenPrice(mint.toString())
   }, [mint])
 
   return priceData.value[mint.toString()] ?? 0

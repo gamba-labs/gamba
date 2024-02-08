@@ -2,6 +2,7 @@ import { GambaTransaction } from 'gamba-core-v2'
 import { useGambaEventListener, useGambaEvents, useWalletAddress } from 'gamba-react-v2'
 import React from 'react'
 import { useLocation } from 'react-router-dom'
+import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 
 /*
   Note:
@@ -14,7 +15,7 @@ export function useRecentPlays() {
   const userAddress = useWalletAddress()
 
   // Fetch previous events
-  const previousEvents = useGambaEvents('GameSettled')
+  const previousEvents = useGambaEvents('GameSettled', { address: PLATFORM_CREATOR_ADDRESS })
 
   const [newEvents, setEvents] = React.useState<GambaTransaction<'GameSettled'>[]>([])
 
@@ -22,6 +23,8 @@ export function useRecentPlays() {
   useGambaEventListener(
     'GameSettled',
     (event) => {
+      // Ignore events that occured on another platform
+      if (!event.data.creator.equals(PLATFORM_CREATOR_ADDRESS)) return
       // Todo handle delays in platform library
       const delay = event.data.user.equals(userAddress) && ['plinko', 'slots'].some((x) => location.pathname.includes(x)) ? 3000 : 1
       setTimeout(

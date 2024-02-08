@@ -34,7 +34,7 @@ export function usePool(token: PublicKey): UiPoolState {
     }
   }
 
-  const liquidity = account.liquidityCheckpoint.toNumber()
+  const liquidity = account.liquidityCheckpoint
 
   const customGambaFeeBps = account.customGambaFeeBps.toNumber()
   const customPoolFeeBps = account.customPoolFeeBps.toNumber()

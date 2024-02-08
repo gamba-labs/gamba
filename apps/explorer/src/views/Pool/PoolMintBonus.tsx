@@ -4,7 +4,7 @@ import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } fr
 import React from "react"
 import { mutate } from "swr"
 
-import { UiPool } from "@/PoolList"
+import { UiPool } from "@/views/Dashboard/PoolList"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useBalance, useToast } from "@/hooks"
 import { useTokenMeta } from "@/hooks/useTokenMeta"

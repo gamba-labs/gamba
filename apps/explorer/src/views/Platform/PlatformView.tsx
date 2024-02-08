@@ -1,14 +1,18 @@
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Button, Container, Dialog, Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
+import { Button, Card, Container, Dialog, Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
 import React from "react"
-import { useParams } from "react-router-dom"
+import { NavLink, useParams } from "react-router-dom"
 
 import { PlatformAccountItem } from "@/components/AccountItem"
 import { getPlatformMeta } from "@/platforms"
+import useSWR from "swr"
+import { fetchTokensForPlatform } from "@/api"
+import { TokenAvatar, TokenItem } from "@/components"
+import { TokenValue2 } from "@/components/TokenValue2"
 
 function Details({ creator }: {creator: string}) {
   const meta = getPlatformMeta(creator)
-  const { data: uniquePlayerData } = { data: [] }
+  // const { data: uniquePlayerData } = { data: [] }
 
   return (
     <Table.Root variant="surface">
@@ -74,18 +78,18 @@ function Details({ creator }: {creator: string}) {
           </Table.Row>
         )}
 
-        <Table.Row>
+        {/* <Table.Row>
           <Table.Cell>
             <Grid columns="2" gap="4">
               <Text weight="bold">
                 Players
               </Text>
               <Text>
-                {/* {uniquePlayerData?.unique_players} */}
+                {uniquePlayerData?.unique_players}
               </Text>
             </Grid>
           </Table.Cell>
-        </Table.Row>
+        </Table.Row> */}
 
       </Table.Body>
     </Table.Root>
@@ -95,23 +99,32 @@ function Details({ creator }: {creator: string}) {
 
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
-  const creator = address!
-  const meta = getPlatformMeta(creator)
+  console.log("platform-tokens-" + address!.toString())
+  const { data: tokens = [] } = useSWR("platform-tokens-" + address!.toString(), () => fetchTokensForPlatform(address!))
 
   return (
     <Container>
-      {/* <Button color="green" onClick={() => setIFrame(true)}>Play now</Button> */}
       <Flex direction="column" gap="4">
-        {/* <VolumeGraph creator={address} /> */}
         <Details creator={address!} />
-        {/* <Box>
-          <Grid gap="2">
-            <Text color="gray">
-              Recent plays
-            </Text>
-          </Grid>
-        </Box> */}
+
+        <Text color="gray">
+          Volume
+        </Text>
+        <Flex direction="column" gap="2">
+          {tokens.map((token, i) => (
+            <Card key={i}>
+              <Flex gap="2" align="center">
+                <TokenAvatar mint={token.mint} />
+                <TokenValue2 mint={token.mint} amount={token.volume} />
+                <Text>
+                  ${token.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 3})}
+                </Text>
+              </Flex>
+            </Card>
+          ))}
+        </Flex>
       </Flex>
+
     </Container>
   )
 }

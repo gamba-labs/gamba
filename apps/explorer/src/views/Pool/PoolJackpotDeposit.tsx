@@ -4,7 +4,7 @@ import { decodeAta, getPoolJackpotTokenAccountAddress, getUserWsolAccount, isNat
 import { useAccount, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
 
-import { UiPool } from "@/PoolList"
+import { UiPool } from "@/views/Dashboard/PoolList"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useBalance, useToast } from "@/hooks"
 import { useTokenMeta } from "@/hooks/useTokenMeta"

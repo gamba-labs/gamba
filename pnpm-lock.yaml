@@ -164,6 +164,9 @@ importers:
       gamba-react-v2:
         specifier: workspace:*
         version: link:../../packages/react
+      minidenticons:
+        specifier: ^4.2.0
+        version: 4.2.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -12241,6 +12244,11 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
     dev: true
+
+  /minidenticons@4.2.0:
+    resolution: {integrity: sha512-2T3VU1N30yI3kXMRbdLsJ5DgsBoGLi2+2hbm1xTOU2RQXWW5wwpmz9XQohVSsVlhymf4W69sMGj6s39t796PBA==}
+    engines: {node: '>=15.14.0'}
+    dev: false
 
   /minimalistic-assert@1.0.1:
     resolution: {integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==}

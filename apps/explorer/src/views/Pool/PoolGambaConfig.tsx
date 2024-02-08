@@ -6,7 +6,7 @@ import { useGambaProgram, useSendTransaction } from "gamba-react-v2"
 import React, { useState } from "react"
 import { mutate } from "swr"
 
-import { UiPool } from "@/PoolList"
+import { UiPool } from "@/views/Dashboard/PoolList"
 
 const Thing = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <Grid columns="2">

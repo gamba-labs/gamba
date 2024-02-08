@@ -31,7 +31,7 @@ export function TimeDiff({ time }: {time: number}) {
 
 export default function RecentPlays({ pool }: {pool?: PublicKey}) {
   const { connection } = useConnection()
-  const { data: events = [] } = useSWR(() => pool ? ("plays-" + pool.toBase58()) : "plays", () => fetchRecentPlays(connection, pool))
+  const { data: events = [] } = useSWR(() => pool ? ("plays-" + pool.toBase58()) : "plays-all", () => fetchRecentPlays(connection, pool))
 
   return (
     <Box>

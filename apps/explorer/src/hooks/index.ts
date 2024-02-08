@@ -7,6 +7,7 @@ import { ParsedTokenAccount, useTokenAccountsByOwner } from "./useTokens"
 export * from "./useToast"
 export * from "./useTokenMeta"
 export * from "./useTokenPrice"
+export * from "./useBonfidaName"
 export * from "./useTokens"
 
 export function useNativeBalance() {

@@ -14,16 +14,16 @@ import CreatePoolView from "@/views/CreatePool/CreatePoolView"
 import DebugUserView from "@/views/Debug/DebugUser"
 import DebugView from "@/views/Debug/DebugView"
 
-import { PoolList } from "./PoolList"
-import AllUsers from "./views/Debug/AllUsers"
-import DaoView from "./views/Debug/DaoView"
-import { PlatformView } from "./views/Platform/PlatformView"
-import PlayView from "./views/Play/Play"
-import { PlayerView } from "./views/Player/PlayerView"
-import PoolConfigureView from "./views/Pool/PoolConfigView"
-import PoolDepositView from "./views/Pool/PoolDeposit"
-import PoolView from "./views/Pool/PoolView"
-import PortfolioView from "./views/Portfolio/PortfolioView"
+import Dashboard from "@/views/Dashboard/Dashboard"
+import AllUsers from "@/views/Debug/AllUsers"
+import DaoView from "@/views/Debug/DaoView"
+import { PlatformView } from "@/views/Platform/PlatformView"
+import PlayView from "@/views/Play/Play"
+import { PlayerView } from "@/views/Player/PlayerView"
+import PoolConfigureView from "@/views/Pool/PoolConfigView"
+import PoolDepositView from "@/views/Pool/PoolDeposit"
+import PoolView from "@/views/Pool/PoolView"
+import PortfolioView from "@/views/Portfolio/PortfolioView"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -128,7 +128,7 @@ export function App() {
         <Routes>
           <Route
             path="/"
-            element={<PoolList />}
+            element={<Dashboard />}
           />
           <Route
             path="/debug"

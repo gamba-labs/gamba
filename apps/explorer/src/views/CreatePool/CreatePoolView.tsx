@@ -8,7 +8,7 @@ import React from "react"
 import { useNavigate } from "react-router-dom"
 import useSWR from "swr"
 
-import { fetchPool } from "@/PoolList"
+import { fetchPool } from "@/views/Dashboard/PoolList"
 import { SelectableButton, TokenItem } from "@/components"
 import { SYSTEM_PROGRAM } from "@/constants"
 import { ParsedTokenAccount, useTokenList } from "@/hooks"

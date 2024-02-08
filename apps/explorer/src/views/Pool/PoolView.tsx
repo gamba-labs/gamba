@@ -1,5 +1,5 @@
 import { GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
-import { Avatar, Badge, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Text } from "@radix-ui/themes"
+import { Badge, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Text } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
@@ -10,20 +10,20 @@ import { NavLink, useNavigate, useParams } from "react-router-dom"
 import styled, { css } from "styled-components"
 import useSWR from "swr"
 
+import RecentPlays, { TimeDiff } from "@/RecentPlays"
 import { fetchChart, fetchDailyVolume, fetchPoolChanges } from "@/api"
 import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { Spinner } from "@/components/Spinner"
 import { useBalance } from "@/hooks"
-import { fetchPool, UiPool } from "@/PoolList"
-import RecentPlays, { TimeDiff } from "@/RecentPlays"
+import { UiPool, fetchPool } from "@/views/Dashboard/PoolList"
 
+import { TokenAvatar } from "@/components"
 import { TokenValue2 } from "@/components/TokenValue2"
+import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
-import { useTokenMeta } from "@/hooks/useTokenMeta"
-import { TokenAvatar } from "@/components"
 
 function ThingCard(props: {title: string, children: ReactNode}) {
   return (

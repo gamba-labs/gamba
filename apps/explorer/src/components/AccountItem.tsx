@@ -1,8 +1,10 @@
+import { useBonfidaName } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import { Avatar, Flex, Text } from "@radix-ui/themes"
 import { AvatarProps } from "@radix-ui/themes/dist/cjs/components/avatar"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
+import { minidenticon } from 'minidenticons'
 
 interface AccountItemProps {
   address: PublicKey | string
@@ -28,10 +30,14 @@ export function PlatformAccountItem(props: AccountItemProps2) {
 }
 
 export function PlayerAccountItem(props: AccountItemProps2) {
+  const domainName = useBonfidaName(props.address)
+  const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(props.address.toString())), [props.address])
   return (
     <AccountItem
       color="orange"
       {...props}
+      name={domainName}
+      image={image}
     />
   )
 }

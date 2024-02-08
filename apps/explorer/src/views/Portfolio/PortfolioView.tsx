@@ -7,7 +7,7 @@ import React from "react"
 import { useNavigate } from "react-router-dom"
 import useSWR from "swr"
 
-import { SkeletonFallback, usePopulatedPool } from "@/PoolList"
+import { SkeletonFallback, usePopulatedPool } from "@/views/Dashboard/PoolList"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenList } from "@/hooks"

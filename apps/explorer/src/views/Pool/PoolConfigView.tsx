@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
 
 import { Spinner } from "@/components/Spinner"
-import { fetchPool, UiPool } from "@/PoolList"
+import { fetchPool, UiPool } from "@/views/Dashboard/PoolList"
 
 import PoolGambaConfigDialog from "./PoolGambaConfig"
 import { PoolHeader } from "./PoolView"

@@ -4,7 +4,7 @@ import { useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-re
 import React from "react"
 import { mutate } from "swr"
 
-import { UiPool } from "@/PoolList"
+import { UiPool } from "@/views/Dashboard/PoolList"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useBalance, useToast } from "@/hooks"

@@ -1,56 +1,23 @@
-import express, { Request, Response, NextFunction } from 'express'
-import { db } from './db'
-import { z, AnyZodObject } from 'zod'
-
-const validate = (schema: AnyZodObject) =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await schema.parseAsync({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-      })
-      return next()
-    } catch (error) {
-      return res.status(400).json(error)
-    }
-  }
-
-const all = (
-  query: string,
-  params?: any,
-) => {
-  return new Promise<any[]>((resolve, reject) => {
-    db.all(query, params,
-      (error, rows) => {
-        if (error) {
-          return reject(error)
-        }
-        resolve(rows)
-      },
-    )
-  })
-}
-
-const get = (
-  query: string,
-  params?: any,
-) => {
-  return new Promise<any>((resolve, reject) => {
-    db.get(query, params,
-      (error, row) => {
-        if (error) {
-          return reject(error)
-        }
-        resolve(row)
-      },
-    )
-  })
-}
+import express from 'express'
+import { z } from 'zod'
+import { all, get, validate } from './utils'
 
 const api = express.Router()
 
 const poolChangesSchema = z.object({ query: z.object({ pool: z.string().optional() }) })
+
+const volumeSchema = z.object({ query: z.object({ pool: z.string({}) }) })
+
+const creatorScema = z.object({ query: z.object({ creator: z.string({}) }) })
+
+const ratioSchema = z.object({ query: z.object({ pool: z.string({}) }) })
+
+const settledGamesSchema = z.object({
+  query: z.object({
+    pool: z.string().optional(),
+    creator: z.string().optional(),
+  }),
+})
 
 // Returns tx signatures of recent pool changes
 api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => {
@@ -63,23 +30,18 @@ api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => 
   res.send({ signatures })
 })
 
-const settledSchema = z.object({ query: z.object({ pool: z.string().optional() }) })
-
 // Returns tx signatures of recent settled games
-api.get('/events/settledGames', validate(settledSchema), async (req, res) => {
+api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) => {
   const tx = await all(`
     SELECT signature FROM settled_games
-    WHERE pool = ?
+    ${req.query.pool ? 'WHERE pool = ?' : ''}
     ORDER BY block_time DESC LIMIT 20;
-  `, [req.query.pool])
+  `, req.query.pool ? [req.query.pool] : undefined)
   const signatures = tx.map((x) => x.signature)
   res.send({ signatures })
 })
 
-const volumeSchema = z.object({ query: z.object({ pool: z.string({ required_error: 'Bad' }) }) })
-
-const ratioSchema = z.object({ query: z.object({ pool: z.string({ required_error: 'Bad' }) }) })
-
+// Returns hourly ratio (LP Price) change of a specific pool
 api.get('/ratio', validate(ratioSchema), async (req, res) => {
   const tx = await all(`
     SELECT
@@ -103,6 +65,7 @@ api.get('/ratio', validate(ratioSchema), async (req, res) => {
   res.send(tx)
 })
 
+// Returns total volume
 api.get('/total', validate(volumeSchema), async (req, res) => {
   const tx = await get(`
     SELECT SUM(wager) as volume
@@ -113,7 +76,8 @@ api.get('/total', validate(volumeSchema), async (req, res) => {
   res.send(tx)
 })
 
-api.get('/creators-by-pool', validate(volumeSchema), async (req, res) => {
+// Returns list of platforms sorted by their volume for a specific pool
+api.get('/platforms-by-pool', validate(volumeSchema), async (req, res) => {
   const tx = await all(`
     SELECT creator, SUM(wager) as volume
     FROM settled_games
@@ -125,17 +89,56 @@ api.get('/creators-by-pool', validate(volumeSchema), async (req, res) => {
   res.send(tx)
 })
 
-api.get('/top-creators', async (req, res) => {
+// Returns top creators by volume in USD
+api.get('/top-platforms', async (req, res) => {
   const tx = await all(`
     SELECT creator, SUM(wager * usd_per_unit) as usd_volume
     FROM settled_games
     WHERE block_time BETWEEN ? AND ?
     GROUP BY creator
     ORDER BY usd_volume DESC
+  `, [Date.now() - 1000 * 60 * 60 * 24 * 7, Date.now()])
+  res.send(tx)
+})
+
+// Returns top tokens used by a platform
+api.get('/platform-tokens', validate(creatorScema), async (req, res) => {
+  const tx = await all(`
+    SELECT creator, SUM(wager * usd_per_unit) as usd_volume, SUM(wager) as volume, token
+    FROM settled_games
+    WHERE creator = ?
+    AND block_time BETWEEN ? AND ?
+    GROUP BY token
+    ORDER BY usd_volume DESC
+  `, [req.query.creator, 0, Date.now()])
+  res.send(tx)
+})
+
+// Returns list of top performing players
+api.get('/top-players', async (req, res) => {
+  const tx = await all(`
+    SELECT user, SUM((payout-wager) * usd_per_unit) as usd_profit, SUM(wager * usd_per_unit) as volume
+    FROM settled_games
+    WHERE block_time BETWEEN ? AND ?
+    GROUP BY user
+    ORDER BY usd_profit DESC
   `, [0, Date.now()])
   res.send(tx)
 })
 
+// Returns list of top plays by USD profit
+api.get('/top-plays', async (req, res) => {
+  const tx = await all(`
+    SELECT user, (payout-wager) * usd_per_unit as usd_profit, wager * usd_per_unit as usd, multiplier_bps / 10000 as multiplier
+    FROM settled_games
+    WHERE block_time BETWEEN ? AND ?
+    ORDER BY usd_profit DESC
+    LIMIT 50
+  `, [0, Date.now()])
+  res.send(tx)
+})
+
+// Returns daily volume for a specific pool in underlying token
 api.get('/daily', validate(volumeSchema), async (req, res) => {
   const tx = await all(`
   SELECT
@@ -150,7 +153,8 @@ api.get('/daily', validate(volumeSchema), async (req, res) => {
   res.send(tx)
 })
 
-api.get('/daily-total', async (req, res) => {
+// Returns daily volume for USD
+api.get('/daily-usd', async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
@@ -159,7 +163,7 @@ api.get('/daily-total', async (req, res) => {
     WHERE block_time BETWEEN ? AND ?
     GROUP BY date
     ORDER BY date ASC
-  `, [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()])
+  `, [Date.now() - 1000 * 60 * 60 * 24 * 7, Date.now()])
   res.send(tx)
 })
 

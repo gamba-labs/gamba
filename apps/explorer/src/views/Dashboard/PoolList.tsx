@@ -1,24 +1,20 @@
+import { TokenAvatar } from "@/components"
+import { TableRowHref, TableRowNavLink } from "@/components/TableRowLink"
+import { TokenValue2 } from "@/components/TokenValue2"
+import { SYSTEM_PROGRAM } from "@/constants"
 import { decodeAta } from "@/hooks"
+import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { ProgramAccount } from "@coral-xyz/anchor"
 import { ArrowRightIcon } from "@radix-ui/react-icons"
-import { Avatar, Badge, Box, Button, Card, Flex, Table, Text } from "@radix-ui/themes"
+import { Avatar, Badge, Button, Flex, Table, Text } from "@radix-ui/themes"
 import { NATIVE_MINT } from "@solana/spl-token"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { PoolState, decodePool, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram } from "gamba-react-v2"
 import React from "react"
-import { NavLink } from "react-router-dom"
 import styled from "styled-components"
 import useSWR from "swr"
-import { DailyVolume, fetchDailyTotalVolume, fetchTopCreators } from "./api"
-import { TokenAvatar } from "./components"
-import { PlatformAccountItem } from "./components/AccountItem"
-import { TableRowNavLink } from "./components/TableRowLink"
-import { TokenValue2 } from "./components/TokenValue2"
-import { SYSTEM_PROGRAM } from "./constants"
-import { useTokenMeta } from "./hooks/useTokenMeta"
-import { BarChart } from "./charts/BarChart"
 
 const SkeletonText = styled.div`
   height: 1em;
@@ -98,7 +94,6 @@ function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
           {populated.data?.ratio.toFixed(3)}
         </SkeletonFallback>
       </StyledTableCell>
-      <StyledTableCell />
     </TableRowNavLink>
   )
 }
@@ -142,61 +137,6 @@ export function usePopulatedPool(account: ProgramAccount<PoolState>) {
   return useSWR("populated-pool-" + account.publicKey.toBase58(), () => populatePool(connection, account.publicKey, account.account))
 }
 
-const StyledLink = styled(NavLink)`
-  cursor: pointer;
-  text-decoration: unset;
-  color: unset;
-`
-
-function TopCreators() {
-  const { data: topCreators = [] } = useSWR("top-creators", fetchTopCreators)
-
-  return (
-    <Box>
-      <Flex wrap="wrap" gap="4">
-        {topCreators.slice(0, 6).map((x, i) => {
-          return (
-            <StyledLink key={i} to={`/platform/${x.creator}`}>
-              <Card>
-                <PlatformAccountItem avatarSize="1" address={x.creator} />
-                <Text weight="bold">${x.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 2})}</Text>
-              </Card>
-            </StyledLink>
-          )
-        })}
-      </Flex>
-    </Box>
-  )
-}
-
-function TotalVolume() {
-  const { data: daily = [] } = useSWR("daily-usd", fetchDailyTotalVolume)
-  const [hovered, setHovered] = React.useState<DailyVolume | null>(null)
-  const total = React.useMemo(
-    () => daily.reduce((p, x) => p + x.total_volume, 0),
-    [daily]
-  )
-
-  return (
-    <Card size="2">
-      <Flex direction="column" gap="2">
-        <Text color="gray">
-          {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '30d Volume'}
-        </Text>
-        <Text size="7" weight="bold">
-          ${(hovered?.total_volume ?? total).toLocaleString(undefined, {maximumFractionDigits: 1})}
-        </Text>
-      </Flex>
-      <div style={{height: '200px'}}>
-        <BarChart
-          dailyVolume={daily}
-          onHover={setHovered}
-        />
-      </div>
-    </Card>
-  )
-}
-
 export function PoolList() {
   const program = useGambaProgram()
   const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
@@ -216,76 +156,66 @@ export function PoolList() {
   )
 
   return (
-    <Flex direction="column" gap="4">
-      <TopCreators />
-      <TotalVolume />
-      <Table.Root variant="surface">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell>Token</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Liquidity</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>TVL</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Ratio</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell></Table.ColumnHeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {isLoadingPools ? (
-            <>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Table.Row key={i}>
-                  <StyledTableCell>
-                    <Flex gap="4" align="center">
-                      <Avatar
-                        fallback="-"
-                        size="2"
-                      />
-                      <SkeletonText style={{ width: "150px" }} />
-                    </Flex>
-                  </StyledTableCell>
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <StyledTableCell key={i}>
-                      <SkeletonText />
-                    </StyledTableCell>
-                  ))}
-                </Table.Row>
-              ))}
-            </>
-          ) : (
-            <>
-              {sortedPools.map(pool => (
-                <PoolTableRow
-                  key={pool.publicKey.toBase58()}
-                  pool={pool}
-                />
-              ))}
-              <Table.Row style={{ cursor: "not-allowed" }}>
+    <Table.Root variant="surface">
+      <Table.Header>
+        <Table.Row>
+          <Table.ColumnHeaderCell>Pool</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>Liquidity</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>TVL</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>Ratio</Table.ColumnHeaderCell>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {isLoadingPools ? (
+          <>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Table.Row key={i}>
                 <StyledTableCell>
                   <Flex gap="4" align="center">
-                    <TokenAvatar mint={NATIVE_MINT} size="2" />
-                    <Text>Legacy Pool</Text>
-                    <Text size="2" color="gray">SOL</Text>
+                    <Avatar
+                      fallback="-"
+                      size="2"
+                    />
+                    <SkeletonText style={{ width: "150px" }} />
                   </Flex>
                 </StyledTableCell>
-                <StyledTableCell>
-                  <TokenValue2 mint={NATIVE_MINT} amount={legacyPool} />
-                </StyledTableCell>
-                <StyledTableCell>
-                  <TokenValue2 dollar mint={NATIVE_MINT} amount={legacyPool} />
-                </StyledTableCell>
-                <StyledTableCell>
-                  -
-                </StyledTableCell>
-                <Table.ColumnHeaderCell>
-                  <Button size="1" variant="soft" onClick={() => window.open("https://old.gamba.so")}>
-                    V1 Explorer <ArrowRightIcon />
-                  </Button>
-                </Table.ColumnHeaderCell>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <StyledTableCell key={i}>
+                    <SkeletonText />
+                  </StyledTableCell>
+                ))}
               </Table.Row>
-            </>
-          )}
-        </Table.Body>
-      </Table.Root>
-    </Flex>
+            ))}
+          </>
+        ) : (
+          <>
+            {sortedPools.map(pool => (
+              <PoolTableRow
+                key={pool.publicKey.toBase58()}
+                pool={pool}
+              />
+            ))}
+            <TableRowHref href="https://old.gamba.so">
+              <StyledTableCell>
+                <Flex gap="4" align="center">
+                  <TokenAvatar mint={NATIVE_MINT} size="2" />
+                  <Text>V1 Pool</Text>
+                  <Text size="2" color="gray">SOL</Text>
+                </Flex>
+              </StyledTableCell>
+              <StyledTableCell>
+                <TokenValue2 mint={NATIVE_MINT} amount={legacyPool} />
+              </StyledTableCell>
+              <StyledTableCell>
+                <TokenValue2 dollar mint={NATIVE_MINT} amount={legacyPool} />
+              </StyledTableCell>
+              <StyledTableCell>
+                -
+              </StyledTableCell>
+            </TableRowHref>
+          </>
+        )}
+      </Table.Body>
+    </Table.Root>
   )
 }

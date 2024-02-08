@@ -25,8 +25,30 @@ export const fetchDailyVolume = async (pool: PublicKey) => {
 }
 
 export const fetchDailyTotalVolume = async () => {
-  const res = await window.fetch(API_ENDPOINT + "/daily-total", { headers: { "ngrok-skip-browser-warning": "true" } })
+  const res = await window.fetch(API_ENDPOINT + "/daily-usd", { headers: { "ngrok-skip-browser-warning": "true" } })
   return await res.json() as DailyVolume[]
+}
+
+export interface TopPlayersResponse {
+  user: string
+  usd_profit: number
+  volume: number
+}
+
+export const fetchTopPlayers = async () => {
+  const res = await window.fetch(API_ENDPOINT + "/top-players", { headers: { "ngrok-skip-browser-warning": "true" } })
+  return await res.json() as TopPlayersResponse[]
+}
+
+export const fetchTokensForPlatform = async (creator: string | PublicKey) => {
+  const res = await window.fetch(API_ENDPOINT + "/platform-tokens?creator=" + creator.toString(), { headers: { "ngrok-skip-browser-warning": "true" } })
+  const data = await res.json() as {usd_volume: number, volume: number, token: string}[]
+
+  return data.map((x) => ({
+    mint: new PublicKey(x.token),
+    volume: x.volume,
+    usd_volume: x.usd_volume,
+  }))
 }
 
 export const fetchChart = async (pool: PublicKey) => {
@@ -35,7 +57,7 @@ export const fetchChart = async (pool: PublicKey) => {
 }
 
 export const fetchTopCreators = async () => {
-  const res = await window.fetch(API_ENDPOINT + "/top-creators", { headers: { "ngrok-skip-browser-warning": "true" } })
+  const res = await window.fetch(API_ENDPOINT + "/top-platforms", { headers: { "ngrok-skip-browser-warning": "true" } })
   return await res.json() as TopCreatorsData[]
 }
 

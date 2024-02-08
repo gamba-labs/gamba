@@ -24,6 +24,11 @@ export const fetchDailyVolume = async (pool: PublicKey) => {
   return await res.json() as DailyVolume[]
 }
 
+export const fetchStatus = async () => {
+  const res = await window.fetch(API_ENDPOINT + "/status", { headers: { "ngrok-skip-browser-warning": "true" } })
+  return await res.json() as {syncing: boolean}
+}
+
 export const fetchDailyTotalVolume = async () => {
   const res = await window.fetch(API_ENDPOINT + "/daily-usd", { headers: { "ngrok-skip-browser-warning": "true" } })
   return await res.json() as DailyVolume[]
@@ -74,6 +79,8 @@ export const fetchRecentPlays = async (connection: Connection, pool?: PublicKey)
 export const fetchPoolChanges = async (connection: Connection, pool: PublicKey) => {
   const res = await window.fetch(API_ENDPOINT + "/events/poolChanges?pool=" + pool.toBase58(), { headers: { "ngrok-skip-browser-warning": "true" } })
   const { signatures } = await res.json()
-  const events = await fetchGambaTransactionsFromSignatures(connection, signatures)
-  return events as GambaTransaction<"PoolChange">[]
+  const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<"PoolChange">[]
+  return events.sort((a, b) => {
+    return b.time - a.time
+  })
 }

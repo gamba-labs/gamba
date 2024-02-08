@@ -138,6 +138,15 @@ api.get('/top-plays', async (req, res) => {
   res.send(tx)
 })
 
+// Returns list of top plays by USD profit
+api.get('/status', async (req, res) => {
+  const tx = await get(`
+    SELECT earliest_signature FROM meta
+  `)
+
+  res.send({ syncing: !tx || tx.earliest_signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra' })
+})
+
 // Returns daily volume for a specific pool in underlying token
 api.get('/daily', validate(volumeSchema), async (req, res) => {
   const tx = await all(`

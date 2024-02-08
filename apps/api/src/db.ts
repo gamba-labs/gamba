@@ -2,7 +2,7 @@ import { ConfirmedSignatureInfo, Connection, PublicKey, SignaturesForAddressOpti
 import { BPS_PER_WHOLE, GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import sqlite3 from 'sqlite3'
 
-const VERSION = 9
+const VERSION = 13
 
 export const db = new sqlite3.Database('gamba-v' + VERSION + '.db')
 
@@ -179,8 +179,8 @@ const storeEvents = async (
             poolChange.pool.toBase58(),
             poolChange.user.toBase58(),
             poolChange.amount.toNumber(),
-            poolChange.lpSupply.toNumber(),
-            poolChange.postLiquidity.toNumber(),
+            poolChange.lpSupply.toString(),
+            poolChange.postLiquidity.toString(),
             getPricePerUnit(poolChange.tokenMint),
           )
         }
@@ -200,7 +200,7 @@ const storeEvents = async (
             payout,
             multiplier,
             gameSettled.jackpotPayoutToUser.toNumber(),
-            gameSettled.poolLiquidity.toNumber(),
+            gameSettled.poolLiquidity.toString(),
             getPricePerUnit(gameSettled.tokenMint),
           )
         }

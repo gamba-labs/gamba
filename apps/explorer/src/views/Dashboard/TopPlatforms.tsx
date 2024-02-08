@@ -28,11 +28,13 @@ function PlatformTableRow({ platform }: { platform: TopCreatorsData }) {
     <TableRowNavLink to={"/platform/" + platform.creator}>
       <StyledTableCell>
         <Flex gap="4" align="center">
-          <PlatformAccountItem address={meta.address} />
+          <PlatformAccountItem avatarSize="2" address={meta.address} />
         </Flex>
       </StyledTableCell>
       <StyledTableCell>
         <Text>${platform.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 2})}</Text>
+      </StyledTableCell>
+      <StyledTableCell>
       </StyledTableCell>
     </TableRowNavLink>
   )
@@ -45,8 +47,9 @@ export function TopPlatforms() {
     <Table.Root variant="surface">
       <Table.Header>
         <Table.Row>
-          <Table.ColumnHeaderCell>Pool</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell>Volume</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell></Table.ColumnHeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>

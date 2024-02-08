@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor"
-import { EnterIcon, ExitIcon, MagicWandIcon, PlusIcon, StackIcon } from "@radix-ui/react-icons"
+import { EnterIcon, ExitIcon, MagicWandIcon, PlusIcon, StackIcon, TimerIcon } from "@radix-ui/react-icons"
 import * as Toast from "@radix-ui/react-toast"
-import { Box, Button, Container, Flex, Link } from "@radix-ui/themes"
+import { Box, Button, Callout, Container, Flex, Link } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { useTransactionError } from "gamba-react-v2"
@@ -24,6 +24,8 @@ import PoolConfigureView from "@/views/Pool/PoolConfigView"
 import PoolDepositView from "@/views/Pool/PoolDeposit"
 import PoolView from "@/views/Pool/PoolView"
 import PortfolioView from "@/views/Portfolio/PortfolioView"
+import useSWR from "swr"
+import { fetchStatus } from "./api"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -44,6 +46,7 @@ export function App() {
   const toast = useToast()
   const wallet = useWallet()
   const walletModal = useWalletModal()
+  const { data: status = {syncing: false} } = useSWR("status", fetchStatus)
 
   useTransactionError(err => {
     toast({
@@ -124,6 +127,17 @@ export function App() {
             </Toast.Action>
           </Toast.Root>
         ))}
+
+        {status.syncing && (
+          <Callout.Root color="orange" mb="4">
+            <Callout.Icon>
+              <TimerIcon />
+            </Callout.Icon>
+            <Callout.Text>
+              Historic data is incomplete. Please wait for sync to finish.
+            </Callout.Text>
+          </Callout.Root>
+        )}
 
         <Routes>
           <Route

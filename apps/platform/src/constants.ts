@@ -10,12 +10,4 @@ export const PLATFORM_SHARABLE_URL = 'v2-play.gamba.so'
 export const TOKENS: TokenMeta[] = [
   GambaStandardTokens.sol,
   GambaStandardTokens.usdc,
-  {
-    mint: new PublicKey('3YT2B16R4EsvKozxRXNuD4dvEChuxeyXLG8yG219TVMz'),
-    symbol: 'bee',
-    name: 'beebetrs',
-    image: 'image url',
-    decimals: 9,
-    baseWager: 1 * 1e9,
-  },
 ]

@@ -9,9 +9,9 @@ interface PlatformMeta {
 
 export const PLATFORMS = [
   {
-    address: 'DwRFGbjKbsEhUMe5at3qWvH7i8dAJyhhwdnFoZMnLVRV',
+    address: 'V2grJiwjs25iJYqumbHyKo5MTK7SFqZSdmoRaj8QWb9',
     name: 'Gamba Demo',
-    url: 'https://play.gamba.so',
+    url: 'https://v2-play.gamba.so',
     image: '/logos/gamba.png',
   },
   {
@@ -157,7 +157,7 @@ export const PLATFORMS = [
     name: 'SolVegas',
     url: 'https://solvegas.net/',
     image: '/logos/solvegas.png',
-  }
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

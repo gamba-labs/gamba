@@ -113,9 +113,14 @@ export function PlatformView() {
         <Flex direction="column" gap="2">
           {tokens.map((token, i) => (
             <Card key={i}>
-              <Flex gap="2" align="center">
-                <TokenAvatar mint={token.mint} />
-                <TokenValue2 mint={token.mint} amount={token.volume} />
+              <Flex align="center" justify="between">
+                <Flex align="center" gap="4">
+                  <TokenAvatar mint={token.mint} />
+                  <Text weight="bold">
+                    {"meta.name"}
+                  </Text>
+                </Flex>
+                {/* <TokenValue2 mint={token.mint} amount={token.volume} /> */}
                 <Text>
                   ${token.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 3})}
                 </Text>

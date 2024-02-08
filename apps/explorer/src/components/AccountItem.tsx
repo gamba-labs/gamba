@@ -3,8 +3,8 @@ import { getPlatformMeta } from "@/platforms"
 import { Avatar, Flex, Text } from "@radix-ui/themes"
 import { AvatarProps } from "@radix-ui/themes/dist/cjs/components/avatar"
 import { PublicKey } from "@solana/web3.js"
-import React from "react"
 import { minidenticon } from 'minidenticons'
+import React from "react"
 
 interface AccountItemProps {
   address: PublicKey | string
@@ -20,11 +20,13 @@ type AccountItemProps2 = Pick<AccountItemProps, "avatarSize" | "address">
 
 export function PlatformAccountItem(props: AccountItemProps2) {
   const meta = getPlatformMeta(props.address)
+  // const domainName = useBonfidaName(props.address)
+  // const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(props.address.toString())), [props.address])
   return (
     <AccountItem
+      {...props}
       image={meta.image}
       name={meta.name}
-      {...props}
     />
   )
 }

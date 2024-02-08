@@ -1,18 +1,17 @@
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
 import { Button, Card, Container, Dialog, Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
 import React from "react"
-import { NavLink, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
+import { fetchTokensForPlatform } from "@/api"
+import { TokenAvatar } from "@/components"
 import { PlatformAccountItem } from "@/components/AccountItem"
+import { useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import useSWR from "swr"
-import { fetchTokensForPlatform } from "@/api"
-import { TokenAvatar, TokenItem } from "@/components"
-import { TokenValue2 } from "@/components/TokenValue2"
 
 function Details({ creator }: {creator: string}) {
   const meta = getPlatformMeta(creator)
-  // const { data: uniquePlayerData } = { data: [] }
 
   return (
     <Table.Root variant="surface">
@@ -97,6 +96,25 @@ function Details({ creator }: {creator: string}) {
   )
 }
 
+function TokenVolume({token}: {token: Awaited<ReturnType<typeof fetchTokensForPlatform>>[number] }) {
+  const meta = useTokenMeta(token.mint)
+  return (
+    <Card>
+      <Flex align="center" justify="between">
+        <Flex align="center" gap="4">
+          <TokenAvatar mint={token.mint} />
+          <Text weight="bold">
+            {meta.name}
+          </Text>
+        </Flex>
+        <Text>
+          ${token.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 3})}
+        </Text>
+      </Flex>
+    </Card>
+  )
+}
+
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
   console.log("platform-tokens-" + address!.toString())
@@ -106,26 +124,12 @@ export function PlatformView() {
     <Container>
       <Flex direction="column" gap="4">
         <Details creator={address!} />
-
         <Text color="gray">
-          Volume
+          Volume by token
         </Text>
         <Flex direction="column" gap="2">
           {tokens.map((token, i) => (
-            <Card key={i}>
-              <Flex align="center" justify="between">
-                <Flex align="center" gap="4">
-                  <TokenAvatar mint={token.mint} />
-                  <Text weight="bold">
-                    {"meta.name"}
-                  </Text>
-                </Flex>
-                {/* <TokenValue2 mint={token.mint} amount={token.volume} /> */}
-                <Text>
-                  ${token.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 3})}
-                </Text>
-              </Flex>
-            </Card>
+            <TokenVolume key={i} token={token} />
           ))}
         </Flex>
       </Flex>

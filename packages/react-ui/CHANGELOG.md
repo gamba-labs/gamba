@@ -1,5 +1,16 @@
 # gamba-react-ui-v2
 
+## 0.2.0
+
+### Minor Changes
+
+- Use BigInt for pool liqudity
+
+### Patch Changes
+
+- Updated dependencies
+  - gamba-react-v2@0.2.0
+
 ## 0.1.8
 
 ### Patch Changes

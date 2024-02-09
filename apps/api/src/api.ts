@@ -8,14 +8,26 @@ const poolChangesSchema = z.object({ query: z.object({ pool: z.string().optional
 
 const volumeSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
+const dailyUsdSchema = z.object({ query: z.object({ creator: z.string({}).optional() }) })
+
 const creatorScema = z.object({ query: z.object({ creator: z.string({}) }) })
 
 const ratioSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
+export const daysAgo = (daysAgo: number) => {
+  const now = new Date()
+  const then = new Date()
+  then.setDate(now.getDate() - daysAgo)
+  // then.setHours(0, 0, 0, 0)
+  return then.getTime()
+}
+
 const settledGamesSchema = z.object({
   query: z.object({
+    page: z.string(),
     pool: z.string().optional(),
     creator: z.string().optional(),
+    user: z.string().optional(),
   }),
 })
 
@@ -32,11 +44,31 @@ api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => 
 
 // Returns tx signatures of recent settled games
 api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) => {
-  const tx = await all(`
-    SELECT signature FROM settled_games
-    ${req.query.pool ? 'WHERE pool = ?' : ''}
-    ORDER BY block_time DESC LIMIT 20;
-  `, req.query.pool ? [req.query.pool] : undefined)
+  const page = Number(req.query.page) ?? 0
+  // db.prepare(`
+  //   SELECT signature FROM settled_games
+  //   WHERE 1
+  //   ${req.query.pool ? ' AND pool = ?' : ''}
+  //   ORDER BY block_time DESC LIMIT 20 OFFSET ?;
+  // `)
+
+  const tx = await all(
+    `
+      SELECT signature FROM settled_games
+      WHERE 1
+      ${req.query.pool ? ' AND pool = :pool' : ''}
+      ${req.query.creator ? ' AND creator = :creator' : ''}
+      ${req.query.user ? ' AND user = :user' : ''}
+      ORDER BY block_time DESC LIMIT 10 OFFSET :offset;
+    `,
+    {
+      ':pool': req.query.pool,
+      ':creator': req.query.creator,
+      ':user': req.query.user,
+      ':offset': page * 50,
+    },
+    // req.query.pool ? [req.query.pool, page * 50] : [page * 50]
+  )
   const signatures = tx.map((x) => x.signature)
   res.send({ signatures })
 })
@@ -97,14 +129,19 @@ api.get('/top-platforms', async (req, res) => {
     WHERE block_time BETWEEN ? AND ?
     GROUP BY creator
     ORDER BY usd_volume DESC
-  `, [Date.now() - 1000 * 60 * 60 * 24 * 7, Date.now()])
+  `, [daysAgo(7), Date.now()])
   res.send(tx)
 })
 
 // Returns top tokens used by a platform
 api.get('/platform-tokens', validate(creatorScema), async (req, res) => {
   const tx = await all(`
-    SELECT creator, SUM(wager * usd_per_unit) as usd_volume, SUM(wager) as volume, token
+    SELECT
+      creator,
+      SUM(wager * usd_per_unit) as usd_volume,
+      SUM(wager) as volume,
+      token,
+      COUNT(token) AS num_plays
     FROM settled_games
     WHERE creator = ?
     AND block_time BETWEEN ? AND ?
@@ -163,16 +200,22 @@ api.get('/daily', validate(volumeSchema), async (req, res) => {
 })
 
 // Returns daily volume for USD
-api.get('/daily-usd', async (req, res) => {
+api.get('/daily-usd', validate(dailyUsdSchema), async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
     SUM(wager * usd_per_unit) as total_volume
     FROM settled_games
-    WHERE block_time BETWEEN ? AND ?
+    WHERE 1
+    ${req.query.creator ? 'AND creator = :creator' : ''}
+    AND block_time BETWEEN :from AND :until
     GROUP BY date
     ORDER BY date ASC
-  `, [Date.now() - 1000 * 60 * 60 * 24 * 7, Date.now()])
+  `, {
+    ':creator': req.query.creator,
+    ':from': daysAgo(7),
+    ':until': Date.now(),
+  })
   res.send(tx)
 })
 

@@ -1,7 +1,7 @@
 import { TokenAvatar, TokenItem } from "@/components"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { TokenValue2 } from "@/components/TokenValue2"
-import { useTokenAccountsByOwner } from "@/hooks"
+import { useGetTokenMeta, useGetTokenPrice, useTokenAccountsByOwner } from "@/hooks"
 import { Button, Card, Flex, Grid, Heading, Text } from "@radix-ui/themes"
 import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
 import { PublicKey } from "@solana/web3.js"
@@ -16,6 +16,8 @@ function useDaoNativeBalance() {
 }
 
 export default function DaoView() {
+  const getTokenPrice = useGetTokenPrice()
+  const getTokenMeta = useGetTokenMeta()
   const daoAddress = getGambaStateAddress()
   const solBalance = useDaoNativeBalance()
   const tokens = useTokenAccountsByOwner(daoAddress)
@@ -24,6 +26,8 @@ export default function DaoView() {
   const gambaState = useAccount(daoAddress, decodeGambaState)
 
   const distributeFees = async (underlyingTokenMint: PublicKey, isNative = false) => {
+    if (!gambaState) return
+
     const gambaStateAtaAddress = getAssociatedTokenAddressSync(
       underlyingTokenMint,
       daoAddress,
@@ -58,6 +62,12 @@ export default function DaoView() {
     ...tokens,
   ] as {mint: PublicKey, amount: number, isNative: true | undefined}[]
 
+
+  const total = combinedTokens.reduce(
+    (p, x) => p + getTokenPrice(x.mint) * (x.amount / (10 ** getTokenMeta(x.mint).decimals)),
+    0
+  )
+
   return (
     <Grid gap="4">
       <Flex justify="between">
@@ -66,7 +76,7 @@ export default function DaoView() {
       </Flex>
       <Card>
         <Grid gap="4">
-          <Heading>Token accounts</Heading>
+          <Heading>DAO Treasury ${total.toLocaleString(undefined, {maximumFractionDigits: 1})}</Heading>
           <Grid gap="2">
             {combinedTokens.map((token, i) => (
               <Card key={i}>
@@ -75,8 +85,8 @@ export default function DaoView() {
                   balance={token.amount}
                   stuff={
                     <>
+                      {token.isNative && '(Native) '}
                       <TokenValue2 dollar mint={token.mint} amount={token.amount} />
-                      {token.isNative && '(Native)'}
                       <Button size="2" variant="soft" onClick={() => distributeFees(
                         token.mint,
                         token.isNative,

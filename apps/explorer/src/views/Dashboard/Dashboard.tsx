@@ -1,4 +1,4 @@
-import { DailyVolume, fetchDailyTotalVolume, fetchTopPlayers } from "@/api"
+import { DailyVolume, apiFetcher, fetchDailyTotalVolume, fetchTopPlayers, getApiUrl } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { Card, Flex, Grid, Text } from "@radix-ui/themes"
@@ -6,10 +6,14 @@ import React from "react"
 import { NavLink } from "react-router-dom"
 import useSWR from "swr"
 import { PoolList } from "./PoolList"
-import { TopPlatforms } from "./TopPlatforms"
+import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
+import RecentPlays from "@/RecentPlays"
 
-function TotalVolume() {
-  const { data: daily = [] } = useSWR("daily-usd", fetchDailyTotalVolume)
+export function TotalVolume(props: {creator?: string}) {
+  const { data: daily = [] } = useSWR<DailyVolume[]>(
+    getApiUrl("/daily-usd", {creator: props.creator}),
+    apiFetcher,
+  )
   const [hovered, setHovered] = React.useState<DailyVolume | null>(null)
   const total = React.useMemo(
     () => daily.reduce((p, x) => p + x.total_volume, 0),
@@ -26,7 +30,7 @@ function TotalVolume() {
           ${(hovered?.total_volume ?? total).toLocaleString(undefined, {maximumFractionDigits: 1})}
         </Text>
       </Flex>
-      <div style={{height: '230px'}}>
+      <div style={{height: '200px'}}>
         <BarChart
           dailyVolume={daily}
           onHover={setHovered}
@@ -40,20 +44,25 @@ function TopPlayers() {
   const { data: players = [] } = useSWR("top-players", fetchTopPlayers)
 
   return (
-    <Card size="2">
+    <Card>
       <Flex direction="column" gap="2">
-        <Text color="gray">Player Leaderboard</Text>
+        <Text color="gray">Profit leaderboard</Text>
         {players.slice(0, 5).map((player, i) => (
-          <Card key={i}>
-            <Flex gap="2" justify="between">
-              <NavLink to={"/player/" + player.user}>
-                <PlayerAccountItem address={player.user} />
-              </NavLink>
-              <Text>
-                +${player.usd_profit.toLocaleString(undefined, {maximumFractionDigits: 2})}
-              </Text>
-            </Flex>
-          </Card>
+          <UnstyledNavLink key={i} to={"/player/" + player.user}>
+            <Card>
+              <Flex gap="4">
+                <Text color="gray" style={{opacity: .5}}>
+                  {i + 1}
+                </Text>
+                <Flex gap="2" justify="between" grow="1">
+                  <PlayerAccountItem avatarSize="1" address={player.user} />
+                  <Text>
+                    +${player.usd_profit.toLocaleString(undefined, {maximumFractionDigits: 2})}
+                  </Text>
+                </Flex>
+              </Flex>
+            </Card>
+          </UnstyledNavLink>
         ))}
       </Flex>
     </Card>
@@ -64,15 +73,16 @@ export default function Dashboard() {
   return (
     <Flex direction="column" gap="4">
       <Grid gap="4" columns="2">
-        <TotalVolume />
-        <TopPlayers />
+        <Flex direction="column" gap="4">
+          <TotalVolume />
+          <TopPlayers />
+        </Flex>
+        <TopPlatforms />
       </Grid>
       <Text color="gray">Top Pools</Text>
       <PoolList />
-      <Text color="gray">Top Platforms this week</Text>
-      <TopPlatforms />
-      {/* <Text color="gray">Recent Plays</Text>
-      <RecentPlays /> */}
+      <Text color="gray">Recent Plays</Text>
+      <RecentPlays />
     </Flex>
   )
 }

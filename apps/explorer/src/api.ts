@@ -47,12 +47,13 @@ export const fetchTopPlayers = async () => {
 
 export const fetchTokensForPlatform = async (creator: string | PublicKey) => {
   const res = await window.fetch(API_ENDPOINT + "/platform-tokens?creator=" + creator.toString(), { headers: { "ngrok-skip-browser-warning": "true" } })
-  const data = await res.json() as {usd_volume: number, volume: number, token: string}[]
+  const data = await res.json() as {usd_volume: number, volume: number, token: string, num_plays: number}[]
 
   return data.map((x) => ({
     mint: new PublicKey(x.token),
     volume: x.volume,
     usd_volume: x.usd_volume,
+    numPlays: x.num_plays,
   }))
 }
 
@@ -66,10 +67,21 @@ export const fetchTopCreators = async () => {
   return await res.json() as TopCreatorsData[]
 }
 
-export const fetchRecentPlays = async (connection: Connection, pool?: PublicKey) => {
+export const fetchRecentPlays = async (
+  connection: Connection,
+  pool?: PublicKey,
+  skip?: number,
+) => {
   const e = !pool ? "/events/settledGames?pool=" : "/events/settledGames?pool=" + pool?.toBase58()
   const res = await window.fetch(API_ENDPOINT + e, { headers: { "ngrok-skip-browser-warning": "true" } })
   const { signatures } = await res.json()
+  const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<"GameSettled">[]
+  return events.sort((a, b) => {
+    return b.time - a.time
+  })
+}
+
+export async function parseSignatureResponse(connection: any, signatures: string[]) {
   const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<"GameSettled">[]
   return events.sort((a, b) => {
     return b.time - a.time
@@ -83,4 +95,32 @@ export const fetchPoolChanges = async (connection: Connection, pool: PublicKey) 
   return events.sort((a, b) => {
     return b.time - a.time
   })
+}
+
+export const apiFetcher = async <T>(endpoint: string) => {
+  const res = await window.fetch(endpoint)
+  if (res.ok) {
+    return await res.json() as T
+  }
+  try {
+    throw (await res.json()).error
+  } catch {
+    throw res.statusText
+  }
+}
+
+// export function useApi<T extends Endpoints>(endpoint: T, query?: Record<string, any>) {
+//   return useSWR<ApiEndpoints[T]>(getApiUrl(endpoint, query), apiFetcher)
+// }
+
+export const getApiUrl = (endpoint: string, _query?: Record<string, any>) => {
+  // const start = String(_query?.start ?? 0)
+  // const end = String(_query?.end ?? NOW / 1000)
+  const query = {..._query}
+  const trimmed = Object.entries(query).reduce((prev, [key, value]) => {
+    if (typeof value === 'undefined') return prev
+    return {...prev, [key]: String(value)}
+  }, {} as Record<string, string>)
+  const params = new URLSearchParams(trimmed)
+  return API_ENDPOINT + endpoint + '?' + params
 }

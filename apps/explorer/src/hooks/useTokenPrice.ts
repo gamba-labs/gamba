@@ -41,3 +41,7 @@ export function useTokenPrice(mint: string | PublicKey) {
 
   return priceData.value[mint.toString()] ?? 0
 }
+
+export function useGetTokenPrice() {
+  return (mint: string | PublicKey) => priceData.value[mint.toString()] ?? 0
+}

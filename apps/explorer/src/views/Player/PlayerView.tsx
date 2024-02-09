@@ -1,3 +1,4 @@
+import RecentPlays from "@/RecentPlays"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
 import { Grid, Link, Table, Text } from "@radix-ui/themes"
@@ -34,6 +35,10 @@ export function PlayerView() {
 
         </Table.Body>
       </Table.Root>
+      <Text color="gray">
+        Recent Plays
+      </Text>
+      <RecentPlays user={address!} />
     </Grid>
   )
 }

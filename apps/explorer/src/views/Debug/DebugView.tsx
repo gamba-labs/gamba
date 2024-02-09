@@ -1,13 +1,12 @@
 import { Button, Card, Dialog, Flex, Heading } from "@radix-ui/themes"
-import { useConnection, useLocalStorage } from "@solana/wallet-adapter-react"
-import { decodeAta, decodeGambaState, getGambaStateAddress, getUserWsolAccount, unwrapSol } from "gamba-core-v2"
+import { useConnection } from "@solana/wallet-adapter-react"
+import { decodeAta, getUserWsolAccount, unwrapSol } from "gamba-core-v2"
 import { useAccount, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React, { PropsWithChildren } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import { ConfigDialog } from "@/GambaConfig"
 import { useToast } from "@/hooks"
-import { useRpcThingy } from "@/index"
 import MintDialogDevnet from "@/MintDialogDevnet"
 import MintDialogLocalnet from "@/MintDialogLocalnet"
 

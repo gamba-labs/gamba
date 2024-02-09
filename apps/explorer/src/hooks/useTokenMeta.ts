@@ -55,3 +55,15 @@ export function useTokenMeta(mint: string | PublicKey): TokenMeta {
     decimals: 9,
   }
 }
+
+export function useGetTokenMeta() {
+  const list = useJupiterList()
+
+  return (mint: string | PublicKey): TokenMeta => list[mint.toString()] || {
+    mint: new PublicKey(mint),
+    name: "Unknown",
+    symbol: mint.toString().substring(0, 3),
+    image: undefined,
+    decimals: 9,
+  }
+}

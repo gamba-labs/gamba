@@ -184,6 +184,7 @@ const storeEvents = async (
             getPricePerUnit(poolChange.tokenMint),
           )
         }
+
         if (event.name === 'GameSettled') {
           const gameSettled = event.data
           const multiplier = gameSettled.bet[gameSettled.resultIndex.toNumber()]

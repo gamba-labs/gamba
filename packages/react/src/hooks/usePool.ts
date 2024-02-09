@@ -41,7 +41,7 @@ export function usePool(token: PublicKey): UiPoolState {
 
   const gambaFee = ((customGambaFeeBps || gambaState?.gambaFeeBps.toNumber()) ?? 0) / BPS_PER_WHOLE
   const poolFee = ((customPoolFeeBps || gambaState?.defaultPoolFee.toNumber()) ?? 0) / BPS_PER_WHOLE
-  const maxPayoutBps = gambaState?.maxPayoutBps?.toNumber() ?? 0
+  const maxPayoutBps = (account.customMaxPayoutBps?.toNumber() || gambaState?.maxPayoutBps?.toNumber()) ?? 0
 
   return {
     token,

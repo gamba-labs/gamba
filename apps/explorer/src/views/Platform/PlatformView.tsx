@@ -9,6 +9,9 @@ import { PlatformAccountItem } from "@/components/AccountItem"
 import { useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import useSWR from "swr"
+import RecentPlays from "@/RecentPlays"
+import { BarChart } from "@/charts/BarChart"
+import { TotalVolume } from "../Dashboard/Dashboard"
 
 function Details({ creator }: {creator: string}) {
   const meta = getPlatformMeta(creator)
@@ -102,14 +105,17 @@ function TokenVolume({token}: {token: Awaited<ReturnType<typeof fetchTokensForPl
     <Card>
       <Flex align="center" justify="between">
         <Flex align="center" gap="4">
-          <TokenAvatar mint={token.mint} />
-          <Text weight="bold">
+          <TokenAvatar size="1" mint={token.mint} />
+          <Text>
             {meta.name}
           </Text>
         </Flex>
-        <Text>
-          ${token.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 3})}
-        </Text>
+        <Flex>
+          <Text color="gray">
+            {token.numPlays.toLocaleString()} / ${(token.usd_volume).toLocaleString(undefined, {maximumFractionDigits: 3})}
+            {/* ${(token.usd_volume / token.numPlays).toLocaleString(undefined, {maximumFractionDigits: 3})} - {token.numPlays} */}
+          </Text>
+        </Flex>
       </Flex>
     </Card>
   )
@@ -117,21 +123,33 @@ function TokenVolume({token}: {token: Awaited<ReturnType<typeof fetchTokensForPl
 
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
-  console.log("platform-tokens-" + address!.toString())
   const { data: tokens = [] } = useSWR("platform-tokens-" + address!.toString(), () => fetchTokensForPlatform(address!))
 
   return (
     <Container>
       <Flex direction="column" gap="4">
-        <Details creator={address!} />
+        <Grid columns="2" gap="4">
+          <Details creator={address!} />
+
+          <Grid gap="4">
+            <TotalVolume creator={address!} />
+            <Card>
+              <Text color="gray">
+                Volume by token
+              </Text>
+              <Flex direction="column" gap="2">
+                {tokens.map((token, i) => (
+                  <TokenVolume key={i} token={token} />
+                ))}
+              </Flex>
+            </Card>
+          </Grid>
+        </Grid>
+
         <Text color="gray">
-          Volume by token
+          Recent plays
         </Text>
-        <Flex direction="column" gap="2">
-          {tokens.map((token, i) => (
-            <TokenVolume key={i} token={token} />
-          ))}
-        </Flex>
+        <RecentPlays creator={address!} />
       </Flex>
 
     </Container>

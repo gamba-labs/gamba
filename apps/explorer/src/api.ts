@@ -98,7 +98,7 @@ export const fetchPoolChanges = async (connection: Connection, pool: PublicKey) 
 }
 
 export const apiFetcher = async <T>(endpoint: string) => {
-  const res = await window.fetch(endpoint)
+  const res = await window.fetch(endpoint, { headers: { "ngrok-skip-browser-warning": "true" } })
   if (res.ok) {
     return await res.json() as T
   }

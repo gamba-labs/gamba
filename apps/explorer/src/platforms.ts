@@ -11,7 +11,7 @@ export const PLATFORMS = [
   {
     address: 'V2grJiwjs25iJYqumbHyKo5MTK7SFqZSdmoRaj8QWb9',
     name: 'Gamba Demo',
-    url: 'https://v2-play.gamba.so',
+    url: 'https://play.gamba.so',
     image: '/logos/gamba.png',
   },
   {

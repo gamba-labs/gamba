@@ -5,7 +5,7 @@ import { useAccount } from './useAccount'
 export interface UiPoolState {
   publicKey: PublicKey
   token: PublicKey
-  liquidity: number
+  liquidity: bigint
   minWager: number
   maxPayout: number
   gambaFee: number
@@ -25,7 +25,7 @@ export function usePool(token: PublicKey): UiPoolState {
     return {
       token,
       publicKey,
-      liquidity: 0,
+      liquidity: BigInt(0),
       minWager: 0,
       maxPayout: 0,
       gambaFee: 0,
@@ -34,7 +34,7 @@ export function usePool(token: PublicKey): UiPoolState {
     }
   }
 
-  const liquidity = account.liquidityCheckpoint
+  const liquidity = BigInt(account.liquidityCheckpoint)
 
   const customGambaFeeBps = account.customGambaFeeBps.toNumber()
   const customPoolFeeBps = account.customPoolFeeBps.toNumber()
@@ -43,12 +43,14 @@ export function usePool(token: PublicKey): UiPoolState {
   const poolFee = ((customPoolFeeBps || gambaState?.defaultPoolFee.toNumber()) ?? 0) / BPS_PER_WHOLE
   const maxPayoutBps = (account.customMaxPayoutBps?.toNumber() || gambaState?.maxPayoutBps?.toNumber()) ?? 0
 
+  const maxPayout = Number(liquidity * BigInt(maxPayoutBps)) / BPS_PER_WHOLE
+
   return {
     token,
     publicKey,
     minWager: account.minWager.toNumber(),
     liquidity,
-    maxPayout: liquidity * (maxPayoutBps / BPS_PER_WHOLE),
+    maxPayout,
     gambaFee,
     poolFee,
     jackpotBalance: Number(jackpotBalance),

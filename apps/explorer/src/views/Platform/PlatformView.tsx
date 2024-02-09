@@ -128,10 +128,10 @@ export function PlatformView() {
   return (
     <Container>
       <Flex direction="column" gap="4">
-        <Grid columns="2" gap="4">
+        <Grid gap="4" columns={{initial: '1', sm: '2'}}>
           <Details creator={address!} />
 
-          <Grid gap="4">
+          <Flex gap="4" direction="column">
             <TotalVolume creator={address!} />
             <Card>
               <Text color="gray">
@@ -143,7 +143,7 @@ export function PlatformView() {
                 ))}
               </Flex>
             </Card>
-          </Grid>
+          </Flex>
         </Grid>
 
         <Text color="gray">

@@ -45,13 +45,6 @@ api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => 
 // Returns tx signatures of recent settled games
 api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) => {
   const page = Number(req.query.page) ?? 0
-  // db.prepare(`
-  //   SELECT signature FROM settled_games
-  //   WHERE 1
-  //   ${req.query.pool ? ' AND pool = ?' : ''}
-  //   ORDER BY block_time DESC LIMIT 20 OFFSET ?;
-  // `)
-
   const tx = await all(
     `
       SELECT signature FROM settled_games
@@ -65,7 +58,7 @@ api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) =
       ':pool': req.query.pool,
       ':creator': req.query.creator,
       ':user': req.query.user,
-      ':offset': page * 50,
+      ':offset': page * 10,
     },
     // req.query.pool ? [req.query.pool, page * 50] : [page * 50]
   )
@@ -180,8 +173,11 @@ api.get('/status', async (req, res) => {
   const tx = await get(`
     SELECT earliest_signature FROM meta
   `)
+  const users = await all(`
+    SELECT user FROM settled_games GROUP BY user
+  `)
 
-  res.send({ syncing: !tx || tx.earliest_signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra' })
+  res.send({ users, syncing: !tx || tx.earliest_signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra' })
 })
 
 // Returns daily volume for a specific pool in underlying token

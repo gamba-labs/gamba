@@ -262,7 +262,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
             </ThingCard>
           </Flex>
           <ThingCard title="Liqudity">
-            <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.liquidity} />
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.liquidity)} />
           </ThingCard>
           <ThingCard title="LP Token Supply">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} />

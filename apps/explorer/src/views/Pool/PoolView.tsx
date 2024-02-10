@@ -3,7 +3,6 @@ import { Badge, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Tex
 import { useConnection } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
-import { TokenValue } from "gamba-react-ui-v2"
 import { useAccount, useGambaProgram, useWalletAddress } from "gamba-react-v2"
 import React, { ReactNode } from "react"
 import { NavLink, useNavigate, useParams } from "react-router-dom"
@@ -263,7 +262,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
             </ThingCard>
           </Flex>
           <ThingCard title="Liqudity">
-            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.liquidity)} />
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.liquidity} />
           </ThingCard>
           <ThingCard title="LP Token Supply">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} />
@@ -286,14 +285,14 @@ function PoolManager({ pool }: {pool: UiPool}) {
             <Flex direction="column" gap="2">
               <Text size="7" weight="bold">
                 {chartId === "liquidity" && (
-                  <TokenValue
+                  <TokenValue2
                     exact
                     mint={pool.underlyingTokenMint}
                     amount={hovered?.value ?? Number(pool.liquidity)}
                   />
                 )}
                 {chartId === "volume" && (
-                  <TokenValue
+                  <TokenValue2
                     exact
                     mint={pool.underlyingTokenMint}
                     amount={hovered?.value ?? totalVolume}

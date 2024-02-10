@@ -40,7 +40,7 @@ interface TokenMeta {
 }
 
 export function useJupiterList() {
-  const { data: list = {}, isLoading } = useSWR("token-list", fetchTokenList)
+  const { data: list = {} } = useSWR("token-list", fetchTokenList)
   return list
 }
 

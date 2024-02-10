@@ -4,7 +4,7 @@ import React from 'react'
 
 export interface TokenValueProps {
   mint: PublicKey
-  amount: number
+  amount: number | bigint
   suffix?: string
   exact?: boolean
   dollar?: boolean
@@ -14,7 +14,7 @@ export function TokenValue2(props: TokenValueProps) {
   const price = useTokenPrice(props.mint)
   const token = useTokenMeta(props.mint)
   const suffix = props.suffix ?? token.symbol
-  const tokenAmount = props.amount / (10 ** token.decimals)
+  const tokenAmount = Number(BigInt(props.amount) / BigInt(10 ** token.decimals))
   const amount = props.dollar ? price * tokenAmount : tokenAmount
 
   const displayedAmount = (

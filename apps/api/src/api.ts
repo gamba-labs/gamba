@@ -177,7 +177,10 @@ api.get('/status', async (req, res) => {
     SELECT user FROM settled_games GROUP BY user
   `)
 
-  res.send({ users, syncing: !tx || tx.earliest_signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra' })
+  res.send({
+    users,
+    syncing: !tx || tx.earliest_signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra', 
+  })
 })
 
 // Returns daily volume for a specific pool in underlying token

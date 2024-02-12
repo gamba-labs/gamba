@@ -4,7 +4,7 @@ import { useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useSendTransaction, useWalletAddress } from "gamba-react-v2"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
 
@@ -44,11 +44,12 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
   const userPublicKey = useWalletAddress()
   const isPoolAuthority = userPublicKey && pool?.state?.poolAuthority?.equals(userPublicKey)
   const isGambaStateAuthority = userPublicKey && gambaState?.authority?.equals(userPublicKey)
+  const tokenDecimalsBN = new anchor.BN(10).pow(new anchor.BN(token.decimals));
 
   const [input, setInput] = useState<PoolConfigInput>({
     minWager: String(pool.state.minWager.toNumber() / Math.pow(10, token.decimals)),
     depositLimit: pool.state.depositLimit,
-    depositLimitAmount: String(pool.state.depositLimitAmount.toNumber() / Math.pow(10, token.decimals)),
+    depositLimitAmount: String(pool.state.depositLimitAmount.div(tokenDecimalsBN)),
     customPoolFee: pool.state.customPoolFee,
     customPoolFeeBps: String(pool.state.customPoolFeeBps.toNumber() / 100),
     customMaxPayout: pool.state.customMaxPayout,
@@ -56,6 +57,20 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
     depositWhitelistRequired: pool.state.depositWhitelistRequired,
     depositWhitelistAddress: pool.state.depositWhitelistAddress.toBase58(),
   })
+
+  // Update input when token changes cus token decimals arent fetched right away
+  useEffect(() => {
+    setInput({
+      minWager: String(pool.state.minWager.toNumber() / Math.pow(10, token.decimals)),
+      depositLimit: pool.state.depositLimit,
+      depositLimitAmount: String(pool.state.depositLimitAmount.div(tokenDecimalsBN)), //big number!
+      customPoolFee: pool.state.customPoolFee,
+      customPoolFeeBps: String(pool.state.customPoolFeeBps.toNumber() / 100),
+      customMaxPayout: pool.state.customMaxPayout,
+      customMaxPayoutBps: String(pool.state.customMaxPayoutBps.toNumber() / 100),
+      depositWhitelistRequired: pool.state.depositWhitelistRequired,
+      depositWhitelistAddress: pool.state.depositWhitelistAddress.toBase58(),
+    })}, [token])
 
   const updateInput = (update: Partial<PoolConfigInput>) => {
     setInput(prevInput => ({ ...prevInput, ...update }))

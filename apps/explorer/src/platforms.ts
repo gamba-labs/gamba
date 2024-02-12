@@ -153,7 +153,7 @@ export const PLATFORMS = [
     image: '/logos/topiacasino.png',
   },
   {
-    address: 'GpDqKcF2K5xuoiPHpKNipb7oiYwC6aYgLY6FPsX9HHRL',
+    address: '7hwBxJUYaF4PJGTKqkqaqJ7KXgTVtx9oWR3YggUfzuVa',
     name: 'SolVegas',
     url: 'https://solvegas.net/',
     image: '/logos/solvegas.png',

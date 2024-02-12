@@ -26,6 +26,8 @@ import PoolView from "@/views/Pool/PoolView"
 import PortfolioView from "@/views/Portfolio/PortfolioView"
 import useSWR from "swr"
 import { fetchStatus } from "./api"
+import { PoolList } from "./views/Dashboard/PoolList"
+import { TopPlatforms } from "./views/Dashboard/TopPlatforms"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -70,10 +72,18 @@ export function App() {
                 <img alt="Logo" src="/logo.svg" />
               </Logo>
             </Flex>
+            {/* <Flex gap="2">
+              <NavLink to="/">
+                Overview
+              </NavLink>
+              <NavLink to="/pools">
+                Pools
+              </NavLink>
+              <NavLink to="/platforms">
+                Platforms
+              </NavLink>
+            </Flex> */}
             <Flex gap="2" align="center" style={{ position: "relative" }}>
-              {/* <Button size="3" variant="soft" color="green" onClick={() => navigate("/create")}>
-                Portfolio <BadgeIcon />
-              </Button> */}
               {wallet.connected && (
                 <>
                   <Button size="3" variant="soft" onClick={() => navigate("/debug")}>
@@ -134,7 +144,7 @@ export function App() {
               <TimerIcon />
             </Callout.Icon>
             <Callout.Text>
-              Historic data is incomplete. Please wait for sync to finish.
+              Sync in progress. Displayed data is incomplete until it finishes.
             </Callout.Text>
           </Callout.Root>
         )}
@@ -147,6 +157,14 @@ export function App() {
           <Route
             path="/debug"
             element={<DebugView />}
+          />
+          <Route
+            path="/pools"
+            element={<PoolList />}
+          />
+          <Route
+            path="/platforms"
+            element={<TopPlatforms />}
           />
           <Route
             path="/dao"

@@ -57,7 +57,7 @@ export function TopPlatforms() {
 
   return (
     <Card>
-      <Text color="gray">Top Platforms by volume</Text>
+      <Text color="gray">Top Platforms this week</Text>
       <Flex gap="2" direction="column">
         {isLoading ? (
           <>

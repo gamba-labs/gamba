@@ -142,8 +142,8 @@ export const PLATFORMS = [
   },
   {
     address: '6SaxsBTCRRK1xFT2c7iPSirx2aSZLsuY28S28shmLm11',
-    name: 'Beebets',
-    url: 'https://www.beebets.net/',
+    name: 'BeeBets',
+    url: 'https://beebets.net',
     image: '/logos/beebets.png',
   },
   {

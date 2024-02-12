@@ -17,7 +17,9 @@ const fetchTokenPrice = async (token: string) => {
   priceFetchTimeout = setTimeout(async () => {
     const unique = Array.from(tokenMints.value).filter((x) => !Object.keys(priceData.value).includes(x))
 
-    if (!unique.length) return
+    if (!unique.length) {
+      return
+    }
 
     const req = await fetch(`https://price.jup.ag/v4/price?ids=${unique.join(',')}`)
     const res = await req.json()

@@ -24,9 +24,9 @@ export const fetchDailyVolume = async (pool: PublicKey) => {
   return await res.json() as DailyVolume[]
 }
 
-export const fetchStatus = async () => {
-  const res = await window.fetch(API_ENDPOINT + "/status", { headers: { "ngrok-skip-browser-warning": "true" } })
-  return await res.json() as {syncing: boolean}
+export const fetchStatus = async (creator?: PublicKey | string) => {
+  const res = await window.fetch(API_ENDPOINT + "/status" + (creator ? '?creator=' + creator?.toString() : ''), { headers: { "ngrok-skip-browser-warning": "true" } })
+  return await res.json() as {syncing: boolean, players: number, usd_volume: number, plays: number, creators: number, revenue_usd: number}
 }
 
 export const fetchDailyTotalVolume = async () => {
@@ -40,12 +40,15 @@ export interface TopPlayersResponse {
   volume: number
 }
 
-export const fetchTopPlayers = async () => {
-  const res = await window.fetch(API_ENDPOINT + "/top-players", { headers: { "ngrok-skip-browser-warning": "true" } })
+export const fetchTopPlayers = async (creator?: PublicKey | string, limit = 5) => {
+  const res = await window.fetch(
+    API_ENDPOINT + `/top-players?${creator ? `creator=${creator?.toString()}` : ``}&limit=${limit}`,
+    { headers: { "ngrok-skip-browser-warning": "true" } },
+  )
   return await res.json() as TopPlayersResponse[]
 }
 
-export const fetchTokensForPlatform = async (creator: string | PublicKey) => {
+export const fetchTokensForPlatform = async (creator: string | PublicKey, limit: number = 5) => {
   const res = await window.fetch(API_ENDPOINT + "/platform-tokens?creator=" + creator.toString(), { headers: { "ngrok-skip-browser-warning": "true" } })
   const data = await res.json() as {usd_volume: number, volume: number, token: string, num_plays: number}[]
 

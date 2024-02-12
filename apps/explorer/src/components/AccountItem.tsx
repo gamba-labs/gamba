@@ -20,13 +20,13 @@ type AccountItemProps2 = Pick<AccountItemProps, "avatarSize" | "address">
 
 export function PlatformAccountItem(props: AccountItemProps2) {
   const meta = getPlatformMeta(props.address)
-  // const domainName = useBonfidaName(props.address)
-  // const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(props.address.toString())), [props.address])
+  const domainName = useBonfidaName(props.address)
+  const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(props.address.toString())), [props.address])
   return (
     <AccountItem
       {...props}
-      image={meta.image}
-      name={meta.name}
+      image={meta.image ?? image}
+      name={meta.name ?? domainName}
     />
   )
 }

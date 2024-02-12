@@ -2,7 +2,7 @@ import { ConfirmedSignatureInfo, Connection, PublicKey, SignaturesForAddressOpti
 import { BPS_PER_WHOLE, GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import sqlite3 from 'sqlite3'
 
-const VERSION = 13
+const VERSION = 17
 
 export const db = new sqlite3.Database('gamba-v' + VERSION + '.db')
 
@@ -95,6 +95,9 @@ export const initDb = async () => {
       wager INTEGER,
       payout INTEGER,
       multiplier_bps INTEGER,
+      creator_fee INTEGER,
+      pool_fee INTEGER,
+      gamba_fee INTEGER,
       jackpot INTEGER,
       pool_liquidity INTEGER,
       usd_per_unit REAL
@@ -140,8 +143,24 @@ const storeEvents = async (
   `)
 
   const insertSettledGames = db.prepare(`
-    INSERT INTO settled_games (signature, block_time, creator, user, token, pool, wager, payout, multiplier_bps, jackpot, pool_liquidity, usd_per_unit)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    INSERT INTO settled_games (
+      signature,
+      block_time,
+      creator,
+      user,
+      token,
+      pool,
+      wager,
+      payout,
+      multiplier_bps,
+      creator_fee,
+      pool_fee,
+      gamba_fee,
+      jackpot,
+      pool_liquidity,
+      usd_per_unit
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
 
   const insertPoolChanges = db.prepare(`
@@ -200,6 +219,9 @@ const storeEvents = async (
             wager,
             payout,
             multiplier,
+            gameSettled.creatorFee.toNumber(),
+            gameSettled.poolFee.toNumber(),
+            gameSettled.gambaFee.toNumber(),
             gameSettled.jackpotPayoutToUser.toNumber(),
             gameSettled.poolLiquidity.toString(),
             getPricePerUnit(gameSettled.tokenMint),

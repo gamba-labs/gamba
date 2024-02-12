@@ -3,17 +3,17 @@ import { Button, Card, Container, Dialog, Flex, Grid, Link, Table, Text } from "
 import React from "react"
 import { useParams } from "react-router-dom"
 
-import { fetchTokensForPlatform } from "@/api"
+import RecentPlays from "@/RecentPlays"
+import { fetchStatus, fetchTokensForPlatform } from "@/api"
 import { TokenAvatar } from "@/components"
 import { PlatformAccountItem } from "@/components/AccountItem"
 import { useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import useSWR from "swr"
-import RecentPlays from "@/RecentPlays"
-import { BarChart } from "@/charts/BarChart"
-import { TotalVolume } from "../Dashboard/Dashboard"
+import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
 
 function Details({ creator }: {creator: string}) {
+  const {data, isLoading} = useSWR('stats-' + creator.toString(), () => fetchStatus(creator))
   const meta = getPlatformMeta(creator)
 
   return (
@@ -31,7 +31,7 @@ function Details({ creator }: {creator: string}) {
           <Table.Cell>
             <Grid columns="2" gap="4">
               <Text weight="bold">
-                Fee collector
+                Creator
               </Text>
               <Link target="_blank" href={`https://solscan.io/address/${creator}`} rel="noreferrer">
                 {creator} <ExternalLinkIcon />
@@ -80,18 +80,57 @@ function Details({ creator }: {creator: string}) {
           </Table.Row>
         )}
 
+        <Table.Row>
+          <Table.Cell>
+            <Grid columns="2" gap="4">
+              <Text weight="bold">
+                Volume
+              </Text>
+              <Text>
+                ${data?.usd_volume.toLocaleString(undefined)}
+              </Text>
+            </Grid>
+          </Table.Cell>
+        </Table.Row>
+
         {/* <Table.Row>
+          <Table.Cell>
+            <Grid columns="2" gap="4">
+              <Text weight="bold">
+                Estimated revenue
+              </Text>
+              <Text>
+                ${(data?.revenue_usd ?? 0).toLocaleString(undefined)}
+              </Text>
+            </Grid>
+          </Table.Cell>
+        </Table.Row> */}
+
+        <Table.Row>
+          <Table.Cell>
+            <Grid columns="2" gap="4">
+              <Text weight="bold">
+                Plays
+              </Text>
+              <Text>
+                {data?.plays.toLocaleString(undefined)}
+              </Text>
+            </Grid>
+          </Table.Cell>
+        </Table.Row>
+
+        <Table.Row>
           <Table.Cell>
             <Grid columns="2" gap="4">
               <Text weight="bold">
                 Players
               </Text>
               <Text>
-                {uniquePlayerData?.unique_players}
+                {data?.players.toLocaleString(undefined)}
               </Text>
             </Grid>
           </Table.Cell>
-        </Table.Row> */}
+        </Table.Row>
 
       </Table.Body>
     </Table.Root>
@@ -129,7 +168,10 @@ export function PlatformView() {
     <Container>
       <Flex direction="column" gap="4">
         <Grid gap="4" columns={{initial: '1', sm: '2'}}>
-          <Details creator={address!} />
+          <Flex gap="4" direction="column">
+            <Details creator={address!} />
+            <TopPlayers creator={address!} />
+          </Flex>
 
           <Flex gap="4" direction="column">
             <TotalVolume creator={address!} />

@@ -147,7 +147,7 @@ export function PoolList() {
       return pools.sort((a, b) => {
         const playsDiff = b.account.plays.toNumber() - a.account.plays.toNumber()
         if (playsDiff) return playsDiff
-        const liqudityDiff = b.account.liquidityCheckpoint.toNumber() - a.account.liquidityCheckpoint.toNumber()
+        const liqudityDiff = b.account.liquidityCheckpoint - a.account.liquidityCheckpoint
         if (liqudityDiff) return liqudityDiff
         return a.publicKey.toString() > b.publicKey.toString() ? 1 : -1
       })

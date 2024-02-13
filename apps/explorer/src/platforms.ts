@@ -81,7 +81,7 @@ export const PLATFORMS = [
     image: '/logos/xbirdies.png',
   },
   {
-    address: '8Xjf4YMq9qD8cr3rzff8QWV2MD4o4JH4vhiEgLUpBfvF',
+    address: '7BaeqpAodozK5PWWtqa3sFMG9VTJKvFmWzWALdxFM1MG',
     name: 'Smashy.gg',
     url: 'https://smashy.gg',
     image: '/logos/smashy.png',

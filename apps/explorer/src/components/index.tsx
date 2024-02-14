@@ -51,12 +51,12 @@ export function TokenItem({ mint, balance, stuff }: TokenItemProps) {
     <Flex gap="4" justify="between" align="center">
       <Flex grow="1" gap="4" align="center">
         <TokenAvatar
-          size="3"
+          size="2"
           mint={meta.mint}
         />
         <Flex grow="1" direction="column">
           <Flex justify="between">
-            <Text weight="bold">
+            <Text>
               {meta.name}
             </Text>
           </Flex>

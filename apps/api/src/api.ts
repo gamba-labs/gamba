@@ -21,6 +21,8 @@ const topPlayersSchema = z.object({
   }),
 })
 
+const topPlatformsSchema = z.object({ query: z.object({ limit: z.string().optional() }) })
+
 export const daysAgo = (daysAgo: number) => {
   const now = new Date()
   const then = new Date()
@@ -95,7 +97,26 @@ api.get('/ratio', validate(ratioSchema), async (req, res) => {
     GROUP BY date
     ORDER BY
       sg.block_time;
-  `, [req.query.pool, 0, Date.now()])
+  `, [
+    req.query.pool,
+    daysAgo(30),
+    Date.now(),
+  ])
+  res.send(tx)
+})
+
+// Returns daily volume for a specific pool in underlying token
+api.get('/daily', validate(volumeSchema), async (req, res) => {
+  const tx = await all(`
+  SELECT
+    strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
+    SUM(wager) as total_volume
+    FROM settled_games
+    WHERE pool = ?
+    AND block_time BETWEEN ? AND ?
+    GROUP BY date
+    ORDER BY date ASC
+  `, [req.query.pool, daysAgo(30), Date.now()])
   res.send(tx)
 })
 
@@ -124,14 +145,19 @@ api.get('/platforms-by-pool', validate(volumeSchema), async (req, res) => {
 })
 
 // Returns top creators by volume in USD
-api.get('/top-platforms', async (req, res) => {
+api.get('/top-platforms', validate(topPlatformsSchema), async (req, res) => {
   const tx = await all(`
     SELECT creator, SUM(wager * usd_per_unit) as usd_volume
     FROM settled_games
-    WHERE block_time BETWEEN ? AND ?
+    WHERE block_time BETWEEN :after AND :until
     GROUP BY creator
     ORDER BY usd_volume DESC
-  `, [daysAgo(7), Date.now()])
+    LIMIT :limit
+  `, {
+    ':after': daysAgo(7),
+    ':until': Date.now(),
+    ':limit': Number(req.query.limit ?? 10),
+  })
   res.send(tx)
 })
 
@@ -232,21 +258,6 @@ api.get('/status', validate(statusSchema), async (req, res) => {
     revenue_usd,
     syncing: !earliestSignature || earliestSignature.earliest_signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra',
   })
-})
-
-// Returns daily volume for a specific pool in underlying token
-api.get('/daily', validate(volumeSchema), async (req, res) => {
-  const tx = await all(`
-  SELECT
-    strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
-    SUM(wager) as total_volume
-    FROM settled_games
-    WHERE pool = ?
-    AND block_time BETWEEN ? AND ?
-    GROUP BY date
-    ORDER BY date ASC
-  `, [req.query.pool, 0, Date.now()])
-  res.send(tx)
 })
 
 // Returns daily volume for USD

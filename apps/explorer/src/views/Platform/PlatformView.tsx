@@ -11,130 +11,75 @@ import { useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import useSWR from "swr"
 import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
+import { Details } from "@/components/Details"
 
-function Details({ creator }: {creator: string}) {
-  const {data, isLoading} = useSWR('stats-' + creator.toString(), () => fetchStatus(creator))
+function LinkWarningDialog(props: {url: string}) {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger>
+        <Link>
+          {props.url.split("https://")[1]}
+        </Link>
+      </Dialog.Trigger>
+      <Dialog.Content style={{ maxWidth: 450 }}>
+        <Dialog.Title>
+          Do your own research.
+        </Dialog.Title>
+        <Dialog.Description size="2">
+          Even though the platform is listed here, there is no garantuee that it is safe to interact with.
+        </Dialog.Description>
+
+        <Flex gap="3" mt="4" justify="end">
+          <Dialog.Close>
+            <Button variant="soft" color="gray">
+              Cancel
+            </Button>
+          </Dialog.Close>
+          <Dialog.Close>
+            <Button onClick={() => window.open(props.url, "_blank")} role="link" variant="solid">
+              {props.url} <ExternalLinkIcon />
+            </Button>
+          </Dialog.Close>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
+  )
+}
+
+export function PlatformDetails({ creator }: {creator: string}) {
+  const { data, isLoading } = useSWR('stats-' + creator?.toString(), () => fetchStatus(creator))
   const meta = getPlatformMeta(creator)
 
   return (
-    <Table.Root variant="surface">
-      <Table.Header>
-        <Table.Row>
-          <Table.ColumnHeaderCell>
-            <PlatformAccountItem address={creator} />
-          </Table.ColumnHeaderCell>
-        </Table.Row>
-      </Table.Header>
-
-      <Table.Body>
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Creator
-              </Text>
-              <Link target="_blank" href={`https://solscan.io/address/${creator}`} rel="noreferrer">
-                {creator} <ExternalLinkIcon />
-              </Link>
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
-
-        {meta.url && (
-          <Table.Row>
-            <Table.Cell>
-              <Grid columns="2" gap="4">
-                <Text weight="bold">
-                  URL
-                </Text>
-                <Dialog.Root>
-                  <Dialog.Trigger>
-                    <Link>
-                      {meta.url?.split("https://")[1]}
-                    </Link>
-                  </Dialog.Trigger>
-                  <Dialog.Content style={{ maxWidth: 450 }}>
-                    <Dialog.Title>
-                      Do your own research.
-                    </Dialog.Title>
-                    <Dialog.Description size="2">
-                      Even though the platform is listed here, there is no garantuee that it is safe to interact with.
-                    </Dialog.Description>
-
-                    <Flex gap="3" mt="4" justify="end">
-                      <Dialog.Close>
-                        <Button variant="soft" color="gray">
-                          Cancel
-                        </Button>
-                      </Dialog.Close>
-                      <Dialog.Close>
-                        <Button onClick={() => window.open(meta.url, "_blank")} role="link" variant="solid">
-                          {meta.url} <ExternalLinkIcon />
-                        </Button>
-                      </Dialog.Close>
-                    </Flex>
-                  </Dialog.Content>
-                </Dialog.Root>
-              </Grid>
-            </Table.Cell>
-          </Table.Row>
-        )}
-
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Volume
-              </Text>
-              <Text>
-                ${data?.usd_volume.toLocaleString(undefined)}
-              </Text>
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
-
-        {/* <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Estimated revenue
-              </Text>
-              <Text>
-                ${(data?.revenue_usd ?? 0).toLocaleString(undefined)}
-              </Text>
-            </Grid>
-          </Table.Cell>
-        </Table.Row> */}
-
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Plays
-              </Text>
-              <Text>
-                {data?.plays.toLocaleString(undefined)}
-              </Text>
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
-
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Players
-              </Text>
-              <Text>
-                {data?.players.toLocaleString(undefined)}
-              </Text>
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
-
-      </Table.Body>
-    </Table.Root>
-
+    <Details
+      title={
+        <PlatformAccountItem address={creator} />
+      }
+      rows={[
+        [
+          "Creator",
+          <Link target="_blank" href={`https://solscan.io/address/${creator}`} rel="noreferrer">
+            {creator} <ExternalLinkIcon />
+          </Link>
+        ],
+        meta.url && [
+          "URL",
+          <LinkWarningDialog url={meta.url} />
+        ],
+        [
+          "Volume",
+          <Text>${data?.usd_volume.toLocaleString()}</Text>
+        ],
+        [
+          "Plays",
+          <Text>{data?.plays.toLocaleString()}</Text>
+        ],
+        [
+          "Players",
+          <Text>{data?.players.toLocaleString()}</Text>
+        ]
+      ]}
+    />
   )
 }
 
@@ -169,7 +114,7 @@ export function PlatformView() {
       <Flex direction="column" gap="4">
         <Grid gap="4" columns={{initial: '1', sm: '2'}}>
           <Flex gap="4" direction="column">
-            <Details creator={address!} />
+            <PlatformDetails creator={address!} />
             <TopPlayers creator={address!} />
           </Flex>
 

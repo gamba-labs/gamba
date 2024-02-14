@@ -5,10 +5,11 @@ import { PlayerAccountItem } from "@/components/AccountItem"
 import { Card, Flex, Grid, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
+import styled from "styled-components"
 import useSWR from "swr"
 import { PoolList } from "./PoolList"
 import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
-import styled from "styled-components"
+import { PlatformDetails } from "../Platform/PlatformView"
 
 export function TotalVolume(props: {creator?: string}) {
   const { data: daily = [] } = useSWR<DailyVolume[]>(
@@ -143,6 +144,7 @@ export default function Dashboard() {
   return (
     <Flex direction="column" gap="4">
       <AllTimeStats />
+      {/* <PlatformDetails /> */}
       <Grid gap="4" columns={{initial: '1', sm: '2'}}>
         <Flex direction="column" gap="4">
           <TotalVolume />

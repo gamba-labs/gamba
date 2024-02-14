@@ -1,6 +1,6 @@
 import { GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
-import { Badge, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Text } from "@radix-ui/themes"
-import { useConnection } from "@solana/wallet-adapter-react"
+import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Tabs, Text } from "@radix-ui/themes"
+import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useWalletAddress } from "gamba-react-v2"
@@ -23,8 +23,9 @@ import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
+import { ConnectUserCard } from "../Debug/DebugUser"
 
-function ThingCard(props: {title: string, children: ReactNode}) {
+function ThingCard(props: { title: string, children: ReactNode }) {
   return (
     <Card size="1">
       <Flex direction="column">
@@ -81,8 +82,6 @@ const ResponsiveButtonContainer = styled(Flex)`
 export function PoolHeader({ pool }: {pool: UiPool}) {
   const token = useTokenMeta(pool.underlyingTokenMint)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
-  const maxPayoutPercent = gambaState && gambaState.maxPayoutBps ? gambaState.maxPayoutBps.toNumber() / BPS_PER_WHOLE : 0
-  const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
   const userPublicKey = useWalletAddress()
   const navigate = useNavigate()
   const isPoolAuthority = userPublicKey && pool?.state?.poolAuthority?.equals(userPublicKey)
@@ -119,42 +118,24 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
         <Dialog.Content>
           <Heading>Pool Details</Heading>
           <Flex direction="column">
-            <Text color="gray" size="2">Token mint</Text><SolanaAddress address={pool.state.underlyingTokenMint} />
+            <Text color="gray" size="2">Token mint</Text>
+            <SolanaAddress address={pool.state.underlyingTokenMint} />
           </Flex>
           <Flex direction="column">
-            <Text color="gray" size="2">LP Token mint</Text><SolanaAddress address={getPoolLpAddress(pool.publicKey)} />
+            <Text color="gray" size="2">LP Token mint</Text>
+            <SolanaAddress address={getPoolLpAddress(pool.publicKey)} />
           </Flex>
           <Flex direction="column">
-            <Text color="gray" size="2">Bonus Token mint</Text><SolanaAddress address={getPoolBonusAddress(pool.publicKey)} />
+            <Text color="gray" size="2">Bonus Token mint</Text>
+            <SolanaAddress address={getPoolBonusAddress(pool.publicKey)} />
           </Flex>
           <Flex direction="column">
-            <Text color="gray" size="2">Pool Address</Text><SolanaAddress address={pool.publicKey} />
+            <Text color="gray" size="2">Pool Address</Text>
+            <SolanaAddress address={pool.publicKey} />
           </Flex>
           <Flex direction="column">
-            <Text color="gray" size="2">Pool Authority</Text><SolanaAddress address={pool.state.poolAuthority} />
-          </Flex>
-          <hr color="#333" />
-          <Flex gap="2" wrap="wrap">
-            <Flex gap="2" wrap="wrap">
-            <ThingCard title="LP price">
-              {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
-            </ThingCard>
-            </Flex>
-            <ThingCard title="LP Token Supply">
-              <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} />
-            </ThingCard>
-            <ThingCard title="Max Payout">
-              <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} />
-            </ThingCard>
-            <ThingCard title="Circulating Bonus">
-              <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} />
-            </ThingCard>
-            <ThingCard title="Jackpot">
-              <TokenValue2 exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} />
-            </ThingCard>
-            <ThingCard title="Total Plays">
-              {pool.plays.toLocaleString(undefined)}
-            </ThingCard>
+            <Text color="gray" size="2">Pool Authority</Text>
+            <SolanaAddress address={pool.state.poolAuthority} />
           </Flex>
         </Dialog.Content>
       </Dialog.Root>
@@ -163,6 +144,7 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
 }
 function PoolManager({ pool }: {pool: UiPool}) {
   const { connection } = useConnection()
+  const wallet = useWallet()
   const navigate = useNavigate()
   const token = useTokenMeta(pool.underlyingTokenMint)
   const balances = useBalance(pool.underlyingTokenMint)
@@ -348,7 +330,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
             <PoolWithdraw pool={pool} />
           </Grid>
         </Card>
-      ) : (
+      ) : wallet.connected ? (
         <Card size="3">
           <Grid gap="4" align="center" justify="center">
             <Heading align="center">
@@ -364,36 +346,48 @@ function PoolManager({ pool }: {pool: UiPool}) {
             </Flex>
           </Grid>
         </Card>
+      ) : (
+        <ConnectUserCard />
       )}
 
-      <Card>
-        <Heading>LP changes</Heading>
-        <Grid gap="2">
-          {poolChanges.map(
-            (change, i) => {
-              return (
-                <Card key={i} size="1">
-                  <Flex justify="between" align="center">
-                    <Flex gap="2" align="center">
-                      <Link target="_blank" href={"https://solscan.io/account/" + change.data.user.toBase58()}>
-                        {change.data.user.toBase58().substring(0, 7)}...
-                      </Link>
-                      <Badge color={change.data.action.deposit ? "green" : "red"}>
-                        {change.data.action.deposit ? "+" : "-"}
-                        <TokenValue2 exact mint={pool.underlyingTokenMint} amount={change.data.amount.toNumber()} />
-                      </Badge>
-                    </Flex>
-                    <TimeDiff time={change.time} />
-                  </Flex>
-                </Card>
-              )
-            },
-          )}
-        </Grid>
-      </Card>
+      <Tabs.Root defaultValue="plays">
+        <Tabs.List>
+          <Tabs.Trigger value="plays">Recent plays</Tabs.Trigger>
+          <Tabs.Trigger value="deposits">Deposits</Tabs.Trigger>
+        </Tabs.List>
+        <Box pt="4">
+          <Tabs.Content value="plays">
+            <RecentPlays pool={pool.publicKey} />
+          </Tabs.Content>
+          <Tabs.Content value="deposits">
+            <Card>
+              <Grid gap="2">
+                {poolChanges.map(
+                  (change, i) => {
+                    return (
+                      <Card key={i} size="1">
+                        <Flex justify="between" align="center">
+                          <Flex gap="2" align="center">
+                            <SolanaAddress truncate address={change.data.user} />
+                            <Badge color={change.data.action.deposit ? "green" : "red"}>
+                              {change.data.action.deposit ? "+" : "-"}
+                              <TokenValue2 exact mint={pool.underlyingTokenMint} amount={change.data.amount.toNumber()} />
+                            </Badge>
+                          </Flex>
+                          <Link target="_blank" href={"https://solscan.io/tx/" + change.signature}>
+                            <TimeDiff time={change.time} />
+                          </Link>
+                        </Flex>
+                      </Card>
+                    )
+                  },
+                )}
+              </Grid>
+            </Card>
 
-      <Heading>Recent plays</Heading>
-      <RecentPlays pool={pool.publicKey} />
+          </Tabs.Content>
+        </Box>
+      </Tabs.Root>
     </Grid>
   )
 }

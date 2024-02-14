@@ -8,6 +8,7 @@ export * from "./useToast"
 export * from "./useTokenMeta"
 export * from "./useTokenPrice"
 export * from "./useBonfidaName"
+export * from "./useMediaQuery"
 export * from "./useTokens"
 
 export function useNativeBalance() {

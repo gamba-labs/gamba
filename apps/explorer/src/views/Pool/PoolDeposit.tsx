@@ -13,9 +13,12 @@ import { UiPool, fetchPool } from "@/views/Dashboard/PoolList"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { PoolHeader } from "./PoolView"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { ConnectUserCard } from "../Debug/DebugUser"
 
 export function PoolDeposit({ pool }: {pool: UiPool}) {
   const navigate = useNavigate()
+  const wallet = useWallet()
   const gamba = useGambaProvider()
   const user = useWalletAddress()
   const [loading, setLoading] = React.useState(false)
@@ -139,7 +142,7 @@ export default function PoolDepositView() {
   const params = useParams<{poolId: string}>()
   const poolId = React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
   const { data } = useSWR("pool-" + params.poolId!, () => fetchPool(program.provider.connection, poolId))
-
+  const wallet = useWallet()
   return (
     <>
       {data && (
@@ -147,9 +150,13 @@ export default function PoolDepositView() {
           <Flex justify="between" align="end" py="4">
             <PoolHeader pool={data} />
           </Flex>
-          <Card size="3">
-            <PoolDeposit pool={data} />
-          </Card>
+          {wallet.connected ? (
+            <Card size="3">
+              <PoolDeposit pool={data} />
+            </Card>
+          ) : (
+            <ConnectUserCard />
+          )}
         </Grid>
       )}
     </>

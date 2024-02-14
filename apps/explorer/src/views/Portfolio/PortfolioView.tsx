@@ -7,11 +7,11 @@ import React from "react"
 import { useNavigate } from "react-router-dom"
 import useSWR from "swr"
 
-import { SkeletonFallback, usePopulatedPool } from "@/views/Dashboard/PoolList"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
-import { useTokenList } from "@/hooks"
+import { useGetTokenPrice, useTokenList } from "@/hooks"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
+import { SkeletonFallback, usePopulatedPool } from "@/views/Dashboard/PoolList"
 
 interface Position {
   pool: ProgramAccount<PoolState>
@@ -56,13 +56,14 @@ export default function PortfolioView() {
   const program = useGambaProgram()
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
   const tokens = useTokenList()
+  const getPrice = useGetTokenPrice()
 
   const sortedPools = React.useMemo(
     () => {
       return pools.sort((a, b) => {
-        const playsDiff = b.account.plays.toNumber() - a.account.plays.toNumber()
+        const playsDiff = b.account.plays - a.account.plays
         if (playsDiff) return playsDiff
-        const liqudityDiff = b.account.liquidityCheckpoint.toNumber() - a.account.liquidityCheckpoint.toNumber()
+        const liqudityDiff = b.account.liquidityCheckpoint - a.account.liquidityCheckpoint
         if (liqudityDiff) return liqudityDiff
         return a.publicKey.toString() > b.publicKey.toString() ? 1 : -1
       })
@@ -74,6 +75,11 @@ export default function PortfolioView() {
         .filter(x => x.lpBalance > 0)
     },
     [pools, tokens],
+  )
+
+  const price = sortedPools.reduce(
+    (x, xx) => x + xx.lpBalance * getPrice(xx.pool.account.tokenMint),
+    0
   )
 
   return (

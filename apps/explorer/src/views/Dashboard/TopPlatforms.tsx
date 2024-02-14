@@ -1,4 +1,4 @@
-import { TopCreatorsData, fetchTopCreators } from "@/api"
+import { TopCreatorsData, fetchTopCreators, getApiUrl, useApi } from "@/api"
 import { PlatformAccountItem } from "@/components/AccountItem"
 import { getPlatformMeta } from "@/platforms"
 import { Card, Flex, Text } from "@radix-ui/themes"
@@ -52,8 +52,9 @@ function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank:
   )
 }
 
-export function TopPlatforms() {
-  const { data: platforms = [], isLoading } = useSWR("top-platforms", fetchTopCreators)
+export function TopPlatforms({limit = 10}: {limit?: number}) {
+  // const { data: platforms = [], isLoading } = useSWR("top-platforms", fetchTopCreators)
+  const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>("/top-platforms", {limit})
 
   return (
     <Card>
@@ -67,7 +68,7 @@ export function TopPlatforms() {
           </>
         ) : (
           <>
-            {platforms.slice(0, 10).map((platform, i) => (
+            {platforms.map((platform, i) => (
               <PlatformTableRow
                 key={platform.creator}
                 platform={platform}

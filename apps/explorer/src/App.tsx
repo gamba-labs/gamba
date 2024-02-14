@@ -1,15 +1,15 @@
 import * as anchor from "@coral-xyz/anchor"
-import { EnterIcon, ExitIcon, MagicWandIcon, PlusIcon, StackIcon, TimerIcon } from "@radix-ui/react-icons"
+import { Cross1Icon, EnterIcon, ExitIcon, HamburgerMenuIcon, PlusIcon, TimerIcon } from "@radix-ui/react-icons"
 import * as Toast from "@radix-ui/react-toast"
 import { Box, Button, Callout, Container, Flex, Link } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { useTransactionError } from "gamba-react-v2"
-import React from "react"
-import { NavLink, Route, Routes, useNavigate } from "react-router-dom"
-import styled from "styled-components"
+import React, { useEffect } from "react"
+import { NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom"
+import styled, { css } from "styled-components"
 
-import { useToast, useToastStore } from "@/hooks"
+import { useMediaQuery, useToast, useToastStore } from "@/hooks"
 import CreatePoolView from "@/views/CreatePool/CreatePoolView"
 import DebugUserView from "@/views/Debug/DebugUser"
 import DebugView from "@/views/Debug/DebugView"
@@ -28,6 +28,7 @@ import useSWR from "swr"
 import { fetchStatus } from "./api"
 import { PoolList } from "./views/Dashboard/PoolList"
 import { TopPlatforms } from "./views/Dashboard/TopPlatforms"
+import NavigationMenuDemo from "./components/NavigationMenu"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -42,6 +43,81 @@ const Logo = styled(NavLink)`
   }
 `
 
+const StyledSidebar = styled.div<{$open: boolean}>`
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  right: 0;
+  top: 0;
+  background-color: var(--slate-1);
+  z-index: 2;
+  transition: transform .2s ease;
+  ${(props) => props.$open ? css`
+    transform: translateX(0%);
+  ` : css`
+    transform: translateX(100%)
+  `}
+`
+
+const SidebarList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+`
+
+const NavLink2 = styled(NavLink)`
+  all: unset;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: var(--slate-2);
+  &:hover {
+    background-color: var(--violet-3);
+  }
+`
+
+function Sidebar(props: React.PropsWithChildren<{open: boolean, onClose: () => void}>) {
+  const { key } = useLocation()
+  const wallet = useWallet()
+  const walletModal = useWalletModal()
+  useEffect(() => props.onClose(), [key])
+  return (
+    <StyledSidebar $open={props.open}>
+      <Box p="2" px="4">
+        <Flex justify="between" align="center">
+          {!wallet.connected ? (
+            <Button disabled={wallet.connecting} onClick={() => walletModal.setVisible(true)} size="2" variant="soft">
+              Connect <EnterIcon />
+            </Button>
+          ) : (
+            <Button color="gray" onClick={() => wallet.disconnect()} size="2" variant="soft">
+              {wallet.publicKey?.toBase58().substring(0, 6)}...
+              <ExitIcon />
+            </Button>
+          )}
+          <Button onClick={props.onClose} color="gray" variant="soft" size="2">
+            <Cross1Icon />
+          </Button>
+        </Flex>
+      </Box>
+      <Box>
+        <SidebarList>
+          <NavLink2 to="/create">
+            Create Pool
+          </NavLink2>
+          <NavLink2 to="/user">
+            Manage User
+          </NavLink2>
+          <NavLink2 to="/dao">
+            Manage DAO
+          </NavLink2>
+        </SidebarList>
+      </Box>
+    </StyledSidebar>
+  )
+}
+
 export function App() {
   const navigate = useNavigate()
   const toasts = useToastStore(state => state.toasts)
@@ -49,6 +125,8 @@ export function App() {
   const wallet = useWallet()
   const walletModal = useWalletModal()
   const { data: status = {syncing: false} } = useSWR("status", fetchStatus)
+  const [sidebar, setSidebar] = React.useState(false)
+  const md = useMediaQuery("md")
 
   useTransactionError(err => {
     toast({
@@ -64,6 +142,7 @@ export function App() {
 
   return (
     <>
+      <Sidebar open={sidebar} onClose={() => setSidebar(false)} />
       <Header p="2" px="4">
         <Container>
           <Flex gap="2" align="center" justify="between">
@@ -72,43 +151,31 @@ export function App() {
                 <img alt="Logo" src="/logo.svg" />
               </Logo>
             </Flex>
-            {/* <Flex gap="2">
-              <NavLink to="/">
-                Overview
-              </NavLink>
-              <NavLink to="/pools">
-                Pools
-              </NavLink>
-              <NavLink to="/platforms">
-                Platforms
-              </NavLink>
-            </Flex> */}
-            <Flex gap="2" align="center" style={{ position: "relative" }}>
-              {wallet.connected && (
-                <>
-                  <Button size="3" variant="soft" onClick={() => navigate("/debug")}>
-                    Tools <MagicWandIcon />
-                  </Button>
-                  <Button size="3" variant="soft" onClick={() => navigate("/portfolio")}>
-                    Portfolio <StackIcon />
-                  </Button>
-                </>
-              )}
-              <Button size="3" variant="soft" color="green" onClick={() => navigate("/create")}>
-                Create Pool <PlusIcon />
+            {!md && (
+              <Button variant="surface" onClick={() => setSidebar(!sidebar)}>
+                <HamburgerMenuIcon />
               </Button>
-              {!wallet.connected ? (
-                <Button disabled={wallet.connecting} onClick={() => walletModal.setVisible(true)} size="3" variant="soft">
-                  Connect <EnterIcon />
-                </Button>
-              ) : (
-                <Button color="gray" onClick={() => wallet.disconnect()} size="3" variant="soft">
-                  {wallet.publicKey?.toBase58().substring(0, 6)}...
-                  <ExitIcon />
-                </Button>
-              )}
-              {/* <WalletMultiButton /> */}
-            </Flex>
+            )}
+            {md && (
+              <>
+                <NavigationMenuDemo />
+                <Flex gap="2" align="center" style={{ position: "relative" }}>
+                  <Button size="3" variant="soft" color="green" onClick={() => navigate("/create")}>
+                    Create Pool <PlusIcon />
+                  </Button>
+                  {!wallet.connected ? (
+                    <Button disabled={wallet.connecting} onClick={() => walletModal.setVisible(true)} size="3" variant="soft">
+                      Connect <EnterIcon />
+                    </Button>
+                  ) : (
+                    <Button color="gray" onClick={() => wallet.disconnect()} size="3" variant="soft">
+                      {wallet.publicKey?.toBase58().substring(0, 6)}...
+                      <ExitIcon />
+                    </Button>
+                  )}
+                </Flex>
+              </>
+            )}
           </Flex>
         </Container>
       </Header>
@@ -155,7 +222,7 @@ export function App() {
             element={<Dashboard />}
           />
           <Route
-            path="/debug"
+            path="/tools"
             element={<DebugView />}
           />
           <Route
@@ -164,7 +231,7 @@ export function App() {
           />
           <Route
             path="/platforms"
-            element={<TopPlatforms />}
+            element={<TopPlatforms limit={1000} />}
           />
           <Route
             path="/dao"

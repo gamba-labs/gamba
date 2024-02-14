@@ -410,10 +410,6 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
                   <TokenAvatar size="1" mint={game.tokenMint} />
                   <TokenValue2 amount={game.jackpotFee.toNumber() + game.poolFee.toNumber() + game.creatorFee.toNumber() + game.gambaFee.toNumber()} mint={game.tokenMint} />
                 </Flex>
-                {/* <Flex gap="2" align="center">
-                  <TokenAvatar size="1" mint={NATIVE_MINT} />
-                  <TokenValue2 amount={0} mint={NATIVE_MINT} /> (TODO: antiSpamFee?)
-                </Flex> */}
               </Flex>
             </Grid>
           </Table.Cell>

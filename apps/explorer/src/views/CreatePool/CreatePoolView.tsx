@@ -1,6 +1,6 @@
 import { ArrowRightIcon, ExclamationTriangleIcon, PlusIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text } from "@radix-ui/themes"
-import { useConnection } from "@solana/wallet-adapter-react"
+import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { ComputeBudgetProgram } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
 import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
@@ -8,13 +8,14 @@ import React from "react"
 import { useNavigate } from "react-router-dom"
 import useSWR from "swr"
 
-import { fetchPool } from "@/views/Dashboard/PoolList"
 import { SelectableButton, TokenItem } from "@/components"
 import { SYSTEM_PROGRAM } from "@/constants"
 import { ParsedTokenAccount, useTokenList } from "@/hooks"
 import { useJupiterList } from "@/hooks/useTokenMeta"
+import { fetchPool } from "@/views/Dashboard/PoolList"
+import { ConnectUserCard } from "../Debug/DebugUser"
 
-export default function CreatePoolView() {
+function Inner() {
   const navigate = useNavigate()
   const { connection } = useConnection()
   const publicKey = useWalletAddress()
@@ -163,4 +164,9 @@ export default function CreatePoolView() {
       </Card>
     </>
   )
+}
+
+export default function CreatePoolView() {
+  const wallet = useWallet()
+  return wallet.connected ? <Inner /> : <ConnectUserCard />
 }

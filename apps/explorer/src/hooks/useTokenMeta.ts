@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js"
+import React from "react"
 import useSWR, { preload } from "swr"
 
 preload('token-list', fetchTokenList)
@@ -45,25 +46,33 @@ export function useJupiterList() {
 }
 
 export function useTokenMeta(mint: string | PublicKey): TokenMeta {
-  const list = useJupiterList()
+  const getTokenMeta = useGetTokenMeta()
 
-  return list[mint.toString()] || {
-    mint: new PublicKey(mint),
-    name: "Unknown",
-    symbol: mint.toString().substring(0, 3),
-    image: undefined,
-    decimals: 9,
-  }
+  return React.useMemo(() => {
+    const jupMeta = getTokenMeta(mint)
+
+    return {
+      mint: new PublicKey(mint),
+      name: jupMeta.name,
+      symbol: jupMeta.symbol,
+      image: jupMeta.image,
+      decimals: jupMeta.decimals,
+    }
+  }, [getTokenMeta, mint])
 }
 
 export function useGetTokenMeta() {
   const list = useJupiterList()
 
-  return (mint: string | PublicKey): TokenMeta => list[mint.toString()] || {
-    mint: new PublicKey(mint),
-    name: "Unknown",
-    symbol: mint.toString().substring(0, 3),
-    image: undefined,
-    decimals: 9,
+  return (mint: string | PublicKey): TokenMeta => {
+    const jupData = list[mint.toString()]
+
+    return jupData || {
+      mint: new PublicKey(mint),
+      name: "Unknown",
+      symbol: mint.toString().substring(0, 3),
+      image: undefined,
+      decimals: 9,
+    }
   }
 }

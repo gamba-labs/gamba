@@ -17,7 +17,7 @@ export interface LineChartDataPoint {
 }
 
 const getDate = (d: LineChartDataPoint) => new Date(d.date)
-const getValue = (d: LineChartDataPoint) => d.value
+const getValue = (d: LineChartDataPoint) => d?.value
 
 const bisectDate = bisector<LineChartDataPoint, Date>(d => new Date(d.date)).left
 
@@ -46,7 +46,7 @@ const Inner = withTooltip<AreaProps, any>(
   }) => {
     const { data } = chart
     const innerWidth = width - margin.left - margin.right
-    const innerHeight = height - margin.top - margin.bottom
+    const innerHeight = Math.max(1, height - margin.top - margin.bottom)
 
     const dateScale = React.useMemo(
       () => scaleTime({

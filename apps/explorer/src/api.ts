@@ -1,5 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js"
 import { GambaTransaction, fetchGambaTransactionsFromSignatures } from "gamba-core-v2"
+import useSWR from "swr"
 
 const API_ENDPOINT = import.meta.env.VITE_GAMBA_API_ENDPOINT
 
@@ -112,9 +113,9 @@ export const apiFetcher = async <T>(endpoint: string) => {
   }
 }
 
-// export function useApi<T extends Endpoints>(endpoint: T, query?: Record<string, any>) {
-//   return useSWR<ApiEndpoints[T]>(getApiUrl(endpoint, query), apiFetcher)
-// }
+export function useApi<T extends any>(endpoint: string, query?: Record<string, any>) {
+  return useSWR<T>(getApiUrl(endpoint, query), apiFetcher)
+}
 
 export const getApiUrl = (endpoint: string, _query?: Record<string, any>) => {
   // const start = String(_query?.start ?? 0)

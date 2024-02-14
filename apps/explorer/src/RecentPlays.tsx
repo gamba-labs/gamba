@@ -36,10 +36,7 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
   const { connection } = useConnection()
   const {
     data = [],
-    // data,
-    mutate,
     size,
-    error,
     setSize,
     isValidating,
     isLoading,
@@ -93,8 +90,6 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
               const multiplier = game.bet[game.resultIndex.toNumber()] / BPS_PER_WHOLE
               const wager = game.wager.toNumber()
               const payout = multiplier * wager
-              // const profit = payout - wager
-              // const payout = event.result.wager * event.result.multiplier
               return (
                 <TableRowNavLink to={"/tx/" + event.signature} key={event.signature}>
                   <Table.Cell>

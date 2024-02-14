@@ -2,7 +2,7 @@ import { Button, Card, Dialog, Flex, Heading } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { decodeAta, getUserWsolAccount, unwrapSol } from "gamba-core-v2"
 import { useAccount, useSendTransaction, useWalletAddress } from "gamba-react-v2"
-import React, { PropsWithChildren } from "react"
+import React, { PropsWithChildren, ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { ConfigDialog } from "@/GambaConfig"
@@ -10,11 +10,11 @@ import { useToast } from "@/hooks"
 import MintDialogDevnet from "@/MintDialogDevnet"
 import MintDialogLocalnet from "@/MintDialogLocalnet"
 
-function ButtonWithDialog(props: PropsWithChildren & {label: string}) {
+export function ButtonWithDialog(props: PropsWithChildren & {label: ReactNode}) {
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button variant="soft">
+        <Button size="3" variant="soft">
           {props.label}
         </Button>
       </Dialog.Trigger>

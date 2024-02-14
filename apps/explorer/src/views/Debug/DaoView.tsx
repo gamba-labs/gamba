@@ -1,13 +1,17 @@
-import { TokenAvatar, TokenItem } from "@/components"
+import { ConfigDialog } from "@/GambaConfig"
+import { TokenItem } from "@/components"
+import { Details } from "@/components/Details"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useGetTokenMeta, useGetTokenPrice, useTokenAccountsByOwner } from "@/hooks"
-import { Button, Card, Flex, Grid, Heading, Text } from "@radix-ui/themes"
+import { GearIcon } from "@radix-ui/react-icons"
+import { Button, Card, Grid, Text } from "@radix-ui/themes"
 import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
 import { PublicKey } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useSendTransaction } from "gamba-react-v2"
 import React from "react"
+import { ButtonWithDialog } from "./DebugView"
 
 function useDaoNativeBalance() {
   const userAccount = useAccount(getGambaStateAddress(), info => info)
@@ -70,13 +74,23 @@ export default function DaoView() {
 
   return (
     <Grid gap="4">
-      <Flex justify="between">
-        <Text>DAO</Text>
-        <SolanaAddress address={daoAddress} />
-      </Flex>
+      <Details
+        title="DAO"
+        rows={[
+          ["DAO Address", <SolanaAddress address={daoAddress} />],
+          [
+            "Accumulated fees",
+            <Text>
+              ${total.toLocaleString(undefined, {maximumFractionDigits: 1})}
+            </Text>
+          ],
+        ]}
+      />
+      <ButtonWithDialog label={<>Config <GearIcon /></>}>
+        <ConfigDialog />
+      </ButtonWithDialog>
       <Card>
         <Grid gap="4">
-          <Heading>DAO Treasury ${total.toLocaleString(undefined, {maximumFractionDigits: 1})}</Heading>
           <Grid gap="2">
             {combinedTokens.map((token, i) => (
               <Card key={i}>

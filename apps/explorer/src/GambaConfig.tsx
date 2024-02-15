@@ -168,7 +168,7 @@ export function ConfigDialog() {
             <Button onClick={setAuthority} variant="soft">
               Update authority
             </Button>
-            <Thing title="RNG Address">
+            <Thing title="RNG address">
               <TextField.Root>
                 <TextField.Input
                   value={input.rngAddress ?? ""}
@@ -176,7 +176,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Gamba Fee %">
+            <Thing title="DAO fee %">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -186,7 +186,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Max Creator Fee (%)">
+            <Thing title="Max creator fee (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -196,7 +196,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Max House Edge (%)">
+            <Thing title="Max house edge (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -206,7 +206,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Pool Creation fee (SOL)">
+            <Thing title="Pool creation fee (SOL)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -216,7 +216,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Anti Spam fee (SOL)">
+            <Thing title="Anti-spam fee (SOL)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -226,7 +226,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Default Pool Fee (%)">
+            <Thing title="Default pool fee (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -236,7 +236,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Jackpot Payout to user (%)">
+            <Thing title="Jackpot payout to user (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -246,7 +246,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Jackpot Payout to creator (%)">
+            <Thing title="Jackpot payout to creator (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -256,7 +256,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Jackpot Payout to pool (%)">
+            <Thing title="Jackpot payout to pool (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -266,7 +266,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Jackpot Payout to Gamba (%)">
+            <Thing title="Jackpot payout to DAO (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -276,7 +276,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Bonus to Jackpot Ratio (%)">
+            <Thing title="Bonus to Jackpot ratio (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -286,7 +286,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Max Payout(%)">
+            <Thing title="Max payout(%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -296,7 +296,7 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Pool Withdraw Fee (%)">
+            <Thing title="Pool withdraw fee (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -306,35 +306,35 @@ export function ConfigDialog() {
                 />
               </TextField.Root>
             </Thing>
-            <Thing title="Pool Creation Allowed">
+            <Thing title="Pool creation enabled">
               <input
                 type="checkbox"
                 checked={input.poolCreationAllowed || false}
                 onChange={e => updateInput({ poolCreationAllowed: e.target.checked })}
               />
             </Thing>
-            <Thing title="Pool Deposit Allowed">
+            <Thing title="Pool deposit enabled">
               <input
                 type="checkbox"
                 checked={input.poolDepositAllowed || false}
                 onChange={e => updateInput({ poolDepositAllowed: e.target.checked })}
               />
             </Thing>
-            <Thing title="Pool Withdraw Allowed">
+            <Thing title="Pool withdraw enabled">
               <input
                 type="checkbox"
                 checked={input.poolWithdrawAllowed || false}
                 onChange={e => updateInput({ poolWithdrawAllowed: e.target.checked })}
               />
             </Thing>
-            <Thing title="Playing Allowed">
+            <Thing title="Playing enabled">
               <input
                 type="checkbox"
                 checked={input.playingAllowed || false}
                 onChange={e => updateInput({ playingAllowed: e.target.checked })}
               />
             </Thing>
-            <Thing title="Distribution Recipient">
+            <Thing title="Distribution recipient">
               <TextField.Root>
                 <TextField.Input
                   value={input.distributionRecipient ?? ""}

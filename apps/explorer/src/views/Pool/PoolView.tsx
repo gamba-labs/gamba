@@ -54,8 +54,8 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: 5px;
   border-radius: 50px;
-  padding: 3px;
-  background: #4c4c5e99;
+  padding: 6px;
+  background: var(--slate-6);
   align-items: center;
 `
 
@@ -64,12 +64,15 @@ const SelectableButton = styled.button<{$selected: boolean}>`
   cursor: pointer;
   border-radius: 50px;
   background: transparent;
-  padding: 2px 5px;
+  padding: 2px 6px;
   color: white;
   font-weight: bold;
   font-size: 12px;
+  &:hover {
+    background: var(--slate-5);
+  }
   ${props => props.$selected && css`
-    background: #09090c;
+    background: var(--slate-1);
   `}
 `
 

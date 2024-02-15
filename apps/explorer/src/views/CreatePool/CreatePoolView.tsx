@@ -1,5 +1,5 @@
 import { ArrowRightIcon, ExclamationTriangleIcon, PlusIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text } from "@radix-ui/themes"
+import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text, TextField } from "@radix-ui/themes"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { ComputeBudgetProgram } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
@@ -11,7 +11,7 @@ import useSWR from "swr"
 import { SelectableButton, TokenItem } from "@/components"
 import { SYSTEM_PROGRAM } from "@/constants"
 import { ParsedTokenAccount, useTokenList } from "@/hooks"
-import { useJupiterList } from "@/hooks/useTokenMeta"
+import { useGetTokenMeta, useJupiterList } from "@/hooks/useTokenMeta"
 import { fetchPool } from "@/views/Dashboard/PoolList"
 import { ConnectUserCard } from "../Debug/DebugUser"
 
@@ -33,6 +33,8 @@ function Inner() {
     () => selectedPoolId && fetchPool(connection, selectedPoolId),
   )
 
+  const [search, setSearch] = React.useState("")
+
   // Sort by 1. Sol, 2. Known tokens 3. Balance 4. Pubkey
   const sortedTokens = React.useMemo(
     () => {
@@ -50,6 +52,20 @@ function Inner() {
         })
     },
     [tokens, jupiterList],
+  )
+
+  const getTokenMeta = useGetTokenMeta()
+
+  const filteredTokens = React.useMemo(
+    () =>
+      sortedTokens.filter((x) => {
+        const meta = getTokenMeta(x.mint)
+        if (x.mint.toBase58().toLocaleLowerCase().includes(search.toLowerCase())) return true
+        if (meta.symbol.toLowerCase().includes(search.toLowerCase())) return true
+        if (meta.name.toLowerCase().includes(search.toLowerCase())) return true
+        return false
+      }),
+    [getTokenMeta, sortedTokens, search]
   )
 
   const createPool = async () => {
@@ -96,9 +112,16 @@ function Inner() {
           <Text size="2" color="gray">
             Select the token you want to provide liqudity for
           </Text>
+          <TextField.Root>
+            <TextField.Input
+              placeholder="Filter Tokens"
+              value={search}
+              onChange={(evt) => setSearch(evt.target.value)}
+            />
+          </TextField.Root>
           <ScrollArea style={{ maxHeight: "300px" }}>
             <Grid gap="1">
-              {sortedTokens.map((token, i) => (
+              {filteredTokens.map((token, i) => (
                 <div key={i}>
                   <SelectableButton
                     selected={selectedToken?.mint.equals(token.mint)}

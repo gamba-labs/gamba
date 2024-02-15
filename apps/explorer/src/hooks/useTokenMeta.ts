@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js"
+import { NATIVE_MINT } from "gamba-core-v2"
 import React from "react"
 import useSWR, { preload } from "swr"
 
@@ -64,8 +65,12 @@ export function useTokenMeta(mint: string | PublicKey): TokenMeta {
 export function useGetTokenMeta() {
   const list = useJupiterList()
 
-  return (mint: string | PublicKey): TokenMeta => {
+  return React.useCallback((mint: string | PublicKey): TokenMeta => {
     const jupData = list[mint.toString()]
+
+    if (mint.toString() === NATIVE_MINT.toString()) {
+      return {...jupData, name: 'Solana'}
+    }
 
     return jupData || {
       mint: new PublicKey(mint),
@@ -74,5 +79,5 @@ export function useGetTokenMeta() {
       image: undefined,
       decimals: 9,
     }
-  }
+  }, [list])
 }

@@ -41,7 +41,6 @@ function PortfolioItem({ position }: { position: Position }) {
               mint={pool.account.underlyingTokenMint}
               amount={lpBalance * ratio}
             />
-
           </SkeletonFallback>
         </Flex>
         <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58())} variant="soft">
@@ -56,7 +55,6 @@ export default function PortfolioView() {
   const program = useGambaProgram()
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
   const tokens = useTokenList()
-  const getPrice = useGetTokenPrice()
 
   const sortedPools = React.useMemo(
     () => {
@@ -75,11 +73,6 @@ export default function PortfolioView() {
         .filter(x => x.lpBalance > 0)
     },
     [pools, tokens],
-  )
-
-  const price = sortedPools.reduce(
-    (x, xx) => x + xx.lpBalance * getPrice(xx.pool.account.tokenMint),
-    0
   )
 
   return (

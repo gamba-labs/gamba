@@ -9,6 +9,14 @@ const priceData = signal<Record<string, number>>({})
 
 let priceFetchTimeout: any
 
+function createBatches<T>(array: T[], batchSize: number) {
+  const batches: T[][] = []
+  for (let i = 0; i < array.length; i += batchSize) {
+    batches.push(array.slice(i, i + batchSize))
+  }
+  return batches
+}
+
 const fetchTokenPrice = async (token: string) => {
   tokenMints.value = new Set([...Array.from(tokenMints.value), token])
 
@@ -21,17 +29,27 @@ const fetchTokenPrice = async (token: string) => {
       return
     }
 
-    const req = await fetch(`https://price.jup.ag/v4/price?ids=${unique.join(',')}`)
-    const res = await req.json()
-    const data = res.data as Record<string, {price: number}>
+    // Create batches of 100 pubkeys since that's the API limit
+    const batches = createBatches(unique, 100)
 
-    const newData: Record<string, number> = {}
+    await Promise.all(
+      batches.map(
+        async (batch) => {
+          const req = await fetch(`https://price.jup.ag/v4/price?ids=${batch.join(',')}`)
+          const res = await req.json()
+          const data = res.data as Record<string, {price: number}>
 
-    for (const x of unique) {
-      newData[x] = data[x]?.price ?? 0
-    }
+          const newData: Record<string, number> = {}
 
-    priceData.value = {...priceData.value, ...newData}
+          for (const mint of batch) {
+            newData[mint] = data[mint]?.price ?? 0
+          }
+
+          priceData.value = {...priceData.value, ...newData}
+        }
+      )
+    )
+
     tokenMints.value = new Set
   }, PRICE_FETCH_DEBOUNCE_MS)
 }

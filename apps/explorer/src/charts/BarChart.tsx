@@ -37,7 +37,7 @@ const _Graph = ({ width, height, dailyVolume: _dailyVolume, onHover }: AreaProps
       }), {} as Record<string, number>)
 
       return Array.from({length: days}).map((_, dayIndex) => {
-        const endDate = new Date()
+        const endDate = new Date(date2)
         const date = new Date(endDate.setDate(endDate.getDate() - dayIndex))
         return {
           total_volume: volumeByDay[date.toDateString()] ?? 0,

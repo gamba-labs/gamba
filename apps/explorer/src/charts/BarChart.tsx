@@ -28,7 +28,8 @@ const _Graph = ({ width, height, dailyVolume: _dailyVolume, onHover }: AreaProps
     () => {
       const [date1, date2] = extent(_dailyVolume, getDate)
       if (!date1 || !date2) return []
-      const days = 1 + unixDay(date2.getTime() - date1.getTime())
+
+      const days = Math.max(7, 1 + unixDay(date2.getTime() - date1.getTime()))
 
       const volumeByDay = _dailyVolume.reduce((prev, x) => ({
         ...prev,
@@ -36,19 +37,19 @@ const _Graph = ({ width, height, dailyVolume: _dailyVolume, onHover }: AreaProps
       }), {} as Record<string, number>)
 
       return Array.from({length: days}).map((_, dayIndex) => {
-        const startDate = new Date(date1)
-        const date = new Date(startDate.setDate(startDate.getDate() + dayIndex))
+        const endDate = new Date()
+        const date = new Date(endDate.setDate(endDate.getDate() - dayIndex))
         return {
           total_volume: volumeByDay[date.toDateString()] ?? 0,
-          date: date.toString()
+          date: date.toString(),
         }
-      })
+      }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     },
     [_dailyVolume]
   )
 
   const barMargin = Math.min(4, width * .8)
-  const barWidth = (width) / (dailyVolume.length);
+  const barWidth = (width) / (dailyVolume.length)
 
   const xScale = React.useMemo(
     () =>

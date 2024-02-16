@@ -1,6 +1,7 @@
 import { signal } from "@preact/signals-react"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
+import { createBatches } from "./useTokenPrice"
 
 const FETCH_DEBOUNCE_MS = 200
 
@@ -18,11 +19,19 @@ const fetchBonfidaName = async (token: string) => {
     const unique = Array.from(addresses.value).filter((x) => !Object.keys(domainsByAddress.value).includes(x))
 
     if (!unique.length) return
+    const batches = createBatches(unique, 20)
 
-    const req = await fetch(`https://sns-api.bonfida.com/v2/user/domains/${unique.join(',')}`)
-    const res = await req.json() as Record<string, string[]>
+    await Promise.all(
+      batches.map(
+        async (batch) => {
+          const req = await fetch(`https://sns-api.bonfida.com/v2/user/domains/${batch.join(',')}`)
+          const res = await req.json() as Record<string, string[]>
 
-    domainsByAddress.value = {...domainsByAddress.value, ...res}
+          domainsByAddress.value = {...domainsByAddress.value, ...res}
+        }
+      )
+    )
+
     addresses.value = new Set
   }, FETCH_DEBOUNCE_MS)
 }

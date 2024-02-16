@@ -194,7 +194,7 @@ function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled
             This game is provably fair.
           </Text>
           <Text size="2">
-            The result is calculated by combining the <Code>rng_seed</Code> provided by Gamba, the <Code>client_seed</Code> provided by the player, and a <Code>nonce</Code>, which increments by 1 for each player after every play.
+            The result is calculated by combining the <Code>rng_seed</Code> provided by Gamba, the <Code>client_seed</Code> provided by the player, and a <Code>nonce</Code>, which increments by 1 for each play.
             <br />
             The sha256 hash for the next RNG Seed is revealed in this transaction just like the one prior.
             <br />

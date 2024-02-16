@@ -63,6 +63,9 @@ const NavigationMenuDemo = () => {
               <ListItemLink title="Discord" href="https://discord.gg/xjBsW3e8fK">
                 💬 Give feedback, ideas, and be the first to hear about new announcements.
               </ListItemLink>
+              {/* <ListItemLink title="V1 Explorer" href="https://v1.gamba.so">
+                📖 Browse transactions from Gamba V1
+              </ListItemLink> */}
             </ul>
           </NavigationMenu.Content>
         </NavigationMenu.Item>

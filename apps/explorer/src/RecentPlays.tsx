@@ -50,19 +50,14 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
       })
     },
     async (endpoint) => {
-      const data = await apiFetcher(endpoint) as any
-      const signatures = data.signatures as string[]
-      return parseSignatureResponse(connection, signatures)
+      const data = await apiFetcher(endpoint) as {signatures: string[], total: number}
+      const events = await parseSignatureResponse(connection, data.signatures)
+      return {events, total: data.total}
     }
   )
 
-  const events = React.useMemo(
-    () => data.flat(),
-    [data]
-  )
-
   return (
-    <Box>
+    <Flex direction="column" gap="2">
       <Table.Root variant="surface">
         <Table.Header>
           <Table.Row>
@@ -84,66 +79,68 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {events.map(
-            event => {
-              const game = event.data as GambaEvent<"GameSettled">["data"]
-              const multiplier = game.bet[game.resultIndex.toNumber()] / BPS_PER_WHOLE
-              const wager = game.wager.toNumber()
-              const payout = multiplier * wager
-              return (
-                <TableRowNavLink to={"/tx/" + event.signature} key={event.signature}>
-                  <Table.Cell>
-                    <PlatformAccountItem avatarSize="1" address={game.creator} />
-                  </Table.Cell>
-                  <Table.Cell>
-                    <PlayerAccountItem avatarSize="1" address={game.user} />
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Flex gap="1" align="center">
-                      <TokenAvatar
-                        size="1"
-                        mint={game.tokenMint}
-                      />
-                      <TokenValue2
-                        amount={wager}
-                        mint={game.tokenMint}
-                      />
-                    </Flex>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Flex gap="1" align="center">
-                      <TokenAvatar
-                        size="1"
-                        mint={game.tokenMint}
-                      />
-                      <TokenValue2
-                        amount={payout}
-                        mint={game.tokenMint}
-                      />
-                      <Badge color={payout >= wager ? "green" : "gray"}>
-                        {Math.abs(multiplier).toFixed(2)}x
-                      </Badge>
-                    </Flex>
-                  </Table.Cell>
-                  <Table.Cell align="right">
-                    <TimeDiff time={event.time} />
-                  </Table.Cell>
-                </TableRowNavLink>
+          {data.flatMap(
+            ({events}) => (
+              events.map(
+                (event) => {
+                  const game = event.data as GambaEvent<"GameSettled">["data"]
+                  const multiplier = game.bet[game.resultIndex.toNumber()] / BPS_PER_WHOLE
+                  const wager = game.wager.toNumber()
+                  const payout = multiplier * wager
+                  return (
+                    <TableRowNavLink to={"/tx/" + event.signature} key={event.signature}>
+                      <Table.Cell>
+                        <PlatformAccountItem avatarSize="1" address={game.creator} />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <PlayerAccountItem avatarSize="1" address={game.user} />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Flex gap="1" align="center">
+                          <TokenAvatar
+                            size="1"
+                            mint={game.tokenMint}
+                          />
+                          <TokenValue2
+                            amount={wager}
+                            mint={game.tokenMint}
+                          />
+                        </Flex>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Flex gap="1" align="center">
+                          <TokenAvatar
+                            size="1"
+                            mint={game.tokenMint}
+                          />
+                          <TokenValue2
+                            amount={payout}
+                            mint={game.tokenMint}
+                          />
+                          <Badge color={payout >= wager ? "green" : "gray"}>
+                            {Math.abs(multiplier).toFixed(2)}x
+                          </Badge>
+                        </Flex>
+                      </Table.Cell>
+                      <Table.Cell align="right">
+                        <TimeDiff time={event.time} />
+                      </Table.Cell>
+                    </TableRowNavLink>
+                  )
+                },
               )
-            },
+            )
           )}
         </Table.Body>
       </Table.Root>
-      <Box mt="2">
-        <Button
-          disabled={isLoading || isValidating}
-          onClick={() => setSize(size + 1)}
-          variant="soft"
-          style={{ width: '100%' }}
-        >
-          Load more <PlusIcon />
-        </Button>
-      </Box>
-    </Box>
+      <Button
+        disabled={isLoading || isValidating}
+        onClick={() => setSize(size + 1)}
+        variant="soft"
+        style={{ width: '100%' }}
+      >
+        Load more <PlusIcon />
+      </Button>
+    </Flex>
   )
 }

@@ -222,7 +222,7 @@ export function App() {
             element={<Dashboard />}
           />
           <Route
-            path="/tools"
+            path="/debug"
             element={<DebugView />}
           />
           <Route

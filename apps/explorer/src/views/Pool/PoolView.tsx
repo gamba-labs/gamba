@@ -25,7 +25,7 @@ import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
 import { ConnectUserCard } from "../Debug/DebugUser"
 
-function ThingCard(props: { title: string, children: ReactNode }) {
+export function ThingCard(props: { title: string, children: ReactNode }) {
   return (
     <Card size="1">
       <Flex direction="column">
@@ -145,6 +145,7 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
     </Flex>
   )
 }
+
 function PoolManager({ pool }: {pool: UiPool}) {
   const { connection } = useConnection()
   const wallet = useWallet()
@@ -241,11 +242,9 @@ function PoolManager({ pool }: {pool: UiPool}) {
       </Flex>
       <Grid gap="2" columns="1">
         <Flex gap="2" wrap="wrap">
-          <Flex gap="2" wrap="wrap">
-            <ThingCard title="LP price">
-              {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
-            </ThingCard>
-          </Flex>
+          <ThingCard title="LP price">
+            {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
+          </ThingCard>
           <ThingCard title="Liqudity">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.liquidity)} />
           </ThingCard>

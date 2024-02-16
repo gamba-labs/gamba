@@ -14,13 +14,6 @@ const creatorScema = z.object({ query: z.object({ creator: z.string({}) }) })
 
 const ratioSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
-const topPlayersSchema = z.object({
-  query: z.object({
-    creator: z.string({}).optional(),
-    limit: z.string().optional(),
-  }),
-})
-
 const topPlatformsSchema = z.object({ query: z.object({ limit: z.string().optional() }) })
 
 export const daysAgo = (daysAgo: number) => {
@@ -42,6 +35,17 @@ const settledGamesSchema = z.object({
 
 const statusSchema = z.object({ query: z.object({ creator: z.string().optional() }) })
 
+// List of pools
+// api.get('/pools', async (req, res) => {
+//   const tx = await all(`
+//     SELECT
+//       pool
+//     FROM settled_games
+//     GROUP BY pool
+//   `)
+//   res.send(tx)
+// })
+
 // Returns tx signatures of recent pool changes
 api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => {
   const tx = await all(`
@@ -56,25 +60,35 @@ api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => 
 // Returns tx signatures of recent settled games
 api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) => {
   const page = Number(req.query.page) ?? 0
+  const params = {
+    ':pool': req.query.pool,
+    ':creator': req.query.creator,
+    ':user': req.query.user,
+  }
+  const query = `
+    ${req.query.pool ? ' AND pool = :pool' : ''}
+    ${req.query.creator ? ' AND creator = :creator' : ''}
+    ${req.query.user ? ' AND user = :user' : ''}
+  `
+  const { total } = await get(`
+    SELECT COUNT(*) AS total FROM settled_games;
+  `)
   const tx = await all(
     `
-      SELECT signature FROM settled_games
+      SELECT signature
+      FROM settled_games
       WHERE 1
-      ${req.query.pool ? ' AND pool = :pool' : ''}
-      ${req.query.creator ? ' AND creator = :creator' : ''}
-      ${req.query.user ? ' AND user = :user' : ''}
+      ${query}
       ORDER BY block_time DESC LIMIT 10 OFFSET :offset;
     `,
     {
-      ':pool': req.query.pool,
-      ':creator': req.query.creator,
-      ':user': req.query.user,
+      ...params,
       ':offset': page * 10,
     },
     // req.query.pool ? [req.query.pool, page * 50] : [page * 50]
   )
   const signatures = tx.map((x) => x.signature)
-  res.send({ signatures })
+  res.send({ signatures, total })
 })
 
 // Returns hourly ratio (LP Price) change of a specific pool
@@ -102,6 +116,21 @@ api.get('/ratio', validate(ratioSchema), async (req, res) => {
     daysAgo(30),
     Date.now(),
   ])
+  res.send(tx)
+})
+
+// Returns daily volume for a specific pool in underlying token
+api.get('/chart/plays', async (req, res) => {
+  const tx = await all(`
+  SELECT
+    strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
+    COUNT(DISTINCT user) as total_volume
+    FROM settled_games
+    WHERE 1
+    AND block_time BETWEEN ? AND ?
+    GROUP BY date
+    ORDER BY date ASC
+  `, [daysAgo(30), Date.now()])
   res.send(tx)
 })
 
@@ -179,8 +208,17 @@ api.get('/platform-tokens', validate(creatorScema), async (req, res) => {
   res.send(tx)
 })
 
+const topPlayersSchema = z.object({
+  query: z.object({
+    creator: z.string({}).optional(),
+    limit: z.string().optional(),
+    sortBy: z.enum(['usd_volume', 'usd_profit']).optional(),
+  }),
+})
+
 // Returns list of top performing players
 api.get('/top-players', validate(topPlayersSchema), async (req, res) => {
+  const sortBy = req.query.sortBy ?? 'usd_profit'
   const limit = Number(req.query.limit ?? 5)
   if (limit < 1 || limit > 50) {
     res.sendStatus(403)
@@ -188,13 +226,17 @@ api.get('/top-players', validate(topPlayersSchema), async (req, res) => {
   }
   const tx = await all(`
     SELECT * FROM (
-      SELECT user, SUM((payout-wager) * usd_per_unit) as usd_profit, SUM(wager * usd_per_unit) as volume
+      SELECT
+        user,
+        SUM((creator_fee + pool_fee + gamba_fee) * usd_per_unit) as usd_fees,
+        SUM((payout - wager - (creator_fee + pool_fee + gamba_fee)) * usd_per_unit) as usd_profit,
+        SUM(wager * usd_per_unit) as usd_volume
       FROM settled_games
       WHERE 1
       ${req.query.creator ? 'AND creator = :creator' : ''}
       AND block_time BETWEEN :from AND :until
       GROUP BY user
-      ORDER BY usd_profit DESC
+      ORDER BY ${sortBy} DESC
       LIMIT :limit
     ) AS subquery
     WHERE usd_profit > 0
@@ -207,15 +249,42 @@ api.get('/top-players', validate(topPlayersSchema), async (req, res) => {
   res.send(tx)
 })
 
+const topPlaysSchema = z.object({
+  query: z.object({
+    creator: z.string({}).optional(),
+    pool: z.string({}).optional(),
+    token: z.string({}).optional(),
+    player: z.string({}).optional(),
+    orderBy: z.enum(['multiplier', 'usd_profit']).optional(),
+    sorting: z.enum(['ASC', 'DESC']).optional(),
+  }),
+})
+
 // Returns list of top plays by USD profit
-api.get('/top-plays', async (req, res) => {
+api.get('/top-plays', validate(topPlaysSchema), async (req, res) => {
   const tx = await all(`
-    SELECT user, (payout-wager) * usd_per_unit as usd_profit, wager * usd_per_unit as usd, multiplier_bps / 10000 as multiplier
+    SELECT
+      user,
+      (payout-wager) * usd_per_unit as usd_profit,
+      wager * usd_per_unit as usd,
+      multiplier_bps / 10000 as multiplier
     FROM settled_games
-    WHERE block_time BETWEEN ? AND ?
+    WHERE block_time BETWEEN :from AND :until
+    ${req.query.player ? 'AND user = :player' : ''}
+    ${req.query.creator ? 'AND creator = :creator' : ''}
+    ${req.query.pool ? 'AND pool = :pool' : ''}
+    ${req.query.token ? 'AND token = :token' : ''}
     ORDER BY usd_profit DESC
     LIMIT 50
-  `, [0, Date.now()])
+  `, {
+    ':creator': req.query.creator,
+    ':player': req.query.player,
+    ':pool': req.query.pool,
+    ':token': req.query.token,
+    ':from': 0,
+    ':until': Date.now(),
+  })
+
   res.send(tx)
 })
 
@@ -225,6 +294,11 @@ api.get('/status', validate(statusSchema), async (req, res) => {
   const earliestSignature = await get(`
     SELECT earliest_signature FROM meta
   `)
+  const { active_players } = await get(`
+    SELECT COUNT(DISTINCT user) as active_players FROM settled_games
+    WHERE 1 ${creatorQuery}
+    AND block_time > strftime('%s', 'now', '-1 hours') * 1000;
+  `, params)
   const { players } = await get(`
     SELECT COUNT(DISTINCT user) as players FROM settled_games
     WHERE 1 ${creatorQuery}
@@ -256,6 +330,7 @@ api.get('/status', validate(statusSchema), async (req, res) => {
     plays,
     creators,
     revenue_usd,
+    active_players,
     syncing: !earliestSignature || earliestSignature.earliest_signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra',
   })
 })

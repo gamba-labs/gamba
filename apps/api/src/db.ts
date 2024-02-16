@@ -264,7 +264,7 @@ async function search(
     connection,
     PROGRAM_ID,
     {
-      limit: 150,
+      limit: 200,
       before: earliestSignature,
       until: latestSignature,
     },

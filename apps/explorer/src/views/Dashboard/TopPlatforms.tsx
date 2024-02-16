@@ -58,25 +58,27 @@ export function TopPlatforms({limit = 10}: {limit?: number}) {
 
   return (
     <Card>
-      <Text color="gray">Top Platforms this week</Text>
-      <Flex gap="2" direction="column">
-        {isLoading ? (
-          <>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </>
-        ) : (
-          <>
-            {platforms.map((platform, i) => (
-              <PlatformTableRow
-                key={platform.creator}
-                platform={platform}
-                rank={i + 1}
-              />
-            ))}
-          </>
-        )}
+      <Flex direction="column" gap="2">
+        <Text color="gray">Top Platforms this week</Text>
+        <Flex gap="2" direction="column">
+          {isLoading ? (
+            <>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </>
+          ) : (
+            <>
+              {platforms.map((platform, i) => (
+                <PlatformTableRow
+                  key={platform.creator}
+                  platform={platform}
+                  rank={i + 1}
+                />
+              ))}
+            </>
+          )}
+        </Flex>
       </Flex>
     </Card>
   )

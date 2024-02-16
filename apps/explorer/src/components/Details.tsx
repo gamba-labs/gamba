@@ -5,7 +5,7 @@ type Row = [title: string, value: React.ReactNode]
 
 interface Props {
   title?: ReactNode
-  rows: (Row | null | undefined | false)[]
+  rows: (Row | null | undefined | false | "")[]
 }
 
 export function Details({ title, rows }: Props) {

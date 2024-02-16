@@ -14,7 +14,7 @@ interface AccountItemProps {
   avatarSize?: AvatarProps["size"]
 }
 
-const truncateString = (s: string, startLen = 4, endLen = startLen) => s.slice(0, startLen) + "..." + s.slice(-endLen)
+export const truncateString = (s: string, startLen = 4, endLen = startLen) => s.slice(0, startLen) + "..." + s.slice(-endLen)
 
 type AccountItemProps2 = Pick<AccountItemProps, "avatarSize" | "address">
 

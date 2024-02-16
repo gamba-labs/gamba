@@ -1,17 +1,40 @@
-import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Button, Card, Container, Dialog, Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
+import { ArrowRightIcon, ExternalLinkIcon, InfoCircledIcon } from "@radix-ui/react-icons"
+import { Avatar, Button, Card, Container, Dialog, Flex, Grid, Heading, IconButton, Link, Table, Text } from "@radix-ui/themes"
 import React from "react"
-import { useParams } from "react-router-dom"
+import { NavLink, useNavigate, useParams } from "react-router-dom"
 
 import RecentPlays from "@/RecentPlays"
 import { fetchStatus, fetchTokensForPlatform } from "@/api"
 import { TokenAvatar } from "@/components"
-import { PlatformAccountItem } from "@/components/AccountItem"
-import { useTokenMeta } from "@/hooks"
+import { PlatformAccountItem, truncateString } from "@/components/AccountItem"
+import { useBonfidaName, useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import useSWR from "swr"
 import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
 import { Details } from "@/components/Details"
+import { useAccount, useWalletAddress } from "gamba-react-v2"
+import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
+import { SolanaAddress } from "@/components/SolanaAddress"
+import { minidenticon } from "minidenticons"
+import { ThingCard } from "../Pool/PoolView"
+import styled from "styled-components"
+
+const OnlineIndicator = styled.div`
+  width: 8px;
+  height: 8px;
+  background: #22ff63;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: .5em;
+  vertical-align: middle;
+
+  @keyframes dsa {
+    0%, 25%, 75%, 100% {opacity : 1};
+    50% {opacity : .5};
+  }
+
+  animation: dsa infinite 1s;
+`
 
 function LinkWarningDialog(props: {url: string}) {
   return (
@@ -52,9 +75,7 @@ export function PlatformDetails({ creator }: {creator: string}) {
 
   return (
     <Details
-      title={
-        <PlatformAccountItem address={creator} />
-      }
+      title="Details"
       rows={[
         [
           "Creator",
@@ -66,18 +87,6 @@ export function PlatformDetails({ creator }: {creator: string}) {
           "URL",
           <LinkWarningDialog url={meta.url} />
         ],
-        [
-          "Volume",
-          <Text>${data?.usd_volume.toLocaleString()}</Text>
-        ],
-        [
-          "Plays",
-          <Text>{data?.plays.toLocaleString()}</Text>
-        ],
-        [
-          "Players",
-          <Text>{data?.players.toLocaleString()}</Text>
-        ]
       ]}
     />
   )
@@ -97,11 +106,60 @@ function TokenVolume({token}: {token: Awaited<ReturnType<typeof fetchTokensForPl
         <Flex>
           <Text color="gray">
             {token.numPlays.toLocaleString()} / ${(token.usd_volume).toLocaleString(undefined, {maximumFractionDigits: 3})}
-            {/* ${(token.usd_volume / token.numPlays).toLocaleString(undefined, {maximumFractionDigits: 3})} - {token.numPlays} */}
           </Text>
         </Flex>
       </Flex>
     </Card>
+  )
+}
+
+function PlatformHeader({ creator }: {creator: string}) {
+  const meta = getPlatformMeta(creator)
+  const domainName = useBonfidaName(creator)
+  const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(creator.toString())), [creator])
+
+  return (
+    <Flex gap="4" align="start">
+      <Avatar
+        size="3"
+        src={meta.image ?? image}
+        fallback=""
+      />
+
+      <Flex direction="column" gap="2">
+        <Heading>
+          {meta.name ?? domainName ?? truncateString(creator)}
+        </Heading>
+      </Flex>
+    </Flex>
+  )
+}
+
+function Things() {
+  const { address } = useParams<{address: string}>()
+  const { data, isLoading } = useSWR('stats-' + address?.toString(), () => fetchStatus(address))
+  return (
+    <Flex gap="2" wrap="wrap">
+      <ThingCard title="Volume">
+        <Text>${data?.usd_volume.toLocaleString()}</Text>
+      </ThingCard>
+      {/* <ThingCard title="Revenue">
+        <Text>${data?.revenue_usd.toLocaleString()}</Text>
+      </ThingCard> */}
+      <ThingCard title="Plays">
+        <Text>{data?.plays.toLocaleString()}</Text>
+      </ThingCard>
+      <ThingCard title="Players">
+        <Text>{data?.players.toLocaleString()}</Text>
+      </ThingCard>
+      {data && data.active_players > 0 && (
+        <ThingCard title="Active players">
+          <OnlineIndicator />
+          <Text>{data?.active_players.toLocaleString()}</Text>
+        </ThingCard>
+      )}
+    </Flex>
+
   )
 }
 
@@ -112,24 +170,32 @@ export function PlatformView() {
   return (
     <Container>
       <Flex direction="column" gap="4">
+        <Flex justify={{ sm: "between" }} align={{ sm: "end" }} py="4" direction={{ initial: "column", sm: "row" }} gap="4">
+          <PlatformHeader creator={address!} />
+        </Flex>
+
+        <Things />
+
         <Grid gap="4" columns={{initial: '1', sm: '2'}}>
           <Flex gap="4" direction="column">
+            <TotalVolume creator={address!} />
             <PlatformDetails creator={address!} />
-            <TopPlayers creator={address!} />
           </Flex>
 
           <Flex gap="4" direction="column">
-            <TotalVolume creator={address!} />
             <Card>
-              <Text color="gray">
-                Volume by token
-              </Text>
-              <Flex direction="column" gap="2">
-                {tokens.map((token, i) => (
-                  <TokenVolume key={i} token={token} />
-                ))}
+              <Flex gap="2" direction="column">
+                <Text color="gray">
+                  Volume by token
+                </Text>
+                <Flex direction="column" gap="2">
+                  {tokens.map((token, i) => (
+                    <TokenVolume key={i} token={token} />
+                  ))}
+                </Flex>
               </Flex>
             </Card>
+            <TopPlayers creator={address!} />
           </Flex>
         </Grid>
 

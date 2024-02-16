@@ -27,7 +27,7 @@ export const fetchDailyVolume = async (pool: PublicKey) => {
 
 export const fetchStatus = async (creator?: PublicKey | string) => {
   const res = await window.fetch(API_ENDPOINT + "/status" + (creator ? '?creator=' + creator?.toString() : ''), { headers: { "ngrok-skip-browser-warning": "true" } })
-  return await res.json() as {syncing: boolean, players: number, usd_volume: number, plays: number, creators: number, revenue_usd: number}
+  return await res.json() as {syncing: boolean, players: number, usd_volume: number, plays: number, creators: number, revenue_usd: number, active_players: number}
 }
 
 export const fetchDailyTotalVolume = async () => {
@@ -38,7 +38,8 @@ export const fetchDailyTotalVolume = async () => {
 export interface TopPlayersResponse {
   user: string
   usd_profit: number
-  volume: number
+  usd_fees: number
+  usd_volume: number
 }
 
 export const fetchTopPlayers = async (creator?: PublicKey | string, limit = 5) => {

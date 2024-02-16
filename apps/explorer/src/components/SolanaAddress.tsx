@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js"
 import React from "react"
 
 interface Props {
-  address: PublicKey
+  address: PublicKey | string
   truncate?: boolean
   plain?: boolean
 }
@@ -14,11 +14,11 @@ export function SolanaAddress(props: Props) {
   const toast = useToast()
 
   const copy = () => {
-    window.navigator.clipboard.writeText(props.address.toBase58())
+    window.navigator.clipboard.writeText(props.address.toString())
     toast({ title: "Copied", description: "Copied to clipboard" })
   }
 
-  const address = props.address.toBase58()
+  const address = props.address.toString()
 
   const text = props.truncate ? address.slice(0, 6) + "..." + address.slice(-6) : address
 
@@ -29,7 +29,7 @@ export function SolanaAddress(props: Props) {
           {text}
         </>
       ) : (
-        <Link target="_blank" href={`https://solscan.io/address/${props.address.toBase58()}?cluster=devnet`} rel="noreferrer">
+        <Link target="_blank" href={`https://solscan.io/address/${props.address.toString()}?cluster=devnet`} rel="noreferrer">
           {text}
         </Link>
       )}

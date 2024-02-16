@@ -158,6 +158,12 @@ export const PLATFORMS = [
     url: 'https://solvegas.net/',
     image: '/logos/solvegas.png',
   },
+  {
+    address: '594WGMyY5TSqPQnGjHHMqoSYYSrtbSFYL3NuXUp8qzkQ',
+    name: 'MagicInternetBets',
+    url: 'https://play.magicinternetbets.net/',
+    image: '/logos/magicinternetbets.png',
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

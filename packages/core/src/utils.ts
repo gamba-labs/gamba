@@ -69,11 +69,12 @@ export const getPdaAddress = (...seeds: (Uint8Array | Buffer)[]) => {
   return address
 }
 
-export const getPoolAddress = (underlyingMint: PublicKey, authority = new PublicKey('11111111111111111111111111111111')) => getPdaAddress(
-  Buffer.from(POOL_SEED),
-  underlyingMint.toBytes(),
-  authority.toBytes(),
-)
+export const getPoolAddress = (underlyingMint: PublicKey, authority = new PublicKey('11111111111111111111111111111111')) =>
+  getPdaAddress(
+    Buffer.from(POOL_SEED),
+    underlyingMint.toBytes(),
+    authority.toBytes(),
+  )
 
 export const getGambaStateAddress = () => getPdaAddress(
   Buffer.from(GAMBA_STATE_SEED),
@@ -155,7 +156,7 @@ export const isNativeMint = (pubkey: PublicKey) => NATIVE_MINT.equals(pubkey)
 
 export const wrapSol = async (
   from: PublicKey,
-  amount: number,
+  amount: bigint | number,
   create: boolean,
 ) => {
   const wsolAta = getUserWsolAccount(from)

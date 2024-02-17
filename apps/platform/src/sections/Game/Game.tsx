@@ -33,6 +33,14 @@ function CustomRenderer() {
   const [info, setInfo] = React.useState(false)
   const [provablyFair, setProvablyFair] = React.useState(false)
   const audioStore = useGambaAudioStore()
+  const [ready, setReady] = React.useState(false)
+
+  React.useEffect(
+    () => void setTimeout(() => {
+      setReady(true)
+    }, 750),
+    [],
+  )
 
   return (
     <>
@@ -46,12 +54,12 @@ function CustomRenderer() {
         <ProvablyFairModal onClose={() => setProvablyFair(false)} />
       )}
       <Container>
-        <Splash>
-          <img height="150px" src={game.meta.image} />
-        </Splash>
         <Screen>
+          <Splash>
+            <img height="150px" src={game.meta.image} />
+          </Splash>
           <GambaUi.PortalTarget target="error" />
-          <GambaUi.PortalTarget target="screen" />
+          {ready && <GambaUi.PortalTarget target="screen" />}
           <SettingControls>
             <button onClick={() => audioStore.set((audioStore.masterGain + .25) % 1.25)}>
               Volume: {audioStore.masterGain * 100}%

@@ -148,26 +148,14 @@ const idl = {
   metadata: { address: "6iJcUPki2Md7BUpGyXCpDzJUzbVmYBVPiiDmRAbaMraR" },
 }
 
-declare global {
-  interface Window {
-    Buffer: any;
-    solana: any;
-  }
-}
-
-window.Buffer = Buffer
-
 const programID = new PublicKey(idl.metadata.address)
 
 function MintPreToken() {
   const wallet = useWallet()
   const [tokenName, setTokenName] = React.useState("")
   const [loading, setLoading] = React.useState(false)
-  const [amount, _setAmount] = React.useState(10000)
+  const [amount, setAmount] = React.useState("10000")
   const addToast = useToastStore(state => state.add)
-  const setAmount = (value: number) => {
-    _setAmount(Math.min(1000000, value))
-  }
   const gambaProgram = useGambaProgram()
 
   const mintToken = async () => {
@@ -191,7 +179,9 @@ function MintPreToken() {
         wallet.publicKey!,
       )
 
-      const multipliedAmount = new anchor.BN(Number(amount) * 1000000000)
+      const multipliedAmount = new anchor.BN(BigInt(amount) * BigInt(1e9))
+
+      // const multipliedAmount = new anchor.BN(BigInt(amount) * BigInt(1e9))
 
       const tx = await program.methods
         .mintToken(tokenName, multipliedAmount)
@@ -213,6 +203,7 @@ function MintPreToken() {
         description: `${tokenName} token minted successfully.`,
       })
     } catch (err) {
+      console.error(err)
       addToast({
         title: "❌ Fail",
         description: `Failed to mint ${tokenName}.`,
@@ -225,7 +216,7 @@ function MintPreToken() {
   return (
     <Grid gap="2">
       <Text size="2" color="gray">
-          This view is for minting tokens has already been created. To create a brand new token, switch tab to "Create"
+        This view is for minting tokens has already been created. To create a brand new token, switch tab to "Create"
       </Text>
       <TextField.Input
         value={tokenName}
@@ -237,9 +228,16 @@ function MintPreToken() {
         <Button variant="soft" disabled={loading} onClick={() => setTokenName("GAMBA")}>GAMBA</Button>
       </Flex>
       <TextField.Input
-        type="number"
         value={amount}
-        onChange={e => setAmount(Number(e.target.value))}
+        onChange={e => setAmount(e.target.value)}
+        onBlur={(e) => {
+          try {
+            const b = BigInt(e.target.value ?? 0)
+            setAmount(String(b))
+          } catch {
+            setAmount("0")
+          }
+        }}
         placeholder="Amount"
       />
 

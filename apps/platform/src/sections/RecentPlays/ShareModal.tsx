@@ -23,23 +23,20 @@ import { extractMetadata } from '../../utils'
 //   }
 // })()
 
-const canvasToClipboard = async (canvas: HTMLCanvasElement) => {
-  return new Promise((resolve, reject) => {
+export const canvasToBlob = (canvas: HTMLCanvasElement) => {
+  return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
-        if (!blob) {
-          return reject()
-        }
-        if (blob) {
-          // saveBlob(blob, 'play.png')
-          // resolve(true)
-          navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-            .then(resolve)
-            .catch(reject)
-        }
+        if (!blob) reject('Failed to create blob')
+        resolve(blob!)
       },
     )
   })
+}
+
+const canvasToClipboard = async (canvas: HTMLCanvasElement) => {
+  const blob = await canvasToBlob(canvas)
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
 }
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
@@ -107,7 +104,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
           <GambaUi.Button size="small" disabled={copying} onClick={copyImage}>
             Share
           </GambaUi.Button>
-          <GambaUi.Button size="small" onClick={() => window.open(`https://v2.gamba.so/tx/${event.signature}`, '_blank')}>
+          <GambaUi.Button size="small" onClick={() => window.open(`https://explorer.gamba.so/tx/${event.signature}`, '_blank')}>
             Verify
           </GambaUi.Button>
         </Flex>

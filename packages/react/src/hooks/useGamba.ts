@@ -60,6 +60,7 @@ export function useGambaPlay() {
     const jackpotFee = input.jackpotFee ?? 0
     const meta = input.metadata?.join(':') ?? ''
     const token = new PublicKey(input.token ?? NATIVE_MINT)
+
     if (!connected) {
       throw throwTransactionError(new Error('NOT_CONNECTED'))
     }

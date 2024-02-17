@@ -5,11 +5,11 @@ type ButtonSize = 'small' | 'medium' | 'large'
 
 const StyledButton = styled.button<{$main?: boolean, $size: ButtonSize}>`
   --background-color: var(--gamba-ui-button-default-background);
-  --background-color-hover: var(--gamba-ui-button-default-background);
+  --background-color-hover: var(--gamba-ui-button-default-background-hover);
 
   ${(props) => props.$main && css`
     --background-color: var(--gamba-ui-button-main-background);
-    --background-color-hover: var(--gamba-ui-button-main-background);
+    --background-color-hover: var(--gamba-ui-button-main-background-hover);
   `}
 
   ${(props) => css`

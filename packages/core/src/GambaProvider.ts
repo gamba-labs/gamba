@@ -59,9 +59,9 @@ export class GambaProvider {
     const lp_mint = getPoolLpAddress(pool)
     const bonus_mint = getPoolBonusAddress(pool)
     const pool_underlying_token_account = getPoolUnderlyingTokenAccountAddress(pool)
-    const pool_bonus_underlying_token_account = PublicKey.findProgramAddressSync([Buffer.from('POOL_BONUS_UNDERLYING_TA'), pool.toBuffer()], PROGRAM_ID)[0]
-    const lpMintMetadata = PublicKey.findProgramAddressSync([Buffer.from(METADATA_SEED), TOKEN_METADATA_PROGRAM_ID.toBuffer(), lp_mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID)[0]
-    const bonusMintMetadata = PublicKey.findProgramAddressSync([Buffer.from(METADATA_SEED), TOKEN_METADATA_PROGRAM_ID.toBuffer(), bonus_mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID)[0]
+    const [pool_bonus_underlying_token_account] = PublicKey.findProgramAddressSync([Buffer.from('POOL_BONUS_UNDERLYING_TA'), pool.toBuffer()], PROGRAM_ID)
+    const [lpMintMetadata] = PublicKey.findProgramAddressSync([Buffer.from(METADATA_SEED), TOKEN_METADATA_PROGRAM_ID.toBuffer(), lp_mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID)
+    const [bonusMintMetadata] = PublicKey.findProgramAddressSync([Buffer.from(METADATA_SEED), TOKEN_METADATA_PROGRAM_ID.toBuffer(), bonus_mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID)
 
     //more addresses for lookup table
     const gamba_state = getGambaStateAddress()
@@ -72,8 +72,6 @@ export class GambaProvider {
       payer: this.anchorProvider.wallet.publicKey,
       recentSlot: slot - 1,
     })
-
-
 
     const addAddressesInstruction = AddressLookupTableProgram.extendLookupTable({
       payer: this.anchorProvider.wallet.publicKey,
@@ -130,7 +128,7 @@ export class GambaProvider {
   depositToPool(
     pool: PublicKey,
     underlyingTokenMint: PublicKey,
-    amount: number,
+    amount: bigint | number,
   ) {
     const poolUnderlyingTokenAccount = getPoolUnderlyingTokenAccountAddress(pool)
     const poolLpMint = getPoolLpAddress(pool)
@@ -166,7 +164,7 @@ export class GambaProvider {
   withdrawFromPool(
     pool: PublicKey,
     underlyingTokenMint: PublicKey,
-    amount: number,
+    amount: bigint | number,
   ) {
     const poolUnderlyingTokenAccount = getPoolUnderlyingTokenAccountAddress(pool)
     const poolLpMint = getPoolLpAddress(pool)
@@ -202,7 +200,7 @@ export class GambaProvider {
   mintBonusTokens(
     pool: PublicKey,
     underlyingTokenMint: PublicKey,
-    amount: number,
+    amount: bigint | number,
   ) {
     const poolBonusMint = getPoolBonusAddress(pool)
 

@@ -1,5 +1,5 @@
-import React from "react"
-import ReactDOM from "react-dom"
+import React from 'react'
+import ReactDOM from 'react-dom'
 
 interface PortalStore {
   refs: Record<string, React.MutableRefObject<HTMLElement>>
@@ -13,7 +13,7 @@ export const PortalProvider = (props: React.PropsWithChildren) => {
   const context: PortalStore = {
     refs,
     setRef(target, ref) {
-      _setRefs((refs) => ({...refs, [target]: ref}))
+      _setRefs((refs) => ({ ...refs, [target]: ref }))
     },
   }
   return (
@@ -47,11 +47,11 @@ export function PortalTarget(props: React.PropsWithChildren<{target: string}>) {
       setRef(props.target, ref)
       return () => setRef(props.target, null!)
     },
-    [props.target]
+    [props.target],
   )
 
   return (
-    <div style={{display: 'contents'}} ref={ref}>
+    <div style={{ display: 'contents' }} ref={ref}>
       {props.children}
     </div>
   )

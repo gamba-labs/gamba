@@ -35,7 +35,7 @@ const fetchPriceData = async (tokens: string[]) => {
   }
 }
 
-export async function fetchGambaTransactions(
+async function fetchGambaTransactions(
   connection: Connection,
   address: PublicKey,
   options: SignaturesForAddressOptions,

@@ -8,6 +8,7 @@ import { UiPool } from "@/views/Dashboard/PoolList"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useBalance, useToast } from "@/hooks"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
+import { stringtoBigIntUnits } from "./PoolDeposit"
 
 export function PoolMintBonus({ pool }: { pool: UiPool }) {
   const gamba = useGambaProvider()
@@ -21,7 +22,7 @@ export function PoolMintBonus({ pool }: { pool: UiPool }) {
 
   const mintBonusTokens = async () => {
     try {
-      const amount = Math.round(Number(amountText) * (10 ** token.decimals))
+      const amount = stringtoBigIntUnits(amountText, token.decimals)
 
       const { publicKey, state } = pool
       const underlyingTokenMint = state.underlyingTokenMint

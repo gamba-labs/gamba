@@ -1,14 +1,16 @@
 import { Button, Flex, Grid, IconButton, Text, TextField } from "@radix-ui/themes"
 import { isNativeMint, unwrapSol } from "gamba-core-v2"
 import { useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
+import BigDecimal from 'js-big-decimal'
 import React from "react"
 import { mutate } from "swr"
 
-import { UiPool } from "@/views/Dashboard/PoolList"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useBalance, useToast } from "@/hooks"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
+import { UiPool } from "@/views/Dashboard/PoolList"
+import { stringtoBigIntUnits } from "./PoolDeposit"
 
 export function PoolWithdraw({ pool }: { pool: UiPool }) {
   const toast = useToast()
@@ -20,7 +22,9 @@ export function PoolWithdraw({ pool }: { pool: UiPool }) {
   const balances = useBalance(pool.underlyingTokenMint)
   const sendTransaction = useSendTransaction()
 
-  const amount = Math.round(Number(amountText) * (10 ** token.decimals))
+  // const amount = Math.round(Number(amountText) * (10 ** token.decimals))
+  const amount = stringtoBigIntUnits(amountText, token.decimals)
+  const receiveUnderlyingAmount = BigInt(new BigDecimal(amount).multiply(new BigDecimal(pool.ratio)).round().getValue())
 
   const withdraw = async () => {
     try {
@@ -91,7 +95,11 @@ export function PoolWithdraw({ pool }: { pool: UiPool }) {
             Receive
           </Text>
           <Text size="2">
-            <TokenValue2 exact amount={amount * pool.ratio} mint={pool.underlyingTokenMint} />
+            <TokenValue2
+              exact
+              amount={receiveUnderlyingAmount}
+              mint={pool.underlyingTokenMint}
+            />
           </Text>
         </Flex>
         <Button size="3" variant="soft" onClick={withdraw} disabled={loading || !amount}>

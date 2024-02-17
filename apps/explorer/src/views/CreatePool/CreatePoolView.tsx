@@ -2,7 +2,7 @@ import { ArrowRightIcon, ExclamationTriangleIcon, PlusIcon } from "@radix-ui/rea
 import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text, TextField } from "@radix-ui/themes"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { ComputeBudgetProgram } from "@solana/web3.js"
-import { decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
+import { NATIVE_MINT, decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
 import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
 import { useNavigate } from "react-router-dom"
@@ -14,6 +14,7 @@ import { ParsedTokenAccount, useTokenList } from "@/hooks"
 import { useGetTokenMeta, useJupiterList } from "@/hooks/useTokenMeta"
 import { fetchPool } from "@/views/Dashboard/PoolList"
 import { ConnectUserCard } from "../Debug/DebugUser"
+import { TokenValue2 } from "@/components/TokenValue2"
 
 function Inner() {
   const navigate = useNavigate()
@@ -101,7 +102,7 @@ function Inner() {
           <Heading>
             Select Token
           </Heading>
-          {!gambaState?.poolCreationAllowed && (
+          {gambaState && !gambaState.poolCreationAllowed && (
             <Callout.Root color="orange">
               <Callout.Icon>
                 <ExclamationTriangleIcon />
@@ -167,7 +168,7 @@ function Inner() {
                     <ExclamationTriangleIcon />
                   </Callout.Icon>
                   <Callout.Text>
-                    Note: Creating a pool requires a fee of 1 SOL + rent.
+                    Note: Creating a pool requires a fee of <TokenValue2 mint={NATIVE_MINT} amount={gambaState?.poolCreationFee ?? 0} />.
                   </Callout.Text>
                 </Callout.Root>
                 <Button variant="soft" color="red" onClick={createPool}>

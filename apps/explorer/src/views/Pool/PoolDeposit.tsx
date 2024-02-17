@@ -2,6 +2,7 @@ import { Button, Card, Dialog, Flex, Grid, Heading, IconButton, Text, TextField 
 import { PublicKey } from "@solana/web3.js"
 import { decodeAta, getUserWsolAccount, isNativeMint, wrapSol } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
+import BigDecimal from 'js-big-decimal'
 import React from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import useSWR, { mutate } from "swr"
@@ -12,13 +13,21 @@ import { UiPool, fetchPool } from "@/views/Dashboard/PoolList"
 
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
-import { PoolHeader } from "./PoolView"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { ConnectUserCard } from "../Debug/DebugUser"
+import { PoolHeader } from "./PoolView"
+
+export const stringtoBigIntUnits = (s: string, decimals: number) => {
+  try {
+    const ints = new BigDecimal(s).multiply(new BigDecimal(10 ** decimals)).round().getValue()
+    return BigInt(ints)
+  } catch {
+    return BigInt(0)
+  }
+}
 
 export function PoolDeposit({ pool }: {pool: UiPool}) {
   const navigate = useNavigate()
-  const wallet = useWallet()
   const gamba = useGambaProvider()
   const user = useWalletAddress()
   const [loading, setLoading] = React.useState(false)
@@ -28,8 +37,8 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
   const sendTransaction = useSendTransaction()
   const toast = useToast()
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
-
-  const amount = Math.round(Number(amountText) * (10 ** token.decimals))
+  const amount = stringtoBigIntUnits(amountText, token.decimals)
+  const receiveLpAmount = BigInt(new BigDecimal(amount).divide(new BigDecimal(pool.ratio)).round().getValue())
 
   const deposit = async () => {
     try {
@@ -62,6 +71,7 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
       mutate(`pool-${publicKey.toBase58()}`)
 
       navigate("/pool/" + pool.publicKey.toBase58())
+
       toast({
         title: "🫡 Deposited to pool",
         description: "Deposit successful",
@@ -106,12 +116,17 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
             Receive
           </Text>
           <Text size="2">
-            <TokenValue2 exact amount={amount / pool.ratio} mint={pool.underlyingTokenMint} suffix="LP" />
+            <TokenValue2
+              exact
+              amount={receiveLpAmount}
+              mint={pool.underlyingTokenMint}
+              suffix="LP"
+            />
           </Text>
         </Flex>
         <Dialog.Root>
           <Dialog.Trigger>
-            <Button disabled={loading || !amount} size="3" variant="soft">
+            <Button disabled={loading} size="3" variant="soft">
               Deposit {loading && <Spinner $small />}
             </Button>
           </Dialog.Trigger>

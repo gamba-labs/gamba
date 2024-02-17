@@ -69,7 +69,13 @@ export function useGetTokenMeta() {
     const jupData = list[mint.toString()]
 
     if (mint.toString() === NATIVE_MINT.toString()) {
-      return {...jupData, name: 'Solana'}
+      return {
+        ...jupData,
+        mint: new PublicKey(mint),
+        decimals: 9,
+        symbol: "SOL",
+        name: 'Solana',
+      }
     }
 
     return jupData || {

@@ -45,6 +45,22 @@ const statusSchema = z.object({ query: z.object({ creator: z.string().optional()
 //   `)
 //   res.send(tx)
 // })
+// api.get('/test', async (req, res) => {
+//   const tx = await all(`
+//     SELECT strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
+//       COUNT(*) AS settled_games
+//     FROM (
+//     SELECT
+//       user,
+//       MIN(block_time) AS first_timestamp
+//     FROM settled_games
+//     GROUP BY user
+//     ) AS first_transactions
+//     GROUP BY date
+//     ORDER BY date;
+//   `)
+//   res.send(tx)
+// })
 
 // Returns tx signatures of recent pool changes
 api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => {
@@ -229,7 +245,8 @@ api.get('/top-players', validate(topPlayersSchema), async (req, res) => {
       SELECT
         user,
         SUM((creator_fee + pool_fee + gamba_fee) * usd_per_unit) as usd_fees,
-        SUM((payout - wager - (creator_fee + pool_fee + gamba_fee)) * usd_per_unit) as usd_profit,
+        SUM((payout - wager - (creator_fee + pool_fee + gamba_fee)) * usd_per_unit) as usd_profit_net,
+        SUM((payout - wager) * usd_per_unit) as usd_profit,
         SUM(wager * usd_per_unit) as usd_volume
       FROM settled_games
       WHERE 1
@@ -242,7 +259,7 @@ api.get('/top-players', validate(topPlayersSchema), async (req, res) => {
     WHERE usd_profit > 0
   `, {
     ':creator': req.query.creator,
-    ':from': 0,
+    ':from': daysAgo(7),
     ':until': Date.now(),
     ':limit': limit,
   })

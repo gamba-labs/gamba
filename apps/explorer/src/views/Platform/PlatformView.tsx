@@ -143,9 +143,9 @@ function Things() {
       <ThingCard title="Volume">
         <Text>${data?.usd_volume.toLocaleString()}</Text>
       </ThingCard>
-      {/* <ThingCard title="Revenue">
+      <ThingCard title="Revenue">
         <Text>${data?.revenue_usd.toLocaleString()}</Text>
-      </ThingCard> */}
+      </ThingCard>
       <ThingCard title="Plays">
         <Text>{data?.plays.toLocaleString()}</Text>
       </ThingCard>

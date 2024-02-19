@@ -5,7 +5,7 @@ import React from 'react'
 // How many MS we should wait to aggregate pubkeys before fetching
 const DEBOUNCE_MS = 1
 
-const KNOWN_DATA = {
+const KNOWN_TOKEN_DATA = {
   'So11111111111111111111111111111111111111112': {
     name: 'Solana',
     image: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png'
@@ -67,7 +67,7 @@ const fetchTokenMeta = async (token: string) => {
           decimals: info.decimals,
           name: x.content?.metadata.name ?? info.symbol,
           usdPrice: info.price_info?.price_per_token ?? 0,
-          ...KNOWN_DATA[x.id.toString()]
+          ...KNOWN_TOKEN_DATA[x.id.toString()]
         }
         return {...prev, [x.id.toString()]: data}
       }, {} as Record<string, TokenData> )
@@ -93,10 +93,10 @@ export function useGetTokenMeta() {
       mint: new PublicKey(mint),
       name: "Unknown",
       symbol: mint.toString().substring(0, 3),
-      image: KNOWN_DATA[mint.toString()],
+      image: KNOWN_TOKEN_DATA[mint.toString()],
       decimals: 9,
       usdPrice: 0,
-      ...KNOWN_DATA[mint.toString()]
+      ...KNOWN_TOKEN_DATA[mint.toString()]
     }
   }
 }

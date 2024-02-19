@@ -3,10 +3,9 @@ import { TableRowHref, TableRowNavLink } from "@/components/TableRowLink"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { SYSTEM_PROGRAM } from "@/constants"
 import { decodeAta } from "@/hooks"
-import { useTokenMeta } from "@/hooks/useTokenMeta"
+import { useGetTokenMeta, useTokenMeta } from "@/hooks/useTokenMeta"
 import { ProgramAccount } from "@coral-xyz/anchor"
-import { ArrowRightIcon } from "@radix-ui/react-icons"
-import { Avatar, Badge, Button, Flex, Table, Text } from "@radix-ui/themes"
+import { Avatar, Badge, Flex, Table, Text } from "@radix-ui/themes"
 import { NATIVE_MINT } from "@solana/spl-token"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
@@ -139,12 +138,19 @@ export function usePopulatedPool(account: ProgramAccount<PoolState>) {
 
 export function PoolList() {
   const program = useGambaProgram()
+  const getTokenMeta = useGetTokenMeta()
   const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
 
   const sortedPools = React.useMemo(
     () => {
       return pools.sort((a, b) => {
+        const aMeta = getTokenMeta(a.account.underlyingTokenMint)
+        const bMeta = getTokenMeta(b.account.underlyingTokenMint)
+        const aTvl = a.account.liquidityCheckpoint * aMeta.usdPrice / (10 ** aMeta.decimals)
+        const bTvl = b.account.liquidityCheckpoint * bMeta.usdPrice / (10 ** bMeta.decimals)
+        const tvlDiff = bTvl - aTvl
+        if (tvlDiff) return tvlDiff
         const playsDiff = b.account.plays.toNumber() - a.account.plays.toNumber()
         if (playsDiff) return playsDiff
         const liqudityDiff = b.account.liquidityCheckpoint - a.account.liquidityCheckpoint

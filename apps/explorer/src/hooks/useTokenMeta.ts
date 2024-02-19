@@ -63,7 +63,7 @@ const fetchTokenMeta = async (token: string) => {
         const data = {
           mint: new PublicKey(x.id),
           image: x.content?.links?.image,
-          symbol: info.symbol,
+          symbol: x.content?.metadata.symbol ?? info.symbol,
           decimals: info.decimals,
           name: x.content?.metadata.name ?? info.symbol,
           usdPrice: info.price_info?.price_per_token ?? 0,

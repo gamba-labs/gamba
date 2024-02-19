@@ -1,5 +1,5 @@
 import { ArrowRightIcon, ExclamationTriangleIcon, PlusIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text, TextField } from "@radix-ui/themes"
+import { Avatar, Button, Callout, Card, Dialog, Flex, Grid, Heading, Link, ScrollArea, Switch, Text, TextField } from "@radix-ui/themes"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { ComputeBudgetProgram } from "@solana/web3.js"
 import { NATIVE_MINT, decodeGambaState, getGambaStateAddress, getPoolAddress, isNativeMint } from "gamba-core-v2"
@@ -11,7 +11,7 @@ import useSWR from "swr"
 import { SelectableButton, TokenItem } from "@/components"
 import { SYSTEM_PROGRAM } from "@/constants"
 import { ParsedTokenAccount, useTokenList } from "@/hooks"
-import { useGetTokenMeta } from "@/hooks/useTokenMeta"
+import { useGetTokenMeta, useTokenMeta } from "@/hooks/useTokenMeta"
 import { fetchPool } from "@/views/Dashboard/PoolList"
 import { ConnectUserCard } from "../Debug/DebugUser"
 import { TokenValue2 } from "@/components/TokenValue2"
@@ -33,6 +33,8 @@ function Inner() {
     () => selectedPoolId && "pool-" + selectedPoolId.toBase58(),
     () => selectedPoolId && fetchPool(connection, selectedPoolId),
   )
+
+  const selectedTokenMeta = useTokenMeta(selectedToken?.mint ?? NATIVE_MINT)
 
   const [search, setSearch] = React.useState("")
 
@@ -153,26 +155,21 @@ function Inner() {
             </Dialog.Trigger>
             <Dialog.Content>
               <Grid gap="2">
-                {isPrivate && (
-                  <Text>
-                    You are about to create a private pool. Please read before doing so.
-                  </Text>
-                )}
-                {!isPrivate && (
-                  <Text>
-                    You are about to create a public pool. Please read before doing so.
-                  </Text>
-                )}
-                <Callout.Root color="blue">
-                  <Callout.Icon>
-                    <ExclamationTriangleIcon />
-                  </Callout.Icon>
-                  <Callout.Text>
-                    Note: Creating a pool requires a fee of <TokenValue2 mint={NATIVE_MINT} amount={gambaState?.poolCreationFee ?? 0} />.
-                  </Callout.Text>
-                </Callout.Root>
-                <Button variant="soft" color="red" onClick={createPool}>
-                  I know what I'm doing. Create
+                <Heading>Read before creating!</Heading>
+                <Text>
+                  You are about to create a public liqudity pool for <Avatar src={selectedTokenMeta.image} fallback="?" size="1" radius="full" /><b>{selectedTokenMeta.name} ({selectedTokenMeta.symbol})</b>.
+                </Text>
+                <Text>
+                  Since it's public, anyone will be able make deposits to it, and any platform built on Gamba will be able to list the pool's token and make use of its liquidity for plays.
+                </Text>
+                <Text>
+                  The cost of creating a pool is <b><TokenValue2 mint={NATIVE_MINT} amount={gambaState?.poolCreationFee ?? 0} /></b> + rent.
+                </Text>
+                <Text>
+                  This action is irreversable.
+                </Text>
+                <Button size="3" variant="soft" color="red" onClick={createPool}>
+                  I know what I'm doing. Create Pool
                 </Button>
               </Grid>
             </Dialog.Content>

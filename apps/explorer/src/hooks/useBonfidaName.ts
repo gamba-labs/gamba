@@ -1,7 +1,14 @@
 import { signal } from "@preact/signals-react"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
-import { createBatches } from "./useTokenPrice"
+
+function createBatches<T>(array: T[], batchSize: number) {
+  const batches: T[][] = []
+  for (let i = 0; i < array.length; i += batchSize) {
+    batches.push(array.slice(i, i + batchSize))
+  }
+  return batches
+}
 
 const FETCH_DEBOUNCE_MS = 200
 

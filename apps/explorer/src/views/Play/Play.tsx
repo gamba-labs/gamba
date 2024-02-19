@@ -56,6 +56,29 @@ const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
   `}
 `
 
+function Outcomes({bet, resultIndex}: {bet: number[], resultIndex: number}) {
+  const uniqueOutcomes = Array.from(new Set(bet)).sort((a, b) => a > b ? 1 : -1)
+  return (
+    <Flex gap="1" wrap="wrap">
+      {bet.map((x, i) => {
+        const rank = Math.floor(uniqueOutcomes.indexOf(x) / (uniqueOutcomes.length - 1) * 7)
+        const active = i === resultIndex
+        return (
+          <StyledOutcome
+            key={i}
+            $active={active}
+            $rank={rank}
+          >
+            <Text size="1">
+              {x / BPS_PER_WHOLE}x
+            </Text>
+          </StyledOutcome>
+        )
+      })}
+    </Flex>
+  )
+}
+
 function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled">}) {
   const data = parsed.data
   const [output, setOutput] = React.useState<number>()
@@ -80,9 +103,7 @@ function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled
   };
   (async (rngSeed, clientSeed, nonce, wager, bet) => {
     const hash = await hmac256(rngSeed, [clientSeed, nonce].join('-'));
-    const resultIndex = parseInt(hash.substring(0, 5), 16) % bet.length;
-    const multiplier = bet[resultIndex];
-    return wager * multiplier;
+    return parseInt(hash.substring(0, 5), 16) % bet.length;
   })(${verifyArgs});
   `
   React.useEffect(() => {
@@ -101,34 +122,6 @@ function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled
         </Table.Header>
 
         <Table.Body>
-          <Table.Row>
-            <Table.Cell>
-              <Grid columns="2" gap="4">
-                <Text weight="bold">
-                  Client Seed {clientSeed !== data.clientSeed && "(Edited)"}
-                </Text>
-                <TextField.Root>
-                  <TextField.Input
-                    value={clientSeed}
-                    onChange={evt => setClientSeed(evt.target.value)}
-                  />
-                  <TextField.Slot>
-                    <IconButton onClick={() => setClientSeed(Array.from({ length: 16 })
-                      .map(() => (Math.random() * 16 | 0).toString(16))
-                      .join(""))} size="1" variant="ghost">
-                      <MixIcon />
-                    </IconButton>
-                  </TextField.Slot>
-                  <TextField.Slot>
-                    <IconButton disabled={clientSeed === data.clientSeed} onClick={() => setClientSeed(data.clientSeed)} size="1" variant="ghost">
-                      <ResetIcon />
-                    </IconButton>
-                  </TextField.Slot>
-                </TextField.Root>
-              </Grid>
-            </Table.Cell>
-          </Table.Row>
-
           <Table.Row>
             <Table.Cell>
               <Grid columns="2" gap="4">
@@ -172,15 +165,50 @@ function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled
             <Table.Cell>
               <Grid columns="2" gap="4">
                 <Text weight="bold">
+                  Client Seed {clientSeed !== data.clientSeed && "(Edited)"}
+                </Text>
+                <TextField.Root>
+                  <TextField.Input
+                    maxLength={64}
+                    value={clientSeed}
+                    onChange={evt => setClientSeed(evt.target.value)}
+                  />
+                  <TextField.Slot>
+                    <IconButton onClick={() => setClientSeed(Array.from({ length: 16 })
+                      .map(() => (Math.random() * 16 | 0).toString(16))
+                      .join(""))} size="1" variant="ghost">
+                      <MixIcon />
+                    </IconButton>
+                  </TextField.Slot>
+                  <TextField.Slot>
+                    <IconButton disabled={clientSeed === data.clientSeed} onClick={() => setClientSeed(data.clientSeed)} size="1" variant="ghost">
+                      <ResetIcon />
+                    </IconButton>
+                  </TextField.Slot>
+                </TextField.Root>
+              </Grid>
+            </Table.Cell>
+          </Table.Row>
+
+          <Table.Row>
+            <Table.Cell>
+              <Grid columns="2" gap="4">
+                <Text weight="bold">
                   Simulated result
                 </Text>
-                <Flex gap="2" align="center">
-                  <Text>Payout:</Text>
-                  {output !== undefined && (
-                    <Code>
-                      <TokenValue2 mint={data.tokenMint} amount={output} />
-                    </Code>
-                  )}
+                <Flex gap="2" direction="column">
+                  <Flex gap="2" align="center">
+                    <Text>Payout:</Text>
+                    {output !== undefined && (
+                      <Code>
+                        <TokenValue2
+                          mint={data.tokenMint}
+                          amount={data.bet[output] / 10_000 * data.wager}
+                        />
+                      </Code>
+                    )}
+                  </Flex>
+                  <Outcomes bet={data.bet} resultIndex={output ?? 0} />
                 </Flex>
               </Grid>
             </Table.Cell>
@@ -243,7 +271,6 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
   const wager = game.wager.toNumber()
   const payout = multiplier * wager
   const profit = payout - wager
-  const uniqueOutcomes = Array.from(new Set(game.bet)).sort((a, b) => a > b ? 1 : -1)
 
   return (
     <Table.Root variant="surface">
@@ -421,23 +448,7 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               <Text weight="bold">
                 Outcomes
               </Text>
-              <Flex gap="1" wrap="wrap">
-                {game.bet.map((x, i) => {
-                  const rank = Math.floor(uniqueOutcomes.indexOf(x) / (uniqueOutcomes.length - 1) * 7)
-                  const active = i === game.resultIndex.toNumber()
-                  return (
-                    <StyledOutcome
-                      key={i}
-                      $active={active}
-                      $rank={rank}
-                    >
-                      <Text size="1">
-                        {x / BPS_PER_WHOLE}x
-                      </Text>
-                    </StyledOutcome>
-                  )
-                })}
-              </Flex>
+              <Outcomes bet={game.bet} resultIndex={game.resultIndex.toNumber()} />
             </Grid>
           </Table.Cell>
         </Table.Row>

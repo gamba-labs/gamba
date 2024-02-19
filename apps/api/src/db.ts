@@ -1,6 +1,7 @@
 import { ConfirmedSignatureInfo, Connection, PublicKey, SignaturesForAddressOptions } from '@solana/web3.js'
 import { BPS_PER_WHOLE, GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import sqlite3 from 'sqlite3'
+import { connection } from '.'
 
 const VERSION = 17
 
@@ -288,7 +289,7 @@ async function search(
   return await search(connection, nextMeta, data.earliest.signature, latestSignature)
 }
 
-export async function sync(rpcEndpoint: string) {
+export async function sync() {
   // Fetch token data
   (
     async () => {
@@ -302,8 +303,6 @@ export async function sync(rpcEndpoint: string) {
   )()
 
   console.log('Done fetching token data')
-
-  const connection = new Connection(rpcEndpoint, { commitment: 'confirmed' })
 
   await initDb()
 
@@ -320,6 +319,6 @@ export async function sync(rpcEndpoint: string) {
     console.error('❌ Sync error', err)
     console.log('Retrying sync..')
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    sync(rpcEndpoint)
+    sync()
   }
 }

@@ -1,7 +1,7 @@
 import { TopCreatorsData, fetchTopCreators, getApiUrl, useApi } from "@/api"
 import { PlatformAccountItem } from "@/components/AccountItem"
 import { getPlatformMeta } from "@/platforms"
-import { Card, Flex, Text } from "@radix-ui/themes"
+import { Card, Flex, Link, Text } from "@radix-ui/themes"
 import React from "react"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
@@ -53,33 +53,34 @@ function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank:
 }
 
 export function TopPlatforms({limit = 10}: {limit?: number}) {
-  // const { data: platforms = [], isLoading } = useSWR("top-platforms", fetchTopCreators)
-  const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>("/top-platforms", {limit})
+  const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>(
+    "/platforms",
+    {
+      limit,
+      sortBy: 'volume',
+      days: 999
+    }
+  )
 
   return (
-    <Card>
-      <Flex direction="column" gap="2">
-        <Text color="gray">Top Platforms this week</Text>
-        <Flex gap="2" direction="column">
-          {isLoading ? (
-            <>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
-            </>
-          ) : (
-            <>
-              {platforms.map((platform, i) => (
-                <PlatformTableRow
-                  key={platform.creator}
-                  platform={platform}
-                  rank={i + 1}
-                />
-              ))}
-            </>
-          )}
-        </Flex>
-      </Flex>
-    </Card>
+  <Flex gap="2" direction="column">
+    {isLoading ? (
+      <>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </>
+    ) : (
+      <>
+        {platforms.map((platform, i) => (
+          <PlatformTableRow
+            key={platform.creator}
+            platform={platform}
+            rank={i + 1}
+          />
+        ))}
+      </>
+    )}
+  </Flex>
   )
 }

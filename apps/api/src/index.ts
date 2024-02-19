@@ -1,21 +1,26 @@
 import ngrok from '@ngrok/ngrok'
+import { Connection } from '@solana/web3.js'
 import cors from 'cors'
 import { config } from 'dotenv'
 import express from 'express'
 import api from './api'
 import { sync } from './db'
-import { PROGRAM_ID } from 'gamba-core-v2'
 
 config()
 
-const app = express()
-const port = process.env.PORT || 3000
-
 if (!process.env.SOLANA_RPC_ENDPOINT) {
   throw new Error('RPC not specified')
-} {
-  sync(process.env.SOLANA_RPC_ENDPOINT)
 }
+
+export const connection = new Connection(
+  process.env.SOLANA_RPC_ENDPOINT,
+  { commitment: 'confirmed' },
+)
+
+sync()
+
+const app = express()
+const port = process.env.PORT || 3000
 
 app.use(express.json())
 app.use(cors())
@@ -23,7 +28,6 @@ app.use(cors())
 app.use(api)
 
 app.listen(port, () => {
-  console.log('Program ID:', PROGRAM_ID.toBase58())
   console.log(`Api running at http://localhost:${port}`)
 })
 

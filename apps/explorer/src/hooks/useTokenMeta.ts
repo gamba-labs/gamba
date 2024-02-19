@@ -1,89 +1,91 @@
-import { PublicKey } from "@solana/web3.js"
-import { NATIVE_MINT } from "gamba-core-v2"
-import React from "react"
-import useSWR, { preload } from "swr"
+import { signal } from '@preact/signals-react'
+import { PublicKey } from '@solana/web3.js'
+import { Helius } from 'helius-sdk'
+import React from 'react'
 
-preload('token-list', fetchTokenList)
+// How many MS we should wait to aggregate pubkeys before fetching
+const DEBOUNCE_MS = 1
 
-interface JupiterTokenListResponse {
-  mint: string
-  address: string
-  name: string
-  decimals: number
-  symbol: string
-  logoURI: string
-}
-
-async function fetchTokenList() {
-  const response = await fetch('https://cache.jup.ag/tokens')
-  const data = await response.json() as JupiterTokenListResponse[]
-
-  const byAddress: Record<string, TokenMeta> = {}
-
-  for (const token of data) {
-    byAddress[token.address] = {
-      mint: new PublicKey(token.address),
-      name: token.name,
-      symbol: token.symbol,
-      image: token.logoURI,
-      decimals: token.decimals,
-    }
+const KNOWN_DATA = {
+  'So11111111111111111111111111111111111111112': {
+    name: 'Solana',
+    image: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png'
+  },
+  'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': {
+    image: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png'
   }
+} as Record<string, Partial<TokenData>>
 
-  return byAddress
-}
+const helius = new Helius(import.meta.env.VITE_HELIUS_API_KEY)
 
-interface TokenMeta {
+export interface TokenData {
+  // supply: bigint
   mint: PublicKey
-  name: string
-  symbol: string
-  image: string | undefined
   decimals: number
+  image?: string
+  name?: string
+  symbol?: string
+  usdPrice: number
 }
 
-export function useJupiterList() {
-  const { data: list = {} } = useSWR("token-list", fetchTokenList)
-  return list
-}
+const tokenMints = signal(new Set<string>)
+const tokenData = signal<Record<string, TokenData>>({})
 
-export function useTokenMeta(mint: string | PublicKey): TokenMeta {
-  const getTokenMeta = useGetTokenMeta()
+let fetchTimeout: any
 
-  return React.useMemo(() => {
-    const jupMeta = getTokenMeta(mint)
+const fetchTokenMeta = async (token: string) => {
+  tokenMints.value = new Set([...Array.from(tokenMints.value), token])
 
-    return {
-      mint: new PublicKey(mint),
-      name: jupMeta.name,
-      symbol: jupMeta.symbol,
-      image: jupMeta.image,
-      decimals: jupMeta.decimals,
+  clearTimeout(fetchTimeout)
+
+  fetchTimeout = setTimeout(async () => {
+    const unique = Array.from(tokenMints.value).filter((x) => !Object.keys(tokenData.value).includes(x))
+    if (!unique.length) {
+      return
     }
-  }, [getTokenMeta, mint])
+
+    const res = await helius.rpc.getAssetBatch({ ids: unique })
+
+    const tokens = res
+      .reduce((prev, x) => {
+        const info = (x as any).token_info
+        const data = {
+          mint: new PublicKey(x.id),
+          image: x.content?.links?.image,
+          symbol: info.symbol,
+          decimals: info.decimals,
+          name: x.content?.metadata.name ?? info.symbol,
+          usdPrice: info.price_info?.price_per_token ?? 0,
+          ...KNOWN_DATA[x.id.toString()]
+        }
+        return {...prev, [x.id.toString()]: data}
+      }, {} as Record<string, TokenData> )
+
+    tokenData.value = { ...tokenData.value, ...tokens }
+    tokenMints.value = new Set
+  }, DEBOUNCE_MS)
+}
+
+export function useTokenMeta(mint: string | PublicKey) {
+  const get = useGetTokenMeta()
+
+  React.useEffect(() => {
+    fetchTokenMeta(mint.toString())
+  }, [mint])
+
+  return get(mint)
 }
 
 export function useGetTokenMeta() {
-  const list = useJupiterList()
-
-  return React.useCallback((mint: string | PublicKey): TokenMeta => {
-    const jupData = list[mint.toString()]
-
-    if (mint.toString() === NATIVE_MINT.toString()) {
-      return {
-        ...jupData,
-        mint: new PublicKey(mint),
-        decimals: 9,
-        symbol: "SOL",
-        name: 'Solana',
-      }
-    }
-
-    return jupData || {
+  return (mint: string | PublicKey) => {
+    return tokenData.value[mint.toString()] ?? {
       mint: new PublicKey(mint),
       name: "Unknown",
       symbol: mint.toString().substring(0, 3),
-      image: undefined,
+      image: KNOWN_DATA[mint.toString()],
       decimals: 9,
+      usdPrice: 0,
+      ...KNOWN_DATA[mint.toString()]
     }
-  }, [list])
+  }
 }

@@ -36,18 +36,16 @@ export const fetchDailyTotalVolume = async () => {
 }
 
 export interface TopPlayersResponse {
-  user: string
-  usd_profit: number
-  usd_fees: number
-  usd_volume: number
-}
+  players: {
+    user: string
+    usd_profit: number
+    usd_profit_net: number
+    usd_fees: number
+    usd_volume: number
 
-export const fetchTopPlayers = async (creator?: PublicKey | string, limit = 5) => {
-  const res = await window.fetch(
-    API_ENDPOINT + `/top-players?${creator ? `creator=${creator?.toString()}` : ``}&limit=${limit}`,
-    { headers: { "ngrok-skip-browser-warning": "true" } },
-  )
-  return await res.json() as TopPlayersResponse[]
+    token_volume?: number
+    token_profit?: number
+  }[]
 }
 
 export const fetchTokensForPlatform = async (creator: string | PublicKey, limit: number = 5) => {

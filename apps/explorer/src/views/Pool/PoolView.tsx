@@ -1,4 +1,4 @@
-import { GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
+import { ExternalLinkIcon, GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
 import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Tabs, Text } from "@radix-ui/themes"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
@@ -146,6 +146,37 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
   )
 }
 
+function LinkWarningDialog(props: React.PropsWithChildren<{url: string}>) {
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger>
+        {props.children}
+      </Dialog.Trigger>
+      <Dialog.Content style={{ maxWidth: 450 }}>
+        <Dialog.Title>
+          Do your own research.
+        </Dialog.Title>
+        <Dialog.Description size="2">
+          Even though the token is listed here, there is no garantuee that it is safe to trust.
+        </Dialog.Description>
+
+        <Flex gap="3" mt="4" justify="end">
+          <Dialog.Close>
+            <Button variant="soft" color="gray">
+              Cancel
+            </Button>
+          </Dialog.Close>
+          <Dialog.Close>
+            <Button onClick={() => window.open(props.url, "_blank")} role="link" variant="solid">
+              Buy <ExternalLinkIcon />
+            </Button>
+          </Dialog.Close>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
+  )
+}
+
 function PoolManager({ pool }: {pool: UiPool}) {
   const { connection } = useConnection()
   const wallet = useWallet()
@@ -231,9 +262,12 @@ function PoolManager({ pool }: {pool: UiPool}) {
           </Dialog.Root>
           </Flex>
           <Flex align="center" gap="4">
-          <Button variant="soft" onClick={() => window.open(`https://jup.ag/swap/SOL-${token.mint.toBase58()}`)} size="3">
-            Buy {token.symbol}
-          </Button>
+          <LinkWarningDialog
+            url={`https://jup.ag/swap/SOL-${token.mint.toBase58()}`}>
+              <Button variant="soft" size="3">
+              Buy {token.symbol}
+            </Button>
+          </LinkWarningDialog>
           <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
             Add Liqudity <RocketIcon />
           </Button>

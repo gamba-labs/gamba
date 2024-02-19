@@ -1,7 +1,7 @@
-import { useTokenMeta, useTokenPrice } from '@/hooks'
+import { useTokenMeta } from '@/hooks'
 import { PublicKey } from '@solana/web3.js'
-import React from 'react'
 import BigDecimal from 'js-big-decimal'
+import React from 'react'
 
 export interface TokenValueProps {
   mint: PublicKey
@@ -17,11 +17,10 @@ const bigIntToFloat = (big: BigInt | number, decimals: number) => {
 }
 
 export function TokenValue2(props: TokenValueProps) {
-  const price = useTokenPrice(props.mint)
   const token = useTokenMeta(props.mint)
   const suffix = props.suffix ?? token.symbol
   const tokenAmount = bigIntToFloat(props.amount, token.decimals)
-  const amount = props.dollar ? price * tokenAmount : tokenAmount
+  const amount = props.dollar ? token.usdPrice * tokenAmount : tokenAmount
 
   const displayedAmount = (
     () => {

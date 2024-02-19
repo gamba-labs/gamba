@@ -1,11 +1,11 @@
 import RecentPlays from "@/RecentPlays"
-import { DailyVolume, TopPlayersResponse, apiFetcher, fetchStatus, fetchTopPlayers, getApiUrl, useApi } from "@/api"
+import { DailyVolume, TopPlayersResponse, apiFetcher, fetchStatus, getApiUrl, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
-import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
-import { Card, Flex, Grid, Text } from "@radix-ui/themes"
+import { Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
+import { NavLink } from "react-router-dom"
 import styled from "styled-components"
 import useSWR from "swr"
 import { PoolList } from "./PoolList"
@@ -42,70 +42,26 @@ export function TotalVolume(props: {creator?: string}) {
   )
 }
 
-export function TotalVolume2() {
-  const { data: daily = [] } = useSWR<DailyVolume[]>(
-    getApiUrl("/chart/plays", {}),
-    apiFetcher,
-  )
-  const [hovered, setHovered] = React.useState<LineChartDataPoint | null>(null)
-  const total = React.useMemo(
-    () => daily.reduce((p, x) => p + x.total_volume, 0),
-    [daily]
-  )
-
-  const chart = daily.map(
-    ({ date, total_volume }) => ({
-      date,
-      value: total_volume,
-    }),
-  )
-
-  return (
-    <Card size="2">
-      <Flex direction="column" gap="2">
-        <Text color="gray">
-          {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '7d Volume'}
-        </Text>
-        <Text size="7" weight="bold">
-          {(hovered?.value ?? total).toLocaleString(undefined)}
-        </Text>
-      </Flex>
-      <div style={{height: '200px'}}>
-        <LineChart
-          chart={{data: chart}}
-          onHover={(x) => setHovered(x)}
-        />
-      </div>
-    </Card>
-  )
-}
-
 export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, limit?: number}) {
   const [sortBy] = React.useState('usd_profit')
-  const { data: players = [], isLoading } = useApi<TopPlayersResponse[]>(
-    "/top-players",
-    {creator: creator?.toString(), limit, sortBy}
+  const { data = { players: [] }, isLoading } = useApi<TopPlayersResponse>(
+    "/players",
+    {
+      creator: creator?.toString(),
+      limit,
+      sortBy,
+    }
   )
+
+  console.log(data)
 
   if (isLoading) return <SkeletonCard />
 
   return (
     <Card>
-      {/* <Tabs.Root defaultValue="mint">
-        <Tabs.List>
-          <Tabs.Trigger value="mint">Mint</Tabs.Trigger>
-          <Tabs.Trigger value="create">Create</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="mint">
-          <MintPreToken />
-        </Tabs.Content>
-        <Tabs.Content value="create">
-          <Custom />
-        </Tabs.Content>
-      </Tabs.Root> */}
       <Flex direction="column" gap="2">
-        <Text color="gray">Profit leaderboard</Text>
-        {players.map((player, i) => (
+        <Text color="gray">Leaderboard</Text>
+        {data.players.map((player, i) => (
           <UnstyledNavLink key={i} to={"/player/" + player.user}>
             <Card>
               <Flex gap="4">
@@ -203,7 +159,18 @@ export default function Dashboard() {
           {/* <TotalVolume2 /> */}
           <TopPlayers />
         </Flex>
-        <TopPlatforms />
+
+        <Card>
+          <Flex direction="column" gap="2">
+            <Flex justify="between">
+              <Text color="gray">Top Platforms this week</Text>
+              <Link asChild>
+                <NavLink to="/platforms">View all</NavLink>
+              </Link>
+            </Flex>
+            <TopPlatforms />
+          </Flex>
+        </Card>
       </Grid>
       <Text color="gray">Top Pools</Text>
       <PoolList />

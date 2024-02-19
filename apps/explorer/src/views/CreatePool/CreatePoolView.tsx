@@ -11,7 +11,7 @@ import useSWR from "swr"
 import { SelectableButton, TokenItem } from "@/components"
 import { SYSTEM_PROGRAM } from "@/constants"
 import { ParsedTokenAccount, useTokenList } from "@/hooks"
-import { useGetTokenMeta, useJupiterList } from "@/hooks/useTokenMeta"
+import { useGetTokenMeta } from "@/hooks/useTokenMeta"
 import { fetchPool } from "@/views/Dashboard/PoolList"
 import { ConnectUserCard } from "../Debug/DebugUser"
 import { TokenValue2 } from "@/components/TokenValue2"
@@ -21,7 +21,7 @@ function Inner() {
   const { connection } = useConnection()
   const publicKey = useWalletAddress()
   const gamba = useGambaProvider()
-  const jupiterList = useJupiterList()
+  const jupiterList: any = {} // useJupiterList()
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const [selectedToken, setSelectedToken] = React.useState<ParsedTokenAccount>()
   const tokens = useTokenList()
@@ -43,8 +43,8 @@ function Inner() {
         .sort((a, b) => {
           const nativeMintDiff = Number(isNativeMint(b.mint)) - Number(isNativeMint(a.mint))
           if (nativeMintDiff) return nativeMintDiff
-          const aKnown = !!jupiterList[a.mint.toBase58()]
-          const bKnown = !!jupiterList[b.mint.toBase58()]
+          const aKnown = !!jupiterList[a.mint.toString()]
+          const bKnown = !!jupiterList[b.mint.toString()]
           const knownDiff = Number(bKnown) - Number(aKnown)
           if (knownDiff) return knownDiff
           const balanceDiff = b.amount - a.amount
@@ -62,8 +62,8 @@ function Inner() {
       sortedTokens.filter((x) => {
         const meta = getTokenMeta(x.mint)
         if (x.mint.toBase58().toLocaleLowerCase().includes(search.toLowerCase())) return true
-        if (meta.symbol.toLowerCase().includes(search.toLowerCase())) return true
-        if (meta.name.toLowerCase().includes(search.toLowerCase())) return true
+        if (meta.symbol?.toLowerCase().includes(search.toLowerCase())) return true
+        if (meta.name?.toLowerCase().includes(search.toLowerCase())) return true
         return false
       }),
     [getTokenMeta, sortedTokens, search]
@@ -138,7 +138,7 @@ function Inner() {
             <Text>
               Private
             </Text>
-            <Switch radius="full" checked={isPrivate} onCheckedChange={value => setPrivate(value)} />
+            <Switch disabled radius="full" checked={isPrivate} onCheckedChange={value => setPrivate(value)} />
           </Flex>
           <Dialog.Root>
             <Dialog.Trigger>

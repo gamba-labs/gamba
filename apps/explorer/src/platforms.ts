@@ -164,6 +164,12 @@ export const PLATFORMS = [
     url: 'https://play.magicinternetbets.net/',
     image: '/logos/magicinternetbets.png',
   },
+  {
+    address: 'FJDu3MBh77TUnqZgTVvXHjnA5gsHtjPbseTg6DRrLmXx',
+    name: 'SolanaStars',
+    url: 'https://solanastars.com/',
+    image: '/logos/solanastars.png',
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

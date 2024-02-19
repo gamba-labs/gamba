@@ -3,7 +3,7 @@ import { TokenItem } from "@/components"
 import { Details } from "@/components/Details"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { TokenValue2 } from "@/components/TokenValue2"
-import { useGetTokenMeta, useGetTokenPrice, useTokenAccountsByOwner } from "@/hooks"
+import { useGetTokenMeta, useTokenAccountsByOwner } from "@/hooks"
 import { GearIcon } from "@radix-ui/react-icons"
 import { Button, Card, Dialog, Grid, Text } from "@radix-ui/themes"
 import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
@@ -34,7 +34,6 @@ function ButtonWithDialog(props: React.PropsWithChildren & {label: React.ReactNo
 }
 
 export default function DaoView() {
-  const getTokenPrice = useGetTokenPrice()
   const getTokenMeta = useGetTokenMeta()
   const daoAddress = getGambaStateAddress()
   const solBalance = useDaoNativeBalance()
@@ -75,15 +74,29 @@ export default function DaoView() {
     await sendTransaction([instruction], { confirmation: "confirmed" })
   }
 
+  const sortedTokens = React.useMemo(
+    () =>
+      [...tokens].sort((a, b) => {
+        const aMeta = getTokenMeta(a.mint)
+        const bMeta = getTokenMeta(b.mint)
+        const aValue = aMeta.usdPrice * a.amount / (10 ** a.decimals)
+        const bValue = bMeta.usdPrice * b.amount / (10 ** b.decimals)
+        return bValue - aValue
+      }),
+    [tokens, getTokenMeta]
+  )
+
   const combinedTokens = [
     // Always include Native SOL (Not WSOL)
     { mint: NATIVE_MINT, amount: solBalance, isNative: true },
-    ...tokens,
+    ...sortedTokens,
   ] as {mint: PublicKey, amount: number, isNative: true | undefined}[]
 
-
   const total = combinedTokens.reduce(
-    (p, x) => p + getTokenPrice(x.mint) * (x.amount / (10 ** getTokenMeta(x.mint).decimals)),
+    (p, x) => {
+      const meta = getTokenMeta(x.mint)
+      return p + meta.usdPrice * (x.amount / (10 ** meta.decimals))
+    },
     0
   )
 

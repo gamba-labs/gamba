@@ -14,8 +14,6 @@ const creatorScema = z.object({ query: z.object({ creator: z.string({}) }) })
 
 const ratioSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
-const topPlatformsSchema = z.object({ query: z.object({ limit: z.string().optional() }) })
-
 export const daysAgo = (daysAgo: number) => {
   const now = new Date()
   const then = new Date()
@@ -35,32 +33,29 @@ const settledGamesSchema = z.object({
 
 const statusSchema = z.object({ query: z.object({ creator: z.string().optional() }) })
 
-// List of pools
-// api.get('/pools', async (req, res) => {
-//   const tx = await all(`
-//     SELECT
-//       pool
-//     FROM settled_games
-//     GROUP BY pool
-//   `)
-//   res.send(tx)
-// })
-// api.get('/test', async (req, res) => {
-//   const tx = await all(`
-//     SELECT strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
-//       COUNT(*) AS settled_games
-//     FROM (
-//     SELECT
-//       user,
-//       MIN(block_time) AS first_timestamp
-//     FROM settled_games
-//     GROUP BY user
-//     ) AS first_transactions
-//     GROUP BY date
-//     ORDER BY date;
-//   `)
-//   res.send(tx)
-// })
+api.get('/test', async (req, res) => {
+  const lastGames = await all(`
+    SELECT sg.pool, sg.token, sg.pool_liquidity, sg.usd_per_unit
+    FROM settled_games sg
+    JOIN (
+      SELECT pool, MAX(block_time) AS max_block_time
+      FROM settled_games
+      GROUP BY pool
+    ) AS max_times
+    ON sg.pool = max_times.pool AND sg.block_time = max_times.max_block_time;
+  `)
+  const lastPoolChange = await all(`
+    SELECT sg.pool, sg.token, sg.post_liquidity, sg.usd_per_unit
+    FROM pool_changes sg
+    JOIN (
+      SELECT pool, MAX(block_time) AS max_block_time
+      FROM pool_changes
+      GROUP BY pool
+    ) AS max_times
+    ON sg.pool = max_times.pool AND sg.block_time = max_times.max_block_time;
+  `)
+  res.send({ lastGames, lastPoolChange })
+})
 
 // Returns tx signatures of recent pool changes
 api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => {
@@ -189,8 +184,17 @@ api.get('/platforms-by-pool', validate(volumeSchema), async (req, res) => {
   res.send(tx)
 })
 
+const topPlatformsSchema = z.object({
+  query: z.object({
+    limit: z.string().optional(),
+    days: z.string().optional(),
+    sortBy: z.string().optional(),
+  }),
+})
+
 // Returns top creators by volume in USD
-api.get('/top-platforms', validate(topPlatformsSchema), async (req, res) => {
+api.get('/platforms', validate(topPlatformsSchema), async (req, res) => {
+  const days = Number(req.query.days ?? 7)
   const tx = await all(`
     SELECT creator, SUM(wager * usd_per_unit) as usd_volume
     FROM settled_games
@@ -199,7 +203,7 @@ api.get('/top-platforms', validate(topPlatformsSchema), async (req, res) => {
     ORDER BY usd_volume DESC
     LIMIT :limit
   `, {
-    ':after': daysAgo(7),
+    ':after': daysAgo(days),
     ':until': Date.now(),
     ':limit': Number(req.query.limit ?? 10),
   })
@@ -224,46 +228,70 @@ api.get('/platform-tokens', validate(creatorScema), async (req, res) => {
   res.send(tx)
 })
 
-const topPlayersSchema = z.object({
+const playersSchema = z.object({
   query: z.object({
     creator: z.string({}).optional(),
+    token: z.string({}).optional(),
+    pool: z.string({}).optional(),
     limit: z.string().optional(),
-    sortBy: z.enum(['usd_volume', 'usd_profit']).optional(),
+    offset: z.string().optional(),
+    sortBy: z.enum(['usd_volume', 'usd_profit', 'token_volume', 'token_profit']).optional(),
+    startTime: z.string({}).optional(),
   }),
 })
 
 // Returns list of top performing players
-api.get('/top-players', validate(topPlayersSchema), async (req, res) => {
-  const sortBy = req.query.sortBy ?? 'usd_profit'
+api.get('/players', validate(playersSchema), async (req, res) => {
+  const { sortBy = 'usd_profit' } = req.query as Record<string, string>
+  const startTime = Number(req.query.startTime ?? 0)
   const limit = Number(req.query.limit ?? 5)
-  if (limit < 1 || limit > 50) {
-    res.sendStatus(403)
+  const offset = Number(req.query.offset ?? 0)
+  const singleToken = !!req.query.token || !!req.query.pool
+
+  if (!singleToken && ['token_volume', 'token_profit'].includes(sortBy)) {
+    res.status(403).send(`token or pool required to sort by ${sortBy}`)
     return
   }
-  const tx = await all(`
+
+  if (limit < 1 || limit > 1000) {
+    res.status(403).send('Limit must range between 1-1000')
+    return
+  }
+
+  const players = await all(`
     SELECT * FROM (
       SELECT
+        ${(req.query.token || req.query.pool) ? `
+          SUM(wager) as token_volume,
+          SUM(payout - wager) as token_profit,
+        ` : ''}
         user,
-        SUM((creator_fee + pool_fee + gamba_fee) * usd_per_unit) as usd_fees,
-        SUM((payout - wager - (creator_fee + pool_fee + gamba_fee)) * usd_per_unit) as usd_profit_net,
+        SUM(creator_fee * usd_per_unit) as creator_fees_usd,
         SUM((payout - wager) * usd_per_unit) as usd_profit,
         SUM(wager * usd_per_unit) as usd_volume
       FROM settled_games
       WHERE 1
       ${req.query.creator ? 'AND creator = :creator' : ''}
+      ${req.query.pool ? 'AND pool = :pool' : ''}
+      ${req.query.token ? 'AND token = :token' : ''}
       AND block_time BETWEEN :from AND :until
       GROUP BY user
       ORDER BY ${sortBy} DESC
       LIMIT :limit
+      OFFSET :offset
     ) AS subquery
     WHERE usd_profit > 0
   `, {
     ':creator': req.query.creator,
-    ':from': daysAgo(7),
+    ':token': req.query.token,
+    ':pool': req.query.pool,
+    ':from': startTime,
     ':until': Date.now(),
     ':limit': limit,
+    ':offset': offset,
   })
-  res.send(tx)
+
+  res.send({ players })
 })
 
 const topPlaysSchema = z.object({

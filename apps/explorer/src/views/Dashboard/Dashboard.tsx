@@ -53,8 +53,6 @@ export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, 
     }
   )
 
-  console.log(data)
-
   if (isLoading) return <SkeletonCard />
 
   return (

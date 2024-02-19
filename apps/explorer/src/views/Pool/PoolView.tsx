@@ -2,7 +2,7 @@ import { ExternalLinkIcon, GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } fro
 import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Tabs, Text } from "@radix-ui/themes"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
-import { BPS_PER_WHOLE, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
+import { BPS_PER_WHOLE, NATIVE_MINT, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useWalletAddress } from "gamba-react-v2"
 import React, { ReactNode } from "react"
 import { NavLink, useNavigate, useParams } from "react-router-dom"
@@ -157,9 +157,8 @@ function LinkWarningDialog(props: React.PropsWithChildren<{url: string}>) {
           Do your own research.
         </Dialog.Title>
         <Dialog.Description size="2">
-          Even though the token is listed here, there is no garantuee that it is safe to trust.
+          Even though the token is listed here, there is no garantuee that it's trustworthy.
         </Dialog.Description>
-
         <Flex gap="3" mt="4" justify="end">
           <Dialog.Close>
             <Button variant="soft" color="gray">
@@ -262,12 +261,14 @@ function PoolManager({ pool }: {pool: UiPool}) {
           </Dialog.Root>
           </Flex>
           <Flex align="center" gap="4">
-          <LinkWarningDialog
-            url={`https://jup.ag/swap/SOL-${token.mint.toBase58()}`}>
-              <Button variant="soft" size="3">
-              Buy {token.symbol}
-            </Button>
-          </LinkWarningDialog>
+          {!token.mint.equals(NATIVE_MINT) && (
+            <LinkWarningDialog
+              url={`https://jup.ag/swap/SOL-${token.mint.toBase58()}`}>
+                <Button variant="soft" size="3">
+                Buy {token.symbol}
+              </Button>
+            </LinkWarningDialog>
+          )}
           <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
             Add Liqudity <RocketIcon />
           </Button>

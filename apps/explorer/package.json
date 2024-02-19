@@ -34,7 +34,6 @@
     "gamba-core-v2": "workspace:*",
     "gamba-react-ui-v2": "workspace:*",
     "gamba-react-v2": "workspace:*",
-    "helius-sdk": "^1.2.3",
     "js-big-decimal": "^2.0.7",
     "minidenticons": "^4.2.0",
     "react": "^18.2.0",

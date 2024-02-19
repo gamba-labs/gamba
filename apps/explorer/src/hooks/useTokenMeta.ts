@@ -1,6 +1,5 @@
 import { signal } from '@preact/signals-react'
 import { PublicKey } from '@solana/web3.js'
-import { Helius } from 'helius-sdk'
 import React from 'react'
 
 // How many MS we should wait to aggregate pubkeys before fetching
@@ -16,7 +15,6 @@ const KNOWN_DATA = {
   }
 } as Record<string, Partial<TokenData>>
 
-const helius = new Helius(import.meta.env.VITE_HELIUS_API_KEY)
 
 export interface TokenData {
   // supply: bigint
@@ -43,10 +41,23 @@ const fetchTokenMeta = async (token: string) => {
     if (!unique.length) {
       return
     }
+    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'my-id',
+        method: 'getAssetBatch',
+        params: {
+          ids: unique
+        },
+      }),
+    });
+    const { result } = (await response.json()) as { result: any[] }
 
-    const res = await helius.rpc.getAssetBatch({ ids: unique })
-
-    const tokens = res
+    const tokens = result
       .reduce((prev, x) => {
         const info = (x as any).token_info
         const data = {

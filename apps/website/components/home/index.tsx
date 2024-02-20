@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { GameCard } from '../games'
-import { projects } from '../projects'
 
 export function Home() {
   return (
@@ -25,7 +23,7 @@ export function Home() {
         </div>
       </div>
 
-      <div className="fadeIn mt-32 max-w-7xl mx-auto px-6 md:px-12 xl:px-6 text-center pb-32">
+      {/* <div className="fadeIn mt-32 max-w-7xl mx-auto px-6 md:px-12 xl:px-6 text-center pb-32">
         <h1 className="text-2xl text-center font-bold text-zinc-900 dark:text-white md:text-3xl lg:text-4xl">
           Built on Gamba
         </h1>
@@ -47,7 +45,7 @@ export function Home() {
             Explore more →
           </a>
         </p>
-      </div>
+      </div> */}
 
       {/* <div className="mt-32 max-w-7xl mx-auto px-6 md:px-12 xl:px-6">
         <h1 className="text-2xl text-center font-bold text-zinc-900 dark:text-white md:text-3xl lg:text-4xl">

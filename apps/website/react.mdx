@@ -1,0 +1,27 @@
+# Gamba React guide
+
+> This article assumes you have have already initialized a React project and have some basic understanding of React. If not, we recommend [starting from a template](/docs/quickstart)
+
+## Gamba context
+
+To start working with Gamba you need to wrap your React app in the `Gamba` context provider. The Gamba provider will inherit the web3 connection set in ConnectionProvider and the wallet in WalletProvider.
+
+```jsx
+import React from 'react'
+import { Gamba } from 'gamba/react'
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
+import { App } from './App'
+
+root.render(
+  <ConnectionProvider
+    endpoint="<RPC ENDPOINT>"
+    config={{ commitment: 'processed' }}
+  >
+    <WalletProvider autoConnect wallets={[]}>
+      <Gamba creator="<PUBLIC KEY>">
+        <App />
+      </Gamba>
+    </WalletProvider>
+  </ConnectionProvider>,
+)
+```

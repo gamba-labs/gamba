@@ -1,0 +1,49 @@
+# 🏦 Pools
+
+Gamba liquidity pools serve as counterparties to bets made by players via various frontend apps.
+
+They function similarly to the house of a traditional casino, with the added benefit that anyone can participate and earn a part of the profits.
+
+## Creating a Pool
+
+Anyone can create a Gamba pool for any custom Solana token via the explorer UI, or deposit to an already existing one: https://explorer.gamba.so/create
+
+Pools can also be created and interracted with via the Gamba SDK. [Read more.](/docs/methods#createPool)
+
+## LP Token
+
+When a pool is created for a given token (refered to in this article as the pool's "underlying token"), a corresponding LP token is created along with it.
+
+The pool's LP tokens are minted by making deposits. Initial deposits to the pool prior to any play having occured in it will mint an LP amount of 1:1 to the underlying token. However, this ratio will change over time as plays occur.
+
+Any changes in a pools total liqudity as a result of players losing or winning will alter the LP token's ratio to the underlying token (price).
+
+The new ratio will determine how many LP tokens are minted to a liqudity provider upon depositing, and how many tokens a holder will get back when withdrawing. Put another way: when players lose, the LP ratio goes up, and liqudity providers get happy.
+
+## Bonuses
+
+Every pool has a corresponding Bonus token. These tokens can be used by players as free plays (or discounts).
+
+Bonus tokens can be minted by anyone in exchange for the pool's underlying token, but they can never be swapped back - they can only be used to make bets against the pool. The underlying tokens in the Bonus fund will either go to the player if they win or back in the main liqudity fund if they lose. The Bonus tokens used will get burned.
+
+90% the underlying tokens used to mint bonus tokens will end up in a seperate fund, which can only be won when players use the associated bonus tokens.
+
+The remaining 10% end up in the jackpot pool, explained below.
+
+## Jackpot
+
+Every pool has a seperate fund called the jackpot.
+
+Fees resulting from player's failed attempts to win the jackpot will end up in the fund, increasing the potential payout until someone finally wins.
+
+When a jackpot is won a small % of the players win goes back into the liqudity pool's main fund.
+
+Playing for the jackpot is completely optional and frontends can choose to always set it to 0 if they want.
+
+## Fees & Max payout
+
+See current fees: https://explorer.gamba.so/fees (Soon)
+
+## Private Pools (Soon)
+
+Private pools generally work the same way as public ones, but gives its owner the ability to configure various parameters - like fees, max potential payout, and more.

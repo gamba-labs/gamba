@@ -1,0 +1,24 @@
+{
+  "index": "👋 Welcome",
+  "-- Introduction": {
+    "type": "separator",
+    "title": "Introduction"
+  },
+  "apps": "🎰 Apps",
+  "pools": "🏦 Pools",
+  "plays": "🎲 Plays",
+  "dao": "🏛️ DAO (Soon)",
+  "-- Development": {
+    "type": "separator",
+    "title": "Development"
+  },
+  "examples": "👨‍💻 Examples",
+  "packages": "📦 Packages",
+  "-- SDK Docs": {
+    "type": "separator",
+    "title": "SDK Docs"
+  },
+  "core": "📄 gamba-core",
+  "react": "📄 gamba-react",
+  "react-ui": "📄 gamba-react-ui"
+}

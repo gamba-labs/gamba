@@ -10,6 +10,7 @@
   "ignore": [
     "gamba-platform-template",
     "gamba-explorer",
-    "gamba-api"
+    "gamba-api",
+    "gamba-website"
   ]
 }

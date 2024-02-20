@@ -253,34 +253,31 @@ api.get('/players', validate(playersSchema), async (req, res) => {
     return
   }
 
-  if (limit < 1 || limit > 1000) {
-    res.status(403).send('Limit must range between 1-1000')
+  if (limit < 1 || limit > 5000) {
+    res.status(403).send('Limit must range between 1-5000')
     return
   }
 
   const players = await all(`
-    SELECT * FROM (
-      SELECT
-        ${(req.query.token || req.query.pool) ? `
-          SUM(wager) as token_volume,
-          SUM(payout - wager) as token_profit,
-        ` : ''}
-        user,
-        SUM(creator_fee * usd_per_unit) as creator_fees_usd,
-        SUM((payout - wager) * usd_per_unit) as usd_profit,
-        SUM(wager * usd_per_unit) as usd_volume
-      FROM settled_games
-      WHERE 1
-      ${req.query.creator ? 'AND creator = :creator' : ''}
-      ${req.query.pool ? 'AND pool = :pool' : ''}
-      ${req.query.token ? 'AND token = :token' : ''}
-      AND block_time BETWEEN :from AND :until
-      GROUP BY user
-      ORDER BY ${sortBy} DESC
-      LIMIT :limit
-      OFFSET :offset
-    ) AS subquery
-    WHERE usd_profit > 0
+    SELECT
+      ${(req.query.token || req.query.pool) ? `
+        SUM(wager) as token_volume,
+        SUM(payout - wager) as token_profit,
+      ` : ''}
+      user,
+      SUM(creator_fee * usd_per_unit) as creator_fees_usd,
+      SUM((payout - wager) * usd_per_unit) as usd_profit,
+      SUM(wager * usd_per_unit) as usd_volume
+    FROM settled_games
+    WHERE 1
+    ${req.query.creator ? 'AND creator = :creator' : ''}
+    ${req.query.pool ? 'AND pool = :pool' : ''}
+    ${req.query.token ? 'AND token = :token' : ''}
+    AND block_time BETWEEN :from AND :until
+    GROUP BY user
+    ORDER BY ${sortBy} DESC
+    LIMIT :limit
+    OFFSET :offset
   `, {
     ':creator': req.query.creator,
     ':token': req.query.token,

@@ -59,23 +59,25 @@ export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, 
     <Card>
       <Flex direction="column" gap="2">
         <Text color="gray">Leaderboard</Text>
-        {data.players.map((player, i) => (
-          <UnstyledNavLink key={i} to={"/player/" + player.user}>
-            <Card>
-              <Flex gap="4">
-                <Text color="gray" style={{opacity: .5}}>
-                  {i + 1}
-                </Text>
-                <Flex gap="2" justify="between" grow="1">
-                  <PlayerAccountItem avatarSize="1" address={player.user} />
-                  <Text>
-                    +${player.usd_profit.toLocaleString(undefined, {maximumFractionDigits: 2})}
+        {data.players
+          .filter((x) => x.usd_profit > 0)
+          .map((player, i) => (
+            <UnstyledNavLink key={i} to={"/player/" + player.user}>
+              <Card>
+                <Flex gap="4">
+                  <Text color="gray" style={{opacity: .5}}>
+                    {i + 1}
                   </Text>
+                  <Flex gap="2" justify="between" grow="1">
+                    <PlayerAccountItem avatarSize="1" address={player.user} />
+                    <Text>
+                      +${player.usd_profit.toLocaleString(undefined, {maximumFractionDigits: 2})}
+                    </Text>
+                  </Flex>
                 </Flex>
-              </Flex>
-            </Card>
-          </UnstyledNavLink>
-        ))}
+              </Card>
+            </UnstyledNavLink>
+          ))}
       </Flex>
     </Card>
   )

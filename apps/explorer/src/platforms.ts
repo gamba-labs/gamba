@@ -172,13 +172,19 @@ export const PLATFORMS = [
   {
     address: "7s3nxNnKcmJyBxxXeJb8AAJnRocJLCRhbrCcYhPKv5SP",
     name: "OHYEAH",
-    image: "https://ohyeah.bet/favicon.png"
+    image: "/logos/ohyeah.png"
+  },
+  {
+    address: "6715ymvd38EeSQjZ3vRSA9X68RC73GYynSNRn3pu5732",
+    name: "Felt Casino",
+    url: "https://casino.feltgaming.io/",
+    image: "/logos/felt.png"
   },
   {
     address: "EV37Xym1wwjc5bToPyQPXAVEZfNwVvuDXzdCrTuLfGqQ",
-    name: "SNOOPYBABE",
-    url: 'https://play.snoopybabe.com/',
-    image: "https://bafkreifqg2pcpxdqgsdkh77dxarzskvww64w34dxxcdorpizcoynfrcxa4.ipfs.nftstorage.link/"
+    name: "SnoopyBabe",
+    url: "https://play.snoopybabe.com",
+    image: "/logos/snoopybabe.png"
   },
 ]
 

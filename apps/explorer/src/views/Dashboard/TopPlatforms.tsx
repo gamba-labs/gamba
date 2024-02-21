@@ -52,13 +52,13 @@ function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank:
   )
 }
 
-export function TopPlatforms({limit = 10}: {limit?: number}) {
+export function TopPlatforms({limit = 10, days = 7}: {limit?: number, days?: number}) {
   const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>(
     "/platforms",
     {
       limit,
       sortBy: 'volume',
-      days: 999
+      days
     }
   )
 

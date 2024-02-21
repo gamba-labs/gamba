@@ -42,7 +42,9 @@ export function TotalVolume(props: {creator?: string}) {
   )
 }
 
-export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, limit?: number}) {
+const WEEK = Date.now() - 604800000
+
+export function TopPlayers({ creator, limit = 5, startTime = WEEK }: {creator?: PublicKey | string, limit?: number, startTime?: number}) {
   const [sortBy] = React.useState('usd_profit')
   const { data = { players: [] }, isLoading } = useApi<TopPlayersResponse>(
     "/players",
@@ -50,6 +52,7 @@ export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, 
       creator: creator?.toString(),
       limit,
       sortBy,
+      startTime,
     }
   )
 
@@ -58,7 +61,7 @@ export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, 
   return (
     <Card>
       <Flex direction="column" gap="2">
-        <Text color="gray">Leaderboard</Text>
+        <Text color="gray">Player Leaderboard</Text>
         {data.players
           .filter((x) => x.usd_profit > 0)
           .map((player, i) => (

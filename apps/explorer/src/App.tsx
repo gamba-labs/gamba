@@ -14,7 +14,7 @@ import CreatePoolView from "@/views/CreatePool/CreatePoolView"
 import DebugUserView from "@/views/Debug/DebugUser"
 import DebugView from "@/views/Debug/DebugView"
 
-import Dashboard from "@/views/Dashboard/Dashboard"
+import Dashboard, { TopPlayers } from "@/views/Dashboard/Dashboard"
 import AllUsers from "@/views/Debug/AllUsers"
 import DaoView from "@/views/Debug/DaoView"
 import { PlatformView } from "@/views/Platform/PlatformView"
@@ -230,8 +230,12 @@ export function App() {
             element={<PoolList />}
           />
           <Route
+            path="/players"
+            element={<TopPlayers startTime={0} limit={100} />}
+          />
+          <Route
             path="/platforms"
-            element={<TopPlatforms limit={1000} />}
+            element={<TopPlatforms days={36500} limit={1000} />}
           />
           <Route
             path="/dao"

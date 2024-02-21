@@ -3,7 +3,7 @@ import { PublicKey } from '@solana/web3.js'
 interface PlatformMeta {
   address: string
   name: string
-  url: string
+  url?: string
   image?: string
 }
 
@@ -161,7 +161,6 @@ export const PLATFORMS = [
   {
     address: '594WGMyY5TSqPQnGjHHMqoSYYSrtbSFYL3NuXUp8qzkQ',
     name: 'MagicInternetBets',
-    url: 'https://play.magicinternetbets.net/',
     image: '/logos/magicinternetbets.png',
   },
   {
@@ -169,6 +168,11 @@ export const PLATFORMS = [
     name: 'SolanaStars',
     url: 'https://solanastars.com/',
     image: '/logos/solanastars.png',
+  },
+  {
+    address: "7s3nxNnKcmJyBxxXeJb8AAJnRocJLCRhbrCcYhPKv5SP",
+    name: "OHYEAH",
+    image: "https://ohyeah.bet/favicon.png"
   },
 ]
 

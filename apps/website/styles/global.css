@@ -104,9 +104,24 @@ body {
 	}
 }
 
+.hero {
+  animation: fadeIn 2s ease, heroAnimation 4s cubic-bezier(0.08, 0.82, 0.17, 1.21);
+  min-height: 75vh;
+}
+
 .fadeIn {
   animation: fadeIn 3s ease;
 }
+
+@keyframes heroAnimation {
+	0% {
+		transform: scale(.9);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
 @keyframes fadeIn {
 	0%, 10% {
 		opacity: 0;
@@ -185,8 +200,14 @@ footer {
   background-color: transparent!important;
 }
 
-video {
-
+video#hero-video {
+  background: black;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -10;
+  max-width: 800px;
+  left: 50%;
 }
 
 .card-text {

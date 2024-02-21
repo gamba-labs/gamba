@@ -1,10 +1,29 @@
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 export function Home() {
+  useEffect(
+    () => {
+      setTimeout(
+        async () => {
+          const video = document.querySelector('#hero-video') as HTMLVideoElement
+          await video.play()
+          video.setAttribute('autoplay', 'true')
+        },
+        100,
+      )
+    },
+    [],
+  )
   return (
     <div>
-      <video style={{ background: 'black', position: 'absolute', top: '50%', transform: 'translate(-50%, -50%)', zIndex: -10, maxWidth: '800px', left: '50%' }} src="/fish.mp4" autoPlay muted />
-      <div className="fadeIn max-w-7xl mx-auto px-6 md:px-12 xl:px-6 pt-48" style={{ minHeight: '75vh' }}>
+      <video
+        id="hero-video"
+        src="/hero.mp4"
+        muted
+        playsInline
+      />
+      <div className="hero max-w-7xl mx-auto px-6 md:px-12 xl:px-6 pt-32">
         <div className="lg:w-2/3 text-center mx-auto">
           <h1 className="text-zinc-900 dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
             Tagline <span className="gradient-text">tagline</span> Tagline
@@ -16,7 +35,7 @@ export function Home() {
             <Link href="/docs" className="relative flex h-11 w-full items-center justify-center px-6 active:duration-75 sm:w-max gamba-main-button">
               <span>Learn more</span>
             </Link>
-            <Link href="/docs" className="relative flex h-11 w-full items-center justify-center px-6 active:duration-75 sm:w-max gamba-main-button">
+            <Link href="https://explorer.gamba.so" target="_blank" className="relative flex h-11 w-full items-center justify-center px-6 active:duration-75 sm:w-max gamba-main-button">
               <span>Explore</span>
             </Link>
           </div>

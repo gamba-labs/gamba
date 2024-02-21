@@ -174,6 +174,12 @@ export const PLATFORMS = [
     name: "OHYEAH",
     image: "https://ohyeah.bet/favicon.png"
   },
+  {
+    address: "EV37Xym1wwjc5bToPyQPXAVEZfNwVvuDXzdCrTuLfGqQ",
+    name: "SNOOPYBABE",
+    url: 'https://play.snoopybabe.com/',
+    image: "https://bafkreifqg2pcpxdqgsdkh77dxarzskvww64w34dxxcdorpizcoynfrcxa4.ipfs.nftstorage.link/"
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

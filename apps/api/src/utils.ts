@@ -22,3 +22,21 @@ export function createBatches<T>(array: T[], batchSize: number) {
   }
   return batches
 }
+
+export const hmac256 = async (secretKey: string, message: string) => {
+  const encoder = new TextEncoder
+  const messageUint8Array = encoder.encode(message)
+  const keyUint8Array = encoder.encode(secretKey)
+  const cryptoKey = await crypto.subtle.importKey('raw', keyUint8Array, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageUint8Array)
+  return Array.from(new Uint8Array(signature)).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
+  return hmac256(rngSeed, [clientSeed, nonce].join('-'))
+}
+
+export const getResultNumber = async (rngSeed: string, clientSeed: string, nonce: number) => {
+  const hash = await getGameHash(rngSeed, clientSeed, nonce)
+  return parseInt(hash.substring(0, 5), 16)
+}

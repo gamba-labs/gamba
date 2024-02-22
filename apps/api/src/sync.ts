@@ -1,7 +1,7 @@
-import { GambaTransaction, PROGRAM_ID, getResultNumber, parseGambaTransaction } from 'gamba-core-v2'
+import { GambaTransaction, PROGRAM_ID, parseGambaTransaction } from 'gamba-core-v2'
 import { all, db, get, setupDb } from './db'
 import { getPrices } from './price'
-import { createBatches } from './utils'
+import { createBatches, getResultNumber } from './utils'
 import { connection } from './web3'
 
 interface SignatureObject {

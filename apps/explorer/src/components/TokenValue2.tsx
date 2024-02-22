@@ -4,7 +4,7 @@ import BigDecimal from 'js-big-decimal'
 import React from 'react'
 
 export interface TokenValueProps {
-  mint: PublicKey
+  mint: PublicKey | string
   amount: number | bigint
   suffix?: string
   exact?: boolean

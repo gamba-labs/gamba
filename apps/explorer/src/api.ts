@@ -1,8 +1,48 @@
-import { Connection, PublicKey } from "@solana/web3.js"
-import { GambaTransaction, fetchGambaTransactionsFromSignatures } from "gamba-core-v2"
+import { GambaEventType, GambaTransaction, fetchGambaTransactionsFromSignatures } from "gamba-core-v2"
 import useSWR from "swr"
 
 const API_ENDPOINT = import.meta.env.VITE_GAMBA_API_ENDPOINT
+
+export interface StatsResponse {
+  players: number
+  usd_volume: number
+  plays: number
+  creators: number
+  revenue_usd: number
+  active_players: number
+}
+
+export interface StatusResponse {
+  syncing: boolean
+}
+
+export interface RecentPlaysResponse {
+  total: number
+  results: {
+    signature: string
+    user: string
+    token: string
+    creator: string
+    time: number
+    wager: number
+    payout: number
+    multiplier: number
+  }[]
+}
+
+export interface PoolChangesResponse {
+  results: {
+    signature: string
+    user: string
+    token: string
+    pool: string
+    creator: string
+    time: number
+    amount: number
+    post_liqudity: number
+    action: 'deposit' | 'withdraw'
+  }[]
+}
 
 export interface DailyVolume {
   total_volume: number
@@ -20,21 +60,6 @@ export interface TopCreatorsData {
   usd_volume: number
 }
 
-export const fetchDailyVolume = async (pool: PublicKey) => {
-  const res = await window.fetch(API_ENDPOINT + "/daily?pool=" + pool.toBase58(), { headers: { "ngrok-skip-browser-warning": "true" } })
-  return await res.json() as DailyVolume[]
-}
-
-export const fetchStatus = async (creator?: PublicKey | string) => {
-  const res = await window.fetch(API_ENDPOINT + "/status" + (creator ? '?creator=' + creator?.toString() : ''), { headers: { "ngrok-skip-browser-warning": "true" } })
-  return await res.json() as {syncing: boolean, players: number, usd_volume: number, plays: number, creators: number, revenue_usd: number, active_players: number}
-}
-
-export const fetchDailyTotalVolume = async () => {
-  const res = await window.fetch(API_ENDPOINT + "/daily-usd", { headers: { "ngrok-skip-browser-warning": "true" } })
-  return await res.json() as DailyVolume[]
-}
-
 export interface TopPlayersResponse {
   players: {
     user: string
@@ -48,53 +73,15 @@ export interface TopPlayersResponse {
   }[]
 }
 
-export const fetchTokensForPlatform = async (creator: string | PublicKey, limit: number = 5) => {
-  const res = await window.fetch(API_ENDPOINT + "/platform-tokens?creator=" + creator.toString(), { headers: { "ngrok-skip-browser-warning": "true" } })
-  const data = await res.json() as {usd_volume: number, volume: number, token: string, num_plays: number}[]
+export type PlatformTokenResponse = {
+  usd_volume: number
+  volume: number
+  token: string
+  num_plays: number
+}[]
 
-  return data.map((x) => ({
-    mint: new PublicKey(x.token),
-    volume: x.volume,
-    usd_volume: x.usd_volume,
-    numPlays: x.num_plays,
-  }))
-}
-
-export const fetchChart = async (pool: PublicKey) => {
-  const res = await window.fetch(API_ENDPOINT + "/ratio?pool=" + pool.toBase58(), { headers: { "ngrok-skip-browser-warning": "true" } })
-  return await res.json() as RatioData[]
-}
-
-export const fetchTopCreators = async () => {
-  const res = await window.fetch(API_ENDPOINT + "/top-platforms", { headers: { "ngrok-skip-browser-warning": "true" } })
-  return await res.json() as TopCreatorsData[]
-}
-
-export const fetchRecentPlays = async (
-  connection: Connection,
-  pool?: PublicKey,
-  skip?: number,
-) => {
-  const e = !pool ? "/events/settledGames?pool=" : "/events/settledGames?pool=" + pool?.toBase58()
-  const res = await window.fetch(API_ENDPOINT + e, { headers: { "ngrok-skip-browser-warning": "true" } })
-  const { signatures } = await res.json()
-  const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<"GameSettled">[]
-  return events.sort((a, b) => {
-    return b.time - a.time
-  })
-}
-
-export async function parseSignatureResponse(connection: any, signatures: string[]) {
-  const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<"GameSettled">[]
-  return events.sort((a, b) => {
-    return b.time - a.time
-  })
-}
-
-export const fetchPoolChanges = async (connection: Connection, pool: PublicKey) => {
-  const res = await window.fetch(API_ENDPOINT + "/events/poolChanges?pool=" + pool.toBase58(), { headers: { "ngrok-skip-browser-warning": "true" } })
-  const { signatures } = await res.json()
-  const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<"PoolChange">[]
+export async function parseSignatureResponse<Event extends GambaEventType>(connection: any, signatures: string[]) {
+  const events = await fetchGambaTransactionsFromSignatures(connection, signatures) as GambaTransaction<Event>[]
   return events.sort((a, b) => {
     return b.time - a.time
   })

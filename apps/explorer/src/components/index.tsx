@@ -32,7 +32,7 @@ interface TokenItemProps {
   stuff?: React.ReactNode
 }
 
-export function TokenAvatar(props: {mint: PublicKey, size?: "1" | "2" | "3"}) {
+export function TokenAvatar(props: {mint: PublicKey | string, size?: "1" | "2" | "3"}) {
   const meta = useTokenMeta(props.mint)
   return (
     <Avatar

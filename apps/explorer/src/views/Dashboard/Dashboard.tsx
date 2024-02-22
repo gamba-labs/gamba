@@ -1,5 +1,5 @@
 import RecentPlays from "@/RecentPlays"
-import { DailyVolume, TopPlayersResponse, apiFetcher, fetchStatus, getApiUrl, useApi } from "@/api"
+import { DailyVolume, StatsResponse, TopPlayersResponse, apiFetcher, getApiUrl, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
@@ -104,7 +104,7 @@ const SkeletonCard = styled(Card)`
 `
 
 function AllTimeStats() {
-  const {data, isLoading} = useSWR('stats', () => fetchStatus())
+  const {data, isLoading} = useApi<StatsResponse>("/stats")
 
   if (isLoading) return <SkeletonCard size="2" />
 

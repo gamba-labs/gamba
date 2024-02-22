@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
     "api": "pm2 start pm2.config.js",
+    "api-patch": "nodemon --exec ts-node src/patch.ts",
     "build": "tsup src/index.ts --format cjs",
     "kill": "pm2 kill",
     "restart": "pm2 restart api",
@@ -13,14 +14,12 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
-    "@ngrok/ngrok": "^0.9.1",
     "@solana/spl-token": "^0.3.8",
     "@solana/web3.js": "^1.73.5",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "gamba-core-v2": "workspace:*",
-    "ngrok": "5.0.0-beta.2",
     "node-cron": "^3.0.3",
     "sqlite3": "^5.1.6",
     "zod": "^3.22.4"

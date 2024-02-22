@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
 import { AnyZodObject } from 'zod'
-import { db } from './db'
 
 export const validate = (schema: AnyZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
@@ -16,34 +15,10 @@ export const validate = (schema: AnyZodObject) =>
     }
   }
 
-export const all = (
-  query: string,
-  params?: any,
-) => {
-  return new Promise<any[]>((resolve, reject) => {
-    db.all(query, params,
-      (error, rows) => {
-        if (error) {
-          return reject(error)
-        }
-        resolve(rows)
-      },
-    )
-  })
-}
-
-export const get = (
-  query: string,
-  params?: any,
-) => {
-  return new Promise<any>((resolve, reject) => {
-    db.get(query, params,
-      (error, row) => {
-        if (error) {
-          return reject(error)
-        }
-        resolve(row)
-      },
-    )
-  })
+export function createBatches<T>(array: T[], batchSize: number) {
+  const batches: T[][] = []
+  for (let i = 0; i < array.length; i += batchSize) {
+    batches.push(array.slice(i, i + batchSize))
+  }
+  return batches
 }

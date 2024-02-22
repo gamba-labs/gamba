@@ -10,7 +10,7 @@ import styled, { css } from "styled-components"
 import useSWR from "swr"
 
 import RecentPlays, { TimeDiff } from "@/RecentPlays"
-import { fetchChart, fetchDailyVolume, fetchPoolChanges } from "@/api"
+import { DailyVolume, PoolChangesResponse, RatioData, apiFetcher, getApiUrl, parseSignatureResponse, useApi } from "@/api"
 import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { Spinner } from "@/components/Spinner"
@@ -20,10 +20,11 @@ import { UiPool, fetchPool } from "@/views/Dashboard/PoolList"
 import { TokenAvatar } from "@/components"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
+import useSWRInfinite from "swr/infinite"
+import { ConnectUserCard } from "../Debug/DebugUser"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
-import { ConnectUserCard } from "../Debug/DebugUser"
 
 export function ThingCard(props: { title: string, children: ReactNode }) {
   return (
@@ -190,9 +191,16 @@ function PoolManager({ pool }: {pool: UiPool}) {
   const maxPayoutPercent = gambaState && gambaState.maxPayoutBps ? gambaState.maxPayoutBps.toNumber() / BPS_PER_WHOLE : 0
   const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
 
-  const { data: dailyVolume = [] } = useSWR("daily-" + pool.publicKey.toBase58(), () => fetchDailyVolume(pool.publicKey))
-  const { data: ratioData = [] } = useSWR("ratio-" + pool.publicKey.toBase58(), () => fetchChart(pool.publicKey))
-  const { data: poolChanges = [] } = useSWR("poolChanges-" + pool.publicKey.toBase58(), () => fetchPoolChanges(connection, pool.publicKey))
+  const { data: dailyVolume = [] } = useApi<DailyVolume[]>("/daily", {pool: pool.publicKey.toString()})
+  const { data: ratioData = [] } = useApi<RatioData[]>("/ratio", {pool: pool.publicKey.toString()})
+  const { data: poolChanges = [] } = useSWRInfinite(
+    (index, previousData) => {
+      return getApiUrl("/events/poolChanges", { pool: pool.publicKey.toString() })
+    },
+    async (endpoint) => {
+      return await apiFetcher<PoolChangesResponse>(endpoint)
+    }
+  )
 
   const chart = React.useMemo(
     () => {
@@ -399,26 +407,32 @@ function PoolManager({ pool }: {pool: UiPool}) {
           <Tabs.Content value="deposits">
             <Card>
               <Grid gap="2">
-                {poolChanges.map(
-                  (change, i) => {
-                    return (
-                      <Card key={i} size="1">
-                        <Flex justify="between" align="center">
-                          <Flex gap="2" align="center">
-                            <SolanaAddress truncate address={change.data.user} />
-                            <Badge color={change.data.action.deposit ? "green" : "red"}>
-                              {change.data.action.deposit ? "+" : "-"}
-                              <TokenValue2 exact mint={pool.underlyingTokenMint} amount={change.data.amount.toNumber()} />
-                            </Badge>
-                          </Flex>
-                          <Link target="_blank" href={"https://solscan.io/tx/" + change.signature}>
-                            <TimeDiff time={change.time} />
-                          </Link>
-                        </Flex>
-                      </Card>
+                {
+                  poolChanges
+                    .flatMap(
+                      ({results}) =>
+                        results.map(
+                          (change, i) => {
+                            return (
+                              <Card key={i} size="1">
+                                <Flex justify="between" align="center">
+                                  <Flex gap="2" align="center">
+                                    <SolanaAddress truncate address={change.user} />
+                                    <Badge color={change.action === "deposit" ? "green" : "red"}>
+                                      {change.action === "deposit" ? "+" : "-"}
+                                      <TokenValue2 exact mint={pool.underlyingTokenMint} amount={change.amount} />
+                                    </Badge>
+                                  </Flex>
+                                  <Link target="_blank" href={"https://solscan.io/tx/" + change.signature}>
+                                    <TimeDiff time={change.time} />
+                                  </Link>
+                                </Flex>
+                              </Card>
+                            )
+                          },
+                        )
                     )
-                  },
-                )}
+                }
               </Grid>
             </Card>
 

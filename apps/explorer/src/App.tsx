@@ -18,17 +18,16 @@ import Dashboard, { TopPlayers } from "@/views/Dashboard/Dashboard"
 import AllUsers from "@/views/Debug/AllUsers"
 import DaoView from "@/views/Debug/DaoView"
 import { PlatformView } from "@/views/Platform/PlatformView"
-import PlayView from "@/views/Play/Play"
 import { PlayerView } from "@/views/Player/PlayerView"
 import PoolConfigureView from "@/views/Pool/PoolConfigView"
 import PoolDepositView from "@/views/Pool/PoolDeposit"
 import PoolView from "@/views/Pool/PoolView"
 import PortfolioView from "@/views/Portfolio/PortfolioView"
-import useSWR from "swr"
-import { fetchStatus } from "./api"
+import TransactionView from "@/views/Transaction/Transaction"
+import { StatusResponse, useApi } from "./api"
+import NavigationMenuDemo from "./components/NavigationMenu"
 import { PoolList } from "./views/Dashboard/PoolList"
 import { TopPlatforms } from "./views/Dashboard/TopPlatforms"
-import NavigationMenuDemo from "./components/NavigationMenu"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -124,7 +123,7 @@ export function App() {
   const toast = useToast()
   const wallet = useWallet()
   const walletModal = useWalletModal()
-  const { data: status = {syncing: false} } = useSWR("status", fetchStatus)
+  const { data: status = {syncing: false} } = useApi<StatusResponse>("/status")
   const [sidebar, setSidebar] = React.useState(false)
   const md = useMediaQuery("md")
 
@@ -263,7 +262,7 @@ export function App() {
           />
           <Route
             path="/tx/:txid"
-            element={<PlayView />}
+            element={<TransactionView />}
           />
           <Route
             path="/create"

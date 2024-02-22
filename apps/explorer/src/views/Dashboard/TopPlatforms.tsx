@@ -1,11 +1,10 @@
-import { TopCreatorsData, fetchTopCreators, getApiUrl, useApi } from "@/api"
+import { TopCreatorsData, useApi } from "@/api"
 import { PlatformAccountItem } from "@/components/AccountItem"
 import { getPlatformMeta } from "@/platforms"
-import { Card, Flex, Link, Text } from "@radix-ui/themes"
+import { Card, Flex, Text } from "@radix-ui/themes"
 import React from "react"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
-import useSWR from "swr"
 
 export const UnstyledNavLink = styled(NavLink)`
   text-decoration: none;

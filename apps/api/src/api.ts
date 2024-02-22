@@ -79,7 +79,7 @@ api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) =
         user,
         creator,
         token,
-        multiplier_bps / 10000 as multiplier,
+        multiplier_bps * 1.0 / 10000 as multiplier,
         block_time * 1000 as time
       FROM settled_games
       WHERE 1

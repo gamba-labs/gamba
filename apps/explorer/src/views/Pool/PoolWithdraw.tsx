@@ -91,10 +91,10 @@ export function PoolWithdraw({ pool }: { pool: UiPool }) {
           </TextField.Slot>
         </TextField.Root>
         <Flex justify="between">
-          <Text size="2" color="gray">
+          <Text color="gray">
             Receive
           </Text>
-          <Text size="2">
+          <Text>
             <TokenValue2
               exact
               amount={receiveUnderlyingAmount}
@@ -102,7 +102,19 @@ export function PoolWithdraw({ pool }: { pool: UiPool }) {
             />
           </Text>
         </Flex>
-        <Button size="3" variant="soft" onClick={withdraw} disabled={loading || !amount}>
+        <Flex justify="between">
+          <Text color="gray">
+            Value
+          </Text>
+          <Text>
+            <TokenValue2
+              dollar
+              amount={receiveUnderlyingAmount}
+              mint={pool.underlyingTokenMint}
+            />
+          </Text>
+        </Flex>
+        <Button size="3" variant="soft" onClick={withdraw} disabled={loading || !amount || amount > balances.lpBalance}>
           Withdraw {loading && <Spinner $small />}
         </Button>
       </Grid>

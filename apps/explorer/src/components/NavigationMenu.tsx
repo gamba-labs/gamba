@@ -31,7 +31,7 @@ export const ListItemLink = ({ children, title, ...props }: React.PropsWithChild
   </li>
 )
 
-const NavigationMenuDemo = () => {
+const Menu = () => {
   return (
     <NavigationMenu.Root className="NavigationMenuRoot">
       <NavigationMenu.List className="NavigationMenuList">
@@ -43,6 +43,9 @@ const NavigationMenuDemo = () => {
             <ul className="List">
               <ListItemNavLink title="User" to="/user">
                 Manage your user account
+              </ListItemNavLink>
+              <ListItemNavLink title="Portfolio" to="/portfolio">
+                Manage your LP tokens
               </ListItemNavLink>
               <ListItemNavLink title="DAO" to="/dao">
                 Manage the DAO and distribute fees
@@ -82,4 +85,4 @@ const NavigationMenuDemo = () => {
   )
 }
 
-export default NavigationMenuDemo
+export default Menu

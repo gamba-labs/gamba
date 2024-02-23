@@ -34,6 +34,22 @@ const settledGamesSchema = z.object({
 
 const statsSchema = z.object({ query: z.object({ creator: z.string().optional() }) })
 
+api.get('/pools', async (req, res) => {
+  const pools = await all(`
+    SELECT
+      pool,
+      token,
+      SUM(amount) as total,
+      SUM(amount * usd_per_unit) as total_usd,
+      SUM(amount) as total
+    FROM
+      pool_changes
+    WHERE 1
+    GROUP BY pool;
+  `)
+  res.send({ pools })
+})
+
 // Returns tx signatures of recent pool changes
 api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => {
   const results = await all(`
@@ -203,8 +219,10 @@ api.get('/platforms', validate(topPlatformsSchema), async (req, res) => {
   res.send(tx)
 })
 
+const tokensSchema = z.object({ query: z.object({ creator: z.string({}).optional() }) })
+
 // Returns top tokens used by a platform
-api.get('/platform-tokens', validate(creatorScema), async (req, res) => {
+api.get('/tokens', validate(tokensSchema), async (req, res) => {
   const tx = await all(`
     SELECT
       creator,
@@ -213,11 +231,16 @@ api.get('/platform-tokens', validate(creatorScema), async (req, res) => {
       token,
       COUNT(token) AS num_plays
     FROM settled_games
-    WHERE creator = ?
-    AND block_time * 1000 BETWEEN ? AND ?
+    WHERE 1
+    ${req.query.creator ? 'AND creator = :creator' : ''}
+    AND block_time * 1000 BETWEEN :from AND :until
     GROUP BY token
     ORDER BY usd_volume DESC
-  `, [req.query.creator, 0, Date.now()])
+  `, {
+    ':creator': req.query.creator,
+    ':from': 0,
+    ':until': Date.now(),
+  })
   res.send(tx)
 })
 

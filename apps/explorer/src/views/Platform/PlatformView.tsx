@@ -161,7 +161,7 @@ function Things() {
 
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
-  const { data: tokens = [] } = useApi<PlatformTokenResponse>("/platform-tokens", {creator: address!.toString()})
+  const { data: tokens = [] } = useApi<PlatformTokenResponse>("/tokens", {creator: address!.toString()})
 
   return (
     <Container>

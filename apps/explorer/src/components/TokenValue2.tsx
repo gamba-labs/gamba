@@ -20,7 +20,8 @@ export function TokenValue2(props: TokenValueProps) {
   const token = useTokenMeta(props.mint)
   const suffix = props.suffix ?? token.symbol
   const tokenAmount = bigIntToFloat(props.amount, token.decimals)
-  const amount = props.dollar ? token.usdPrice * tokenAmount : tokenAmount
+  const displayFiat = props.dollar
+  const amount = displayFiat ? token.usdPrice * tokenAmount : tokenAmount
 
   const displayedAmount = (
     () => {
@@ -41,7 +42,7 @@ export function TokenValue2(props: TokenValueProps) {
 
   return (
     <>
-      {props.dollar ? (
+      {displayFiat ? (
         <>
           ${displayedAmount}
         </>

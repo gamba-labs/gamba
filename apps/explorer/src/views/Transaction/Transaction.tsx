@@ -2,7 +2,7 @@ import { ArrowRightIcon, CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from "
 import { Badge, Box, Button, Card, Code, Dialog, Flex, Grid, Heading, IconButton, Link, Table, Tabs, Text, TextField } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection } from "@solana/web3.js"
-import { BPS_PER_WHOLE, GambaTransaction, parseGambaTransaction } from "gamba-core-v2"
+import { BPS_PER_WHOLE, GambaTransaction, decodePool, parseGambaTransaction } from "gamba-core-v2"
 import React from "react"
 import { NavLink, useParams } from "react-router-dom"
 import styled, { css } from "styled-components"
@@ -12,6 +12,9 @@ import { TokenAvatar } from "@/components"
 import { PlatformAccountItem, PlayerAccountItem } from "@/components/AccountItem"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
+import { useAccount, usePool } from "gamba-react-v2"
+import { useTokenMeta } from "@/hooks"
+import { SYSTEM_PROGRAM } from "@/constants"
 
 const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
   --rank-0: #ff293b;
@@ -272,6 +275,9 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
   const payout = multiplier * wager
   const profit = payout - wager
 
+  const pool = useAccount(game.pool, decodePool)
+  const tokenMeta = useTokenMeta(game.tokenMint)
+
   return (
     <Table.Root variant="surface">
       <Table.Header>
@@ -282,7 +288,22 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
         </Table.Row>
       </Table.Header>
 
-      <Table.Body>
+        <Table.Row>
+          <Table.Cell>
+            <Grid columns="2" gap="4">
+              <Text weight="bold">
+                Platform
+              </Text>
+              <Link asChild>
+                <NavLink to={"/platform/" + game.creator.toBase58()}>
+                  <PlatformAccountItem address={game.creator} />
+                </NavLink>
+              </Link>
+            </Grid>
+          </Table.Cell>
+        </Table.Row>
+
+        <Table.Body>
         <Table.Row>
           <Table.Cell>
             <Grid columns="2" gap="4">
@@ -291,9 +312,12 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               </Text>
               <Link asChild>
                 <NavLink to={"/pool/" + game.pool.toBase58()}>
-                  <Flex gap="2">
+                  <Flex gap="2" align="center">
                     <TokenAvatar size="1" mint={game.tokenMint} />
-                    {game.pool.toBase58()}
+                    {tokenMeta.name}
+                    <Badge size="1">
+                      ({pool?.poolAuthority.equals(SYSTEM_PROGRAM) ? 'PUBLIC' : 'PRIVATE'})
+                    </Badge>
                   </Flex>
                 </NavLink>
               </Link>
@@ -310,21 +334,6 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               <Link asChild>
                 <NavLink to={"/player/" + game.user.toBase58()}>
                   <PlayerAccountItem address={game.user} />
-                </NavLink>
-              </Link>
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
-
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Platform
-              </Text>
-              <Link asChild>
-                <NavLink to={"/platform/" + game.creator.toBase58()}>
-                  <PlatformAccountItem address={game.creator} />
                 </NavLink>
               </Link>
             </Grid>

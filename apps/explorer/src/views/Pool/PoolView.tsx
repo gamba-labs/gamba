@@ -363,14 +363,11 @@ function PoolManager({ pool }: {pool: UiPool}) {
             <Text color="gray">
               Your position
             </Text>
-            <Text size="5">
-              <Text color="gray">
-                <TokenValue2 exact mint={pool.underlyingTokenMint} amount={balances.lpBalance} suffix="LP" />
-                {" = "}
-              </Text>
-              <Text weight="bold">
-                <TokenValue2 exact mint={pool.underlyingTokenMint} amount={balances.lpBalance * pool.ratio} />
-              </Text>
+            <Text size="5" weight="bold">
+              <TokenValue2 dollar mint={pool.underlyingTokenMint} amount={balances.lpBalance * pool.ratio} />
+            </Text>
+            <Text>
+              <TokenValue2 exact mint={pool.underlyingTokenMint} amount={balances.lpBalance} suffix="LP" />
             </Text>
             <PoolWithdraw pool={pool} />
           </Grid>

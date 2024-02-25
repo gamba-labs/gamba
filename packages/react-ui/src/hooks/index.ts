@@ -11,7 +11,7 @@ export function useFees() {
   const context = React.useContext(GambaPlatformContext)
   const pool = useCurrentPool()
   const creatorFee = context.defaultCreatorFee
-  const jackpotFee = context.defaultCreatorFee
+  const jackpotFee = context.defaultCreatorFee; // Typo? Should this be `context.defaultJackpotFee`?
   const totalTokenFees = creatorFee + pool.gambaFee + pool.poolFee + jackpotFee
   return totalTokenFees
 }

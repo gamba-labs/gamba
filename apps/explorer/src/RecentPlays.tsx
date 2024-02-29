@@ -78,10 +78,6 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
             ({results}) => (
               results.map(
                 (result) => {
-                  // const game = event.data as GambaEvent<"GameSettled">["data"]
-                  // const multiplier = game.bet[game.resultIndex.toNumber()] / BPS_PER_WHOLE
-                  // const wager = game.wager.toNumber()
-                  // const payout = multiplier * wager
                   return (
                     <TableRowNavLink to={"/tx/" + result.signature} key={result.signature}>
                       <Table.Cell>
@@ -132,6 +128,7 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
         disabled={isLoading || isValidating}
         onClick={() => setSize(size + 1)}
         variant="soft"
+        size="3"
         style={{ width: '100%' }}
       >
         Load more <PlusIcon />

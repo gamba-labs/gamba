@@ -216,6 +216,9 @@ importers:
 
   apps/flipflip:
     dependencies:
+      '@coral-xyz/anchor':
+        specifier: ^0.27.0
+        version: 0.27.0
       '@metaplex-foundation/mpl-token-metadata':
         specifier: ^3.2.0
         version: 3.2.0(@metaplex-foundation/umi@0.9.1)
@@ -276,6 +279,9 @@ importers:
       three-stdlib:
         specifier: ^2.29.4
         version: 2.29.4(three@0.158.0)
+      tone:
+        specifier: ^14.7.77
+        version: 14.7.77
     devDependencies:
       '@types/react':
         specifier: ^18.2.45
@@ -420,9 +426,6 @@ importers:
       '@solana/web3.js':
         specifier: ^1.78.5
         version: 1.78.5
-      gamba-core:
-        specifier: '*'
-        version: 0.1.0
       gamba-core-v2:
         specifier: workspace:*
         version: link:../core
@@ -2148,8 +2151,8 @@ packages:
     resolution: {integrity: sha512-+P/vPdORawvg3A9Wj02iquxb4T0C5m4P6aZBVYysKl4Amk+r6aMPZkUhilBkD6E4Nuxnoajv3CFykUfkGE0n5g==}
     engines: {node: '>=11'}
     dependencies:
-      '@coral-xyz/borsh': 0.27.0(@solana/web3.js@1.78.5)
-      '@solana/web3.js': 1.78.5
+      '@coral-xyz/borsh': 0.27.0(@solana/web3.js@1.90.0)
+      '@solana/web3.js': 1.90.0
       base64-js: 1.5.1
       bn.js: 5.2.1
       bs58: 4.0.1
@@ -2169,13 +2172,13 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@coral-xyz/borsh@0.27.0(@solana/web3.js@1.78.5):
+  /@coral-xyz/borsh@0.27.0(@solana/web3.js@1.90.0):
     resolution: {integrity: sha512-tJKzhLukghTWPLy+n8K8iJKgBq1yLT/AxaNd10yJrX8mI56ao5+OFAKAqW/h0i79KCvb4BK0VGO5ECmmolFz9A==}
     engines: {node: '>=10'}
     peerDependencies:
       '@solana/web3.js': ^1.68.0
     dependencies:
-      '@solana/web3.js': 1.78.5
+      '@solana/web3.js': 1.90.0
       bn.js: 5.2.1
       buffer-layout: 1.2.2
     dev: false

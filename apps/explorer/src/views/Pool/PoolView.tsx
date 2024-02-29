@@ -3,7 +3,7 @@ import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link
 import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, NATIVE_MINT, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
-import { useAccount, useGambaProgram, useWalletAddress } from "gamba-react-v2"
+import { useAccount, useGambaProgram, usePool, useWalletAddress } from "gamba-react-v2"
 import React, { ReactNode } from "react"
 import { NavLink, useNavigate, useParams } from "react-router-dom"
 import styled, { css } from "styled-components"
@@ -88,8 +88,8 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const userPublicKey = useWalletAddress()
   const navigate = useNavigate()
-  const isPoolAuthority = userPublicKey && pool?.state?.poolAuthority?.equals(userPublicKey)
-  const isGambaStateAuthority = userPublicKey && gambaState?.authority?.equals(userPublicKey)
+  const isPoolAuthority = pool?.state?.poolAuthority?.equals(userPublicKey)
+  const isGambaStateAuthority = gambaState?.authority?.equals(userPublicKey)
 
   return (
     <Flex gap="4" align="center">
@@ -120,27 +120,29 @@ export function PoolHeader({ pool }: {pool: UiPool}) {
           </IconButton>
         </Dialog.Trigger>
         <Dialog.Content>
-          <Heading>Pool Details</Heading>
-          <Flex direction="column">
-            <Text color="gray" size="2">Token mint</Text>
-            <SolanaAddress address={pool.state.underlyingTokenMint} />
-          </Flex>
-          <Flex direction="column">
-            <Text color="gray" size="2">LP Token mint</Text>
-            <SolanaAddress address={getPoolLpAddress(pool.publicKey)} />
-          </Flex>
-          <Flex direction="column">
-            <Text color="gray" size="2">Bonus Token mint</Text>
-            <SolanaAddress address={getPoolBonusAddress(pool.publicKey)} />
-          </Flex>
-          <Flex direction="column">
-            <Text color="gray" size="2">Pool Address</Text>
-            <SolanaAddress address={pool.publicKey} />
-          </Flex>
-          <Flex direction="column">
-            <Text color="gray" size="2">Pool Authority</Text>
-            <SolanaAddress address={pool.state.poolAuthority} />
-          </Flex>
+          <Dialog.Title>Pool Details</Dialog.Title>
+          <Dialog.Description>
+            <Flex direction="column">
+              <Text color="gray" size="2">Token mint</Text>
+              <SolanaAddress address={pool.state.underlyingTokenMint} />
+            </Flex>
+            <Flex direction="column">
+              <Text color="gray" size="2">LP Token mint</Text>
+              <SolanaAddress address={getPoolLpAddress(pool.publicKey)} />
+            </Flex>
+            <Flex direction="column">
+              <Text color="gray" size="2">Bonus Token mint</Text>
+              <SolanaAddress address={getPoolBonusAddress(pool.publicKey)} />
+            </Flex>
+            <Flex direction="column">
+              <Text color="gray" size="2">Pool Address</Text>
+              <SolanaAddress address={pool.publicKey} />
+            </Flex>
+            <Flex direction="column">
+              <Text color="gray" size="2">Pool Authority</Text>
+              <SolanaAddress address={pool.state.poolAuthority} />
+            </Flex>
+          </Dialog.Description>
         </Dialog.Content>
       </Dialog.Root>
     </Flex>
@@ -183,12 +185,15 @@ function PoolManager({ pool }: {pool: UiPool}) {
   const navigate = useNavigate()
   const token = useTokenMeta(pool.underlyingTokenMint)
   const balances = useBalance(pool.underlyingTokenMint)
+  const _pool = usePool(pool.underlyingTokenMint, pool.poolAuthority)
 
   const [chartId, setChart] = React.useState<ChartId>("price")
   const [hovered, hover] = React.useState<LineChartDataPoint | null>(null)
 
+  console.log("Max Payout", _pool.maxPayout)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const maxPayoutPercent = gambaState && gambaState.maxPayoutBps ? gambaState.maxPayoutBps.toNumber() / BPS_PER_WHOLE : 0
+
   const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
 
   const { data: dailyVolume = [] } = useApi<DailyVolume[]>("/daily", {pool: pool.publicKey.toString()})
@@ -289,16 +294,16 @@ function PoolManager({ pool }: {pool: UiPool}) {
             {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
           </ThingCard>
           <ThingCard title="Liqudity">
-            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.liquidity)} />
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.liquidity} />
           </ThingCard>
           <ThingCard title="LP Token Supply">
-            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.lpSupply)} />
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.lpSupply} />
           </ThingCard>
           <ThingCard title="Max Payout">
-            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.state.liquidityCheckpoint) * maxPayoutPercent} />
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={_pool.maxPayout} />
           </ThingCard>
           <ThingCard title="Circulating Bonus">
-            <TokenValue2 mint={pool.underlyingTokenMint} amount={Number(pool.bonusBalance)} />
+            <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.bonusBalance} />
           </ThingCard>
           <ThingCard title="Jackpot">
             <TokenValue2 exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} />

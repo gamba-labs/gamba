@@ -1,5 +1,5 @@
 import RecentPlays from "@/RecentPlays"
-import { DailyVolume, StatsResponse, TopPlayersResponse, apiFetcher, getApiUrl, useApi } from "@/api"
+import { DailyVolume, StatsResponse, TopPlayersResponse, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
@@ -7,14 +7,13 @@ import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
-import useSWR from "swr"
 import { PoolList } from "./PoolList"
 import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
 
 export function TotalVolume(props: {creator?: string}) {
-  const { data: daily = [] } = useSWR<DailyVolume[]>(
-    getApiUrl("/daily-usd", {creator: props.creator}),
-    apiFetcher,
+  const { data: daily = [] } = useApi<DailyVolume[]>(
+    "/chart/daily-usd",
+    {creator: props.creator},
   )
   const [hovered, setHovered] = React.useState<DailyVolume | null>(null)
   const total = React.useMemo(

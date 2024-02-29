@@ -53,7 +53,7 @@ export const PLATFORMS = [
   {
     address: '399KgE5gpzFvBB8arZLxA2bes3n4FY7rTMmzifHohPzx',
     name: 'Ninja Turtles',
-    url: 'https://ninja-casino-ninjatss.vercel.app',
+    url: 'https://ninjatsscasino.xyz/',
     image: '/logos/ninjaturtles.png',
   },
   {

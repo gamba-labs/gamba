@@ -1,7 +1,7 @@
 import React from 'react'
 import useAnimationFrame, { AnimationFrameData } from '../hooks/useAnimationFrame'
 
-interface CanvasContext {
+export interface CanvasContext {
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   size: {width: number, height: number}

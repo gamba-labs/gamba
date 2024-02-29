@@ -11,8 +11,6 @@ const volumeSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
 const dailyUsdSchema = z.object({ query: z.object({ creator: z.string({}).optional() }) })
 
-const creatorScema = z.object({ query: z.object({ creator: z.string({}) }) })
-
 const ratioSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
 export const daysAgo = (daysAgo: number) => {
@@ -278,11 +276,11 @@ api.get('/players', validate(playersSchema), async (req, res) => {
     SELECT
       ${(req.query.token || req.query.pool) ? `
         SUM(wager) as token_volume,
-        SUM(payout - wager) as token_profit,
+        SUM(payout - wager + jackpot) as token_profit,
       ` : ''}
       user,
       SUM(creator_fee * usd_per_unit) as creator_fees_usd,
-      SUM((payout - wager) * usd_per_unit) as usd_profit,
+      SUM((payout - wager + jackpot) * usd_per_unit) as usd_profit,
       SUM(wager * usd_per_unit) as usd_volume
     FROM settled_games
     WHERE 1
@@ -322,9 +320,13 @@ const topPlaysSchema = z.object({
 api.get('/top-plays', validate(topPlaysSchema), async (req, res) => {
   const tx = await all(`
     SELECT
+      signature,
       user,
-      (payout-wager) * usd_per_unit as usd_profit,
-      wager * usd_per_unit as usd,
+      token,
+      (payout - wager + jackpot) * usd_per_unit as usd_profit,
+      (payout - wager + jackpot) as profit,
+      jackpot,
+      wager * usd_per_unit as usd_wager,
       multiplier_bps / 10000 as multiplier
     FROM settled_games
     WHERE block_time * 1000 BETWEEN :from AND :until
@@ -383,6 +385,10 @@ api.get('/stats', validate(statsSchema), async (req, res) => {
     WHERE 1 ${creatorQuery}
   `, params)
 
+  const firstBet = await get(`
+    SELECT block_time * 1000 as time FROM settled_games WHERE 1 ${creatorQuery} ORDER BY block_time ASC LIMIT 1
+  `, params)
+
   const { usd_volume, plays } = await get(`
     SELECT COUNT(*) AS plays, SUM(wager * usd_per_unit) as usd_volume FROM settled_games
     WHERE 1 ${creatorQuery}
@@ -415,11 +421,12 @@ api.get('/stats', validate(statsSchema), async (req, res) => {
     revenue_usd,
     player_net_profit_usd,
     active_players,
+    first_bet_time: firstBet.time,
   })
 })
 
 // Returns daily volume for USD
-api.get('/daily-usd', validate(dailyUsdSchema), async (req, res) => {
+api.get('/chart/daily-usd', validate(dailyUsdSchema), async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,
@@ -433,6 +440,25 @@ api.get('/daily-usd', validate(dailyUsdSchema), async (req, res) => {
   `, {
     ':creator': req.query.creator,
     ':from': daysAgo(7),
+    ':until': Date.now(),
+  })
+  res.send(tx)
+})
+
+api.get('/chart/dao-usd', async (req, res) => {
+  const tx = await all(`
+  SELECT
+    strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,
+    SUM(gamba_fee * usd_per_unit) as total_volume
+    FROM settled_games
+    WHERE 1
+    ${req.query.creator ? 'AND creator = :creator' : ''}
+    AND block_time * 1000 BETWEEN :from AND :until
+    GROUP BY date
+    ORDER BY date ASC
+  `, {
+    ':creator': req.query.creator,
+    ':from': daysAgo(999),
     ':until': Date.now(),
   })
   res.send(tx)

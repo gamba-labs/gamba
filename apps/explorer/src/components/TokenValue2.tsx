@@ -36,7 +36,7 @@ export function TokenValue2(props: TokenValueProps) {
           return (amount / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'K'
         }
       }
-      return amount.toLocaleString(undefined, { maximumFractionDigits: Math.floor(amount) > 100 ? 1 : 4 })
+      return amount.toLocaleString(undefined, { maximumFractionDigits: Math.floor(amount) > 100 ? 1 : 5 })
     }
   )()
 

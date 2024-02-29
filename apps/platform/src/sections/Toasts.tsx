@@ -10,18 +10,20 @@ const StyledToasts = styled.div`
   pointer-events: none;
   z-index: 101;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: 10px;
   padding: 10px;
   width: 100%;
 
   @media (min-width: 800px) {
     width: unset;
+    top: unset;
+    bottom: 0px;
   }
 `
 
-const FakeToast = styled.div`
-  background: #ffffff55;
+const StackedToast = styled.div`
+  background: #e8e8e8e3;
   width: 100%;
   border-radius: 10px;
   height: 60px;
@@ -46,7 +48,6 @@ const StyledToast = styled.div`
   flex-direction: column;
   gap: 5px;
   pointer-events: auto;
-  /* justify-content: space-between; */
   user-select: none;
   cursor: pointer;
   padding: 10px;
@@ -75,7 +76,7 @@ const StyledTimer = styled.div<{$ticking: boolean}>`
     100% { width: 0%;}
   }
   width: 100%;
-  height: 3px;
+  height: 5px;
   border-radius: 10px;
   background: #cccccc55;
   position: relative;
@@ -90,7 +91,7 @@ const StyledTimer = styled.div<{$ticking: boolean}>`
     left: 0;
     top: 0;
     width: 100%;
-    height: 3px;
+    height: 5px;
     background: #9564ff;
   }
 `
@@ -140,7 +141,7 @@ export default function Toasts() {
   const toasts = useToastStore((state) => [...state.toasts].reverse())
   const showAll = useMediaQuery('sm')
 
-  const visible = showAll ? toasts : toasts.slice(-1)
+  const visible = showAll ? toasts : toasts.slice(0, 1)
 
   return (
     <StyledToasts>
@@ -148,7 +149,7 @@ export default function Toasts() {
         <Toast toast={toast} key={toast.id} />
       ))}
       {!showAll && toasts.length > 1 && (
-        <FakeToast />
+        <StackedToast />
       )}
     </StyledToasts>
   )

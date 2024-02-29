@@ -2,9 +2,11 @@ import { StoreApi, create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 export interface UserStore {
+  /** Show disclaimer if first time user */
   newcomer: boolean
-  /** A list of games played. The first time a game is opened we display instructions. */
-  gamesPlayed: Set<string>
+  /** A list of games played. The first time a game is opened we can display info */
+  gamesPlayed: Array<string>
+  markGameAsPlayed: (gameId: string, played: boolean) => void
   set: StoreApi<UserStore>['setState']
 }
 
@@ -13,13 +15,22 @@ export interface UserStore {
  */
 export const useUserStore = create(
   persist<UserStore>(
-    (set) => ({
+    (set, get) => ({
       newcomer: true,
-      gamesPlayed: new Set,
+      gamesPlayed: [],
+      markGameAsPlayed: (gameId, played) => {
+        const gamesPlayed = new Set(get().gamesPlayed)
+        if (played) {
+          gamesPlayed.add(gameId)
+        } else {
+          gamesPlayed.delete(gameId)
+        }
+        set({ gamesPlayed: Array.from(gamesPlayed) })
+      },
       set,
     }),
     {
-      name: 'user',
+      name: 'user-11',
       storage: createJSONStorage(() => sessionStorage),
     },
   ),

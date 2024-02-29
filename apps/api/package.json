@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
     "api": "pm2 start pm2.config.js",
-    "api-patch": "nodemon --exec ts-node src/patch.ts",
     "build": "tsup src/index.ts --format cjs",
     "kill": "pm2 kill",
     "restart": "pm2 restart api",

@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useToast } from '../../hooks/useToast'
 
 const Buttons = styled.div`
   overflow: hidden;
@@ -28,11 +29,11 @@ const Buttons = styled.div`
     padding: 10px;
     background: #ffffffdf;
     transition: background .2s ease;
+    color: black;
+    cursor: pointer;
     &:hover {
       background: white;
     }
-    color: black;
-    cursor: pointer;
   }
 `
 

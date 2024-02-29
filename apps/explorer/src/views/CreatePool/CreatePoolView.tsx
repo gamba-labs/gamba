@@ -46,6 +46,47 @@ function SelectableToken(props: {token: ParsedTokenAccount, selected: boolean, o
   )
 }
 
+function PublicPoolWarning({token}: {token: ParsedTokenAccount}) {
+  const selectedTokenMeta = useTokenMeta(token.mint ?? NATIVE_MINT)
+  const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
+
+  return (
+    <>
+      <Text>
+        You are about to create a public liqudity pool for <Avatar src={selectedTokenMeta.image} fallback="?" size="1" radius="full" /><b>{selectedTokenMeta.name} ({selectedTokenMeta.symbol})</b>.
+      </Text>
+      <Text>
+        Since it's public, anyone will be able make deposits to it, and any frontend will be able to make use of its liquidity for plays.
+      </Text>
+      <Text>
+        The cost of creating a pool is <b><TokenValue2 mint={NATIVE_MINT} amount={gambaState?.poolCreationFee ?? 0} /></b> + rent.
+      </Text>
+      <Text>
+        The play fee is currently <b>{(gambaState?.defaultPoolFee.toNumber() ?? 0) / 100}%</b>.
+      </Text>
+    </>
+  )
+}
+
+function PrivatePoolWarning({token}: {token: ParsedTokenAccount}) {
+  const selectedTokenMeta = useTokenMeta(token.mint ?? NATIVE_MINT)
+  const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
+
+  return (
+    <>
+      <Text>
+        You are about to create a private liqudity pool for <Avatar src={selectedTokenMeta.image} fallback="?" size="1" radius="full" /><b>{selectedTokenMeta.name} ({selectedTokenMeta.symbol})</b>.
+      </Text>
+      <Text>
+        Please read up on private pools before creating.
+      </Text>
+      <Text>
+        The cost of creating a pool is <b><TokenValue2 mint={NATIVE_MINT} amount={gambaState?.poolCreationFee ?? 0} /></b> + rent.
+      </Text>
+    </>
+  )
+}
+
 function Inner() {
   const navigate = useNavigate()
   const { connection } = useConnection()
@@ -62,8 +103,6 @@ function Inner() {
     () => selectedPoolId && "pool-" + selectedPoolId.toBase58(),
     () => selectedPoolId && fetchPool(connection, selectedPoolId),
   )
-
-  const selectedTokenMeta = useTokenMeta(selectedToken?.mint ?? NATIVE_MINT)
 
   const [search, setSearch] = React.useState("")
 
@@ -102,19 +141,20 @@ function Inner() {
 
       const pool = getPoolAddress(selectedToken.mint, authority)
 
-      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 })
+      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 1_000_000 })
       const slot = await connection.getSlot()
 
       const combinedInstructions = [
         modifyComputeUnits,
         ...gamba.createPool(selectedToken.mint, authority, slot),
-        // gamba.createPoolLocalnet(selectedToken.mint, authority),
       ]
 
-      await sendTx(
+      const tx = await sendTx(
         combinedInstructions,
         { confirmation: "confirmed" },
       )
+
+      console.log("TXID", tx)
 
       navigate("/pool/" + pool.toBase58() + "")
     } catch (err) {
@@ -164,7 +204,11 @@ function Inner() {
             <Text>
               Private
             </Text>
-            <Switch disabled radius="full" checked={isPrivate} onCheckedChange={value => setPrivate(value)} />
+            <Switch
+              radius="full"
+              checked={isPrivate}
+              onCheckedChange={value => setPrivate(value)}
+            />
           </Flex>
           <Dialog.Root>
             <Dialog.Trigger>
@@ -178,24 +222,18 @@ function Inner() {
               </Button>
             </Dialog.Trigger>
             <Dialog.Content>
-              <Grid gap="2">
+              <Flex direction="column" gap="2">
                 <Heading>Read before creating!</Heading>
-                <Text>
-                  You are about to create a public liqudity pool for <Avatar src={selectedTokenMeta.image} fallback="?" size="1" radius="full" /><b>{selectedTokenMeta.name} ({selectedTokenMeta.symbol})</b>.
-                </Text>
-                <Text>
-                  Since it's public, anyone will be able make deposits to it, and any frontend will be able to make use of its liquidity for plays.
-                </Text>
-                <Text>
-                  The cost of creating a pool is <b><TokenValue2 mint={NATIVE_MINT} amount={gambaState?.poolCreationFee ?? 0} /></b> + rent.
-                </Text>
-                <Text>
-                  The play fee is currently <b>{(gambaState?.defaultPoolFee.toNumber() ?? 0) / 100}%</b>.
-                </Text>
+                {selectedToken && (
+                  <>
+                    {!isPrivate && <PublicPoolWarning token={selectedToken} />}
+                    {isPrivate && <PrivatePoolWarning token={selectedToken} />}
+                  </>
+                )}
                 <Button size="3" variant="soft" color="green" onClick={createPool}>
                   Create Pool
                 </Button>
-              </Grid>
+              </Flex>
             </Dialog.Content>
           </Dialog.Root>
           {!isLoading && !!selectedPool && (

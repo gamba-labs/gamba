@@ -1,43 +1,11 @@
 import { GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
-import html2canvas from 'html2canvas'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Flex } from '../../components'
 import { Modal } from '../../components/Modal'
 import { PLATFORM_SHARABLE_URL } from '../../constants'
-import { useToast } from '../../hooks/useToast'
 import { extractMetadata } from '../../utils'
-
-// const saveBlob = (function() {
-//   const a = document.createElement('a')
-//   document.body.appendChild(a)
-//   a.setAttribute('style', 'display: none')
-
-//   return function(blob: Blob, fileName: string) {
-//     const url = window.URL.createObjectURL(blob)
-//     a.href = url
-//     a.download = fileName
-//     a.click()
-//     window.URL.revokeObjectURL(url)
-//   }
-// })()
-
-export const canvasToBlob = (canvas: HTMLCanvasElement) => {
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) reject('Failed to create blob')
-        resolve(blob!)
-      },
-    )
-  })
-}
-
-const canvasToClipboard = async (canvas: HTMLCanvasElement) => {
-  const blob = await canvasToBlob(canvas)
-  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-}
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
   const navigate = useNavigate()
@@ -49,25 +17,8 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
   const tokenMeta = useTokenMeta(event.data.tokenMint)
   const ref = React.useRef<HTMLDivElement>(null!)
 
-  const toast = useToast()
-
   const profit = event.data.payout.sub(event.data.wager).toNumber()
   const percentChange = profit / event.data.wager.toNumber()
-  const [copying, setCopying] = React.useState(false)
-
-  const copyImage = async () => {
-    try {
-      setCopying(true)
-      const canvas = await html2canvas(ref.current, { removeContainer: true, backgroundColor: '#000' })
-      await canvasToClipboard(canvas)
-      toast({
-        title: '📋 Copied image to clipboard',
-        description: 'You can paste it in Twitter or Telegram etc.',
-      })
-    } finally {
-      setCopying(false)
-    }
-  }
 
   return (
     <Modal onClose={() => onClose()}>
@@ -100,9 +51,6 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
         <Flex>
           <GambaUi.Button size="small" onClick={gotoGame}>
             Play {game?.meta?.name}
-          </GambaUi.Button>
-          <GambaUi.Button size="small" disabled={copying} onClick={copyImage}>
-            Share
           </GambaUi.Button>
           <GambaUi.Button size="small" onClick={() => window.open(`https://explorer.gamba.so/tx/${event.signature}`, '_blank')}>
             Verify

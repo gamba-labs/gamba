@@ -1,6 +1,7 @@
 import { PublicKey } from '@solana/web3.js'
 
 export const PROGRAM_ID = new PublicKey('Gamba2hK6KV3quKq854B3sQG1WMdq3zgQLPKqyK4qS18')
+export const SYSTEM_PROGRAM = new PublicKey('11111111111111111111111111111111')
 
 export const GAME_SEED = 'GAME'
 export const PLAYER_SEED = 'PLAYER'

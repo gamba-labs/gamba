@@ -1,11 +1,13 @@
 import { ConfigDialog } from "@/GambaConfig"
+import { DailyVolume, useApi } from "@/api"
+import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
 import { TokenItem } from "@/components"
 import { Details } from "@/components/Details"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useGetTokenMeta, useTokenAccountsByOwner } from "@/hooks"
 import { GearIcon } from "@radix-ui/react-icons"
-import { Button, Card, Dialog, Grid, Text } from "@radix-ui/themes"
+import { Button, Card, Dialog, Flex, Grid, Text } from "@radix-ui/themes"
 import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
 import { PublicKey } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
@@ -30,6 +32,48 @@ function ButtonWithDialog(props: React.PropsWithChildren & {label: React.ReactNo
         {props.children}
       </Dialog.Content>
     </Dialog.Root>
+  )
+}
+
+function TotalVolume() {
+  const { data: daily = [] } = useApi<DailyVolume[]>(
+    "/chart/dao-usd",
+  )
+  const [hovered, setHovered] = React.useState<LineChartDataPoint | null>(null)
+
+  const cumsum = React.useMemo(
+    () => daily.reduce<LineChartDataPoint[]>((p, x, i, arr) => {
+      const prev_volume = i === 0 ? 0 : p[i - 1].value
+      return [
+        ...p,
+        {value: prev_volume + x.total_volume, date: x.date}
+      ]
+    }, [] as LineChartDataPoint[]),
+    [daily]
+  )
+  const total = React.useMemo(
+    () => cumsum.length ? cumsum[cumsum.length - 1].value : 0,
+    [cumsum]
+  )
+
+  return (
+    <Card size="2">
+      <Flex direction="column" gap="2">
+        <Text color="gray">
+          {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Fees'}
+        </Text>
+        <Text size="7" weight="bold">
+          ${(hovered?.value ?? total).toLocaleString(undefined, {maximumFractionDigits: 1})}
+        </Text>
+      </Flex>
+      <div style={{height: '200px'}}>
+        <LineChart
+          chart={{data: cumsum}}
+          onHover={setHovered}
+          lineColor="#33ff66"
+        />
+      </div>
+    </Card>
   )
 }
 
@@ -101,24 +145,27 @@ export default function DaoView() {
   )
 
   return (
-    <Grid gap="4">
-      <Details
-        title="DAO"
-        rows={[
-          ["DAO Address", <SolanaAddress address={daoAddress} />],
-          [
-            "Accumulated fees",
-            <Text>
-              ${total.toLocaleString(undefined, {maximumFractionDigits: 1})}
-            </Text>
-          ],
-        ]}
-      />
-      {isGambaStateAuthority && (
-        <ButtonWithDialog label={<>Config <GearIcon /></>}>
-          <ConfigDialog />
-        </ButtonWithDialog>
-      )}
+    <Grid columns="2" gap="4">
+      <Flex gap="4" direction="column">
+        <TotalVolume />
+        <Details
+          title="Details"
+          rows={[
+            ["DAO Address", <SolanaAddress address={daoAddress} />],
+            [
+              "Balance",
+              <Text>
+                ${total.toLocaleString(undefined, {maximumFractionDigits: 1})}
+              </Text>
+            ],
+          ]}
+        />
+        {isGambaStateAuthority && (
+          <ButtonWithDialog label={<>Config <GearIcon /></>}>
+            <ConfigDialog />
+          </ButtonWithDialog>
+        )}
+      </Flex>
       <Card>
         <Grid gap="4">
           <Grid gap="2">

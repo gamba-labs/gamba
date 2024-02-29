@@ -28,6 +28,7 @@ import { StatusResponse, useApi } from "./api"
 import NavigationMenu from "./components/NavigationMenu"
 import { PoolList } from "./views/Dashboard/PoolList"
 import { TopPlatforms } from "./views/Dashboard/TopPlatforms"
+import EmbeddedTransactionView from "./views/Transaction/EmbeddedTransaction"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -235,6 +236,7 @@ export function App() {
           <Route path="/portfolio" element={<PortfolioView />} />
           <Route path="/user" element={<DebugUserView />} />
           <Route path="/tx/:txid" element={<TransactionView />} />
+          <Route path="/embed/tx/:txid" element={<EmbeddedTransactionView />} />
           <Route path="/create" element={<CreatePoolView />} />
           <Route path="/pool/:poolId" element={<PoolView />} />
           <Route path="/pool/:poolId/deposit" element={<PoolDepositView />} />

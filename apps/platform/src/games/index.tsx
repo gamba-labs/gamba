@@ -2,6 +2,16 @@ import { GameBundle } from 'gamba-react-ui-v2'
 import React from 'react'
 
 export const GAMES: GameBundle[] = [
+  // {
+  //   id: 'example',
+  //   meta: {
+  //     background: '#00ffe1',
+  //     name: 'Example',
+  //     image: '#',
+  //     description: '',
+  //   },
+  //   app: React.lazy(() => import('./ExampleGame')),
+  // },
   {
     id: 'dice',
     meta: {
@@ -39,18 +49,6 @@ export const GAMES: GameBundle[] = [
     app: React.lazy(() => import('./Flip')),
   },
   {
-    id: 'plinko',
-    meta: {
-      background: '#7272ff',
-      image: '/games/plinko.png',
-      name: 'Plinko',
-      description: `
-        Plinko
-      `,
-    },
-    app: React.lazy(() => import('./Plinko')),
-  },
-  {
     id: 'hilo',
     meta: {
       name: 'HiLo',
@@ -84,5 +82,17 @@ export const GAMES: GameBundle[] = [
       background: '#1de87e',
     },
     app: React.lazy(() => import('./Roulette')),
+  },
+  {
+    id: 'plinko',
+    meta: {
+      background: '#7272ff',
+      image: '/games/plinko.png',
+      name: 'Plinko',
+      description: `
+        ⚠️ Plinko is under development and may not work properly on your device. Results shown might be incorrect.
+      `,
+    },
+    app: React.lazy(() => import('./Plinko')),
   },
 ]

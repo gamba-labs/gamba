@@ -66,7 +66,7 @@ function CustomRenderer() {
   return (
     <>
       {info && (
-        <Modal onClose={closeInfo}>
+        <Modal onClose={() => setInfo(false)}>
           <h1>
             <img height="100px" title={game.meta.name} src={game.meta.image} />
           </h1>
@@ -126,12 +126,6 @@ export default function Game() {
     <>
       {game ? (
         <GambaUi.Game
-          // elements={{
-          //   button: (props) => (
-          //     <button {...props} className="cool tailwind syntax goes here" />
-          //   ),
-          //   select: (props) => ...,
-          // }}
           game={game}
           errorFallback={<CustomError />}
           children={<CustomRenderer />}

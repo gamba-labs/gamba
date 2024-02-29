@@ -214,91 +214,6 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1
 
-  apps/flipflip:
-    dependencies:
-      '@coral-xyz/anchor':
-        specifier: ^0.27.0
-        version: 0.27.0
-      '@metaplex-foundation/mpl-token-metadata':
-        specifier: ^3.2.0
-        version: 3.2.0(@metaplex-foundation/umi@0.9.1)
-      '@preact/signals-react':
-        specifier: ^1.3.8
-        version: 1.3.8(react@18.2.0)
-      '@react-three/drei':
-        specifier: ^9.89.0
-        version: 9.89.0(@react-three/fiber@8.15.11)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.158.0)
-      '@react-three/fiber':
-        specifier: ^8.15.11
-        version: 8.15.11(react-dom@18.2.0)(react-native@0.73.4)(react@18.2.0)(three@0.158.0)
-      '@solana/spl-token':
-        specifier: ^0.3.8
-        version: 0.3.8(@solana/web3.js@1.90.0)
-      '@solana/wallet-adapter-react':
-        specifier: ^0.15.35
-        version: 0.15.35(@solana/web3.js@1.90.0)(bs58@4.0.1)(react-native@0.73.4)(react@18.2.0)
-      '@solana/wallet-adapter-react-ui':
-        specifier: ^0.9.35
-        version: 0.9.35(@solana/web3.js@1.90.0)(bs58@4.0.1)(react-dom@18.2.0)(react-native@0.73.4)(react@18.2.0)
-      '@solana/wallet-adapter-wallets':
-        specifier: ^0.19.26
-        version: 0.19.26(@babel/runtime@7.23.9)(@solana/web3.js@1.90.0)(bs58@4.0.1)(react-dom@18.2.0)(react-native@0.73.4)(react@18.2.0)(tslib@2.6.2)
-      '@solana/web3.js':
-        specifier: ^1.90.0
-        version: 1.90.0
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
-      gamba-core-v2:
-        specifier: workspace:*
-        version: link:../../packages/core
-      gamba-react-v2:
-        specifier: workspace:*
-        version: link:../../packages/react
-      helius-sdk:
-        specifier: ^1.2.3
-        version: 1.2.3(arweave@1.14.4)
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-router-dom:
-        specifier: ^6.21.0
-        version: 6.21.0(react-dom@18.2.0)(react@18.2.0)
-      styled-components:
-        specifier: ^6.1.1
-        version: 6.1.1(react-dom@18.2.0)(react@18.2.0)
-      swr:
-        specifier: ^2.2.4
-        version: 2.2.4(react@18.2.0)
-      three:
-        specifier: ^0.158.0
-        version: 0.158.0
-      three-stdlib:
-        specifier: ^2.29.4
-        version: 2.29.4(three@0.158.0)
-      tone:
-        specifier: ^14.7.77
-        version: 14.7.77
-    devDependencies:
-      '@types/react':
-        specifier: ^18.2.45
-        version: 18.2.45
-      '@types/react-dom':
-        specifier: ^18.2.18
-        version: 18.2.18
-      '@types/three':
-        specifier: ^0.161.2
-        version: 0.161.2
-      '@vitejs/plugin-react':
-        specifier: ^4.2.1
-        version: 4.2.1(vite@5.0.10)
-      vite:
-        specifier: ^5.0.10
-        version: 5.0.10
-
   apps/platform:
     dependencies:
       '@coral-xyz/anchor':
@@ -392,6 +307,91 @@ importers:
       vite-plugin-pwa:
         specifier: ^0.17.4
         version: 0.17.4(vite@4.2.1)(workbox-build@7.0.0)(workbox-window@7.0.0)
+
+  apps/trash.flipflip:
+    dependencies:
+      '@coral-xyz/anchor':
+        specifier: ^0.27.0
+        version: 0.27.0
+      '@metaplex-foundation/mpl-token-metadata':
+        specifier: ^3.2.0
+        version: 3.2.0(@metaplex-foundation/umi@0.9.1)
+      '@preact/signals-react':
+        specifier: ^1.3.8
+        version: 1.3.8(react@18.2.0)
+      '@react-three/drei':
+        specifier: ^9.89.0
+        version: 9.89.0(@react-three/fiber@8.15.11)(@types/three@0.161.2)(react-dom@18.2.0)(react@18.2.0)(three@0.158.0)
+      '@react-three/fiber':
+        specifier: ^8.15.11
+        version: 8.15.11(react-dom@18.2.0)(react-native@0.73.4)(react@18.2.0)(three@0.158.0)
+      '@solana/spl-token':
+        specifier: ^0.3.8
+        version: 0.3.8(@solana/web3.js@1.90.0)
+      '@solana/wallet-adapter-react':
+        specifier: ^0.15.35
+        version: 0.15.35(@solana/web3.js@1.90.0)(bs58@4.0.1)(react-native@0.73.4)(react@18.2.0)
+      '@solana/wallet-adapter-react-ui':
+        specifier: ^0.9.35
+        version: 0.9.35(@solana/web3.js@1.90.0)(bs58@4.0.1)(react-dom@18.2.0)(react-native@0.73.4)(react@18.2.0)
+      '@solana/wallet-adapter-wallets':
+        specifier: ^0.19.26
+        version: 0.19.26(@babel/runtime@7.23.9)(@solana/web3.js@1.90.0)(bs58@4.0.1)(react-dom@18.2.0)(react-native@0.73.4)(react@18.2.0)(tslib@2.6.2)
+      '@solana/web3.js':
+        specifier: ^1.90.0
+        version: 1.90.0
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      gamba-core-v2:
+        specifier: workspace:*
+        version: link:../../packages/core
+      gamba-react-v2:
+        specifier: workspace:*
+        version: link:../../packages/react
+      helius-sdk:
+        specifier: ^1.2.3
+        version: 1.2.3(arweave@1.14.4)
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-router-dom:
+        specifier: ^6.21.0
+        version: 6.21.0(react-dom@18.2.0)(react@18.2.0)
+      styled-components:
+        specifier: ^6.1.1
+        version: 6.1.1(react-dom@18.2.0)(react@18.2.0)
+      swr:
+        specifier: ^2.2.4
+        version: 2.2.4(react@18.2.0)
+      three:
+        specifier: ^0.158.0
+        version: 0.158.0
+      three-stdlib:
+        specifier: ^2.29.4
+        version: 2.29.4(three@0.158.0)
+      tone:
+        specifier: ^14.7.77
+        version: 14.7.77
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.45
+        version: 18.2.45
+      '@types/react-dom':
+        specifier: ^18.2.18
+        version: 18.2.18
+      '@types/three':
+        specifier: ^0.161.2
+        version: 0.161.2
+      '@vitejs/plugin-react':
+        specifier: ^4.2.1
+        version: 4.2.1(vite@5.0.10)
+      vite:
+        specifier: ^5.0.10
+        version: 5.0.10
 
   packages/core:
     dependencies:
@@ -3978,7 +3978,7 @@ packages:
     resolution: {integrity: sha512-G+2XgjXde2IOcEQeCwR250aS43/Swi7gw0FuETgJy2c3HqF8f88SXDMsIGgJlZ8jXd0GeHR4aX0MfjXf523UZg==}
     dependencies:
       '@apocentre/alias-sampling': 0.5.3
-      assert: 2.0.0
+      assert: 2.1.0
       bignumber.js: 9.1.2
       cbor-sync: 1.0.4
       crc: 3.8.0
@@ -7508,7 +7508,7 @@ packages:
       '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.90.0)
       '@solana/web3.js': 1.90.0
       '@toruslabs/solana-embed': 0.3.4(@babel/runtime@7.23.9)
-      assert: 2.0.0
+      assert: 2.1.0
       crypto-browserify: 3.12.0
       process: 0.11.10
       stream-browserify: 3.0.0
@@ -16759,7 +16759,7 @@ packages:
     resolution: {integrity: sha512-g7+gs3T+NfoeW6vIq5dcN0CkIT4t/zwRzFxz8X2RzfbrWRnewPUKqQbmBgs05tXLX5NuWPaneiaAVpFpYBcdfw==}
     engines: {node: '>= 10'}
     dependencies:
-      assert: 2.0.0
+      assert: 2.1.0
       big-integer: 1.6.52
       buffer: 6.0.3
       create-hash: 1.2.0

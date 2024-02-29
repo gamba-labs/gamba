@@ -30,7 +30,7 @@ export const useUserStore = create(
       set,
     }),
     {
-      name: 'user-11',
+      name: 'user',
       storage: createJSONStorage(() => sessionStorage),
     },
   ),

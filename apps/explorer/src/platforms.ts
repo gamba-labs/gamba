@@ -186,6 +186,11 @@ export const PLATFORMS = [
     url: "https://play.snoopybabe.com",
     image: "/logos/snoopybabe.png"
   },
+  {
+    address: "7vuhsRQ2gE4WPv37qegBKu8PcWHxDb5rQ6fQKkDfUghF",
+    name: "Solcade",
+    image: "/logos/solcade.png"
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

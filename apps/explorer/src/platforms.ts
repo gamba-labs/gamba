@@ -187,7 +187,7 @@ export const PLATFORMS = [
     image: "/logos/snoopybabe.png"
   },
   {
-    address: "7vuhsRQ2gE4WPv37qegBKu8PcWHxDb5rQ6fQKkDfUghF",
+    address: "4H78a8exeM6HDetdgpCFeQTo2jZcypwiGoebW9qrUG1s",
     name: "Solcade",
     image: "/logos/solcade.png"
   },

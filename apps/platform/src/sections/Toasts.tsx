@@ -12,13 +12,14 @@ const StyledToasts = styled.div`
   display: flex;
   flex-direction: column-reverse;
   gap: 10px;
-  padding: 10px;
+  padding: 20px;
   width: 100%;
 
   @media (min-width: 800px) {
     width: unset;
     top: unset;
     bottom: 0px;
+    padding: 40px;
   }
 `
 

@@ -44,7 +44,7 @@ function RecentPlay({ event }: {event: GambaTransaction<'GameSettled'>}) {
       </div>
       {md && (profit >= 0 ? ' won ' : ' lost ')}
       <Profit $win={profit > 0}>
-        <img src={token.image} height="15px" />
+        <img src={token.image} height="20px" style={{ borderRadius: '50%' }} />
         <TokenValue amount={Math.abs(profit)} mint={data.tokenMint} />
         {/* {(token.usdPrice * profit / (10 ** token.decimals)).toLocaleString()} USD */}
       </Profit>

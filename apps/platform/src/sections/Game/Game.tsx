@@ -71,8 +71,8 @@ function CustomRenderer() {
             <img height="100px" title={game.meta.name} src={game.meta.image} />
           </h1>
           <p>{game.meta.description}</p>
-          <GambaUi.Button onClick={closeInfo}>
-            Close
+          <GambaUi.Button main onClick={closeInfo}>
+            Okay
           </GambaUi.Button>
         </Modal>
       )}

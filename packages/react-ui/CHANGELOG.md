@@ -1,5 +1,17 @@
 # gamba-react-ui-v2
 
+## 0.3.0
+
+### Minor Changes
+
+- Private pool support
+
+### Patch Changes
+
+- Updated dependencies
+  - gamba-core-v2@0.2.0
+  - gamba-react-v2@1.0.0
+
 ## 0.2.0
 
 ### Minor Changes

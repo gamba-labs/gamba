@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
-import { BPS_PER_WHOLE, decodeAta, decodeGambaState, decodePool, getGambaStateAddress, getPoolAddress, getPoolJackpotTokenAccountAddress } from 'gamba-core-v2'
+import { BPS_PER_WHOLE, SYSTEM_PROGRAM, decodeAta, decodeGambaState, decodePool, getGambaStateAddress, getPoolAddress, getPoolJackpotTokenAccountAddress } from 'gamba-core-v2'
 import { useAccount } from './useAccount'
 
 export interface UiPoolState {
@@ -11,10 +11,11 @@ export interface UiPoolState {
   gambaFee: number
   poolFee: number
   jackpotBalance: number
+  authority: PublicKey
 }
 
-export function usePool(token: PublicKey): UiPoolState {
-  const publicKey = getPoolAddress(token)
+export function usePool(token: PublicKey, authority: PublicKey = SYSTEM_PROGRAM): UiPoolState {
+  const publicKey = getPoolAddress(token, authority)
   const account = useAccount(publicKey, decodePool)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
 
@@ -31,6 +32,7 @@ export function usePool(token: PublicKey): UiPoolState {
       gambaFee: 0,
       poolFee: 0,
       jackpotBalance: 0,
+      authority,
     }
   }
 
@@ -54,5 +56,6 @@ export function usePool(token: PublicKey): UiPoolState {
     gambaFee,
     poolFee,
     jackpotBalance: Number(jackpotBalance),
+    authority,
   }
 }

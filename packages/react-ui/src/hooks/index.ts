@@ -1,11 +1,19 @@
-import { PublicKey } from '@solana/web3.js'
-import { GambaPlayInput, useBalance, useGambaPlay, useNextResult, usePool, useWalletAddress } from 'gamba-react-v2'
+import { useBalance, useWalletAddress } from 'gamba-react-v2'
 import React from 'react'
 import { GambaPlatformContext } from '../GambaPlatformProvider'
-import { GameContext } from '../GameContext'
-import { useTokenMeta } from '../TokenListContext'
+import { useCurrentPool } from './useCurrentPool'
+import { useFakeToken } from './useFakeToken'
+import { useTokenMeta } from './useTokenMeta'
 
+export * from './useCurrentPool'
+export * from './useFakeToken'
+export * from './useGame'
 export * from './useSound'
+export * from './useTokenMeta'
+
+export function useGambaPlatformContext() {
+  return React.useContext(GambaPlatformContext)
+}
 
 export function useFees() {
   const context = React.useContext(GambaPlatformContext)
@@ -16,47 +24,24 @@ export function useFees() {
   return totalTokenFees
 }
 
-export const useCurrentPool = () => {
-  const token = useCurrentToken()
-  return usePool(token.mint)
-}
-
 export const useCurrentToken = () => {
-  const token = React.useContext(GambaPlatformContext).token
-  const meta = useTokenMeta(token)
-  return meta
+  const { token } = React.useContext(GambaPlatformContext).selectedPool
+  return useTokenMeta(token)
 }
 
 export const useUserBalance = () => {
   const token = useCurrentToken()
   const userAddress = useWalletAddress()
-  return useBalance(userAddress, token.mint)
-}
+  const realBalance = useBalance(userAddress, token.mint)
+  const fake = useFakeToken()
 
-export function useGame() {
-  const game = React.useContext(GameContext)
-  const context = React.useContext(GambaPlatformContext)
-  const balances = useUserBalance()
-  const gambaPlay = useGambaPlay()
-  const result = useNextResult()
-
-  const play = async (input: Pick<GambaPlayInput, 'wager' | 'bet' | 'metadata'>) => {
-    const metaArgs = input.metadata ?? []
-    return await gambaPlay({
-      ...input,
-      creator: new PublicKey(context.platform.creator),
-      metadata: ['0', game.game.id, ...metaArgs],
-      clientSeed: context.clientSeed,
-      creatorFee: context.defaultCreatorFee,
-      jackpotFee: context.defaultJackpotFee,
-      token: context.token,
-      useBonus: balances.bonusBalance > 0,
-    })
+  if (fake.isActive) {
+    return {
+      ...realBalance,
+      balance: fake.balance.balance,
+      bonusBalance: 0,
+    }
   }
 
-  return {
-    play,
-    game: game.game,
-    result,
-  }
+  return realBalance
 }

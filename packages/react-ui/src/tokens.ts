@@ -1,5 +1,7 @@
 import { PublicKey } from '@solana/web3.js'
 
+export const FAKE_TOKEN_MINT = new PublicKey('FakeCDoCX1NWywV9m63fk7gmV9S4seMoyqzcNYEmRYjy')
+
 export interface TokenMeta {
   mint: PublicKey
   name: string
@@ -7,9 +9,20 @@ export interface TokenMeta {
   image?: string
   decimals: number
   baseWager: number
+  /** Set this value if you want to use a private pool */
+  poolAuthority?: PublicKey
+  usdPrice: number
 }
 
 export const GambaStandardTokens = {
+  fake: {
+    mint: new PublicKey('FakeCDoCX1NWywV9m63fk7gmV9S4seMoyqzcNYEmRYjy'),
+    name: 'Fake Money',
+    symbol: 'FAKE',
+    image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAYAAADG4PRLAAAAAXNSR0IArs4c6QAAA55JREFUeJztndtNI0EURIvV5kAopGJ+CIEE+F0ScAj+wakQykYBH6jRaDSe6XdXtetISCBhsHxUtx/Td+bh3+nrC0aWP6PfgCnDAsWxQHEsUBwLFMcCxbFAcSxQHAsUxwILefv4+RrF33H/ug2X6/n3+5fT68B30oepEriUt/VzbUYmL/Awy2Z2rKxaqdyS9/5c5U8nMUUCU5J2uZ6bJ7Mn8gnck/Fyeo2SlZrKvdLZO4XSArfkfP7/kfH0mJayGIkxY54FJrAWGOQFakgsmaj0kCk7BsaUxrXQ3vSYpUom8Ch5a1KSuFdKc4W0TKKcwFR5gVoSgWORPcdBqRKaKy/1d4/K856g3pMYGYEl8nJek7NW9EL+BjUX3rUmNmtZI+QBAgK3klcqIfb1Crs29AJbUSOJo1K3hHYWurfLUpPY2SnrpSmZBLZalKeUU0YoBdaYcaagLJH+inyKvHU5HL2V1gPKBDLDlkILzIBJogWKY4HiWKA4FiiOBYpjgeJYoDgWKI4FimOB4ligOBYojgWKY4HiWKA4FigOvcCUnobS9jJFKAWuj/C1lPj0eJYWTSkQKJPYGqYzorQHewMlRwyX0muVVyZ5AHECA7WSyJTgmtAnMNCjsfMItvQBAgkM5CZx9sO9MgKBsRIZ0weICdw6UNtDIqs8QEjg3mnolhKZ5QEiAmN6Be91TKQXuCevh0SmPogtqAXGJK/H/iezRFqBKS3WORJTSymrREqBOf3xPSQyQilwTcsPWn08pBfIlhI2ifQCGWGSaIHiWKA4FiiOBYpjgeJYoDgWKI4FimOB4ligOBYojgWKY4HiWKA4FijOtALZLgS3YthNz98+6j84416kLRmawJjn8bVuC1NvOxteQrck9urOVZcHDBS4LJ+3JC5F1u5ln0EeQJDAQI/nzQZmkQcIPLklpDCcBAsffu6EpVQeW7cSTQKB9imcKXkBKoHAbYlbY2IKNeSxpQ8YLLB0HRgrZVZ5wOC7VJQ8l315OnpvPJxZHkBYQnO4JWnGMW+NnMBQdo8W+7WSx5w+YGAJzSmft8bMFs0m7OICQxJYU14LVOQBgiV0i5qlTkkeMInAWqjJAwZtpW2Vw72yGls+19tu9wBNAt+f641zOUlSTB9AervJdRpLxR4lUlUeQJTAJbVnnHuClOUBApeTWpXVy/UsLw8gLaGBUEp7rgHVoE6gxR1DOQaaeCxQHAsUxwLFsUBxLFAcCxTnGwzKf0r3c1xCAAAAAElFTkSuQmCC',
+    decimals: 9,
+    baseWager: 1 * 1e9,
+  },
   sol: {
     mint: new PublicKey('So11111111111111111111111111111111111111112'),
     name: 'Solana',

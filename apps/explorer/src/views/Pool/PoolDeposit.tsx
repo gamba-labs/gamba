@@ -1,6 +1,6 @@
 import { Button, Card, Dialog, Flex, Grid, Heading, IconButton, Text, TextField } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
-import { decodeAta, getUserWsolAccount, isNativeMint, wrapSol } from "gamba-core-v2"
+import { decodeAta, decodeGambaState, getGambaStateAddress, getUserWsolAccount, isNativeMint, wrapSol } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import BigDecimal from 'js-big-decimal'
 import React from "react"
@@ -37,6 +37,7 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
   const sendTransaction = useSendTransaction()
   const toast = useToast()
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
+  const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const amount = stringtoBigIntUnits(amountText, token.decimals)
   const receiveLpAmount = BigInt(new BigDecimal(amount).divide(new BigDecimal(pool.ratio)).round().getValue())
 
@@ -104,18 +105,30 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
           </TextField.Slot>
         </TextField.Root>
         <Flex justify="between">
-          <Text size="2" color="gray">
+          <Text color="gray">
             Balance
           </Text>
-          <Text size="2">
+          <Text>
             <TokenValue2 exact amount={balance.balance} mint={token.mint} />
           </Text>
         </Flex>
         <Flex justify="between">
-          <Text size="2" color="gray">
+          <Text color="gray">
+            Value
+          </Text>
+          <Text>
+            <TokenValue2
+              dollar
+              amount={receiveLpAmount}
+              mint={pool.underlyingTokenMint}
+            />
+          </Text>
+        </Flex>
+        <Flex justify="between">
+          <Text color="gray">
             Receive
           </Text>
-          <Text size="2">
+          <Text>
             <TokenValue2
               exact
               amount={receiveLpAmount}
@@ -133,14 +146,17 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
           <Dialog.Content>
             <Flex direction="column" gap="4">
               <Heading>Warning!</Heading>
-              <Text>
+              <Text color="red">
                 Gamba v2 is <strong>unaudited</strong>. The tokens you are about to deposit could vanish at any point in case of an undetected bug or exploit. We offer no refunds.
               </Text>
               <Text>
                 The pool is also subject to volatility and you are at risk of losing money if the pool performs poorly.
               </Text>
+              <Text>
+                The play fee is currently <b>{(gambaState?.defaultPoolFee.toNumber() ?? 0) / 100}%</b>.
+              </Text>
               <Dialog.Close>
-                <Button variant="soft" color="red" onClick={deposit}>
+                <Button size="3" variant="soft" onClick={deposit}>
                   I know what I'm doing. Deposit
                 </Button>
               </Dialog.Close>

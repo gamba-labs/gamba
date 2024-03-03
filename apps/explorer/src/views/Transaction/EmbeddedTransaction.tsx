@@ -2,7 +2,7 @@ import { ArrowRightIcon, CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from "
 import { Badge, Box, Button, Card, Code, Dialog, Flex, Grid, Heading, IconButton, Link, Table, Tabs, Text, TextField } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection } from "@solana/web3.js"
-import { BPS_PER_WHOLE, GambaTransaction, parseGambaTransaction } from "gamba-core-v2"
+import { BPS_PER_WHOLE, GambaTransaction, decodePool, parseGambaTransaction } from "gamba-core-v2"
 import React from "react"
 import { NavLink, useParams } from "react-router-dom"
 import styled, { css } from "styled-components"
@@ -12,6 +12,9 @@ import { TokenAvatar } from "@/components"
 import { PlatformAccountItem, PlayerAccountItem } from "@/components/AccountItem"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
+import { SYSTEM_PROGRAM } from "@/constants"
+import { useTokenMeta } from "@/hooks"
+import { useAccount } from "gamba-react-v2"
 
 const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
   --rank-0: #ff293b;
@@ -24,7 +27,7 @@ const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
   --rank-7: #60ff9b;
   background-color: var(--slate-2);
 
-  padding: calc(var(--space-1) / 2) var(--space-2);
+  padding: 5px 10px;
   min-width: 2em;
   text-align: center;
   position: relative;
@@ -189,76 +192,22 @@ function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled
               </Grid>
             </Table.Cell>
           </Table.Row>
-
-          <Table.Row>
-            <Table.Cell>
-              <Grid columns="2" gap="4">
-                <Text weight="bold">
-                  Simulated result
-                </Text>
-                <Flex gap="2" direction="column">
-                  <Flex gap="2" align="center">
-                    <Text>Payout:</Text>
-                    {output !== undefined && (
-                      <Code>
-                        <TokenValue2
-                          mint={data.tokenMint}
-                          amount={data.bet[output] / 10_000 * data.wager}
-                        />
-                      </Code>
-                    )}
-                  </Flex>
-                  <Outcomes bet={data.bet} resultIndex={output ?? 0} />
-                </Flex>
-              </Grid>
-            </Table.Cell>
-          </Table.Row>
-
         </Table.Body>
       </Table.Root>
       <Card>
-        <Flex direction="column" gap="4">
-          <Text size="4" weight="bold">
-            This game is provably fair.
-          </Text>
-          <Text size="2">
-            The result is calculated by combining the <Code>rng_seed</Code> provided by Gamba, the <Code>client_seed</Code> provided by the player, and a <Code>nonce</Code>, which increments by 1 for each play.
-            <br />
-            The sha256 hash for the next RNG Seed is revealed in this transaction just like the one prior.
-            <br />
-            You can simulate the bet here with a custom client seed, to see how it would affect the result.<br />
-          </Text>
-          <Dialog.Root>
-            <Dialog.Trigger>
-              <Link size="2">
-                View code <CodeIcon />
-              </Link>
-            </Dialog.Trigger>
-            <Dialog.Content style={{ maxWidth: 450 }}>
-              <Dialog.Title>
-                Javascript Code
-              </Dialog.Title>
-              <Dialog.Description size="2">
-                Run this Javascript code locally in any browser console to get the same result:
-              </Dialog.Description>
-              <Box>
-                <pre
-                  dangerouslySetInnerHTML={{ __html: `eval(\`${script}\`).then(console.log)`.replaceAll("\n", "<br />") }}
+        <Flex gap="2" direction="column">
+          <Flex gap="2" align="center">
+            <Text>Payout:</Text>
+            {output !== undefined && (
+              <Code>
+                <TokenValue2
+                  mint={data.tokenMint}
+                  amount={data.bet[output] / 10_000 * data.wager}
                 />
-              </Box>
-
-              <Flex gap="3" mt="4" justify="end">
-                <Dialog.Close>
-                  <Button variant="soft" color="gray">
-                    Cancel
-                  </Button>
-                </Dialog.Close>
-                <Button onClick={() => navigator.clipboard.writeText(`eval(\`${script}\`).then(console.log)`)} variant="solid">
-                  Copy script
-                </Button>
-              </Flex>
-            </Dialog.Content>
-          </Dialog.Root>
+              </Code>
+            )}
+          </Flex>
+          <Outcomes bet={data.bet} resultIndex={output ?? 0} />
         </Flex>
       </Card>
     </Flex>
@@ -272,6 +221,9 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
   const payout = multiplier * wager
   const profit = payout - wager
 
+  const pool = useAccount(game.pool, decodePool)
+  const tokenMeta = useTokenMeta(game.tokenMint)
+
   return (
     <Table.Root variant="surface">
       <Table.Header>
@@ -282,24 +234,7 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
         </Table.Row>
       </Table.Header>
 
-      <Table.Body>
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Pool
-              </Text>
-              <Link asChild>
-                <NavLink to={"/pool/" + game.pool.toBase58()}>
-                  <Flex gap="2">
-                    <TokenAvatar size="1" mint={game.tokenMint} />
-                    {game.pool.toBase58()}
-                  </Flex>
-                </NavLink>
-              </Link>
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
+        <Table.Body>
 
         <Table.Row>
           <Table.Cell>
@@ -307,26 +242,7 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
               <Text weight="bold">
                 Player
               </Text>
-              <Link asChild>
-                <NavLink to={"/player/" + game.user.toBase58()}>
-                  <PlayerAccountItem address={game.user} />
-                </NavLink>
-              </Link>
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
-
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Platform
-              </Text>
-              <Link asChild>
-                <NavLink to={"/platform/" + game.creator.toBase58()}>
-                  <PlatformAccountItem address={game.creator} />
-                </NavLink>
-              </Link>
+              <PlayerAccountItem address={game.user} />
             </Grid>
           </Table.Cell>
         </Table.Row>
@@ -442,17 +358,6 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
           </Table.Cell>
         </Table.Row>
 
-        <Table.Row>
-          <Table.Cell>
-            <Grid columns="2" gap="4">
-              <Text weight="bold">
-                Outcomes
-              </Text>
-              <Outcomes bet={game.bet} resultIndex={game.resultIndex.toNumber()} />
-            </Grid>
-          </Table.Cell>
-        </Table.Row>
-
       </Table.Body>
     </Table.Root>
   )
@@ -472,7 +377,7 @@ async function fetchGambaTransaction(connection: Connection, txId: string) {
   return { transaction, logs, parsed, isV1, notAGame: parsed?.name !== 'GameSettled' }
 }
 
-export default function PlayView() {
+export default function EmbeddedTransactionView() {
   const { connection } = useConnection()
   const params = useParams<{txid: string}>()
   const txId = params.txid!
@@ -533,69 +438,8 @@ export default function PlayView() {
   return (
     <Tabs.Root defaultValue="details">
       <Grid gap="4">
-        <Tabs.List size="2">
-          <Tabs.Trigger value="details">Details</Tabs.Trigger>
-          <Tabs.Trigger value="verification">
-            Proof
-          </Tabs.Trigger>
-          <Tabs.Trigger value="logs">
-            Logs
-          </Tabs.Trigger>
-        </Tabs.List>
-
-        <Tabs.Content value="details">
-          <Grid gap="4">
-            <Box>
-              <Flex gap="4">
-                <Card size="2">
-                  <Grid>
-                    <Text color="gray" size="1">
-                    Win Chance
-                    </Text>
-                    <Text size="6" color="green" weight="bold">
-                      {parseFloat((winChange * 100).toFixed(3))}%
-                    </Text>
-                  </Grid>
-                </Card>
-                <Card size="2">
-                  <Grid>
-                    <Text color="gray" size="1">
-                    Max Win
-                    </Text>
-                    <Text size="6" color="green" weight="bold">
-                      {(potentialWin / BPS_PER_WHOLE).toLocaleString(undefined, { maximumFractionDigits: 3 })}x
-                    </Text>
-                  </Grid>
-                </Card>
-                <Card size="2">
-                  <Grid>
-                    <Text color="gray" size="1">
-                    House Edge
-                    </Text>
-                    <Text size="6" color="green" weight="bold">
-                      {parseFloat((100 - oddsScore * 100).toFixed(1))}%
-                    </Text>
-                  </Grid>
-                </Card>
-              </Flex>
-            </Box>
-            <TransactionDetails parsed={data.parsed} />
-          </Grid>
-        </Tabs.Content>
-        <Tabs.Content value="verification">
-          <VerificationSection parsed={data.parsed} />
-        </Tabs.Content>
-        <Tabs.Content value="logs">
-          <Card>
-            <Grid gap="2">
-              <Flex direction="column" gap="1">
-                {data.logs.map((x, i) => (
-                  <Code style={{ wordBreak: "break-all" }} size="1" key={i}>{x}</Code>
-                ))}
-              </Flex>
-            </Grid>
-          </Card>
-        </Tabs.Content>
+        <TransactionDetails parsed={data.parsed} />
+        <VerificationSection parsed={data.parsed} />
       </Grid>
     </Tabs.Root>
   )

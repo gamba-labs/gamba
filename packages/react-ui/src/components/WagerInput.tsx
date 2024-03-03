@@ -1,7 +1,7 @@
-import { useBalance, useGamba, useWalletAddress } from 'gamba-react-v2'
+import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { useCurrentToken, useFees } from '../hooks'
+import { useCurrentToken, useFees, useUserBalance } from '../hooks'
 import { TokenValue } from './TokenValue'
 
 export interface WagerInputProps {
@@ -82,10 +82,16 @@ export function WagerInput(props: WagerInputProps) {
   const gamba = useGamba()
   const token = useCurrentToken()
   const [input, setInput] = React.useState('')
-  const walletAddress = useWalletAddress()
-  const balance = useBalance(walletAddress, token.mint)
+  const balance = useUserBalance() //useBalance(walletAddress, token.mint)
   const fees = useFees()
   const [edit, setEdit] = React.useState(false)
+
+  React.useEffect(
+    () => {
+      props.onChange(token.baseWager)
+    },
+    [token.mint.toString()],
+  )
 
   const start = () => {
     setEdit(true)

@@ -87,24 +87,18 @@ export function useSendTransaction() {
 
       console.debug('Transaction sent', txId)
 
-      if (opts?.confirmation) {
-        const result = await connection.confirmTransaction(txId, opts.confirmation)
-        console.debug('Transaction confirmed', opts.confirmation, txId, result.value)
+      const confirmStrategy = {
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight,
+        signature: txId,
       }
 
-      // Todo
-      (
-        async () => {
-          await connection.confirmTransaction(txId, 'confirmed')
-          store.set({ state: 'none' })
-          const tx = await connection.getParsedTransaction(txId, { commitment: 'confirmed', maxSupportedTransactionVersion: 0 })
-          console.debug('Logs:\n', tx?.meta?.logMessages?.join('\n'))
-          console.debug('Post Token Balances:', tx?.meta?.postTokenBalances?.reduce((prev, change) => ({
-            ...prev,
-            [change.owner ?? 'Unknown' + (Math.random() * 1e3 | 0)]: change.uiTokenAmount.uiAmount,
-          }), {}))
-        }
-      )()
+      connection.confirmTransaction(confirmStrategy, 'confirmed').then(() => store.set({ state: 'none' }))
+
+      if (opts?.confirmation) {
+        const result = await connection.confirmTransaction(confirmStrategy, opts.confirmation)
+        console.debug('Transaction confirmed', opts.confirmation, txId, result.value)
+      }
 
       return txId
     } catch (err) {

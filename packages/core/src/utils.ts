@@ -5,31 +5,22 @@ import { GambaIdl, GameState } from '.'
 import { GAMBA_STATE_SEED, GAME_SEED, PLAYER_SEED, POOL_ATA_SEED, POOL_BONUS_MINT_SEED, POOL_BONUS_UNDERLYING_TA_SEED, POOL_JACKPOT_SEED, POOL_LP_MINT_SEED, POOL_SEED, PROGRAM_ID } from './constants'
 import { IDL } from './idl'
 
-export const hmac256 = async (secretKey: string, message: string, algorithm = 'SHA-256') => {
-  const encoder = new TextEncoder()
+export const hmac256 = async (secretKey: string, message: string) => {
+  const encoder = new TextEncoder
   const messageUint8Array = encoder.encode(message)
   const keyUint8Array = encoder.encode(secretKey)
-  const cryptoKey = await window.crypto.subtle.importKey(
-    'raw',
-    keyUint8Array,
-    { name: 'HMAC', hash: algorithm },
-    false,
-    ['sign'],
-  )
-  const signature = await window.crypto.subtle.sign(
-    'HMAC',
-    cryptoKey,
-    messageUint8Array,
-  )
-  const hashArray = Array.from(new Uint8Array(signature))
-  const hashHex = hashArray
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-  return hashHex
+  const cryptoKey = await crypto.subtle.importKey('raw', keyUint8Array, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageUint8Array)
+  return Array.from(new Uint8Array(signature)).map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
   return hmac256(rngSeed, [clientSeed, nonce].join('-'))
+}
+
+export const getResultNumber = async (rngSeed: string, clientSeed: string, nonce: number) => {
+  const hash = await getGameHash(rngSeed, clientSeed, nonce)
+  return parseInt(hash.substring(0, 5), 16)
 }
 
 const accountsCoder = new BorshAccountsCoder(IDL)

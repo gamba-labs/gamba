@@ -158,7 +158,7 @@ export function PoolList() {
         return a.publicKey.toString() > b.publicKey.toString() ? 1 : -1
       })
     },
-    [pools],
+    [getTokenMeta, pools],
   )
 
   return (

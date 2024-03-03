@@ -25,12 +25,6 @@ export const Container = styled.div`
 `
 
 export const SettingControls = styled.div`
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  padding: 5px;
-  display: flex;
-  gap: 10px;
   & > button {
     all: unset;
     cursor: pointer;
@@ -69,9 +63,9 @@ export const Screen = styled.div`
   border-radius: 10px;
   overflow: hidden;
   transition: height .2s ease;
-  height: 500px;
+  height: 600px;
   @media (max-width: 700px) {
-    height: 400px;
+    height: 600px;
   }
 `
 

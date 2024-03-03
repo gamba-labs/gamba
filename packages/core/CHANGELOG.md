@@ -1,5 +1,11 @@
 # gamba-core-v2
 
+## 0.2.0
+
+### Minor Changes
+
+- Private pool support
+
 ## 0.1.7
 
 ### Patch Changes

@@ -1,7 +1,5 @@
-import { Badge, Box, Button, Flex, Table } from "@radix-ui/themes"
-import { useConnection } from "@solana/wallet-adapter-react"
+import { Badge, Button, Flex, Table } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
-import { BPS_PER_WHOLE, GambaEvent } from "gamba-core-v2"
 import React from "react"
 import useSWRInfinite from 'swr/infinite'
 
@@ -9,7 +7,7 @@ import { TokenAvatar } from "@/components"
 import { TableRowNavLink } from "@/components/TableRowLink"
 
 import { PlusIcon } from "@radix-ui/react-icons"
-import { apiFetcher, getApiUrl, parseSignatureResponse } from "./api"
+import { RecentPlaysResponse, apiFetcher, getApiUrl } from "./api"
 import { PlatformAccountItem, PlayerAccountItem } from "./components/AccountItem"
 import { TokenValue2 } from "./components/TokenValue2"
 
@@ -33,7 +31,6 @@ export function TimeDiff({ time }: {time: number}) {
 }
 
 export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey | string, creator?: PublicKey | string, user?: PublicKey | string}) {
-  const { connection } = useConnection()
   const {
     data = [],
     size,
@@ -41,18 +38,16 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
     isValidating,
     isLoading,
   } = useSWRInfinite(
-    (index, previousData) => {
-      return getApiUrl("/events/settledGames", {
+    (index, previousData) =>
+      getApiUrl("/events/settledGames", {
         pool: pool?.toString(),
         creator: creator?.toString(),
         user: user?.toString(),
         page: index,
-      })
-    },
+      }),
     async (endpoint) => {
-      const data = await apiFetcher(endpoint) as {signatures: string[], total: number}
-      const events = await parseSignatureResponse(connection, data.signatures)
-      return {events, total: data.total}
+      const data = await apiFetcher<RecentPlaysResponse>(endpoint)
+      return { total: data.total, results: data.results }
     }
   )
 
@@ -80,30 +75,26 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
         </Table.Header>
         <Table.Body>
           {data.flatMap(
-            ({events}) => (
-              events.map(
-                (event) => {
-                  const game = event.data as GambaEvent<"GameSettled">["data"]
-                  const multiplier = game.bet[game.resultIndex.toNumber()] / BPS_PER_WHOLE
-                  const wager = game.wager.toNumber()
-                  const payout = multiplier * wager
+            ({results}) => (
+              results.map(
+                (result) => {
                   return (
-                    <TableRowNavLink to={"/tx/" + event.signature} key={event.signature}>
+                    <TableRowNavLink to={"/tx/" + result.signature} key={result.signature}>
                       <Table.Cell>
-                        <PlatformAccountItem avatarSize="1" address={game.creator} />
+                        <PlatformAccountItem avatarSize="1" address={result.creator} />
                       </Table.Cell>
                       <Table.Cell>
-                        <PlayerAccountItem avatarSize="1" address={game.user} />
+                        <PlayerAccountItem avatarSize="1" address={result.user} />
                       </Table.Cell>
                       <Table.Cell>
                         <Flex gap="1" align="center">
                           <TokenAvatar
                             size="1"
-                            mint={game.tokenMint}
+                            mint={result.token}
                           />
                           <TokenValue2
-                            amount={wager}
-                            mint={game.tokenMint}
+                            amount={result.wager}
+                            mint={result.token}
                           />
                         </Flex>
                       </Table.Cell>
@@ -111,19 +102,19 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
                         <Flex gap="1" align="center">
                           <TokenAvatar
                             size="1"
-                            mint={game.tokenMint}
+                            mint={result.token}
                           />
                           <TokenValue2
-                            amount={payout}
-                            mint={game.tokenMint}
+                            amount={result.payout}
+                            mint={result.token}
                           />
-                          <Badge color={payout >= wager ? "green" : "gray"}>
-                            {Math.abs(multiplier).toFixed(2)}x
+                          <Badge color={result.payout >= result.wager ? "green" : "gray"}>
+                            {Math.abs(result.multiplier).toFixed(2)}x
                           </Badge>
                         </Flex>
                       </Table.Cell>
                       <Table.Cell align="right">
-                        <TimeDiff time={event.time} />
+                        <TimeDiff time={result.time} />
                       </Table.Cell>
                     </TableRowNavLink>
                   )
@@ -137,6 +128,7 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
         disabled={isLoading || isValidating}
         onClick={() => setSize(size + 1)}
         variant="soft"
+        size="3"
         style={{ width: '100%' }}
       >
         Load more <PlusIcon />

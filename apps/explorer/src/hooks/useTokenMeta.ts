@@ -41,6 +41,7 @@ const fetchTokenMeta = async (token: string) => {
     if (!unique.length) {
       return
     }
+
     const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`, {
       method: 'POST',
       headers: {
@@ -54,7 +55,8 @@ const fetchTokenMeta = async (token: string) => {
           ids: unique
         },
       }),
-    });
+    })
+
     const { result } = (await response.json()) as { result: any[] }
 
     const tokens = result
@@ -63,7 +65,7 @@ const fetchTokenMeta = async (token: string) => {
         const data = {
           mint: new PublicKey(x.id),
           image: x.content?.links?.image,
-          symbol: info.symbol,
+          symbol: x.content?.metadata.symbol ?? info.symbol,
           decimals: info.decimals,
           name: x.content?.metadata.name ?? info.symbol,
           usdPrice: info.price_info?.price_per_token ?? 0,

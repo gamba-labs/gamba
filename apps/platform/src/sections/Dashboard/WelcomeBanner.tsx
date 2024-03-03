@@ -28,11 +28,11 @@ const Buttons = styled.div`
     padding: 10px;
     background: #ffffffdf;
     transition: background .2s ease;
+    color: black;
+    cursor: pointer;
     &:hover {
       background: white;
     }
-    color: black;
-    cursor: pointer;
   }
 `
 
@@ -69,6 +69,7 @@ const Welcome = styled.div`
   justify-content: center;
   flex-direction: column;
   padding: 20px;
+  filter: drop-shadow(0 4px 3px rgba(0,0,0,.07)) drop-shadow(0 2px 2px rgba(0,0,0,.06));
 
   & img {
     animation-duration: 5s;
@@ -82,10 +83,11 @@ const Welcome = styled.div`
     &:nth-child(2) {animation-delay: 1s;}
   }
 
-
   & > div {
     padding: 0px;
+    filter: drop-shadow(0 4px 3px rgba(0,0,0,.07)) drop-shadow(0 2px 2px rgba(0,0,0,.06));
   }
+
   @media (min-width: 800px) {
     display: grid;
     grid-template-columns: 2fr 1fr;

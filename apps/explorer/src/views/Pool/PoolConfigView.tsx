@@ -80,6 +80,7 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
     return String(parseFloat(value) * Math.pow(10, decimals))
   }
 
+
   const updateConfig = async () => {
     const {
       depositLimit,
@@ -98,7 +99,7 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
 
     const depositWhitelistPublicKey = new PublicKey(depositWhitelistAddress)
 
-    await sendTx(
+    const tx = await sendTx(
       program.methods
         .poolAuthorityConfig(
           new anchor.BN(poolMinWagerInSmallestUnit),
@@ -115,6 +116,7 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
         .instruction(),
       { confirmation: "confirmed" },
     )
+    console.log("TXID", tx)
     mutate("pool-" + pool.publicKey.toBase58())
   }
 

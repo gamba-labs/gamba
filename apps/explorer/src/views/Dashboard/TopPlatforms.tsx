@@ -1,11 +1,10 @@
-import { TopCreatorsData, fetchTopCreators, getApiUrl, useApi } from "@/api"
+import { TopCreatorsData, useApi } from "@/api"
 import { PlatformAccountItem } from "@/components/AccountItem"
 import { getPlatformMeta } from "@/platforms"
-import { Card, Flex, Link, Text } from "@radix-ui/themes"
+import { Card, Flex, Text } from "@radix-ui/themes"
 import React from "react"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
-import useSWR from "swr"
 
 export const UnstyledNavLink = styled(NavLink)`
   text-decoration: none;
@@ -52,13 +51,13 @@ function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank:
   )
 }
 
-export function TopPlatforms({limit = 10}: {limit?: number}) {
+export function TopPlatforms({limit = 10, days = 7}: {limit?: number, days?: number}) {
   const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>(
     "/platforms",
     {
       limit,
       sortBy: 'volume',
-      days: 999
+      days
     }
   )
 

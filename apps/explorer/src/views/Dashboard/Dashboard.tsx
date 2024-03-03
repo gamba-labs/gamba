@@ -1,5 +1,5 @@
 import RecentPlays from "@/RecentPlays"
-import { DailyVolume, TopPlayersResponse, apiFetcher, fetchStatus, getApiUrl, useApi } from "@/api"
+import { DailyVolume, StatsResponse, TopPlayersResponse, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
@@ -7,14 +7,13 @@ import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
-import useSWR from "swr"
 import { PoolList } from "./PoolList"
 import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
 
 export function TotalVolume(props: {creator?: string}) {
-  const { data: daily = [] } = useSWR<DailyVolume[]>(
-    getApiUrl("/daily-usd", {creator: props.creator}),
-    apiFetcher,
+  const { data: daily = [] } = useApi<DailyVolume[]>(
+    "/chart/daily-usd",
+    {creator: props.creator},
   )
   const [hovered, setHovered] = React.useState<DailyVolume | null>(null)
   const total = React.useMemo(
@@ -42,7 +41,9 @@ export function TotalVolume(props: {creator?: string}) {
   )
 }
 
-export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, limit?: number}) {
+const WEEK = Date.now() - 604800000
+
+export function TopPlayers({ creator, limit = 5, startTime = WEEK }: {creator?: PublicKey | string, limit?: number, startTime?: number}) {
   const [sortBy] = React.useState('usd_profit')
   const { data = { players: [] }, isLoading } = useApi<TopPlayersResponse>(
     "/players",
@@ -50,34 +51,35 @@ export function TopPlayers({creator, limit = 5}: {creator?: PublicKey | string, 
       creator: creator?.toString(),
       limit,
       sortBy,
+      startTime,
     }
   )
-
-  console.log(data)
 
   if (isLoading) return <SkeletonCard />
 
   return (
     <Card>
       <Flex direction="column" gap="2">
-        <Text color="gray">Leaderboard</Text>
-        {data.players.map((player, i) => (
-          <UnstyledNavLink key={i} to={"/player/" + player.user}>
-            <Card>
-              <Flex gap="4">
-                <Text color="gray" style={{opacity: .5}}>
-                  {i + 1}
-                </Text>
-                <Flex gap="2" justify="between" grow="1">
-                  <PlayerAccountItem avatarSize="1" address={player.user} />
-                  <Text>
-                    +${player.usd_profit.toLocaleString(undefined, {maximumFractionDigits: 2})}
+        <Text color="gray">Player Leaderboard</Text>
+        {data.players
+          .filter((x) => x.usd_profit > 0)
+          .map((player, i) => (
+            <UnstyledNavLink key={i} to={"/player/" + player.user}>
+              <Card>
+                <Flex gap="4">
+                  <Text color="gray" style={{opacity: .5}}>
+                    {i + 1}
                   </Text>
+                  <Flex gap="2" justify="between" grow="1">
+                    <PlayerAccountItem avatarSize="1" address={player.user} />
+                    <Text>
+                      +${player.usd_profit.toLocaleString(undefined, {maximumFractionDigits: 2})}
+                    </Text>
+                  </Flex>
                 </Flex>
-              </Flex>
-            </Card>
-          </UnstyledNavLink>
-        ))}
+              </Card>
+            </UnstyledNavLink>
+          ))}
       </Flex>
     </Card>
   )
@@ -101,7 +103,7 @@ const SkeletonCard = styled(Card)`
 `
 
 function AllTimeStats() {
-  const {data, isLoading} = useSWR('stats', () => fetchStatus())
+  const {data, isLoading} = useApi<StatsResponse>("/stats")
 
   if (isLoading) return <SkeletonCard size="2" />
 

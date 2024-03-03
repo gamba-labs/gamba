@@ -14,21 +14,21 @@ import CreatePoolView from "@/views/CreatePool/CreatePoolView"
 import DebugUserView from "@/views/Debug/DebugUser"
 import DebugView from "@/views/Debug/DebugView"
 
-import Dashboard from "@/views/Dashboard/Dashboard"
+import Dashboard, { TopPlayers } from "@/views/Dashboard/Dashboard"
 import AllUsers from "@/views/Debug/AllUsers"
 import DaoView from "@/views/Debug/DaoView"
 import { PlatformView } from "@/views/Platform/PlatformView"
-import PlayView from "@/views/Play/Play"
 import { PlayerView } from "@/views/Player/PlayerView"
 import PoolConfigureView from "@/views/Pool/PoolConfigView"
 import PoolDepositView from "@/views/Pool/PoolDeposit"
 import PoolView from "@/views/Pool/PoolView"
 import PortfolioView from "@/views/Portfolio/PortfolioView"
-import useSWR from "swr"
-import { fetchStatus } from "./api"
+import TransactionView from "@/views/Transaction/Transaction"
+import { StatusResponse, useApi } from "./api"
+import NavigationMenu from "./components/NavigationMenu"
 import { PoolList } from "./views/Dashboard/PoolList"
 import { TopPlatforms } from "./views/Dashboard/TopPlatforms"
-import NavigationMenuDemo from "./components/NavigationMenu"
+import EmbeddedTransactionView from "./views/Transaction/EmbeddedTransaction"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -109,6 +109,9 @@ function Sidebar(props: React.PropsWithChildren<{open: boolean, onClose: () => v
           <NavLink2 to="/user">
             Manage User
           </NavLink2>
+          <NavLink2 to="/portfolio">
+            Manage Portfolio
+          </NavLink2>
           <NavLink2 to="/dao">
             Manage DAO
           </NavLink2>
@@ -124,7 +127,7 @@ export function App() {
   const toast = useToast()
   const wallet = useWallet()
   const walletModal = useWalletModal()
-  const { data: status = {syncing: false} } = useSWR("status", fetchStatus)
+  const { data: status = {syncing: false} } = useApi<StatusResponse>("/status")
   const [sidebar, setSidebar] = React.useState(false)
   const md = useMediaQuery("md")
 
@@ -140,45 +143,49 @@ export function App() {
     })
   })
 
+  const embedded = new URLSearchParams(useLocation().search).has('embed')
+
   return (
     <>
-      <Sidebar open={sidebar} onClose={() => setSidebar(false)} />
-      <Header p="2" px="4">
-        <Container>
-          <Flex gap="2" align="center" justify="between">
-            <Flex gap="4" align="center">
-              <Logo to="/">
-                <img alt="Logo" src="/logo.svg" />
-              </Logo>
+    <Sidebar open={sidebar} onClose={() => setSidebar(false)} />
+      {!embedded && (
+        <Header p="2" px="4">
+          <Container>
+            <Flex gap="2" align="center" justify="between">
+              <Flex gap="4" align="center">
+                <Logo to="/">
+                  <img alt="Logo" src="/logo.svg" />
+                </Logo>
+              </Flex>
+              {!md && (
+                <Button variant="surface" onClick={() => setSidebar(!sidebar)}>
+                  <HamburgerMenuIcon />
+                </Button>
+              )}
+              {md && (
+                <>
+                  <NavigationMenu />
+                  <Flex gap="2" align="center" style={{ position: "relative" }}>
+                    <Button size="3" variant="soft" color="green" onClick={() => navigate("/create")}>
+                      Create Pool <PlusIcon />
+                    </Button>
+                    {!wallet.connected ? (
+                      <Button disabled={wallet.connecting} onClick={() => walletModal.setVisible(true)} size="3" variant="soft">
+                        Connect <EnterIcon />
+                      </Button>
+                    ) : (
+                      <Button color="gray" onClick={() => wallet.disconnect()} size="3" variant="soft">
+                        {wallet.publicKey?.toBase58().substring(0, 6)}...
+                        <ExitIcon />
+                      </Button>
+                    )}
+                  </Flex>
+                </>
+              )}
             </Flex>
-            {!md && (
-              <Button variant="surface" onClick={() => setSidebar(!sidebar)}>
-                <HamburgerMenuIcon />
-              </Button>
-            )}
-            {md && (
-              <>
-                <NavigationMenuDemo />
-                <Flex gap="2" align="center" style={{ position: "relative" }}>
-                  <Button size="3" variant="soft" color="green" onClick={() => navigate("/create")}>
-                    Create Pool <PlusIcon />
-                  </Button>
-                  {!wallet.connected ? (
-                    <Button disabled={wallet.connecting} onClick={() => walletModal.setVisible(true)} size="3" variant="soft">
-                      Connect <EnterIcon />
-                    </Button>
-                  ) : (
-                    <Button color="gray" onClick={() => wallet.disconnect()} size="3" variant="soft">
-                      {wallet.publicKey?.toBase58().substring(0, 6)}...
-                      <ExitIcon />
-                    </Button>
-                  )}
-                </Flex>
-              </>
-            )}
-          </Flex>
-        </Container>
-      </Header>
+          </Container>
+        </Header>
+      )}
 
       <Container p="4">
         <Toast.Viewport className="ToastViewport" />
@@ -217,66 +224,23 @@ export function App() {
         )}
 
         <Routes>
-          <Route
-            path="/"
-            element={<Dashboard />}
-          />
-          <Route
-            path="/debug"
-            element={<DebugView />}
-          />
-          <Route
-            path="/pools"
-            element={<PoolList />}
-          />
-          <Route
-            path="/platforms"
-            element={<TopPlatforms limit={1000} />}
-          />
-          <Route
-            path="/dao"
-            element={<DaoView />}
-          />
-          <Route
-            path="/platform/:address"
-            element={<PlatformView />}
-          />
-          <Route
-            path="/player/:address"
-            element={<PlayerView />}
-          />
-          <Route
-            path="/users"
-            element={<AllUsers />}
-          />
-          <Route
-            path="/portfolio"
-            element={<PortfolioView />}
-          />
-          <Route
-            path="/user"
-            element={<DebugUserView />}
-          />
-          <Route
-            path="/tx/:txid"
-            element={<PlayView />}
-          />
-          <Route
-            path="/create"
-            element={<CreatePoolView />}
-          />
-          <Route
-            path="/pool/:poolId"
-            element={<PoolView />}
-          />
-          <Route
-            path="/pool/:poolId/deposit"
-            element={<PoolDepositView />}
-          />
-          <Route
-            path="/pool/:poolId/configure"
-            element={<PoolConfigureView />}
-          />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/debug" element={<DebugView />} />
+          <Route path="/pools" element={<PoolList />} />
+          <Route path="/players" element={<TopPlayers startTime={0} limit={100} />} />
+          <Route path="/platforms" element={<TopPlatforms days={36500} limit={1000} />} />
+          <Route path="/dao" element={<DaoView />} />
+          <Route path="/platform/:address" element={<PlatformView />} />
+          <Route path="/player/:address" element={<PlayerView />} />
+          <Route path="/users" element={<AllUsers />} />
+          <Route path="/portfolio" element={<PortfolioView />} />
+          <Route path="/user" element={<DebugUserView />} />
+          <Route path="/tx/:txid" element={<TransactionView />} />
+          <Route path="/embed/tx/:txid" element={<EmbeddedTransactionView />} />
+          <Route path="/create" element={<CreatePoolView />} />
+          <Route path="/pool/:poolId" element={<PoolView />} />
+          <Route path="/pool/:poolId/deposit" element={<PoolDepositView />} />
+          <Route path="/pool/:poolId/configure" element={<PoolConfigureView />} />
         </Routes>
       </Container>
     </>

@@ -65,7 +65,7 @@ export default function Plinko() {
 
   const play = async () => {
     await game.play({ wager, bet })
-    const result = await gamba.result()
+    const result = await game.result()
     plinko.reset()
     plinko.run(result.multiplier)
   }

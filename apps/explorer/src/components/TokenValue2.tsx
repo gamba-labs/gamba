@@ -4,7 +4,7 @@ import BigDecimal from 'js-big-decimal'
 import React from 'react'
 
 export interface TokenValueProps {
-  mint: PublicKey
+  mint: PublicKey | string
   amount: number | bigint
   suffix?: string
   exact?: boolean
@@ -20,7 +20,8 @@ export function TokenValue2(props: TokenValueProps) {
   const token = useTokenMeta(props.mint)
   const suffix = props.suffix ?? token.symbol
   const tokenAmount = bigIntToFloat(props.amount, token.decimals)
-  const amount = props.dollar ? token.usdPrice * tokenAmount : tokenAmount
+  const displayFiat = props.dollar
+  const amount = displayFiat ? token.usdPrice * tokenAmount : tokenAmount
 
   const displayedAmount = (
     () => {
@@ -35,13 +36,13 @@ export function TokenValue2(props: TokenValueProps) {
           return (amount / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'K'
         }
       }
-      return amount.toLocaleString(undefined, { maximumFractionDigits: Math.floor(amount) > 100 ? 1 : 4 })
+      return amount.toLocaleString(undefined, { maximumFractionDigits: Math.floor(amount) > 100 ? 1 : 5 })
     }
   )()
 
   return (
     <>
-      {props.dollar ? (
+      {displayFiat ? (
         <>
           ${displayedAmount}
         </>

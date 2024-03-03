@@ -3,7 +3,7 @@ import { PublicKey } from '@solana/web3.js'
 interface PlatformMeta {
   address: string
   name: string
-  url: string
+  url?: string
   image?: string
 }
 
@@ -53,7 +53,7 @@ export const PLATFORMS = [
   {
     address: '399KgE5gpzFvBB8arZLxA2bes3n4FY7rTMmzifHohPzx',
     name: 'Ninja Turtles',
-    url: 'https://ninja-casino-ninjatss.vercel.app',
+    url: 'https://ninjatsscasino.xyz/',
     image: '/logos/ninjaturtles.png',
   },
   {
@@ -161,7 +161,6 @@ export const PLATFORMS = [
   {
     address: '594WGMyY5TSqPQnGjHHMqoSYYSrtbSFYL3NuXUp8qzkQ',
     name: 'MagicInternetBets',
-    url: 'https://play.magicinternetbets.net/',
     image: '/logos/magicinternetbets.png',
   },
   {
@@ -169,6 +168,28 @@ export const PLATFORMS = [
     name: 'SolanaStars',
     url: 'https://solanastars.com/',
     image: '/logos/solanastars.png',
+  },
+  {
+    address: "7s3nxNnKcmJyBxxXeJb8AAJnRocJLCRhbrCcYhPKv5SP",
+    name: "OHYEAH",
+    image: "/logos/ohyeah.png"
+  },
+  {
+    address: "6715ymvd38EeSQjZ3vRSA9X68RC73GYynSNRn3pu5732",
+    name: "Felt Casino",
+    url: "https://casino.feltgaming.io/",
+    image: "/logos/felt.png"
+  },
+  {
+    address: "EV37Xym1wwjc5bToPyQPXAVEZfNwVvuDXzdCrTuLfGqQ",
+    name: "SnoopyBabe",
+    url: "https://play.snoopybabe.com",
+    image: "/logos/snoopybabe.png"
+  },
+  {
+    address: "4H78a8exeM6HDetdgpCFeQTo2jZcypwiGoebW9qrUG1s",
+    name: "Solcade",
+    image: "/logos/solcade.png"
   },
 ]
 

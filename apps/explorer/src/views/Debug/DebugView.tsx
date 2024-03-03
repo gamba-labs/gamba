@@ -1,6 +1,6 @@
 import { Button, Card, Flex, Heading } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
-import { decodeAta, getUserWsolAccount, NATIVE_MINT, unwrapSol } from "gamba-core-v2"
+import { decodeAta, decodeGambaState, getGambaStateAddress, getUserWsolAccount, NATIVE_MINT, unwrapSol } from "gamba-core-v2"
 import { useAccount, useGamba, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
 
@@ -13,6 +13,7 @@ import { GambaStandardTokens } from "gamba-react-ui-v2"
 export default function DebugView() {
   const sendTx = useSendTransaction()
   const user = useWalletAddress()
+  const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
   const { connection } = useConnection()
   const toast = useToast()
   const wSolAccount = useAccount(getUserWsolAccount(user), decodeAta)
@@ -22,11 +23,13 @@ export default function DebugView() {
 
   const x100 = async () => {
     try {
+      if (!gambaState) return
       setx100ing(true)
       await gamba.play({
-        creator: "BADqAHSAXSV9yYT8kwyCmVhqX88UT4LViY9bozLr7XFr",
+        creator: gambaState?.rngAddress,
         creatorFee: 0.05,
         jackpotFee: 0,
+        metadata: ["RNG Donation"],
         token: GambaStandardTokens.sol.mint,
         wager: 1e9 * .01,
         bet: Array.from({length: 100}).map((_, i) => i === 0 ? 100 : 0)

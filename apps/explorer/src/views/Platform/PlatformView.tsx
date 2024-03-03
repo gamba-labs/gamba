@@ -1,23 +1,19 @@
-import { ArrowRightIcon, ExternalLinkIcon, InfoCircledIcon } from "@radix-ui/react-icons"
-import { Avatar, Button, Card, Container, Dialog, Flex, Grid, Heading, IconButton, Link, Table, Text } from "@radix-ui/themes"
+import { ExternalLinkIcon } from "@radix-ui/react-icons"
+import { Avatar, Button, Card, Container, Dialog, Flex, Grid, Heading, Link, Text } from "@radix-ui/themes"
 import React from "react"
-import { NavLink, useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
 import RecentPlays from "@/RecentPlays"
-import { fetchStatus, fetchTokensForPlatform } from "@/api"
+import { PlatformTokenResponse, StatsResponse, useApi } from "@/api"
 import { TokenAvatar } from "@/components"
-import { PlatformAccountItem, truncateString } from "@/components/AccountItem"
+import { truncateString } from "@/components/AccountItem"
+import { Details } from "@/components/Details"
 import { useBonfidaName, useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
-import useSWR from "swr"
-import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
-import { Details } from "@/components/Details"
-import { useAccount, useWalletAddress } from "gamba-react-v2"
-import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
-import { SolanaAddress } from "@/components/SolanaAddress"
 import { minidenticon } from "minidenticons"
-import { ThingCard } from "../Pool/PoolView"
 import styled from "styled-components"
+import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
+import { ThingCard } from "../Pool/PoolView"
 
 const OnlineIndicator = styled.div`
   width: 8px;
@@ -28,12 +24,12 @@ const OnlineIndicator = styled.div`
   margin-right: .5em;
   vertical-align: middle;
 
-  @keyframes dsa {
+  @keyframes online-indicator-pulsing {
     0%, 25%, 75%, 100% {opacity : 1};
     50% {opacity : .5};
   }
 
-  animation: dsa infinite 1s;
+  animation: online-indicator-pulsing infinite 1s;
 `
 
 function LinkWarningDialog(props: {url: string}) {
@@ -70,7 +66,6 @@ function LinkWarningDialog(props: {url: string}) {
 }
 
 export function PlatformDetails({ creator }: {creator: string}) {
-  const { data, isLoading } = useSWR('stats-' + creator?.toString(), () => fetchStatus(creator))
   const meta = getPlatformMeta(creator)
 
   return (
@@ -92,20 +87,20 @@ export function PlatformDetails({ creator }: {creator: string}) {
   )
 }
 
-function TokenVolume({token}: {token: Awaited<ReturnType<typeof fetchTokensForPlatform>>[number] }) {
-  const meta = useTokenMeta(token.mint)
+function TokenVolume({token}: {token: PlatformTokenResponse[number] }) {
+  const meta = useTokenMeta(token.token)
   return (
     <Card>
       <Flex align="center" justify="between">
         <Flex align="center" gap="4">
-          <TokenAvatar size="1" mint={token.mint} />
+          <TokenAvatar size="1" mint={token.token} />
           <Text>
             {meta.name}
           </Text>
         </Flex>
         <Flex>
           <Text color="gray">
-            {token.numPlays.toLocaleString()} / ${(token.usd_volume).toLocaleString(undefined, {maximumFractionDigits: 3})}
+            {token.num_plays.toLocaleString()} / ${(token.usd_volume).toLocaleString(undefined, {maximumFractionDigits: 3})}
           </Text>
         </Flex>
       </Flex>
@@ -137,7 +132,8 @@ function PlatformHeader({ creator }: {creator: string}) {
 
 function Things() {
   const { address } = useParams<{address: string}>()
-  const { data, isLoading } = useSWR('stats-' + address?.toString(), () => fetchStatus(address))
+  const { data, isLoading } = useApi<StatsResponse>('/stats', {creator: address?.toString()})
+
   return (
     <Flex gap="2" wrap="wrap">
       <ThingCard title="Volume">
@@ -165,7 +161,7 @@ function Things() {
 
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
-  const { data: tokens = [] } = useSWR("platform-tokens-" + address!.toString(), () => fetchTokensForPlatform(address!))
+  const { data: tokens = [] } = useApi<PlatformTokenResponse>("/tokens", {creator: address!.toString()})
 
   return (
     <Container>

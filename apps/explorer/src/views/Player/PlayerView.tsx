@@ -1,15 +1,17 @@
 import RecentPlays from "@/RecentPlays"
+import { useApi } from "@/api"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Grid, Link, Table, Text } from "@radix-ui/themes"
+import { Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
 import React from "react"
 import { useParams } from "react-router-dom"
 
 export function PlayerView() {
   const { address } = useParams<{address: string}>()
+  const { data } = useApi<any>("/player", {user: address!})
 
   return (
-    <Grid gap="4">
+    <Flex direction="column" gap="4">
       <Table.Root variant="surface">
         <Table.Header>
           <Table.Row>
@@ -39,6 +41,6 @@ export function PlayerView() {
         Recent Plays
       </Text>
       <RecentPlays user={address!} />
-    </Grid>
+    </Flex>
   )
 }

@@ -189,6 +189,7 @@ export const PLATFORMS = [
   {
     address: "4H78a8exeM6HDetdgpCFeQTo2jZcypwiGoebW9qrUG1s",
     name: "Solcade",
+    url: "https://play.solcade.net/",
     image: "/logos/solcade.png"
   },
 ]

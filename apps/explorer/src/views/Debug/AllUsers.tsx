@@ -21,6 +21,8 @@ export default function AllUsers() {
     "ready",
   ]
 
+  console.log(games)
+
   const sorted = React.useMemo(
     () => {
       return games.sort((a, b) => {
@@ -29,7 +31,7 @@ export default function AllUsers() {
         return a.publicKey.toString() > b.publicKey.toString() ? 1 : -1
       })
     },
-    [tokens],
+    [games, tokens],
   )
 
   return (
@@ -42,9 +44,10 @@ export default function AllUsers() {
           </Flex>
         )}
         <Grid gap="2">
-          {sorted.map(game => (
+          {sorted.map((game, index) => (
             <Card size="1" key={game.publicKey.toBase58()}>
               <Flex gap="2">
+                {index + 1}
                 <SolanaAddress address={game.account.user} />
                 <Badge>
                   {getEnumString(game.account.status)}

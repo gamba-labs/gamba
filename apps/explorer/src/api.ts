@@ -58,6 +58,7 @@ export interface RatioData {
 export interface TopCreatorsData {
   creator: string
   usd_volume: number
+  usd_revenue: number
 }
 
 export interface TopPlayersResponse {

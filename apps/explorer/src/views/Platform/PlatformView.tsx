@@ -11,9 +11,11 @@ import { Details } from "@/components/Details"
 import { useBonfidaName, useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import { minidenticon } from "minidenticons"
-import styled from "styled-components"
+import styled, { css } from "styled-components"
 import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
 import { ThingCard } from "../Pool/PoolView"
+import { PublicKey } from "@solana/web3.js"
+import { SkeletonFallback } from "../Dashboard/PoolList"
 
 const OnlineIndicator = styled.div`
   width: 8px;
@@ -31,6 +33,12 @@ const OnlineIndicator = styled.div`
 
   animation: online-indicator-pulsing infinite 1s;
 `
+
+// const Card2 = styled(Card)<{$active: boolean}>`
+//   ${(props) => props.$active && css`
+//     box-shadow: 0 0 0 1px #ff0066;
+//   `}
+// `
 
 function LinkWarningDialog(props: {url: string}) {
   return (
@@ -99,7 +107,10 @@ function TokenVolume({token}: {token: PlatformTokenResponse[number] }) {
           </Text>
         </Flex>
         <Flex>
-          <Text color="gray">
+          <Text
+            color="gray"
+            title={`${(token.volume / (10 ** meta.decimals)).toLocaleString()} ${meta.symbol}`}
+          >
             {token.num_plays.toLocaleString()} / ${(token.usd_volume).toLocaleString(undefined, {maximumFractionDigits: 3})}
           </Text>
         </Flex>
@@ -114,44 +125,53 @@ function PlatformHeader({ creator }: {creator: string}) {
   const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(creator.toString())), [creator])
 
   return (
-    <Flex gap="4" align="start">
+    <Flex gap="4" align="center">
       <Avatar
-        size="3"
+        size="2"
         src={meta.image ?? image}
         fallback=""
       />
-
-      <Flex direction="column" gap="2">
-        <Heading>
-          {meta.name ?? domainName ?? truncateString(creator)}
-        </Heading>
-      </Flex>
+      {meta.name ?? domainName ?? truncateString(creator)}
     </Flex>
   )
 }
 
-function Things() {
-  const { address } = useParams<{address: string}>()
-  const { data, isLoading } = useApi<StatsResponse>('/stats', {creator: address?.toString()})
-
+export function Things({creator, startTime = 0}: {creator?: string | PublicKey, startTime?: number}) {
+  const { data, isLoading } = useApi<StatsResponse>('/stats', {creator: creator?.toString(), startTime})
+  // const meta = creator && getPlatformMeta(creator)
   return (
     <Flex gap="2" wrap="wrap">
+      {/* {creator && (
+        <Card>
+          <PlatformHeader creator={creator} />
+        </Card>
+      )} */}
       <ThingCard title="Volume">
-        <Text>${data?.usd_volume.toLocaleString()}</Text>
+        <SkeletonFallback loading={isLoading}>
+          ${data?.usd_volume.toLocaleString()}
+        </SkeletonFallback>
       </ThingCard>
       <ThingCard title="Estimated Fees">
-        <Text>${data?.revenue_usd.toLocaleString()}</Text>
+        <SkeletonFallback loading={isLoading}>
+          ${data?.revenue_usd.toLocaleString()}
+        </SkeletonFallback>
       </ThingCard>
       <ThingCard title="Plays">
-        <Text>{data?.plays.toLocaleString()}</Text>
+        <SkeletonFallback loading={isLoading}>
+          {data?.plays.toLocaleString()}
+        </SkeletonFallback>
       </ThingCard>
       <ThingCard title="Players">
-        <Text>{data?.players.toLocaleString()}</Text>
+        <SkeletonFallback loading={isLoading}>
+          {data?.players.toLocaleString()}
+        </SkeletonFallback>
       </ThingCard>
       {data && data.active_players > 0 && (
         <ThingCard title="Active players">
           <OnlineIndicator />
-          <Text>{data?.active_players.toLocaleString()}</Text>
+          <SkeletonFallback loading={isLoading}>
+            {data?.active_players.toLocaleString()}
+          </SkeletonFallback>
         </ThingCard>
       )}
     </Flex>
@@ -170,7 +190,7 @@ export function PlatformView() {
           <PlatformHeader creator={address!} />
         </Flex>
 
-        <Things />
+        <Things creator={address} />
 
         <Grid gap="4" columns={{initial: '1', sm: '2'}}>
           <Flex gap="4" direction="column">
@@ -191,7 +211,15 @@ export function PlatformView() {
                 </Flex>
               </Flex>
             </Card>
-            <TopPlayers creator={address!} />
+
+            <Card>
+              <Flex gap="2" direction="column">
+                <Text color="gray">
+                  Leaderboard
+                </Text>
+                <TopPlayers creator={address!} />
+              </Flex>
+            </Card>
           </Flex>
         </Grid>
 

@@ -1,5 +1,11 @@
 # gamba-react-ui-v2
 
+## 0.3.1
+
+### Patch Changes
+
+- Fixed fee typo
+
 ## 0.3.0
 
 ### Minor Changes

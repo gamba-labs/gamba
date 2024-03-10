@@ -28,12 +28,12 @@ import { PoolWithdraw } from "./PoolWithdraw"
 
 export function ThingCard(props: { title: string, children: ReactNode }) {
   return (
-    <Card size="1">
+    <Card>
       <Flex direction="column">
-        <Text color="gray" size="2">
+        <Text size="2" color="gray">
           {props.title}
         </Text>
-        <Text size="2" weight="bold">
+        <Text weight="bold">
           {props.children}
         </Text>
       </Flex>
@@ -180,7 +180,6 @@ function LinkWarningDialog(props: React.PropsWithChildren<{url: string}>) {
 }
 
 function PoolManager({ pool }: {pool: UiPool}) {
-  const { connection } = useConnection()
   const wallet = useWallet()
   const navigate = useNavigate()
   const token = useTokenMeta(pool.underlyingTokenMint)
@@ -190,9 +189,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
   const [chartId, setChart] = React.useState<ChartId>("price")
   const [hovered, hover] = React.useState<LineChartDataPoint | null>(null)
 
-  console.log("Max Payout", _pool.maxPayout)
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
-  const maxPayoutPercent = gambaState && gambaState.maxPayoutBps ? gambaState.maxPayoutBps.toNumber() / BPS_PER_WHOLE : 0
 
   const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
 

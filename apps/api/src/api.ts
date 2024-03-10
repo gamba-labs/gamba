@@ -9,8 +9,6 @@ const poolChangesSchema = z.object({ query: z.object({ pool: z.string().optional
 
 const volumeSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
-const dailyUsdSchema = z.object({ query: z.object({ creator: z.string({}).optional() }) })
-
 const ratioSchema = z.object({ query: z.object({ pool: z.string({}) }) })
 
 export const daysAgo = (daysAgo: number) => {
@@ -30,7 +28,7 @@ const settledGamesSchema = z.object({
   }),
 })
 
-const statsSchema = z.object({ query: z.object({ creator: z.string().optional() }) })
+const statsSchema = z.object({ query: z.object({ creator: z.string().optional(), startTime: z.string({}).optional() }) })
 
 api.get('/pools', async (req, res) => {
   const pools = await all(`
@@ -137,18 +135,16 @@ api.get('/ratio', validate(ratioSchema), async (req, res) => {
   res.send(tx)
 })
 
-// Returns daily volume for a specific pool in underlying token
 api.get('/chart/plays', async (req, res) => {
   const tx = await all(`
   SELECT
-    strftime('%Y-%m-%d 00:00', block_time / 1000, 'unixepoch') as date,
-    COUNT(DISTINCT user) as total_volume
+    strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,
+    COUNT(user) as total_volume
     FROM settled_games
     WHERE 1
     AND block_time * 1000 BETWEEN ? AND ?
     GROUP BY date
-    ORDER BY date ASC
-  `, [daysAgo(30), Date.now()])
+  `, [daysAgo(300), Date.now()])
   res.send(tx)
 })
 
@@ -203,7 +199,10 @@ const topPlatformsSchema = z.object({
 api.get('/platforms', validate(topPlatformsSchema), async (req, res) => {
   const days = Number(req.query.days ?? 7)
   const tx = await all(`
-    SELECT creator, SUM(wager * usd_per_unit) as usd_volume
+    SELECT
+      creator,
+      SUM(wager * usd_per_unit) as usd_volume,
+      SUM(creator_fee * usd_per_unit) as usd_revenue
     FROM settled_games
     WHERE block_time * 1000 BETWEEN :after AND :until
     GROUP BY creator
@@ -371,8 +370,12 @@ api.get('/player', validate(playerSchema), async (req, res) => {
 })
 
 api.get('/stats', validate(statsSchema), async (req, res) => {
-  const params = { ':creator': req.query.creator }
-  const creatorQuery = req.query.creator ? 'AND creator = :creator' : ''
+  const startTime = Number(req.query.startTime ?? 0)
+  const params = { ':creator': req.query.creator, ':from': startTime, ':until': Date.now() }
+  const creatorQuery = `
+    ${req.query.creator ? 'AND creator = :creator' : ''}
+    AND block_time * 1000 BETWEEN :from AND :until
+  `
 
   const { active_players } = await get(`
     SELECT COUNT(DISTINCT user) as active_players FROM settled_games
@@ -421,9 +424,11 @@ api.get('/stats', validate(statsSchema), async (req, res) => {
     revenue_usd,
     player_net_profit_usd,
     active_players,
-    first_bet_time: firstBet.time,
+    first_bet_time: firstBet?.time ?? 0,
   })
 })
+
+const dailyUsdSchema = z.object({ query: z.object({ creator: z.string({}).optional() }) })
 
 // Returns daily volume for USD
 api.get('/chart/daily-usd', validate(dailyUsdSchema), async (req, res) => {
@@ -458,7 +463,7 @@ api.get('/chart/dao-usd', async (req, res) => {
     ORDER BY date ASC
   `, {
     ':creator': req.query.creator,
-    ':from': daysAgo(999),
+    ':from': daysAgo(30),
     ':until': Date.now(),
   })
   res.send(tx)

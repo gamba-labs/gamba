@@ -1,5 +1,4 @@
 import RecentPlays from "@/RecentPlays"
-import { useApi } from "@/api"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
 import { Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
@@ -8,7 +7,7 @@ import { useParams } from "react-router-dom"
 
 export function PlayerView() {
   const { address } = useParams<{address: string}>()
-  const { data } = useApi<any>("/player", {user: address!})
+  // const { data } = useApi<any>("/player", {user: address!})
 
   return (
     <Flex direction="column" gap="4">

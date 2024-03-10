@@ -1,6 +1,5 @@
 import * as anchor from "@coral-xyz/anchor"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Flex, Grid, Heading, Text, TextField } from "@radix-ui/themes"
+import { Button, Flex, Grid, Heading, Text, TextField } from "@radix-ui/themes"
 import { Keypair, PublicKey } from "@solana/web3.js"
 import { basisPoints, decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useSendTransaction } from "gamba-react-v2"
@@ -139,9 +138,6 @@ export function ConfigDialog() {
 
   return (
     <>
-      <Heading mb="4">
-        Gamba State
-      </Heading>
       {!gambaState ? (
         <Button onClick={initialize}>
           Initialize Gamba
@@ -149,14 +145,6 @@ export function ConfigDialog() {
       ) : (
         <>
           <Flex gap="2" direction="column">
-            <Callout.Root color="orange" mb="4">
-              <Callout.Icon>
-                <ExclamationTriangleIcon />
-              </Callout.Icon>
-              <Callout.Text>
-                You are probably not the authority of this DAO and can't make any changes
-              </Callout.Text>
-            </Callout.Root>
             <Thing title="Authority">
               <TextField.Root>
                 <TextField.Input

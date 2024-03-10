@@ -16,7 +16,7 @@ import styled from "styled-components"
 import useSWR from "swr"
 
 const SkeletonText = styled.div`
-  height: 1em;
+  height: 24px;
   min-width: 40px;
   background: #cccccccc;
   border-radius: 5px;

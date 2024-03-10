@@ -1,7 +1,7 @@
 import { TopCreatorsData, useApi } from "@/api"
 import { PlatformAccountItem } from "@/components/AccountItem"
 import { getPlatformMeta } from "@/platforms"
-import { Card, Flex, Text } from "@radix-ui/themes"
+import { Badge, Card, Flex, Text } from "@radix-ui/themes"
 import React from "react"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
@@ -41,9 +41,14 @@ function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank:
           </Text>
           <Flex justify="between" grow="1">
             <PlatformAccountItem avatarSize="1" address={meta.address} />
-            <Text>
-              ${platform.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 2})}
-            </Text>
+            <Flex gap="2" align="center">
+              <Text color="gray" size="2">
+                ${platform.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 2})}
+              </Text>
+              <Badge color="green">
+                ~${platform.usd_revenue.toLocaleString(undefined, {maximumFractionDigits: 2})}
+              </Badge>
+            </Flex>
           </Flex>
         </Flex>
       </Card>

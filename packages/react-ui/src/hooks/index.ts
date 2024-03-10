@@ -15,13 +15,16 @@ export function useGambaPlatformContext() {
   return React.useContext(GambaPlatformContext)
 }
 
+/**
+ *
+ * @returns Total amount of fees for the given pool and platform
+ */
 export function useFees() {
   const context = React.useContext(GambaPlatformContext)
   const pool = useCurrentPool()
   const creatorFee = context.defaultCreatorFee
-  const jackpotFee = context.defaultCreatorFee
-  const totalTokenFees = creatorFee + pool.gambaFee + pool.poolFee + jackpotFee
-  return totalTokenFees
+  const jackpotFee = context.defaultJackpotFee
+  return creatorFee + pool.gambaFee + pool.poolFee + jackpotFee
 }
 
 export const useCurrentToken = () => {

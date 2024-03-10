@@ -46,13 +46,14 @@ function TotalVolume() {
       const prev_volume = i === 0 ? 0 : p[i - 1].value
       return [
         ...p,
-        {value: prev_volume + x.total_volume, date: x.date}
+        {value: x.total_volume, date: x.date}
       ]
     }, [] as LineChartDataPoint[]),
     [daily]
   )
-  const total = React.useMemo(
-    () => cumsum.length ? cumsum[cumsum.length - 1].value : 0,
+
+  const total2 = React.useMemo(
+    () => cumsum.reduce((x, p) => x + p.value, 0) / cumsum.length,
     [cumsum]
   )
 
@@ -60,10 +61,10 @@ function TotalVolume() {
     <Card size="2">
       <Flex direction="column" gap="2">
         <Text color="gray">
-          {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Fees'}
+          {hovered?.date ? new Date(hovered.date).toLocaleString(undefined, {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Daily fees'}
         </Text>
         <Text size="7" weight="bold">
-          ${(hovered?.value ?? total).toLocaleString(undefined, {maximumFractionDigits: 1})}
+          ~${(hovered?.value ?? total2).toLocaleString(undefined, {maximumFractionDigits: 1})}
         </Text>
       </Flex>
       <div style={{height: '200px'}}>
@@ -145,7 +146,10 @@ export default function DaoView() {
   )
 
   return (
-    <Grid columns="2" gap="4">
+      <Grid
+        gap="4"
+        columns={{initial: '1', sm: '1', md: '2'}}
+      >
       <Flex gap="4" direction="column">
         <TotalVolume />
         <Details
@@ -165,34 +169,35 @@ export default function DaoView() {
             <ConfigDialog />
           </ButtonWithDialog>
         )}
+        {/* <Card>
+          <ConfigDialog />
+        </Card> */}
       </Flex>
       <Card>
-        <Grid gap="4">
-          <Grid gap="2">
-            {combinedTokens.map((token, i) => (
-              <Card key={i}>
-                <TokenItem
-                  mint={token.mint}
-                  balance={token.amount}
-                  stuff={
-                    <>
-                      {token.isNative && '(Native) '}
-                      <TokenValue2 dollar mint={token.mint} amount={token.amount} />
-                      {isGambaStateAuthority && (
-                        <Button size="2" variant="soft" onClick={() => distributeFees(
-                          token.mint,
-                          token.isNative,
-                        )}>
-                          Distribute
-                        </Button>
-                      )}
-                    </>
-                  }
-                />
-              </Card>
-            ))}
-          </Grid>
-        </Grid>
+        <Flex direction="column" gap="4">
+          {combinedTokens.map((token, i) => (
+            <Card key={i}>
+              <TokenItem
+                mint={token.mint}
+                balance={token.amount}
+                stuff={
+                  <>
+                    {token.isNative && '(Native) '}
+                    <TokenValue2 dollar mint={token.mint} amount={token.amount} />
+                    {isGambaStateAuthority && (
+                      <Button size="2" variant="soft" onClick={() => distributeFees(
+                        token.mint,
+                        token.isNative,
+                      )}>
+                        Distribute
+                      </Button>
+                    )}
+                  </>
+                }
+              />
+            </Card>
+          ))}
+        </Flex>
       </Card>
     </Grid>
   )

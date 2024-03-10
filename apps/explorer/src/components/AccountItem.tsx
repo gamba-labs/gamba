@@ -31,6 +31,18 @@ export function PlatformAccountItem(props: AccountItemProps2) {
   )
 }
 
+export function Identicon(props: AccountItemProps2) {
+  const domainName = useBonfidaName(props.address)
+  const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(props.address.toString())), [props.address])
+  return (
+    <Avatar
+      size={props.avatarSize ?? "1"}
+      src={image}
+      fallback={props.address.toString().substring(0, 2)}
+    />
+  )
+}
+
 export function PlayerAccountItem(props: AccountItemProps2) {
   const domainName = useBonfidaName(props.address)
   const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(props.address.toString())), [props.address])

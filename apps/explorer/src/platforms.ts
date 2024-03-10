@@ -15,24 +15,6 @@ export const PLATFORMS = [
     image: '/logos/gamba.png',
   },
   {
-    address: 'Adn4whbLyQs5b2rnwu9ngiEMxLjndadKbqDqxK4saqKd',
-    name: 'Apes On Space',
-    url: 'https://gm.apeson.space',
-    image: '/logos/apesonspace.png',
-  },
-  {
-    address: 'F1ame86hjDZWG9rqWPBxVo3ELUjMfZYdMikkmfdp7f74',
-    name: 'PhoenixBet',
-    url: 'https://bet.phnx.one',
-    image: '/logos/phoenixbet.png',
-  },
-  {
-    address: '43d7KZaysxPeVg8Pj9VH6FJogmpHa95sM4RXUsMm9TbQ',
-    name: 'Pepesolana',
-    url: 'https://pepesolana.one',
-    image: '/logos/pepesolana.png',
-  },
-  {
     address: '3wHhNeDcK69AsPQnFJ6buzA15y8MtdTmX2zkDEABr7c7',
     name: 'Killer Bunnies',
     url: 'https://skbgaming.solkillerbunnies.io',
@@ -45,40 +27,10 @@ export const PLATFORMS = [
     image: '/logos/guacamole.png',
   },
   {
-    address: '5AZYZb7sfB5K7P2GCWnB6v2G7urQ3LjoKtKRop8A79DA',
-    name: 'SolarMoon',
-    url: 'https://flip.solarmoon.xyz',
-    image: '/logos/solarmoon.png',
-  },
-  {
     address: '399KgE5gpzFvBB8arZLxA2bes3n4FY7rTMmzifHohPzx',
     name: 'Ninja Turtles',
     url: 'https://ninjatsscasino.xyz/',
     image: '/logos/ninjaturtles.png',
-  },
-  {
-    address: '5PAwRPFatXfvhMbLwjCjeKE5Yr6eJrsXnapvEadTdo1z',
-    name: 'Breakpoint Casino',
-    url: 'https://breakpoint.casino',
-    image: '/logos/breakpointcasino.png',
-  },
-  {
-    address: 'FPVE37GsoKpg87NUQpsuBEhauJ8yFpkidLzAjCdvWiZP',
-    name: 'Wolf Solana Casino',
-    url: 'https://wolf-solana.vercel.app',
-    image: '/logos/wolfsolanacasino.png',
-  },
-  {
-    address: 'HTpxLUzG2pgyfsbCW9ANwRxqyEPawQNuw2VA5N6UPhip',
-    name: 'Sweetscoin',
-    url: 'https://playsweets.xyz',
-    image: '/logos/sweetscoin.png',
-  },
-  {
-    address: 'BirdXG9bZASu6reNwJoixL2MVFCWxJZJV65uJHCTE5wb',
-    name: 'Birdies Solana',
-    url: 'https://xbirdies.com',
-    image: '/logos/xbirdies.png',
   },
   {
     address: 'A1yPM7RjvUetd6Fq8VRTatPSsidqWWwydascNShkVc91',
@@ -87,34 +39,10 @@ export const PLATFORMS = [
     image: '/logos/smashy.png',
   },
   {
-    address: 'CHADvZfMKNR37yaeCx9xg2HkML5nhBQUUaPiZ2DnASzB',
-    name: 'Chads on Solana',
-    url: 'https://chadroulette.chadonsolana.xyz/',
-    image: '/logos/chads.png',
-  },
-  {
     address: 'BgZYULwffQFARvqreWALeubMQtpGPFxeRaXDBPnmVrqE',
     name: 'PNDC',
     url: 'https://pndc-solana.vercel.app/',
     image: '/logos/pndc.png',
-  },
-  {
-    address: '2n8R9ukU9U1y8hdtRLRdNQea84LyCzseQP74Y6Ui2wHE',
-    name: 'Kongz Casino',
-    url: 'https://kongzcasino.vercel.app/',
-    image: '/logos/kongz.png',
-  },
-  {
-    address: 'Fdm2bFvGVrtddqwQecYYsff9kR4zES9D2WpvmPUczpaY',
-    name: 'Solana Street Bulls',
-    url: 'https://casino.solanastreetbulls.com/',
-    image: '/logos/solanastreetbulls.png',
-  },
-  {
-    address: '2hHmrohtRqA56iawxioxk37ENsganghf5iqUXBYSp8Br',
-    name: 'Mario Pepe Casino',
-    url: 'https://mpepe-casino.vercel.app/',
-    image: '/logos/mariopepe.png',
   },
   {
     address: 'HBQpKxK2Wdscn4kEBZWyXQ2GuCAEVeH6yinVnc736MVL',
@@ -127,18 +55,6 @@ export const PLATFORMS = [
     name: 'Fronk Casino',
     url: 'https://casino.fronk.xyz/',
     image: '/logos/fronk.png',
-  },
-  {
-    address: '7hSpQrpDXCddqLWPg6aWcFCnnYwCsUnuFYiBTe3rRxjL',
-    name: 'Queckz Babiez',
-    url: 'https://www.quekzbabiez.games/',
-    image: '/logos/quekzbabiez.png',
-  },
-  {
-    address: '6eBxsBoLNuJYJzA5HGadfw4FRZRJNf3aAJQBsAKhPoGu',
-    name: 'Broosters',
-    url: 'https://www.broosters.xyz/',
-    image: '/logos/broosters.png',
   },
   {
     address: '6SaxsBTCRRK1xFT2c7iPSirx2aSZLsuY28S28shmLm11',

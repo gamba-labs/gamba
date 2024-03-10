@@ -45,6 +45,11 @@ export function TokenAvatar(props: {mint: PublicKey | string, size?: "1" | "2" |
   )
 }
 
+export function TokenName(props: {mint: PublicKey | string}) {
+  const meta = useTokenMeta(props.mint)
+  return <>{meta.name}</>
+}
+
 export function TokenItem({ mint, balance, stuff }: TokenItemProps) {
   const meta = useTokenMeta(mint)
   return (

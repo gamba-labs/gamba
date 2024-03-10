@@ -29,6 +29,7 @@ import NavigationMenu from "./components/NavigationMenu"
 import { PoolList } from "./views/Dashboard/PoolList"
 import { TopPlatforms } from "./views/Dashboard/TopPlatforms"
 import EmbeddedTransactionView from "./views/Transaction/EmbeddedTransaction"
+import { PlayersView } from "./views/PlayersView"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -227,7 +228,7 @@ export function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/debug" element={<DebugView />} />
           <Route path="/pools" element={<PoolList />} />
-          <Route path="/players" element={<TopPlayers startTime={0} limit={100} />} />
+          <Route path="/leaderboard" element={<PlayersView />} />
           <Route path="/platforms" element={<TopPlatforms days={36500} limit={1000} />} />
           <Route path="/dao" element={<DaoView />} />
           <Route path="/platform/:address" element={<PlatformView />} />

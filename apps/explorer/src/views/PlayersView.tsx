@@ -27,7 +27,7 @@ export function PlayersView() {
   const [sortBy, setSortBy] = React.useState<TopPlayersProps['sortBy']>("usd_profit")
   const [creator, setCreator] = React.useState<undefined | string>("all")
   const [token, setToken] = React.useState<undefined | string>("all")
-  const [time, setTime] = React.useState<typeof timeframes[number]>('Daily')
+  const [time, setTime] = React.useState<typeof timeframes[number]>('All Time')
   const { data: tokens = [] } = useApi<PlatformTokenResponse>("/tokens", { creator: creator === "all" ? undefined : creator })
   const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>(
     "/platforms",

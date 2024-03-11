@@ -280,7 +280,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
             </LinkWarningDialog>
           )}
           <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
-            Add Liqudity <RocketIcon />
+            Add Liquidity <RocketIcon />
           </Button>
         </Flex>
         </ResponsiveButtonContainer>
@@ -290,7 +290,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
           <ThingCard title="LP price">
             {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
           </ThingCard>
-          <ThingCard title="Liqudity">
+          <ThingCard title="Liquidity">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.liquidity} />
           </ThingCard>
           <ThingCard title="LP Token Supply">

@@ -88,7 +88,7 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
     <>
       <Grid gap="2">
         <Heading>
-          Add Liqudity
+          Add Liquidity
         </Heading>
         <TextField.Root>
           <TextField.Input

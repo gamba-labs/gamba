@@ -44,6 +44,7 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
         creator: creator?.toString(),
         user: user?.toString(),
         page: index,
+        itemsPerPage: 10,
       }),
     async (endpoint) => {
       const data = await apiFetcher<RecentPlaysResponse>(endpoint)

@@ -16,6 +16,13 @@ export interface StatusResponse {
   syncing: boolean
 }
 
+export interface PlayerResponse {
+  games_played: number
+  games_won: number
+  usd_profit: number
+  usd_volume: number
+}
+
 export interface RecentPlaysResponse {
   total: number
   results: {

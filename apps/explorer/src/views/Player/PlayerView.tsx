@@ -1,13 +1,15 @@
 import RecentPlays from "@/RecentPlays"
+import { PlayerResponse, useApi } from "@/api"
 import { PlayerAccountItem } from "@/components/AccountItem"
-import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
+import { Details } from "@/components/Details"
+import { SolanaAddress } from "@/components/SolanaAddress"
+import { Flex, Table, Text } from "@radix-ui/themes"
 import React from "react"
 import { useParams } from "react-router-dom"
 
 export function PlayerView() {
   const { address } = useParams<{address: string}>()
-  // const { data } = useApi<any>("/player", {user: address!})
+  const { data } = useApi<PlayerResponse>("/player", {user: address!})
 
   return (
     <Flex direction="column" gap="4">
@@ -20,21 +22,36 @@ export function PlayerView() {
           </Table.Row>
         </Table.Header>
 
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>
-              <Grid columns="2" gap="4">
-                <Text weight="bold">
-                  Address
-                </Text>
-                <Link target="_blank" href={`https://solscan.io/address/${address}`} rel="noreferrer">
-                  {address} <ExternalLinkIcon />
-                </Link>
-              </Grid>
-            </Table.Cell>
-          </Table.Row>
-
-        </Table.Body>
+        <Details
+          title="Details"
+          rows={[
+            ["Address", <SolanaAddress address={address!} />],
+            [
+              "Volume",
+              <Text>
+                ${(data?.usd_volume ?? 0).toLocaleString()}
+              </Text>
+            ],
+            [
+              "Profit",
+              <Text>
+                ${(data?.usd_profit ?? 0).toLocaleString()}
+              </Text>
+            ],
+            [
+              "Games played",
+              <Text>
+                {data?.games_played ?? 0}
+              </Text>
+            ],
+            [
+              "Games won",
+              <Text>
+                {data?.games_won ?? 0}
+              </Text>
+            ],
+          ]}
+        />
       </Table.Root>
       <Text color="gray">
         Recent Plays

@@ -22,15 +22,6 @@ export const daysAgo = (daysAgo: number) => {
   return then.getTime()
 }
 
-const settledGamesSchema = z.object({
-  query: z.object({
-    page: z.string(),
-    pool: z.string().optional(),
-    creator: z.string().optional(),
-    user: z.string().optional(),
-  }),
-})
-
 const statsSchema = z.object({ query: z.object({ creator: z.string().optional(), startTime: z.string({}).optional() }) })
 
 api.get('/pools', async (req, res) => {
@@ -69,28 +60,50 @@ api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => 
   res.send({ results })
 })
 
+const settledGamesSchema = z.object({
+  query: z.object({
+    page: z.string().optional(),
+    itemsPerPage: z.string().optional(),
+    pool: z.string().optional(),
+    creator: z.string().optional(),
+    user: z.string().optional(),
+  }),
+})
+
 // Returns tx signatures of recent settled games
 api.get('/events/settledGames', cache('1 minute'), validate(settledGamesSchema), async (req, res) => {
-  const page = Number(req.query.page) ?? 0
+  const page = Number(req.query.page ?? 0)
+  const itemsPerPage = Number(req.query.itemsPerPage ?? 10)
+
+  if (itemsPerPage < 1 || itemsPerPage > 200) {
+    res.status(403).send('itemsPerPage must range between 1-200')
+    return
+  }
+
   const params = {
     ':pool': req.query.pool,
     ':creator': req.query.creator,
     ':user': req.query.user,
   }
+
   const query = `
     ${req.query.pool ? ' AND pool = :pool' : ''}
     ${req.query.creator ? ' AND creator = :creator' : ''}
     ${req.query.user ? ' AND user = :user' : ''}
   `
+
   const { total } = await get(`
-    SELECT COUNT(*) AS total FROM settled_games;
-  `)
+    SELECT COUNT(*) AS total FROM settled_games WHERE 1 ${query};
+  `, params)
+
   const results = await all(
     `
       SELECT
         signature,
         wager,
         payout,
+        payout * usd_per_unit as usd_payout,
+        wager * usd_per_unit as usd_wager,
         user,
         creator,
         token,
@@ -99,15 +112,63 @@ api.get('/events/settledGames', cache('1 minute'), validate(settledGamesSchema),
       FROM settled_games
       WHERE 1
       ${query}
-      ORDER BY block_time DESC LIMIT 10 OFFSET :offset;
+      ORDER BY block_time DESC LIMIT :itemsPerPage OFFSET :offset;
     `,
     {
       ...params,
-      ':offset': page * 10,
+      ':offset': page * itemsPerPage,
+      ':itemsPerPage': itemsPerPage,
     },
-    // req.query.pool ? [req.query.pool, page * 50] : [page * 50]
   )
   res.send({ total, results })
+})
+
+const playerSchema = z.object({
+  query: z.object({
+    user: z.string(),
+    creator: z.string().optional(),
+    token: z.string().optional(),
+  }),
+})
+
+api.get('/player', validate(playerSchema), async (req, res) => {
+  const params = { ':user': req.query.user, ':creator': req.query.creator, ':token': req.query.token }
+
+  const query = `
+    ${req.query.creator ? ' AND creator = :creator' : ''}
+    ${req.query.token ? ' AND token = :token' : ''}
+    ${req.query.user ? ' AND user = :user' : ''}
+  `
+
+  const firstBet = await get(`
+    SELECT
+      block_time * 1000 as time
+    FROM settled_games
+    WHERE 1 ${query} ORDER BY block_time ASC LIMIT 1
+  `, params)
+
+  const result = await get(`
+    SELECT
+      user,
+      COUNT(*) as games_played,
+      SUM(result_number % 1000) as total_result_mod_1000,
+      SUM((payout - wager + jackpot) * usd_per_unit) as usd_profit,
+      SUM(creator_fee * usd_per_unit) as usd_creator_fees_paid,
+      SUM(pool_fee * usd_per_unit) as usd_pool_fees_paid,
+      SUM(gamba_fee * usd_per_unit) as usd_dao_fees_paid,
+      SUM(wager * usd_per_unit) as usd_volume,
+      COUNT(CASE WHEN payout >= wager THEN 1 END) as games_won
+    FROM settled_games
+    WHERE 1 ${query}
+  `, params)
+
+  const { user, total_result_mod_1000, ...rest } = result
+
+  if (!user) return res.status(404).send('PLAYER_NOT_FOUND')
+
+  const randomness_score = 1 - Math.abs(.5 - total_result_mod_1000 / rest.games_played / 1000)
+
+  res.send({ ...rest, randomness_score, first_bet_time: firstBet?.time ?? 0 })
 })
 
 // Returns hourly ratio (LP Price) change of a specific pool

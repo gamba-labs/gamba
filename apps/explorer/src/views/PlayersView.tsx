@@ -4,31 +4,55 @@ import { PlatformAccountItem } from '@/components/AccountItem'
 import { Flex, Select } from '@radix-ui/themes'
 import React from 'react'
 import { TopPlayers, TopPlayersProps } from "./Dashboard/Dashboard"
+import { createSearchParams, useLocation, useNavigate } from 'react-router-dom'
 
 const daysAgo = (daysAgo: number) => {
   const now = new Date()
   const then = new Date()
   then.setDate(now.getDate() - daysAgo)
   then.setHours(0)
+  then.setMinutes(0)
+  then.setSeconds(0)
   return then.getTime()
 }
 
 function startOfWeek() {
-  var today = new Date
-  var day = today.getDay() || 7
-  if (day !== 1)
-    today.setHours(-24 * (day - 1))
-  return today.getTime()
+  const d = new Date
+  const day = d.getDay()
+  const diff = d.getDate() - day + (day == 0 ? -6 : 1)
+  const then = new Date(d.setDate(diff))
+  then.setHours(0)
+  then.setMinutes(0)
+  then.setSeconds(0)
+  return then.getTime()
 }
 
 const timeframes = ['Daily', 'Weekly', 'Monthly', 'All Time'] as const
 
+function useLeaderboardParams(): LeaderboardParams {
+  const { search } = useLocation()
+  const params = new URLSearchParams(search)
+
+  return {
+    creator: params.get("creator") ?? "all",
+    token: params.get("token") ?? "all",
+    sortBy: params.get("sortBy") ?? "usd_profit",
+    time: params.get("time") ?? "All Time",
+  }
+}
+
+interface LeaderboardParams {
+  creator: string
+  token: string
+  sortBy: string
+  time: string
+}
+
 export function PlayersView() {
-  const [sortBy, setSortBy] = React.useState<TopPlayersProps['sortBy']>("usd_profit")
-  const [creator, setCreator] = React.useState<undefined | string>("all")
-  const [token, setToken] = React.useState<undefined | string>("all")
-  const [time, setTime] = React.useState<typeof timeframes[number]>('All Time')
-  const { data: tokens = [] } = useApi<PlatformTokenResponse>("/tokens", { creator: creator === "all" ? undefined : creator })
+  const location = useLocation()
+  const navigate = useNavigate()
+  const params = useLeaderboardParams()
+  const { data: tokens = [] } = useApi<PlatformTokenResponse>("/tokens", { creator: params.creator === "all" ? undefined : params.creator })
   const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>(
     "/platforms",
     {
@@ -39,14 +63,28 @@ export function PlayersView() {
   )
 
   React.useEffect(
-    () => setToken("all"),
-    [creator]
+    () => {
+      setParams({token: "all"})
+    },
+    [params.creator]
   )
 
+  console.log(params)
+
+  const setParams = (p: Partial<LeaderboardParams>) => {
+    navigate({
+      pathname: location.pathname,
+      search: createSearchParams({
+        ...params,
+        ...p,
+      }).toString()
+    })
+  }
+
   const startTime = (() => {
-    if (time === 'Daily') return daysAgo(0)
-    if (time === 'Weekly') return startOfWeek()
-    if (time === 'Monthly') return daysAgo(30)
+    if (params.time === 'Daily') return daysAgo(0)
+    if (params.time === 'Weekly') return startOfWeek()
+    if (params.time === 'Monthly') return daysAgo(30)
     return daysAgo(36524)
   })()
 
@@ -54,7 +92,10 @@ export function PlayersView() {
     <>
       <Flex direction="column" gap="4">
         <Flex gap="4" wrap="wrap">
-          <Select.Root value={creator} onValueChange={setCreator}>
+          <Select.Root
+            value={params.creator}
+            onValueChange={(creator) => setParams({creator})}
+          >
             <Select.Trigger />
             <Select.Content>
               <Select.Item value="all">
@@ -70,7 +111,10 @@ export function PlayersView() {
             </Select.Content>
           </Select.Root>
 
-          <Select.Root value={token} onValueChange={setToken}>
+          <Select.Root
+            value={params.token}
+            onValueChange={(token) => setParams({token})}
+          >
             <Select.Trigger />
             <Select.Content>
               <Select.Group>
@@ -89,7 +133,10 @@ export function PlayersView() {
             </Select.Content>
           </Select.Root>
 
-          <Select.Root value={time} onValueChange={setTime}>
+          <Select.Root
+            value={params.time}
+            onValueChange={(time) => setParams({time})}
+          >
             <Select.Trigger />
             <Select.Content>
               <Select.Group>
@@ -101,7 +148,10 @@ export function PlayersView() {
               </Select.Group>
             </Select.Content>
           </Select.Root>
-          <Select.Root value={sortBy} onValueChange={setSortBy}>
+          <Select.Root
+            value={params.sortBy}
+            onValueChange={(sortBy) => setParams({sortBy})}
+          >
             <Select.Trigger />
             <Select.Content>
               <Select.Group>
@@ -117,10 +167,10 @@ export function PlayersView() {
         </Flex>
 
         <TopPlayers
-          creator={creator === "all" ? undefined : creator}
-          token={token === "all" ? undefined : token}
+          creator={params.creator === "all" ? undefined : params.creator}
+          token={params.token === "all" ? undefined : params.token}
           startTime={startTime}
-          sortBy={sortBy}
+          sortBy={params.sortBy}
           limit={100}
         />
       </Flex>

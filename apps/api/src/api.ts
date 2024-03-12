@@ -131,7 +131,7 @@ const playerSchema = z.object({
   }),
 })
 
-api.get('/player', validate(playerSchema), async (req, res) => {
+api.get('/player', cache('5 minutes'), validate(playerSchema), async (req, res) => {
   const params = { ':user': req.query.user, ':creator': req.query.creator, ':token': req.query.token }
 
   const query = `

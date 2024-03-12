@@ -30,8 +30,6 @@ const SkeletonCard = styled(Card)`
 `
 
 function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank: number }) {
-  const meta = getPlatformMeta(platform.creator)
-
   return (
     <UnstyledNavLink key={platform.creator} to={`/platform/${platform.creator}`}>
       <Card size="2">
@@ -40,7 +38,7 @@ function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank:
             {rank}
           </Text>
           <Flex justify="between" grow="1">
-            <PlatformAccountItem avatarSize="1" address={meta.address} />
+            <PlatformAccountItem avatarSize="1" address={platform.creator} />
             <Flex gap="2" align="center">
               <Text color="gray" size="2">
                 ${platform.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 2})}

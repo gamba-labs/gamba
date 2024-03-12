@@ -8,7 +8,7 @@ import { PlatformTokenResponse, StatsResponse, useApi } from "@/api"
 import { TokenAvatar } from "@/components"
 import { truncateString } from "@/components/AccountItem"
 import { Details } from "@/components/Details"
-import { useBonfidaName, useTokenMeta } from "@/hooks"
+import { useBonfidaName, usePlatformMeta, useTokenMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import { minidenticon } from "minidenticons"
 import styled, { css } from "styled-components"
@@ -74,7 +74,7 @@ function LinkWarningDialog(props: {url: string}) {
 }
 
 export function PlatformDetails({ creator }: {creator: string}) {
-  const meta = getPlatformMeta(creator)
+  const meta = usePlatformMeta(creator)
 
   return (
     <Details
@@ -120,7 +120,7 @@ function TokenVolume({token}: {token: PlatformTokenResponse[number] }) {
 }
 
 function PlatformHeader({ creator }: {creator: string}) {
-  const meta = getPlatformMeta(creator)
+  const meta = usePlatformMeta(creator)
   const domainName = useBonfidaName(creator)
   const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(creator.toString())), [creator])
 
@@ -138,14 +138,8 @@ function PlatformHeader({ creator }: {creator: string}) {
 
 export function Things({creator, startTime = 0}: {creator?: string | PublicKey, startTime?: number}) {
   const { data, isLoading } = useApi<StatsResponse>('/stats', {creator: creator?.toString(), startTime})
-  // const meta = creator && getPlatformMeta(creator)
   return (
     <Flex gap="2" wrap="wrap">
-      {/* {creator && (
-        <Card>
-          <PlatformHeader creator={creator} />
-        </Card>
-      )} */}
       <ThingCard title="Volume">
         <SkeletonFallback loading={isLoading}>
           ${data?.usd_volume.toLocaleString()}

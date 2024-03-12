@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 
-interface PlatformMeta {
+export interface PlatformMeta {
   address: string
   name: string
   url?: string
@@ -115,6 +115,6 @@ const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({
   [meta.address]: meta,
 }), {} as Record<string, PlatformMeta>)
 
-export const getPlatformMeta = (address: string | PublicKey) => {
-  return PLATFORMS_BY_ADDRESS[address.toString()] ?? { address: address.toString(), name: address.toString().substring(0, 9) }
+export const getPlatformMeta = (address: string | PublicKey): PlatformMeta | undefined => {
+  return PLATFORMS_BY_ADDRESS[address.toString()]
 }

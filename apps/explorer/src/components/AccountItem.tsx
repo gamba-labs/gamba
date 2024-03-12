@@ -1,4 +1,4 @@
-import { useBonfidaName } from "@/hooks"
+import { useBonfidaName, usePlatformMeta } from "@/hooks"
 import { getPlatformMeta } from "@/platforms"
 import { Avatar, Flex, Text } from "@radix-ui/themes"
 import { AvatarProps } from "@radix-ui/themes/dist/cjs/components/avatar"
@@ -19,14 +19,12 @@ export const truncateString = (s: string, startLen = 4, endLen = startLen) => s.
 type AccountItemProps2 = Pick<AccountItemProps, "avatarSize" | "address">
 
 export function PlatformAccountItem(props: AccountItemProps2) {
-  const meta = getPlatformMeta(props.address)
-  const domainName = useBonfidaName(props.address)
-  const image = React.useMemo(() => 'data:image/svg+xml;utf8,' + encodeURIComponent(minidenticon(props.address.toString())), [props.address])
+  const meta = usePlatformMeta(props.address)
   return (
     <AccountItem
       {...props}
-      image={meta.image ?? image}
-      name={meta.name ?? domainName}
+      image={meta.image}
+      name={meta.name}
     />
   )
 }

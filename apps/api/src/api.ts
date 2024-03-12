@@ -2,6 +2,9 @@ import express from 'express'
 import { z } from 'zod'
 import { validate } from './utils'
 import { all, get } from './db'
+import apicache from 'apicache'
+
+const cache = apicache.middleware
 
 const api = express.Router()
 
@@ -67,7 +70,7 @@ api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => 
 })
 
 // Returns tx signatures of recent settled games
-api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) => {
+api.get('/events/settledGames', cache('1 minute'), validate(settledGamesSchema), async (req, res) => {
   const page = Number(req.query.page) ?? 0
   const params = {
     ':pool': req.query.pool,
@@ -108,7 +111,7 @@ api.get('/events/settledGames', validate(settledGamesSchema), async (req, res) =
 })
 
 // Returns hourly ratio (LP Price) change of a specific pool
-api.get('/ratio', validate(ratioSchema), async (req, res) => {
+api.get('/ratio', cache('10 minutes'), validate(ratioSchema), async (req, res) => {
   const tx = await all(`
     SELECT
       strftime('%Y-%m-%d %H:00', sg.block_time, 'unixepoch') as date,
@@ -135,7 +138,7 @@ api.get('/ratio', validate(ratioSchema), async (req, res) => {
   res.send(tx)
 })
 
-api.get('/chart/plays', async (req, res) => {
+api.get('/chart/plays', cache('5 minutes'), async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,
@@ -149,7 +152,7 @@ api.get('/chart/plays', async (req, res) => {
 })
 
 // Returns daily volume for a specific pool in underlying token
-api.get('/daily', validate(volumeSchema), async (req, res) => {
+api.get('/daily', cache('5 minutes'), validate(volumeSchema), async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,
@@ -164,7 +167,7 @@ api.get('/daily', validate(volumeSchema), async (req, res) => {
 })
 
 // Returns total volume
-api.get('/total', validate(volumeSchema), async (req, res) => {
+api.get('/total', cache('5 minutes'), validate(volumeSchema), async (req, res) => {
   const tx = await get(`
     SELECT SUM(wager) as volume
     FROM settled_games
@@ -175,7 +178,7 @@ api.get('/total', validate(volumeSchema), async (req, res) => {
 })
 
 // Returns list of platforms sorted by their volume for a specific pool
-api.get('/platforms-by-pool', validate(volumeSchema), async (req, res) => {
+api.get('/platforms-by-pool', cache('5 minutes'), validate(volumeSchema), async (req, res) => {
   const tx = await all(`
     SELECT creator, SUM(wager) as volume
     FROM settled_games
@@ -196,7 +199,7 @@ const topPlatformsSchema = z.object({
 })
 
 // Returns top creators by volume in USD
-api.get('/platforms', validate(topPlatformsSchema), async (req, res) => {
+api.get('/platforms', cache('5 minutes'), validate(topPlatformsSchema), async (req, res) => {
   const days = Number(req.query.days ?? 7)
   const tx = await all(`
     SELECT
@@ -219,7 +222,7 @@ api.get('/platforms', validate(topPlatformsSchema), async (req, res) => {
 const tokensSchema = z.object({ query: z.object({ creator: z.string({}).optional() }) })
 
 // Returns top tokens used by a platform
-api.get('/tokens', validate(tokensSchema), async (req, res) => {
+api.get('/tokens', cache('5 minutes'), validate(tokensSchema), async (req, res) => {
   const tx = await all(`
     SELECT
       creator,
@@ -254,7 +257,7 @@ const playersSchema = z.object({
 })
 
 // Returns list of top performing players
-api.get('/players', validate(playersSchema), async (req, res) => {
+api.get('/players', cache('5 minutes'), validate(playersSchema), async (req, res) => {
   const { sortBy = 'usd_profit' } = req.query as Record<string, string>
   const startTime = Number(req.query.startTime ?? 0)
   const limit = Number(req.query.limit ?? 5)
@@ -316,7 +319,7 @@ const topPlaysSchema = z.object({
 })
 
 // Returns list of top plays by USD profit
-api.get('/top-plays', validate(topPlaysSchema), async (req, res) => {
+api.get('/top-plays', cache('5 minutes'), validate(topPlaysSchema), async (req, res) => {
   const tx = await all(`
     SELECT
       signature,
@@ -355,21 +358,7 @@ api.get('/status', async (req, res) => {
   res.send({ syncing: !earliestSignature || earliestSignature.signature !== '42oXxibwpHeoX8ZrEhzbfptNAT8wGhpbRA1j7hrnALwZB4ERB1wCFpMTHjMzsfJHeEKxgPEiwwgCWa9fStip8rra' })
 })
 
-const playerSchema = z.object({ query: z.object({ user: z.string().optional() }) })
-
-api.get('/player', validate(playerSchema), async (req, res) => {
-  const params = { ':user': req.query.user }
-  const query = req.query.user ? 'AND user = :user' : ''
-
-  const stuffff = await get(`
-    SELECT COUNT(*) as a, SUM(result_number % 1000) as b FROM settled_games
-    WHERE 1 ${query}
-  `, params)
-
-  res.send({ stuffff: stuffff.a / stuffff.b / 1000 })
-})
-
-api.get('/stats', validate(statsSchema), async (req, res) => {
+api.get('/stats', cache('10 minutes'), validate(statsSchema), async (req, res) => {
   const startTime = Number(req.query.startTime ?? 0)
   const params = { ':creator': req.query.creator, ':from': startTime, ':until': Date.now() }
   const creatorQuery = `
@@ -431,7 +420,7 @@ api.get('/stats', validate(statsSchema), async (req, res) => {
 const dailyUsdSchema = z.object({ query: z.object({ creator: z.string({}).optional() }) })
 
 // Returns daily volume for USD
-api.get('/chart/daily-usd', validate(dailyUsdSchema), async (req, res) => {
+api.get('/chart/daily-usd', cache('5 minutes'), validate(dailyUsdSchema), async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,
@@ -444,13 +433,13 @@ api.get('/chart/daily-usd', validate(dailyUsdSchema), async (req, res) => {
     ORDER BY date ASC
   `, {
     ':creator': req.query.creator,
-    ':from': daysAgo(7),
+    ':from': daysAgo(6),
     ':until': Date.now(),
   })
   res.send(tx)
 })
 
-api.get('/chart/dao-usd', async (req, res) => {
+api.get('/chart/dao-usd', cache('5 minutes'), async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,

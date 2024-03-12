@@ -1,5 +1,11 @@
 # gamba-react-ui-v2
 
+## 0.3.2
+
+### Patch Changes
+
+- useTokenMeta fix
+
 ## 0.3.1
 
 ### Patch Changes

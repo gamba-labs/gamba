@@ -38,6 +38,7 @@ export function useTokenMeta(mint: PublicKey): TokenMeta {
   const fetchedTokenData = tokenData.value[mint.toString()]
 
   React.useEffect(() => {
+    console.log('Fetching', mint.toString())
     // Clear old timeout whenever a new mint should get fetched
     tokenMints.value.add(mint.toString())
 
@@ -57,7 +58,7 @@ export function useTokenMeta(mint: PublicKey): TokenMeta {
     return () => {
       clearTimeout(fetchTimeout)
     }
-  }, [mint])
+  }, [mint.toString()])
 
   const defaultToken: TokenMeta = {
     mint: new PublicKey(mint),

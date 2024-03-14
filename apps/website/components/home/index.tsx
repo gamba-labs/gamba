@@ -17,21 +17,21 @@ export function Home() {
   )
   return (
     <div>
-      <video
-        id="hero-video"
-        src="/hero.mp4"
-        muted
-        playsInline
-      />
-      <div className="hero max-w-7xl mx-auto px-6 md:px-12 xl:px-6 pt-32">
+      <div className="hero max-w-7xl mx-auto px-6 md:px-12 xl:px-6 py-32">
         <div className="lg:w-2/3 text-center mx-auto">
           <h1 className="text-zinc-900 dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
-            Tagline <span className="gradient-text">tagline</span> Tagline
+            Build <span className="gradient-text">on-chain</span> games on Solana
           </h1>
           <p className="mt-8 text-xl text-zinc-700 dark:text-zinc-300 leading-8">
-            Gamba Gamba Gamba Gamba Gamba Gamba Gamba
+            Gamba provides tools for building & playing games directly on-chain.
           </p>
-          <div className="flex flex-wrap justify-center align-center gap-6 pt-96">
+          <video
+            id="hero-video"
+            src="/hero.mp4"
+            muted
+            playsInline
+          />
+          <div className="flex flex-wrap justify-center align-center gap-6">
             <Link href="/docs" className="relative flex h-11 w-full items-center justify-center px-6 active:duration-75 sm:w-max gamba-main-button">
               <span>Learn more</span>
             </Link>

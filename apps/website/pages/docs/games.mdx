@@ -1,0 +1,46 @@
+# 🎲 Games
+
+Games are initiated by the player, typically via a [frontend app](/docs/apps). The Gamba on-chain Program will validate each game, making sure the player doesn't have an unfair advantage. A random number will then be generated to determine the winner. (Either the player or the [liquidity pool](/docs/pools) being played against).
+
+## Structure
+
+The key components that make up a game are the following:
+
+`pool` - The pool (and its underlying token) that will be used for the game.
+
+`wager` - The amount of tokens that the player will pay to start the game.
+
+`bet` - A list of potential outcomes (Multipliers). Explained below:
+
+## Outcomes
+
+The `bet` consists of potential multipliers.
+
+After a game has been initiated, a single number from the `bet` list will be selected at random, and that number will be multiplied by the wagered amount to determine how many tokens the player will receive.
+
+For instance, we can simulate a coin toss by creating a bet with `[2, 0]` (Meaning 2x or 0x).
+
+We can create arrays of different lengths and values to simulate more complex games. As long as the bet is fair it will be allowed. Examples:
+
+* [0, 2] equal odds = allowed ✅
+* [1.5, .5] equal odds = allowed ✅
+* [0, 0, 0, 6] player has an advantage = not allowed ❌
+* [0, 3] player has an advantage = not allowed ❌
+
+With these simple rules, and a bit of UI design, we can create a wide variety of classic arcade games, like Roulette, Plinko, Crash, and more.
+
+## How is the outcome determined
+
+Every result on Gamba are fairly determined using the following variables:
+
+```
+rng_seed - provided by Gamba's "RNG Provider"
+client_seed - provided by your browser and adjusted by you
+nonce - A number that increases with each bet you make
+```
+
+Prior to initiating a game, the player receive an encrypted hash of the `rng_seed`. Since they know the hash in advance, they know that Gamba cannot change it. Meanwhile, the player can change their `client_seed` via the frontend they're playing on, which will alter the games result. When a game is finished, the player will once again receive the hashed `rng_seed` for their next game.
+
+The [explorer](https://explorer.gamba.so) tracks games played via various frontends, and provides the proof and ways to verify them.
+
+Example transaction: https://explorer.gamba.so/tx/23ARo5bzvKXr5MJVMUnGtvfEYWHp4aPfvthna1Px5P8GCV5uBtqE7q37CQqhC7uhzA5PU7mEMBBkCDYi16oJqRK7

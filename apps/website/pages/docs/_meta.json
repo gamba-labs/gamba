@@ -6,7 +6,7 @@
   },
   "apps": "🎰 Apps",
   "pools": "🏦 Pools",
-  "plays": "🎲 Plays",
+  "games": "🎲 Games",
   "dao": "🏛️ DAO (Soon)",
   "-- Development": {
     "type": "separator",
@@ -18,7 +18,7 @@
     "type": "separator",
     "title": "SDK Docs"
   },
-  "core": "📄 gamba-core",
-  "react": "📄 gamba-react",
-  "react-ui": "📄 gamba-react-ui"
+  "gamba-core": "📄 gamba-core",
+  "gamba-react": "📄 gamba-react",
+  "gamba-react-ui": "📄 gamba-react-ui"
 }

@@ -200,14 +200,27 @@ footer {
   background-color: transparent!important;
 }
 
+.hero {
+  position: relative;
+}
+
+.hero > div {
+  /* position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%); */
+}
+
 video#hero-video {
   background: black;
-  position: absolute;
+  max-width: 800px;
+  position: relative;
+  max-width: 100%;
+  /* position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
+  left: 50%; */
   z-index: -10;
-  max-width: 800px;
-  left: 50%;
 }
 
 .card-text {

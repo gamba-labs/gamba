@@ -108,6 +108,12 @@ export const PLATFORMS = [
     url: "https://play.solcade.net/",
     image: "/logos/solcade.png"
   },
+  {
+    address: 'E8tzfzDJa2CVc2BVXu6mmg83sp2JV4mXeVTvR5GwCJyu',
+    name: 'SolBets',
+    url: 'https://solbets.app',
+    image: '/logos/solbets.png',
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

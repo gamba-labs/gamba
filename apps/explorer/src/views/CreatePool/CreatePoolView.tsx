@@ -141,7 +141,7 @@ function Inner() {
 
       const pool = getPoolAddress(selectedToken.mint, authority)
 
-      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 1_000_000 })
+      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 })
       const slot = await connection.getSlot()
 
       const combinedInstructions = [

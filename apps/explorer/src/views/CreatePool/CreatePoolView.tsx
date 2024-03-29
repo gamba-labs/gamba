@@ -141,10 +141,12 @@ function Inner() {
 
       const pool = getPoolAddress(selectedToken.mint, authority)
 
-      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 })
+      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 })
+      const priorityFee = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 201_000,});
       const slot = await connection.getSlot()
 
       const combinedInstructions = [
+        priorityFee,
         modifyComputeUnits,
         ...gamba.createPool(selectedToken.mint, authority, slot),
       ]

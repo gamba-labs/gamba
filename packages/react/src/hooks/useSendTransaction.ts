@@ -24,6 +24,7 @@ interface SendTransactionOptions {
   confirmation?: Commitment
   lookupTable?: PublicKey[]
   priorityFee?: number
+  computeUnitLimitMargin?: number
   label?: string
 }
 
@@ -59,6 +60,7 @@ export function useSendTransaction() {
       }
 
       const priorityFee = opts?.priorityFee ?? context.priorityFee
+      const computeUnitLimitMargin = opts?.computeUnitLimitMargin ?? context.computeUnitLimitMargin
 
       // Add priority fee instruction
       if (priorityFee) {
@@ -94,7 +96,7 @@ export function useSendTransaction() {
 
       if (!simulation.value.unitsConsumed) throw throwTransactionError('Simulation failed')
 
-      const computeUnitLimit = Math.floor(simulation.value.unitsConsumed * context.computeUnitLimitMargin)
+      const computeUnitLimit = Math.floor(simulation.value.unitsConsumed * computeUnitLimitMargin)
 
       // Create and sign the actual transaction
       const transaction = await createTx(ComputeBudgetProgram.setComputeUnitLimit({ units: computeUnitLimit }))

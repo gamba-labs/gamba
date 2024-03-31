@@ -1,5 +1,11 @@
 # gamba-react-v2
 
+## 1.1.1
+
+### Patch Changes
+
+- Added computeUnitLimitMargin param to sendTx
+
 ## 1.1.0
 
 ### Minor Changes

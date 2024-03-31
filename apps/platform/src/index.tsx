@@ -52,24 +52,24 @@ function Root() {
                 },
               ]}
             >
-              <SendTransactionProvider priorityFee={200_201}>
-                <GambaProvider
-                  // __experimental_plugins={[
-                  //   // Custom fee (1%)
-                  //   createCustomFeePlugin('PUBKEY', .01),
-                  // ]}
+              {/* <SendTransactionProvider priorityFee={200_201}> */}
+              <GambaProvider
+                // __experimental_plugins={[
+                //   // Custom fee (1%)
+                //   createCustomFeePlugin('PUBKEY', .01),
+                // ]}
+              >
+                <GambaPlatformProvider
+                  creator={PLATFORM_CREATOR_ADDRESS}
+                  games={GAMES}
+                  defaultCreatorFee={0.01}
+                  defaultJackpotFee={0.001}
+                  defaultPool={POOLS[0]}
                 >
-                  <GambaPlatformProvider
-                    creator={PLATFORM_CREATOR_ADDRESS}
-                    games={GAMES}
-                    defaultCreatorFee={0.01}
-                    defaultJackpotFee={0.001}
-                    defaultPool={POOLS[0]}
-                  >
-                    <App />
-                  </GambaPlatformProvider>
-                </GambaProvider>
-              </SendTransactionProvider>
+                  <App />
+                </GambaPlatformProvider>
+              </GambaProvider>
+              {/* </SendTransactionProvider> */}
             </TokenMetaProvider>
           </WalletModalProvider>
         </WalletProvider>

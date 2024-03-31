@@ -4,7 +4,7 @@ import { decodeAta, getPoolAddress, getUserBonusAtaForPool, getUserUnderlyingAta
 import { useAccount } from './useAccount'
 
 // Bad hack to make sure there's a publicKey if user is not connected
-const emptyAccount = new Keypair()
+const emptyAccount = new Keypair
 
 export function useWalletAddress() {
   const wallet = useWallet()

@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js'
+import { PublicKey, TransactionInstruction } from '@solana/web3.js'
 import { GambaPlayInput, useGambaPlay, useNextResult } from 'gamba-react-v2'
 import React from 'react'
 import { useUserBalance } from '.'
@@ -21,7 +21,10 @@ export function useGame() {
     return getNextResult()
   }
 
-  const play = async (input: Pick<GambaPlayInput, 'wager' | 'bet' | 'metadata'>) => {
+  const play = async (
+    input: Pick<GambaPlayInput, 'wager' | 'bet' | 'metadata'>,
+    instructions: TransactionInstruction[] = [],
+  ) => {
     const metaArgs = input.metadata ?? []
     const metadata = ['0', game.game.id, ...metaArgs]
 
@@ -41,7 +44,7 @@ export function useGame() {
       return fake.play(gameInput)
     }
 
-    return gambaPlay(gameInput)
+    return gambaPlay(gameInput, instructions)
   }
 
   return {

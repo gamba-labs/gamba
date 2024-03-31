@@ -1,7 +1,7 @@
-import { useGamba } from "gamba-react-v2"
-import React from "react"
-import { Select } from "./Select"
-import { TokenValue } from "./TokenValue"
+import { useGamba } from 'gamba-react-v2'
+import React from 'react'
+import { Select } from './Select'
+import { TokenValue } from './TokenValue'
 
 export interface WagerSelectProps {
   options: number[]

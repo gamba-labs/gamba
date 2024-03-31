@@ -1,23 +1,12 @@
 import { AnchorError } from '@coral-xyz/anchor'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { Commitment, TransactionInstruction, TransactionMessage, VersionedTransaction, PublicKey } from '@solana/web3.js'
+import { AddressLookupTableAccount, Commitment, ComputeBudgetProgram, PublicKey, TransactionConfirmationStrategy, TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 import React from 'react'
-import { StoreApi, create } from 'zustand'
 import { PubSub } from '../PubSub'
+import { SendTransactionContext } from '../SendTransactionContext'
+import { useTransactionStore } from './useTransactionStore'
 
 const transactionEventEmitter = new PubSub<[error: Error]>
-
-export interface TransactionStore {
-  state: 'none' | 'sending' | 'error'
-  set: StoreApi<TransactionStore>['setState']
-}
-
-export const useTransactionStore = create<TransactionStore>(
-  (set) => ({
-    state: 'none',
-    set,
-  }),
-)
 
 export const throwTransactionError = (error: any) => {
   transactionEventEmitter.emit(error)
@@ -33,7 +22,9 @@ export function useTransactionError(callback: (error: Error) => void) {
 
 interface SendTransactionOptions {
   confirmation?: Commitment
-  lookupTable?: PublicKey
+  lookupTable?: PublicKey[]
+  priorityFee?: number
+  label?: string
 }
 
 const getErrorLogs = (error: unknown) => {
@@ -45,6 +36,7 @@ export function useSendTransaction() {
   const store = useTransactionStore()
   const { connection } = useConnection()
   const wallet = useWallet()
+  const context = React.useContext(SendTransactionContext)
 
   return async (
     instructions: TransactionInstruction | Promise<TransactionInstruction> |
@@ -52,52 +44,90 @@ export function useSendTransaction() {
     opts?: SendTransactionOptions,
   ) => {
     try {
-      store.set({ state: 'sending' })
+      store.set({ state: 'simulating', label: opts?.label })
+
       if (!wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet Not Connected')
       }
 
-      const blockhash = await connection.getLatestBlockhash()
+      const payer = wallet.publicKey
 
       if (!Array.isArray(instructions)) {
-        instructions = [instructions]
+        instructions = [
+          instructions,
+        ]
+      }
+
+      const priorityFee = opts?.priorityFee ?? context.priorityFee
+
+      // Add priority fee instruction
+      if (priorityFee) {
+        instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }))
       }
 
       const resolvedInstructions = await Promise.all(instructions)
 
-      // If a lookup table is provided, fetch it
-      const lookupTable = []
-      if (opts?.lookupTable) {
-        const lookupTableResponse = await connection.getAddressLookupTable(opts.lookupTable)
-        if (lookupTableResponse?.value) {
-          lookupTable.push(lookupTableResponse.value)
-        }
+      const lookupTableAddresses = opts?.lookupTable ?? []
+
+      // Fetch lookup tables
+      const lookupTables = await Promise.all(
+        lookupTableAddresses
+          .map(async (x) => {
+            const response = await connection.getAddressLookupTable(x)
+            return response?.value
+          })
+          .filter((x) => !!x),
+      ) as AddressLookupTableAccount[]
+
+      const createTx = async (...ixs: TransactionInstruction[]) => {
+        const blockhash = await connection.getLatestBlockhash()
+        const message = new TransactionMessage({
+          payerKey: payer,
+          recentBlockhash: blockhash.blockhash,
+          instructions: [...ixs, ...resolvedInstructions],
+        }).compileToV0Message(lookupTables)
+        return new VersionedTransaction(message)
       }
 
-      const message = new TransactionMessage({
-        payerKey: wallet.publicKey,
-        recentBlockhash: blockhash.blockhash,
-        instructions: resolvedInstructions,
-      }).compileToV0Message(lookupTable)
+      const simulatedTx = await createTx(ComputeBudgetProgram.setComputeUnitLimit({ units: context.simulationUnits }))
+      const simulation = await connection.simulateTransaction(simulatedTx, { commitment: 'processed', sigVerify: false })
 
-      const transaction = new VersionedTransaction(message)
+      if (!simulation.value.unitsConsumed) throw throwTransactionError('Simulation failed')
+
+      const computeUnitLimit = Math.floor(simulation.value.unitsConsumed * context.computeUnitLimitMargin)
+
+      // Create and sign the actual transaction
+      const transaction = await createTx(ComputeBudgetProgram.setComputeUnitLimit({ units: computeUnitLimit }))
       const signedTransaction = await wallet.signTransaction(transaction)
 
+      store.set({ state: 'sending' })
       const txId = await connection.sendTransaction(signedTransaction)
 
+      store.set({ state: 'processing', txId })
       console.debug('Transaction sent', txId)
 
-      const confirmStrategy = {
+      const blockhash = await connection.getLatestBlockhash()
+
+      const confirmStrategy: TransactionConfirmationStrategy = {
         blockhash: blockhash.blockhash,
         lastValidBlockHeight: blockhash.lastValidBlockHeight,
         signature: txId,
       }
 
-      connection.confirmTransaction(confirmStrategy, 'confirmed').then(() => store.set({ state: 'none' }))
+      connection.confirmTransaction(confirmStrategy, 'processed').then((x) => {
+        store.set({
+          state: 'confirming',
+          txId,
+          signatureResult: x.value,
+        })
+      })
+
+      connection.confirmTransaction(confirmStrategy, 'confirmed').then((x) => {
+        store.set({ state: 'none' })
+      })
 
       if (opts?.confirmation) {
-        const result = await connection.confirmTransaction(confirmStrategy, opts.confirmation)
-        console.debug('Transaction confirmed', opts.confirmation, txId, result.value)
+        await connection.confirmTransaction(confirmStrategy, opts.confirmation)
       }
 
       return txId
@@ -115,7 +145,7 @@ export function useSendTransaction() {
       })()
 
       if (logs) {
-        console.debug('❌ Error Logs:\n', logs.join('\n'))
+        console.log('❌ Error Logs:\n', logs.join('\n'))
       }
 
       store.set({ state: 'error' })

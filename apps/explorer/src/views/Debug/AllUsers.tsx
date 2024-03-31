@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Grid, Heading, Link } from "@radix-ui/themes"
+import { Button, Card, Flex, Grid, Heading, Link, Text } from "@radix-ui/themes"
 import { useGambaProgram } from "gamba-react-v2"
 import React from "react"
 import useSWR from "swr"
@@ -8,6 +8,7 @@ import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenList } from "@/hooks"
 import { NavLink } from "react-router-dom"
+import { TimeDiff } from "@/RecentPlays"
 
 const getEnumString = (e: any) => Object.keys(e)[0]
 
@@ -61,6 +62,8 @@ export default function AllUsers() {
           {sliced.map((game, index) => (
             <Card size="1" key={game.publicKey.toBase58()}>
               <Flex gap="2">
+                {/* <Text size="1">{game.publicKey.toString()}</Text>
+                <Text size="1"><TimeDiff time={game.account.timestamp * 1000} /></Text> */}
                 <NavLink to={"/player/" + game.account.user.toString()}>
                   <PlayerAccountItem address={game.account.user} />
                 </NavLink>
@@ -70,6 +73,7 @@ export default function AllUsers() {
                 <NavLink to={"/platform/" + game.account.creator.toString()}>
                   <PlatformAccountItem address={game.account.creator} />
                 </NavLink>
+                {game.account.nonce.toString()}
                 {game.account.status.resultRequested && '⏳'}
               </Flex>
             </Card>

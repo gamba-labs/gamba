@@ -104,7 +104,8 @@ function Flip() {
         </Canvas>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
-        <GambaUi.WagerSelect
+        <GambaUi.WagerInput
+          type="select"
           options={WAGER_OPTIONS}
           value={wager}
           onChange={setWager}

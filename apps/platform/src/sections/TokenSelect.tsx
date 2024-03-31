@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import { FAKE_TOKEN_MINT, GambaPlatformContext, GambaUi, PoolToken, TokenValue, useCurrentToken, useTokenMeta, useUserBalance } from 'gamba-react-ui-v2'
+import { useBalance, useGamba, useWalletAddress } from 'gamba-react-v2'
 import React from 'react'
 import styled from 'styled-components'
 import { Dropdown } from '../components/Dropdown'
@@ -22,9 +23,13 @@ const StyledTokenImage = styled.img`
 `
 
 const StyledTokenButton = styled.button`
-  all: unset;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  color: inherit;
   cursor: pointer;
   display: flex;
+  width: 100%;
   align-items: center;
   gap: 10px;
   padding: 10px;
@@ -41,11 +46,12 @@ function TokenImage({ mint, ...props }: {mint: PublicKey}) {
   )
 }
 
-function TokenName({ mint }: { mint: PublicKey }) {
-  const meta = useTokenMeta(mint)
+function TokenSelectItem({ token }: {token: PublicKey}) {
+  const userAddress = useWalletAddress()
+  const realBalance = useBalance(userAddress, token)
   return (
     <>
-      {meta.symbol}
+      <TokenImage mint={token} /> <TokenValue mint={token} amount={realBalance.balance} />
     </>
   )
 }
@@ -56,8 +62,10 @@ export default function TokenSelect() {
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
   const balance = useUserBalance()
+  const gamba = useGamba()
 
   const selectPool = (pool: PoolToken) => {
+    if (gamba.isPlaying) return
     context.setPool(pool.token, pool.authority)
     setVisible(false)
     if (
@@ -101,9 +109,9 @@ export default function TokenSelect() {
           )}
         </GambaUi.Button>
         <Dropdown visible={visible}>
-          {POOLS.map((x, i) => (
-            <StyledTokenButton onClick={() => selectPool(x)} key={i}>
-              <TokenImage mint={x.token} /> <TokenName mint={x.token} />
+          {POOLS.map((pool, i) => (
+            <StyledTokenButton onClick={() => selectPool(pool)} key={i}>
+              <TokenSelectItem token={pool.token} />
             </StyledTokenButton>
           ))}
         </Dropdown>

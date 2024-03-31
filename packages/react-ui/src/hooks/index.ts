@@ -27,12 +27,12 @@ export function useFees() {
   return creatorFee + pool.gambaFee + pool.poolFee + jackpotFee
 }
 
-export const useCurrentToken = () => {
+export function useCurrentToken() {
   const { token } = React.useContext(GambaPlatformContext).selectedPool
   return useTokenMeta(token)
 }
 
-export const useUserBalance = () => {
+export function useUserBalance() {
   const token = useCurrentToken()
   const userAddress = useWalletAddress()
   const realBalance = useBalance(userAddress, token.mint)

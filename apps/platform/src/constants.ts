@@ -30,4 +30,7 @@ export const POOLS = [
   // ),
   // USDC:
   token('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),
+  token('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN'),
+  token('AZsHEMXd36Bj1EMNXhowJajpUXzrKcK57wW4ZGXVa7yR'),
+  token('5yxNbU8DgYJZNi3mPD9rs4XLh9ckXrhPjJ5VCujUWg5H'),
 ]

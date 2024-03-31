@@ -14,7 +14,7 @@ const StyledWrapper = styled.div`
   position: relative;
 `
 
-const StyledPopup = styled.div`
+export const StyledPopup = styled.div`
   position: absolute;
   bottom: 100%;
   left: 0;
@@ -28,11 +28,15 @@ const StyledPopup = styled.div`
   background: var(--gamba-ui-input-background);
   white-space: nowrap;
   transform: translateY(-5px);
+  z-index: 100;
   & > button {
     all: unset;
+    box-sizing: border-box;
     cursor: pointer;
     font-size: inherit;
     padding: 5px;
+    display: flex;
+    align-items: center;
     &:hover {
       background: var(--gamba-ui-input-background-hover);
     }

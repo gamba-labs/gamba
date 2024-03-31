@@ -23,7 +23,7 @@ const Inner = styled.div`
 const Content = styled.div`
   border-radius: 10px;
   padding: 20px;
-  background: linear-gradient(156deg, #4141ff22, #12121700); // #121217;
+  background: linear-gradient(156deg, #52527822, #12121700);
 `
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {

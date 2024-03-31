@@ -1,12 +1,21 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { GambaProvider as GambaProviderCore } from 'gamba-core-v2'
 import React from 'react'
+import { GambaPlugin } from './plugins'
 
 export interface GambaContext {
   provider: GambaProviderCore
+  plugins: GambaPlugin[]
 }
 
-export const GambaContext = React.createContext<GambaContext>(null!)
+export interface GambaProviderProps {
+  __experimental_plugins?: GambaPlugin[]
+}
+
+export const GambaContext = React.createContext<GambaContext>({
+  provider: null!,
+  plugins: [],
+})
 
 export function useGambaContext() {
   const context = React.useContext(GambaContext)
@@ -14,7 +23,7 @@ export function useGambaContext() {
   return context
 }
 
-export function GambaProvider(props: React.PropsWithChildren) {
+export function GambaProvider({ __experimental_plugins = [], children }: React.PropsWithChildren<GambaProviderProps>) {
   const { connection } = useConnection()
   const walletContext = useWallet()
 
@@ -36,8 +45,8 @@ export function GambaProvider(props: React.PropsWithChildren) {
   )
 
   return (
-    <GambaContext.Provider value={{ provider }}>
-      {props.children}
+    <GambaContext.Provider value={{ provider, plugins: __experimental_plugins }}>
+      {children}
     </GambaContext.Provider>
   )
 }

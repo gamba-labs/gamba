@@ -5,12 +5,12 @@ import { useTokenMeta } from './hooks'
 export * from './EffectTest'
 export * from './ErrorBoundary'
 export * from './GambaPlatformProvider'
+export * from './TokenMetaProvider'
 export * from './GameContext'
 export * from './components/Canvas'
 export * from './components/TokenValue'
 export * from './hooks'
 export * from './makeHeliusTokenFetcher'
-export * from './tokens'
 
 export interface GameBundle<T = any> {
   id: string

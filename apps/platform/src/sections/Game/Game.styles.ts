@@ -88,7 +88,7 @@ export const IconButton = styled.button`
   }
 `
 
-export const LoadingIndicator = styled.div<{$active: boolean}>`
+export const StyledLoadingIndicator = styled.div<{$active: boolean}>`
   position: relative;
   height: 3px;
   width: 100%;
@@ -128,4 +128,30 @@ export const Controls = styled.div`
     align-items: center;
     height: 80px;
   }
+`
+
+export const spinnerAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
+
+export const Spinner = styled.div<{$small?: boolean}>`
+  --spinner-size: 1em;
+  --spinner-border: 2px;
+  --color: white;
+  animation: ${spinnerAnimation} 1s ease infinite;
+  transform: translateZ(0);
+
+  border-top: var(--spinner-border) solid var(--color);
+  border-right: var(--spinner-border) solid var(--color);
+  border-bottom: var(--spinner-border) solid var(--color);
+  border-left: var(--spinner-border) solid transparent;
+  background: transparent;
+  height: var(--spinner-size);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
 `

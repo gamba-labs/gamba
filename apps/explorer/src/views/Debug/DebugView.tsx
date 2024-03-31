@@ -7,8 +7,6 @@ import React from "react"
 import { useToast } from "@/hooks"
 import MintDialogDevnet from "@/MintDialogDevnet"
 import MintDialogLocalnet from "@/MintDialogLocalnet"
-import { PublicKey } from "@solana/web3.js"
-import { GambaStandardTokens } from "gamba-react-ui-v2"
 
 export default function DebugView() {
   const sendTx = useSendTransaction()
@@ -30,7 +28,7 @@ export default function DebugView() {
         creatorFee: 0.05,
         jackpotFee: 0,
         metadata: ["RNG Donation"],
-        token: GambaStandardTokens.sol.mint,
+        token: NATIVE_MINT,
         wager: 1e9 * .01,
         bet: Array.from({length: 100}).map((_, i) => i === 0 ? 100 : 0)
       })

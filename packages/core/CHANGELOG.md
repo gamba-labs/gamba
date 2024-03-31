@@ -1,5 +1,11 @@
 # gamba-core-v2
 
+## 0.3.0
+
+### Minor Changes
+
+- Transaction optimizations
+
 ## 0.2.0
 
 ### Minor Changes

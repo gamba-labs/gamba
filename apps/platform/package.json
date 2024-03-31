@@ -38,8 +38,6 @@
     "@types/matter-js": "^0.19.5",
     "@types/three": "^0.161.2",
     "@vitejs/plugin-react": "^3.1.0",
-    "unplugin-fonts": "^1.0.3",
-    "vite": "^4.2.1",
-    "vite-plugin-pwa": "^0.17.4"
+    "vite": "^4.2.1"
   }
 }

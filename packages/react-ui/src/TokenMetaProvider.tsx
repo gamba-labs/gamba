@@ -12,7 +12,7 @@ export interface TokenMeta {
   baseWager: number
   /** Set this value if you want to use a private pool */
   poolAuthority?: PublicKey
-  usdPrice: number
+  usdPrice?: number
 }
 
 type TokenMetaFetcher = (ids: string[]) => (Record<string, TokenMeta> | Promise<Record<string, TokenMeta>>)

@@ -1,5 +1,13 @@
 # gamba-react-ui-v2
 
+## 0.4.5
+
+### Patch Changes
+
+- Bug fixes
+- Updated dependencies
+  - gamba-react-v2@1.1.3
+
 ## 0.4.4
 
 ### Patch Changes

@@ -62,11 +62,6 @@ export function useSendTransaction() {
       const priorityFee = opts?.priorityFee ?? context.priorityFee
       const computeUnitLimitMargin = opts?.computeUnitLimitMargin ?? context.computeUnitLimitMargin
 
-      // Add priority fee instruction
-      if (priorityFee) {
-        instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }))
-      }
-
       const resolvedInstructions = await Promise.all(instructions)
 
       const lookupTableAddresses = opts?.lookupTable ?? []
@@ -81,17 +76,21 @@ export function useSendTransaction() {
           .filter((x) => !!x),
       ) as AddressLookupTableAccount[]
 
-      const createTx = async (...ixs: TransactionInstruction[]) => {
+      const createTx = async (units: number) => {
         const blockhash = await connection.getLatestBlockhash()
         const message = new TransactionMessage({
           payerKey: payer,
           recentBlockhash: blockhash.blockhash,
-          instructions: [...ixs, ...resolvedInstructions],
+          instructions: [
+            ...(priorityFee ? [ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee })] : []),
+            ComputeBudgetProgram.setComputeUnitLimit({ units }),
+            ...resolvedInstructions,
+          ],
         }).compileToV0Message(lookupTables)
         return new VersionedTransaction(message)
       }
 
-      const simulatedTx = await createTx(ComputeBudgetProgram.setComputeUnitLimit({ units: context.simulationUnits }))
+      const simulatedTx = await createTx(context.simulationUnits)
       const simulation = await connection.simulateTransaction(simulatedTx, { commitment: 'processed', sigVerify: false })
 
       if (simulation.value.err) throw simulation.value.err
@@ -104,7 +103,7 @@ export function useSendTransaction() {
       const computeUnitLimit = Math.floor(simulation.value.unitsConsumed * computeUnitLimitMargin)
 
       // Create and sign the actual transaction
-      const transaction = await createTx(ComputeBudgetProgram.setComputeUnitLimit({ units: computeUnitLimit }))
+      const transaction = await createTx(computeUnitLimit)
       const signedTransaction = await wallet.signTransaction(transaction)
 
       store.set({ state: 'sending' })

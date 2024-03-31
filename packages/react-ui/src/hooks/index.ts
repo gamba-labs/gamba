@@ -5,6 +5,7 @@ import { useCurrentPool } from './useCurrentPool'
 import { useFakeToken } from './useFakeToken'
 import { useTokenMeta } from './useTokenMeta'
 import { PublicKey } from '@solana/web3.js'
+import { FAKE_TOKEN_MINT } from '../TokenMetaProvider'
 
 export * from './useCurrentPool'
 export * from './useFakeToken'
@@ -39,7 +40,7 @@ export function useTokenBalance(mint?: PublicKey) {
   const realBalance = useBalance(userAddress, mint ?? token.mint)
   const fake = useFakeToken()
 
-  if (fake.isActive) {
+  if ((!mint && fake.isActive) || mint?.equals(FAKE_TOKEN_MINT)) {
     return {
       ...realBalance,
       balance: fake.balance.balance,

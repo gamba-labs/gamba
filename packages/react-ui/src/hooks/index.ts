@@ -4,6 +4,7 @@ import { GambaPlatformContext } from '../GambaPlatformProvider'
 import { useCurrentPool } from './useCurrentPool'
 import { useFakeToken } from './useFakeToken'
 import { useTokenMeta } from './useTokenMeta'
+import { PublicKey } from '@solana/web3.js'
 
 export * from './useCurrentPool'
 export * from './useFakeToken'
@@ -32,10 +33,10 @@ export function useCurrentToken() {
   return useTokenMeta(token)
 }
 
-export function useUserBalance() {
+export function useTokenBalance(mint?: PublicKey) {
   const token = useCurrentToken()
   const userAddress = useWalletAddress()
-  const realBalance = useBalance(userAddress, token.mint)
+  const realBalance = useBalance(userAddress, mint ?? token.mint)
   const fake = useFakeToken()
 
   if (fake.isActive) {
@@ -47,4 +48,9 @@ export function useUserBalance() {
   }
 
   return realBalance
+}
+
+/** @deprecated renamed to "useTokenBalance" */
+export function useUserBalance(mint?: PublicKey) {
+  return useTokenBalance(mint)
 }

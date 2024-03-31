@@ -1,13 +1,14 @@
+import { PublicKey } from '@solana/web3.js'
 import React from 'react'
 import { GambaPlatformContext } from './GambaPlatformProvider'
+import { TokenMetaContext } from './TokenMetaProvider'
 import { useTokenMeta } from './hooks'
-import { PublicKey } from '@solana/web3.js'
 
 export * from './EffectTest'
 export * from './ErrorBoundary'
 export * from './GambaPlatformProvider'
-export * from './TokenMetaProvider'
 export * from './GameContext'
+export * from './TokenMetaProvider'
 export * from './components/Canvas'
 export * from './components/TokenValue'
 export * from './hooks'
@@ -29,7 +30,7 @@ export function useWagerInput(initial?: number) {
 
 /** @deprecated Use <TokenMetaProvider /> */
 export function useTokenList() {
-  return []
+  return React.useContext(TokenMetaContext).tokens ?? []
 }
 
 /** @deprecated Use <TokenMetaProvider /> */

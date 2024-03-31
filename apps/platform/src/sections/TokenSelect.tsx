@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
-import { FAKE_TOKEN_MINT, GambaPlatformContext, GambaUi, PoolToken, TokenValue, useCurrentToken, useTokenMeta, useUserBalance } from 'gamba-react-ui-v2'
-import { useBalance, useGamba, useWalletAddress } from 'gamba-react-v2'
+import { FAKE_TOKEN_MINT, GambaPlatformContext, GambaUi, PoolToken, TokenValue, useCurrentToken, useTokenBalance, useTokenMeta } from 'gamba-react-ui-v2'
+import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import styled from 'styled-components'
 import { Dropdown } from '../components/Dropdown'
@@ -46,12 +46,11 @@ function TokenImage({ mint, ...props }: {mint: PublicKey}) {
   )
 }
 
-function TokenSelectItem({ token }: {token: PublicKey}) {
-  const userAddress = useWalletAddress()
-  const realBalance = useBalance(userAddress, token)
+function TokenSelectItem({ mint }: {mint: PublicKey}) {
+  const balance = useTokenBalance(mint)
   return (
     <>
-      <TokenImage mint={token} /> <TokenValue mint={token} amount={realBalance.balance} />
+      <TokenImage mint={mint} /> <TokenValue mint={mint} amount={balance.balance} />
     </>
   )
 }
@@ -61,7 +60,7 @@ export default function TokenSelect() {
   const [warning, setWarning] = React.useState(false)
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
-  const balance = useUserBalance()
+  const balance = useTokenBalance()
   const gamba = useGamba()
 
   const selectPool = (pool: PoolToken) => {
@@ -111,7 +110,7 @@ export default function TokenSelect() {
         <Dropdown visible={visible}>
           {POOLS.map((pool, i) => (
             <StyledTokenButton onClick={() => selectPool(pool)} key={i}>
-              <TokenSelectItem token={pool.token} />
+              <TokenSelectItem mint={pool.token} />
             </StyledTokenButton>
           ))}
         </Dropdown>

@@ -1,5 +1,11 @@
 # gamba-react-ui-v2
 
+## 0.4.4
+
+### Patch Changes
+
+- More backwards compatibility
+
 ## 0.4.3
 
 ### Patch Changes

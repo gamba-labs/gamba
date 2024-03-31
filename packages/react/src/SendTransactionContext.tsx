@@ -9,6 +9,7 @@ export interface SendTransactionContext {
 }
 
 const defaultValue: SendTransactionContext = {
+  priorityFee: 100_001,
   simulationUnits: 1_400_000,
   computeUnitLimitMargin: 1.1,
 }

@@ -4,7 +4,7 @@ import { NATIVE_MINT, SYSTEM_PROGRAM, getPoolAddress } from 'gamba-core-v2'
 import React from 'react'
 import { useGambaProvider } from '.'
 import { GambaContext } from '../GambaProvider'
-import { throwTransactionError, useSendTransaction } from './useSendTransaction'
+import { SendTransactionOptions, throwTransactionError, useSendTransaction } from './useSendTransaction'
 import { GambaPluginInput } from '../plugins'
 
 export interface GambaPlayInput {
@@ -29,6 +29,7 @@ export function useGambaPlay() {
   return async function play(
     input: GambaPlayInput,
     instructions: TransactionInstruction[] = [],
+    opts?: SendTransactionOptions,
   ) {
     const creator = new PublicKey(input.creator)
     const creatorFee = input.creatorFee ?? 0
@@ -76,7 +77,7 @@ export function useGambaPlay() {
         ...pluginInstructions,
         ...instructions,
       ],
-      { label: 'play' },
+      { ...opts, label: 'play' },
     )
   }
 }

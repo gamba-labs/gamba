@@ -20,7 +20,7 @@ export function useTransactionError(callback: (error: Error) => void) {
   )
 }
 
-interface SendTransactionOptions {
+export interface SendTransactionOptions {
   confirmation?: Commitment
   lookupTable?: PublicKey[]
   priorityFee?: number
@@ -94,7 +94,12 @@ export function useSendTransaction() {
       const simulatedTx = await createTx(ComputeBudgetProgram.setComputeUnitLimit({ units: context.simulationUnits }))
       const simulation = await connection.simulateTransaction(simulatedTx, { commitment: 'processed', sigVerify: false })
 
-      if (!simulation.value.unitsConsumed) throw throwTransactionError('Simulation failed')
+      if (simulation.value.err) throw simulation.value.err
+
+      console.debug('TX simulated', simulation)
+
+      if (!simulation.value.unitsConsumed) throw simulation.value
+
 
       const computeUnitLimit = Math.floor(simulation.value.unitsConsumed * computeUnitLimitMargin)
 
@@ -106,7 +111,7 @@ export function useSendTransaction() {
       const txId = await connection.sendTransaction(signedTransaction)
 
       store.set({ state: 'processing', txId })
-      console.debug('Transaction sent', txId)
+      console.debug('TX sent', txId)
 
       const blockhash = await connection.getLatestBlockhash()
 
@@ -117,6 +122,7 @@ export function useSendTransaction() {
       }
 
       connection.confirmTransaction(confirmStrategy, 'processed').then((x) => {
+        console.debug('TX processed', x)
         store.set({
           state: 'confirming',
           txId,
@@ -125,6 +131,7 @@ export function useSendTransaction() {
       })
 
       connection.confirmTransaction(confirmStrategy, 'confirmed').then((x) => {
+        console.debug('TX confirmed', x)
         store.set({ state: 'none' })
       })
 
@@ -147,7 +154,7 @@ export function useSendTransaction() {
       })()
 
       if (logs) {
-        console.log('❌ Error Logs:\n', logs.join('\n'))
+        console.error('Error Logs:\n', logs.join('\n'))
       }
 
       store.set({ state: 'error' })

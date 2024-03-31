@@ -1,5 +1,11 @@
 # gamba-react-ui-v2
 
+## 0.4.2
+
+### Patch Changes
+
+- Added deprecated GambaStandardTokens for compatibility
+
 ## 0.4.1
 
 ### Patch Changes

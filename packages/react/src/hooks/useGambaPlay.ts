@@ -48,10 +48,7 @@ export function useGambaPlay() {
     }
 
     const pluginInstructions = (await Promise.all(
-      context.plugins
-        .map((x) => {
-          return x(pluginInput, provider)
-        }),
+      context.plugins.map((x) => x(pluginInput, provider)),
     )).flat()
 
     if (!connected) {

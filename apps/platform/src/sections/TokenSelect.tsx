@@ -61,10 +61,10 @@ export default function TokenSelect() {
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
   const balance = useTokenBalance()
-  const gamba = useGamba()
+  // const gamba = useGamba()
 
   const selectPool = (pool: PoolToken) => {
-    if (gamba.isPlaying) return
+    // if (gamba.isPlaying) return
     context.setPool(pool.token, pool.authority)
     setVisible(false)
     if (

@@ -114,6 +114,11 @@ export const PLATFORMS = [
     url: 'https://solbets.app',
     image: '/logos/solbets.png',
   },
+  {
+    address: 'GigeGLQVXCHWrdoV4DoC6ymfTtPCGWcGwnoQyxVuxgEa',
+    name: 'DOGGO GAMES',
+    image: '/logos/doggogames.png',
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

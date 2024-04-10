@@ -76,11 +76,11 @@ export function useSendTransaction() {
           .filter((x) => !!x),
       ) as AddressLookupTableAccount[]
 
-      const createTx = async (units: number) => {
-        const blockhash = await connection.getLatestBlockhash()
+      const createTx = async (units: number, simulation = false) => {
+        const blockhash = simulation ? PublicKey.default.toString() : (await connection.getLatestBlockhash()).blockhash 
         const message = new TransactionMessage({
           payerKey: payer,
-          recentBlockhash: blockhash.blockhash,
+          recentBlockhash: blockhash,
           instructions: [
             ...(priorityFee ? [ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee })] : []),
             ComputeBudgetProgram.setComputeUnitLimit({ units }),
@@ -90,8 +90,8 @@ export function useSendTransaction() {
         return new VersionedTransaction(message)
       }
 
-      const simulatedTx = await createTx(context.simulationUnits)
-      const simulation = await connection.simulateTransaction(simulatedTx, { commitment: 'processed', sigVerify: false })
+      const simulatedTx = await createTx(context.simulationUnits, true)
+      const simulation = await connection.simulateTransaction(simulatedTx, { replaceRecentBlockhash: true, sigVerify: false })
 
       if (simulation.value.err) throw simulation.value.err
 

@@ -183,7 +183,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
   const wallet = useWallet()
   const navigate = useNavigate()
   const token = useTokenMeta(pool.underlyingTokenMint)
-  const balances = useBalance(pool.underlyingTokenMint)
+  const balances = useBalance(pool.underlyingTokenMint, pool.poolAuthority)
   const _pool = usePool(pool.underlyingTokenMint, pool.poolAuthority)
 
   const [chartId, setChart] = React.useState<ChartId>("price")

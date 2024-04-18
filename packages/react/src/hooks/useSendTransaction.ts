@@ -26,6 +26,8 @@ export interface SendTransactionOptions {
   priorityFee?: number
   computeUnitLimitMargin?: number
   label?: string
+  skipSimulation?: boolean
+  manualComputeUnits?: number
 }
 
 const getErrorLogs = (error: unknown) => {
@@ -60,7 +62,6 @@ export function useSendTransaction() {
       }
 
       const priorityFee = opts?.priorityFee ?? context.priorityFee
-      const computeUnitLimitMargin = opts?.computeUnitLimitMargin ?? context.computeUnitLimitMargin
 
       const resolvedInstructions = await Promise.all(instructions)
 
@@ -90,17 +91,20 @@ export function useSendTransaction() {
         return new VersionedTransaction(message)
       }
 
-      const simulatedTx = await createTx(context.simulationUnits, true)
-      const simulation = await connection.simulateTransaction(simulatedTx, { replaceRecentBlockhash: true, sigVerify: false })
-
-      if (simulation.value.err) throw simulation.value.err
-
-      console.debug('TX simulated', simulation)
-
-      if (!simulation.value.unitsConsumed) throw simulation.value
-
-
-      const computeUnitLimit = Math.floor(simulation.value.unitsConsumed * computeUnitLimitMargin)
+      // if we want to skip simulation, we need to provide manual compute units
+      let computeUnitLimit
+      if (opts?.skipSimulation) {
+        if (opts.manualComputeUnits == null) {
+          throw new Error('Manual compute units must be provided if simulation is skipped.')
+        }
+        computeUnitLimit = opts.manualComputeUnits
+      } else {
+        const simulatedTx = await createTx(context.simulationUnits)
+        const simulation = await connection.simulateTransaction(simulatedTx, { replaceRecentBlockhash: true, sigVerify: false })
+        if (simulation.value.err) throw simulation.value.err
+        if (!simulation.value.unitsConsumed) throw new Error('Simulation did not consume any units.')
+        computeUnitLimit = Math.floor(simulation.value.unitsConsumed * (opts.computeUnitLimitMargin ?? 1))
+      }
 
       // Create and sign the actual transaction
       const transaction = await createTx(computeUnitLimit)

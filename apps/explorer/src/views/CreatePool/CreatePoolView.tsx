@@ -145,7 +145,13 @@ function Inner() {
 
       const tx = await sendTx(
         gamba.createPool(selectedToken.mint, authority, slot),
-        { confirmation: "confirmed", priorityFee: 201_000, computeUnitLimitMargin: 1.25 },
+        {
+          confirmation: "confirmed",
+          priorityFee: 201_000,
+          computeUnitLimitMargin: 1.25,
+          skipSimulation: true,
+          manualComputeUnits: 400_000,
+        }
       )
 
       console.log("Create pool txId", tx)

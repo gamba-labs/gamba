@@ -25,9 +25,9 @@ export interface SendTransactionOptions {
   lookupTable?: PublicKey[]
   priorityFee?: number
   computeUnitLimitMargin?: number
+  /** Skip simulation and manually set compute units */
+  computeUnits?: number
   label?: string
-  skipSimulation?: boolean
-  manualComputeUnits?: number
 }
 
 const getErrorLogs = (error: unknown) => {
@@ -77,11 +77,10 @@ export function useSendTransaction() {
           .filter((x) => !!x),
       ) as AddressLookupTableAccount[]
 
-      const createTx = async (units: number, simulation = false) => {
-        const blockhash = simulation ? PublicKey.default.toString() : (await connection.getLatestBlockhash()).blockhash 
+      const createTx = async (units: number, recentBlockhash = PublicKey.default.toString()) => {
         const message = new TransactionMessage({
           payerKey: payer,
-          recentBlockhash: blockhash,
+          recentBlockhash,
           instructions: [
             ...(priorityFee ? [ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee })] : []),
             ComputeBudgetProgram.setComputeUnitLimit({ units }),
@@ -91,23 +90,26 @@ export function useSendTransaction() {
         return new VersionedTransaction(message)
       }
 
-      // if we want to skip simulation, we need to provide manual compute units
-      let computeUnitLimit
-      if (opts?.skipSimulation) {
-        if (opts.manualComputeUnits == null) {
-          throw new Error('Manual compute units must be provided if simulation is skipped.')
+      const computeUnitLimit = await (
+        async () => {
+          if (opts?.computeUnits) {
+            return opts.computeUnits
+          }
+          // If computeUnits has not been set manually, simulate a transaction
+          const simulatedTx = await createTx(context.simulationUnits)
+          const simulation = await connection.simulateTransaction(simulatedTx, { replaceRecentBlockhash: true, sigVerify: false })
+          if (simulation.value.err) {
+            throw simulation.value.err
+          }
+          if (!simulation.value.unitsConsumed) {
+            throw new Error('Simulation did not consume any units.')
+          }
+          return Math.floor(simulation.value.unitsConsumed * (opts?.computeUnitLimitMargin ?? 1))
         }
-        computeUnitLimit = opts.manualComputeUnits
-      } else {
-        const simulatedTx = await createTx(context.simulationUnits)
-        const simulation = await connection.simulateTransaction(simulatedTx, { replaceRecentBlockhash: true, sigVerify: false })
-        if (simulation.value.err) throw simulation.value.err
-        if (!simulation.value.unitsConsumed) throw new Error('Simulation did not consume any units.')
-        computeUnitLimit = Math.floor(simulation.value.unitsConsumed * (opts.computeUnitLimitMargin ?? 1))
-      }
+      )()
 
       // Create and sign the actual transaction
-      const transaction = await createTx(computeUnitLimit)
+      const transaction = await createTx(computeUnitLimit, (await connection.getLatestBlockhash()).blockhash)
       const signedTransaction = await wallet.signTransaction(transaction)
 
       store.set({ state: 'sending' })

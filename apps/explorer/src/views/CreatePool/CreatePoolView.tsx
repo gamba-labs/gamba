@@ -148,9 +148,7 @@ function Inner() {
         {
           confirmation: "confirmed",
           priorityFee: 201_000,
-          computeUnitLimitMargin: 1.25,
-          skipSimulation: true,
-          manualComputeUnits: 400_000,
+          computeUnits: 400_000,
         }
       )
 

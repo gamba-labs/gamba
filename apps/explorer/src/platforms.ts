@@ -119,6 +119,11 @@ export const PLATFORMS = [
     name: 'DOGGO GAMES',
     image: '/logos/doggogames.png',
   },
+  {
+    address: 'HvX1mNoVH7EaqB6KDdgzsHageuNBvbgrpPvnNcEpcTva',
+    name: 'YKD games',
+    image: '/logos/ykdgames.png',
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

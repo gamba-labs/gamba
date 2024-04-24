@@ -85,10 +85,10 @@ const Buttons = styled.div`
 const WagerAmount = styled.div`
   text-wrap: nowrap;
   padding: 10px 0;
-  width: 40px;  // Default width for small screens
+  width: 40px;
 
   @media (min-width: 600px) {
-    width: 100px;  // Increase width for screens wider than 600px
+    width: 100px;
   }
 
   opacity: .8;

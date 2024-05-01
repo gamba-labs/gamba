@@ -1,6 +1,6 @@
 import { ExternalLinkIcon, GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
-import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Tabs, Text } from "@radix-ui/themes"
-import { useConnection, useWallet } from "@solana/wallet-adapter-react"
+import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Switch, Tabs, Text } from "@radix-ui/themes"
+import { useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 import { BPS_PER_WHOLE, NATIVE_MINT, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, usePool, useWalletAddress } from "gamba-react-v2"
@@ -10,7 +10,7 @@ import styled, { css } from "styled-components"
 import useSWR from "swr"
 
 import RecentPlays, { TimeDiff } from "@/RecentPlays"
-import { DailyVolume, PoolChangesResponse, RatioData, apiFetcher, getApiUrl, parseSignatureResponse, useApi } from "@/api"
+import { DailyVolume, PoolChangesResponse, RatioData, apiFetcher, getApiUrl, useApi } from "@/api"
 import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { Spinner } from "@/components/Spinner"
@@ -176,6 +176,28 @@ function LinkWarningDialog(props: React.PropsWithChildren<{url: string}>) {
         </Flex>
       </Dialog.Content>
     </Dialog.Root>
+  )
+}
+
+function PoolPlays({ pool }: {pool: UiPool}) {
+  const [onlyJackpots, setOnlyJackpots] = React.useState(false)
+  return (
+    <>
+      <Flex mb="4">
+        <label>
+          <Text mr="4" color="gray" size="2">
+            Show Jackpots
+          </Text>
+          <Switch
+            checked={onlyJackpots}
+            onCheckedChange={setOnlyJackpots}
+            size="1"
+            radius="full"
+          />
+        </label>
+      </Flex>
+      <RecentPlays pool={pool.publicKey} onlyJackpots={onlyJackpots} />
+    </>
   )
 }
 
@@ -401,7 +423,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
         </Tabs.List>
         <Box pt="4">
           <Tabs.Content value="plays">
-            <RecentPlays pool={pool.publicKey} />
+            <PoolPlays pool={pool} />
           </Tabs.Content>
           <Tabs.Content value="deposits">
             <Card>

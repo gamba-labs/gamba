@@ -33,6 +33,7 @@ export interface RecentPlaysResponse {
     time: number
     wager: number
     payout: number
+    jackpot: number
     multiplier: number
   }[]
 }

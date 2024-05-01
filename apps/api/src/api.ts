@@ -60,18 +60,23 @@ api.get('/events/poolChanges', validate(poolChangesSchema), async (req, res) => 
   res.send({ results })
 })
 
+
 const settledGamesSchema = z.object({
   query: z.object({
     page: z.string().optional(),
+    onlyJackpots: z.string().optional(),
+    creator: z.string({}).optional(),
+    pool: z.string({}).optional(),
+    token: z.string({}).optional(),
+    user: z.string({}).optional(),
+    orderBy: z.enum(['multiplier', 'usd_profit', 'time']).optional(),
+    sorting: z.enum(['ASC', 'DESC']).optional(),
     itemsPerPage: z.string().optional(),
-    pool: z.string().optional(),
-    creator: z.string().optional(),
-    user: z.string().optional(),
   }),
 })
 
-// Returns tx signatures of recent settled games
 api.get('/events/settledGames', cache('1 minute'), validate(settledGamesSchema), async (req, res) => {
+  const onlyJackpots = typeof req.query.onlyJackpots === 'string' && req.query.onlyJackpots !== 'false'
   const page = Number(req.query.page ?? 0)
   const itemsPerPage = Number(req.query.itemsPerPage ?? 10)
 
@@ -79,49 +84,55 @@ api.get('/events/settledGames', cache('1 minute'), validate(settledGamesSchema),
     res.status(403).send('itemsPerPage must range between 1-200')
     return
   }
-
-  const params = {
-    ':pool': req.query.pool,
-    ':creator': req.query.creator,
-    ':user': req.query.user,
-  }
+  const orderBy = req.query.orderBy ?? 'time'
+  const sorting = req.query.sorting ?? 'DESC'
 
   const query = `
-    ${req.query.pool ? ' AND pool = :pool' : ''}
-    ${req.query.creator ? ' AND creator = :creator' : ''}
-    ${req.query.user ? ' AND user = :user' : ''}
+    ${req.query.user ? 'AND user = :user' : ''}
+    ${req.query.creator ? 'AND creator = :creator' : ''}
+    ${req.query.pool ? 'AND pool = :pool' : ''}
+    ${req.query.token ? 'AND token = :token' : ''}
+    ${onlyJackpots ? 'AND jackpot > 0' : ''}
   `
+
+  const params = {
+    ':creator': req.query.creator,
+    ':user': req.query.user,
+    ':pool': req.query.pool,
+    ':token': req.query.token,
+  }
 
   const { total } = await get(`
     SELECT COUNT(*) AS total FROM settled_games WHERE 1 ${query};
   `, params)
 
-  const results = await all(
-    `
-      SELECT
-        signature,
-        wager,
-        payout,
-        payout * usd_per_unit as usd_payout,
-        wager * usd_per_unit as usd_wager,
-        user,
-        creator,
-        token,
-        multiplier_bps * 1.0 / 10000 as multiplier,
-        block_time * 1000 as time
-      FROM settled_games
-      WHERE 1
-      ${query}
-      ORDER BY block_time DESC LIMIT :itemsPerPage OFFSET :offset;
-    `,
-    {
-      ...params,
-      ':offset': page * itemsPerPage,
-      ':itemsPerPage': itemsPerPage,
-    },
-  )
-  res.send({ total, results })
+  const results = await all(`
+    SELECT
+      signature,
+      wager,
+      payout,
+      wager * usd_per_unit as usd_wager,
+      (payout - wager + jackpot) * usd_per_unit as usd_profit,
+      (payout - wager + jackpot) as profit,
+      user,
+      creator,
+      token,
+      jackpot,
+      multiplier_bps * 1.0 / 10000 as multiplier,
+      block_time * 1000 as time
+    FROM settled_games
+    WHERE 1 ${query}
+    ORDER BY ${orderBy} ${sorting}
+    LIMIT :itemsPerPage OFFSET :offset;
+  `, {
+    ...params,
+    ':offset': page * itemsPerPage,
+    ':itemsPerPage': itemsPerPage,
+  })
+
+  res.send({ results, total })
 })
+
 
 const playerSchema = z.object({
   query: z.object({
@@ -368,49 +379,6 @@ api.get('/players', cache('5 minutes'), validate(playersSchema), async (req, res
   res.send({ players })
 })
 
-const topPlaysSchema = z.object({
-  query: z.object({
-    creator: z.string({}).optional(),
-    pool: z.string({}).optional(),
-    token: z.string({}).optional(),
-    player: z.string({}).optional(),
-    orderBy: z.enum(['multiplier', 'usd_profit']).optional(),
-    sorting: z.enum(['ASC', 'DESC']).optional(),
-  }),
-})
-
-// Returns list of top plays by USD profit
-api.get('/top-plays', cache('5 minutes'), validate(topPlaysSchema), async (req, res) => {
-  const tx = await all(`
-    SELECT
-      signature,
-      user,
-      token,
-      (payout - wager + jackpot) * usd_per_unit as usd_profit,
-      (payout - wager + jackpot) as profit,
-      jackpot,
-      wager * usd_per_unit as usd_wager,
-      multiplier_bps / 10000 as multiplier
-    FROM settled_games
-    WHERE block_time * 1000 BETWEEN :from AND :until
-    ${req.query.player ? 'AND user = :player' : ''}
-    ${req.query.creator ? 'AND creator = :creator' : ''}
-    ${req.query.pool ? 'AND pool = :pool' : ''}
-    ${req.query.token ? 'AND token = :token' : ''}
-    ORDER BY usd_profit DESC
-    LIMIT 50
-  `, {
-    ':creator': req.query.creator,
-    ':player': req.query.player,
-    ':pool': req.query.pool,
-    ':token': req.query.token,
-    ':from': 0,
-    ':until': Date.now(),
-  })
-
-  res.send(tx)
-})
-
 api.get('/status', async (req, res) => {
   const earliestSignature = await get(`
     SELECT signature FROM signatures order by block_time asc
@@ -500,7 +468,7 @@ api.get('/chart/daily-usd', cache('5 minutes'), validate(dailyUsdSchema), async 
   res.send(tx)
 })
 
-api.get('/chart/dao-usd', cache('5 minutes'), async (req, res) => {
+api.get('/chart/dao-usd', cache('2 minutes'), async (req, res) => {
   const tx = await all(`
   SELECT
     strftime('%Y-%m-%d 00:00', block_time, 'unixepoch') as date,
@@ -513,7 +481,7 @@ api.get('/chart/dao-usd', cache('5 minutes'), async (req, res) => {
     ORDER BY date ASC
   `, {
     ':creator': req.query.creator,
-    ':from': daysAgo(30),
+    ':from': daysAgo(30 * 6),
     ':until': Date.now(),
   })
   res.send(tx)

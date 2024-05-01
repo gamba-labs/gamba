@@ -6,6 +6,7 @@ export const config = () => {
   if (configed) {
     return process.env
   }
+
   dotenvConfig()
 
   if (!process.env.HELIUS_API_KEY) {

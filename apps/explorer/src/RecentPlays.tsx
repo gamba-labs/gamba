@@ -1,4 +1,4 @@
-import { Badge, Button, Flex, Table } from "@radix-ui/themes"
+import { Badge, Button, Checkbox, Flex, Table, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import useSWRInfinite from 'swr/infinite'
@@ -30,7 +30,14 @@ export function TimeDiff({ time }: {time: number}) {
   }, [diff])
 }
 
-export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey | string, creator?: PublicKey | string, user?: PublicKey | string}) {
+interface RecentPlaysProps {
+  pool?: PublicKey | string
+  creator?: PublicKey | string
+  user?: PublicKey | string
+  onlyJackpots?: boolean
+}
+
+export default function RecentPlays({ pool, creator, user, onlyJackpots }: RecentPlaysProps) {
   const {
     data = [],
     size,
@@ -40,6 +47,7 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
   } = useSWRInfinite(
     (index, previousData) =>
       getApiUrl("/events/settledGames", {
+        onlyJackpots,
         pool: pool?.toString(),
         creator: creator?.toString(),
         user: user?.toString(),
@@ -112,6 +120,11 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
                           <Badge color={result.payout >= result.wager ? "green" : "gray"}>
                             {Math.abs(result.multiplier).toFixed(2)}x
                           </Badge>
+                          {result.jackpot > 0 && (
+                            <Badge color="pink">
+                              JACKPOT
+                            </Badge>
+                          )}
                         </Flex>
                       </Table.Cell>
                       <Table.Cell align="right">

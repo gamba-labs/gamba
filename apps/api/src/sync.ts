@@ -218,7 +218,7 @@ const search = async () => {
   await search()
 }
 
-export async function sync2() {
+export async function sync() {
   try {
     await setupDb()
     await new Promise((resolve) => setTimeout(resolve, 10))
@@ -227,6 +227,6 @@ export async function sync2() {
     console.error('❌ Sync error', err)
     console.log('Retrying sync..')
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    sync2()
+    sync()
   }
 }

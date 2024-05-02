@@ -12,9 +12,9 @@ import { TokenAvatar } from "@/components"
 import { PlatformAccountItem, PlayerAccountItem } from "@/components/AccountItem"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
-import { useAccount, usePool } from "gamba-react-v2"
-import { useTokenMeta } from "@/hooks"
 import { SYSTEM_PROGRAM } from "@/constants"
+import { useTokenMeta } from "@/hooks"
+import { useAccount } from "gamba-react-v2"
 import { ThingCard } from "../Pool/PoolView"
 
 const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`

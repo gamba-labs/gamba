@@ -2,12 +2,12 @@ import RecentPlays from "@/RecentPlays"
 import { DailyVolume, TopPlayersResponse, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
+import { SkeletonBarChart, SkeletonCard } from "@/components/Skeleton"
 import { Spinner } from "@/components/Spinner"
-import { Badge, Button, Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
+import { Badge, Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import { NavLink } from "react-router-dom"
-import styled from "styled-components"
 import { Things } from "../Platform/PlatformView"
 import { PoolList } from "./PoolList"
 import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
@@ -34,7 +34,7 @@ export function TotalVolume(props: {creator?: string}) {
         </Text>
       </Flex>
       <div style={{height: '200px'}}>
-        {isLoading && <Flex align="center" justify="center"><Spinner /></Flex>}
+        {isLoading && <SkeletonBarChart />}
         <BarChart
           dailyVolume={daily}
           onHover={setHovered}
@@ -106,23 +106,6 @@ export function TopPlayers({
     </>
   )
 }
-
-export const SkeletonCard = styled(Card)`
-  overflow: hidden;
-  background-color: #DDDBDD;
-  border-radius: var(--radius-4);
-  height: 56px;
-  animation: skeleton-shine 1s linear infinite;
-
-  @keyframes skeleton-shine {
-    0%, 100% {
-      background-color: #DDDBDD33;
-    }
-    50% {
-      background-color: #DDDBDD22;
-    }
-  }
-`
 
 export default function Dashboard() {
   return (

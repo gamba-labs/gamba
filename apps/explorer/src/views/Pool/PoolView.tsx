@@ -18,6 +18,7 @@ import { useBalance } from "@/hooks"
 import { UiPool, fetchPool } from "@/views/Dashboard/PoolList"
 
 import { TokenAvatar } from "@/components"
+import { SkeletonCard } from "@/components/Skeleton"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
 import useSWRInfinite from "swr/infinite"
@@ -25,7 +26,6 @@ import { ConnectUserCard } from "../Debug/DebugUser"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
-import { SkeletonCard } from "../Dashboard/Dashboard"
 
 export function ThingCard(props: { title: string, children: ReactNode }) {
   return (

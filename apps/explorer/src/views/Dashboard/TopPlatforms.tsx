@@ -1,6 +1,6 @@
 import { TopCreatorsData, useApi } from "@/api"
 import { PlatformAccountItem } from "@/components/AccountItem"
-import { getPlatformMeta } from "@/platforms"
+import { SkeletonCard } from "@/components/Skeleton"
 import { Badge, Card, Flex, Text } from "@radix-ui/themes"
 import React from "react"
 import { NavLink } from "react-router-dom"
@@ -10,23 +10,6 @@ export const UnstyledNavLink = styled(NavLink)`
   text-decoration: none;
   cursor: pointer;
   color: unset;
-`
-
-const SkeletonCard = styled(Card)`
-  overflow: hidden;
-  background-color: #DDDBDD;
-  border-radius: var(--radius-4);
-  height: 59px;
-  animation: skeleton-shine 1s linear infinite;
-
-  @keyframes skeleton-shine {
-    0%, 100% {
-      background-color: #DDDBDD33;
-    }
-    50% {
-      background-color: #DDDBDD22;
-    }
-  }
 `
 
 function PlatformTableRow({ platform, rank }: { platform: TopCreatorsData, rank: number }) {

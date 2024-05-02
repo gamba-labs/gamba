@@ -2,12 +2,12 @@ import RecentPlays from "@/RecentPlays"
 import { PlayerResponse, useApi } from "@/api"
 import { PlayerAccountItem } from "@/components/AccountItem"
 import { Details } from "@/components/Details"
+import { SkeletonFallback } from "@/components/Skeleton"
 import { SolanaAddress } from "@/components/SolanaAddress"
-import { Flex, Table, Text } from "@radix-ui/themes"
+import { Flex, Text } from "@radix-ui/themes"
 import React from "react"
 import { useParams } from "react-router-dom"
 import { ThingCard } from "../Pool/PoolView"
-import { SkeletonFallback } from "../Dashboard/PoolList"
 
 function PlayerStats() {
   const { address } = useParams<{address: string}>()

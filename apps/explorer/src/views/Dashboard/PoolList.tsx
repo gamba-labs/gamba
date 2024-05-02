@@ -1,4 +1,5 @@
 import { TokenAvatar } from "@/components"
+import { SkeletonFallback, SkeletonText } from "@/components/Skeleton"
 import { TableRowNavLink } from "@/components/TableRowLink"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { SYSTEM_PROGRAM } from "@/constants"
@@ -6,7 +7,6 @@ import { decodeAta } from "@/hooks"
 import { useGetTokenMeta, useTokenMeta } from "@/hooks/useTokenMeta"
 import { ProgramAccount } from "@coral-xyz/anchor"
 import { Avatar, Badge, Flex, Table, Text } from "@radix-ui/themes"
-import { TextProps } from "@radix-ui/themes/dist/cjs/components/text"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { PoolState, decodePool, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from "gamba-core-v2"
@@ -14,13 +14,6 @@ import { useGambaProgram } from "gamba-react-v2"
 import React from "react"
 import styled from "styled-components"
 import useSWR from "swr"
-
-const SkeletonText = styled.div`
-  height: 24px;
-  min-width: 40px;
-  background: #cccccccc;
-  border-radius: 5px;
-`
 
 const StyledTableCell = styled(Table.Cell)`
   vertical-align: middle;
@@ -40,12 +33,6 @@ export interface UiPool {
   bonusBalance: bigint
   jackpotBalance: bigint
   plays: number
-}
-
-export const SkeletonFallback = (props: React.PropsWithChildren<{loading: boolean}>) => {
-  const {children, loading, ...rest} = props
-  if (loading) return <SkeletonText {...rest} />
-  return children
 }
 
 function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {

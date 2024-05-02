@@ -1,18 +1,20 @@
-import { ArrowRightIcon, CodeIcon, ExternalLinkIcon, MixIcon, ResetIcon } from "@radix-ui/react-icons"
-import { Badge, Box, Button, Card, Code, Dialog, Flex, Grid, Heading, IconButton, Link, Table, Tabs, Text, TextField } from "@radix-ui/themes"
+/**
+ * TODO
+ */
+import { ArrowRightIcon, ExternalLinkIcon, MixIcon, ResetIcon } from "@radix-ui/react-icons"
+import { Badge, Button, Card, Code, Flex, Grid, Heading, IconButton, Link, Table, Tabs, Text, TextField } from "@radix-ui/themes"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection } from "@solana/web3.js"
 import { BPS_PER_WHOLE, GambaTransaction, decodePool, parseGambaTransaction } from "gamba-core-v2"
 import React from "react"
-import { NavLink, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import styled, { css } from "styled-components"
 import useSWR from "swr"
 
 import { TokenAvatar } from "@/components"
-import { PlatformAccountItem, PlayerAccountItem } from "@/components/AccountItem"
+import { PlayerAccountItem } from "@/components/AccountItem"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
-import { SYSTEM_PROGRAM } from "@/constants"
 import { useTokenMeta } from "@/hooks"
 import { useAccount } from "gamba-react-v2"
 

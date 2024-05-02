@@ -19,7 +19,7 @@ function PlayerStats() {
           ${(data?.usd_volume ?? 0).toLocaleString()}
         </SkeletonFallback>
       </ThingCard>
-      <ThingCard title="Estimated Fees">
+      <ThingCard title="Profit">
         <SkeletonFallback loading={isLoading}>
           ${(data?.usd_profit ?? 0).toLocaleString()}
         </SkeletonFallback>

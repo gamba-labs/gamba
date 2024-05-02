@@ -5,6 +5,7 @@ import { Flex, Select } from '@radix-ui/themes'
 import React from 'react'
 import { TopPlayers, TopPlayersProps } from "./Dashboard/Dashboard"
 import { createSearchParams, useLocation, useNavigate } from 'react-router-dom'
+import { PLATFORMS } from '@/platforms'
 
 const daysAgo = (daysAgo: number) => {
   const now = new Date()
@@ -53,6 +54,7 @@ export function PlayersView() {
   const navigate = useNavigate()
   const params = useLeaderboardParams()
   const { data: tokens = [] } = useApi<PlatformTokenResponse>("/tokens", { creator: params.creator === "all" ? undefined : params.creator })
+
   const { data: platforms = [], isLoading } = useApi<TopCreatorsData[]>(
     "/platforms",
     {
@@ -60,6 +62,20 @@ export function PlayersView() {
       sortBy: 'volume',
       days: 5000,
     }
+  )
+
+  // Show as many creators as possible in the platform dropdown
+  // (one provided via query, known creators, and fetched ones)
+  const allCreators = React.useMemo(
+    () => {
+      const c = platforms.map((x) => x.creator)
+      if (params.creator !== 'all') {
+        c.push(params.creator)
+      }
+      c.push(...PLATFORMS.map((x) => x.address))
+      return Array.from(new Set(c))
+    },
+    [params.creator, platforms]
   )
 
   React.useEffect(
@@ -102,9 +118,9 @@ export function PlayersView() {
                 All Platforms
               </Select.Item>
               <Select.Group>
-                {platforms.map((platform) => (
-                  <Select.Item key={platform.creator} value={platform.creator}>
-                    <PlatformAccountItem address={platform.creator} />
+                {allCreators.map((creator) => (
+                  <Select.Item key={creator} value={creator}>
+                    <PlatformAccountItem address={creator} />
                   </Select.Item>
                 ))}
               </Select.Group>
@@ -170,7 +186,7 @@ export function PlayersView() {
           creator={params.creator === "all" ? undefined : params.creator}
           token={params.token === "all" ? undefined : params.token}
           startTime={startTime}
-          sortBy={params.sortBy}
+          sortBy={params.sortBy as TopPlayersProps['sortBy']}
           limit={100}
         />
       </Flex>

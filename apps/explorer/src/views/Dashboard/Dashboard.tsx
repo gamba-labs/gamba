@@ -2,7 +2,8 @@ import RecentPlays from "@/RecentPlays"
 import { DailyVolume, TopPlayersResponse, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
-import { Badge, Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
+import { Spinner } from "@/components/Spinner"
+import { Badge, Button, Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import { NavLink } from "react-router-dom"
@@ -12,7 +13,7 @@ import { PoolList } from "./PoolList"
 import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
 
 export function TotalVolume(props: {creator?: string}) {
-  const { data: daily = [] } = useApi<DailyVolume[]>(
+  const { data: daily = [], isLoading } = useApi<DailyVolume[]>(
     "/chart/daily-usd",
     {creator: props.creator},
   )
@@ -33,6 +34,7 @@ export function TotalVolume(props: {creator?: string}) {
         </Text>
       </Flex>
       <div style={{height: '200px'}}>
+        {isLoading && <Flex align="center" justify="center"><Spinner /></Flex>}
         <BarChart
           dailyVolume={daily}
           onHover={setHovered}
@@ -75,9 +77,7 @@ export function TopPlayers({
       <Flex direction="column" gap="2">
         {isLoading && !data.players.length &&
           Array.from({length: 4})
-            .map(
-              (_, i) => <SkeletonCard key={i} />
-            )
+            .map((_, i) => <SkeletonCard key={i} />)
         }
         {data.players
           .map((player, i) => (
@@ -107,7 +107,7 @@ export function TopPlayers({
   )
 }
 
-const SkeletonCard = styled(Card)`
+export const SkeletonCard = styled(Card)`
   overflow: hidden;
   background-color: #DDDBDD;
   border-radius: var(--radius-4);
@@ -134,7 +134,7 @@ export default function Dashboard() {
           <Card>
             <Flex direction="column" gap="2">
               <Flex justify="between">
-                <Text color="gray">Players</Text>
+                <Text color="gray">7d Leaderboard</Text>
                 <Link asChild>
                   <NavLink to="/leaderboard">View all</NavLink>
                 </Link>
@@ -143,12 +143,10 @@ export default function Dashboard() {
             </Flex>
           </Card>
         </Flex>
-
-
         <Card>
           <Flex direction="column" gap="2">
             <Flex justify="between">
-              <Text color="gray">Platforms</Text>
+              <Text color="gray">Top Platforms this week</Text>
               <Link asChild>
                 <NavLink to="/platforms">View all</NavLink>
               </Link>
@@ -156,9 +154,13 @@ export default function Dashboard() {
             <TopPlatforms />
           </Flex>
         </Card>
-
       </Grid>
-      <Text color="gray">Top Pools</Text>
+      <Flex justify="between">
+        <Text color="gray">Top Pools</Text>
+        <Link asChild>
+          <NavLink to="/pools">View all</NavLink>
+        </Link>
+      </Flex>
       <PoolList />
       <Text color="gray">Recent Plays</Text>
       <RecentPlays />

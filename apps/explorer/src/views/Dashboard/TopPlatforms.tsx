@@ -68,7 +68,7 @@ export function TopPlatforms({limit = 10, days = 7}: {limit?: number, days?: num
   <Flex gap="2" direction="column">
     {isLoading ? (
       <>
-        {Array.from({ length: 5 }).map((_, i) => (
+        {Array.from({ length: 8 }).map((_, i) => (
           <SkeletonCard key={i} />
         ))}
       </>

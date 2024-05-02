@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Avatar, Button, Card, Container, Dialog, Flex, Grid, Heading, Link, Text } from "@radix-ui/themes"
+import { Avatar, Button, Card, Container, Dialog, Flex, Grid, Link, Text } from "@radix-ui/themes"
 import React from "react"
-import { useParams } from "react-router-dom"
+import { NavLink, useParams } from "react-router-dom"
 
 import RecentPlays from "@/RecentPlays"
 import { PlatformTokenResponse, StatsResponse, useApi } from "@/api"
@@ -9,13 +9,12 @@ import { TokenAvatar } from "@/components"
 import { truncateString } from "@/components/AccountItem"
 import { Details } from "@/components/Details"
 import { useBonfidaName, usePlatformMeta, useTokenMeta } from "@/hooks"
-import { getPlatformMeta } from "@/platforms"
-import { minidenticon } from "minidenticons"
-import styled, { css } from "styled-components"
-import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
-import { ThingCard } from "../Pool/PoolView"
 import { PublicKey } from "@solana/web3.js"
+import { minidenticon } from "minidenticons"
+import styled from "styled-components"
+import { SkeletonCard, TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
 import { SkeletonFallback } from "../Dashboard/PoolList"
+import { ThingCard } from "../Pool/PoolView"
 
 const OnlineIndicator = styled.div`
   width: 8px;
@@ -169,13 +168,12 @@ export function Things({creator, startTime = 0}: {creator?: string | PublicKey, 
         </ThingCard>
       )}
     </Flex>
-
   )
 }
 
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
-  const { data: tokens = [] } = useApi<PlatformTokenResponse>("/tokens", {creator: address!.toString()})
+  const { data: tokens = [], isLoading } = useApi<PlatformTokenResponse>("/tokens", {creator: address!.toString()})
 
   return (
     <Container>
@@ -199,6 +197,10 @@ export function PlatformView() {
                   Volume by token
                 </Text>
                 <Flex direction="column" gap="2">
+                  {isLoading && !tokens.length &&
+                    Array.from({length: 3})
+                      .map((_, i) => <SkeletonCard key={i} />)
+                  }
                   {tokens.map((token, i) => (
                     <TokenVolume key={i} token={token} />
                   ))}
@@ -208,9 +210,16 @@ export function PlatformView() {
 
             <Card>
               <Flex gap="2" direction="column">
-                <Text color="gray">
-                  Leaderboard
-                </Text>
+                <Flex justify="between">
+                  <Text color="gray">
+                    7d Leaderboard
+                  </Text>
+                  <Link asChild>
+                    <NavLink to={`/leaderboard?creator=${address?.toString()}`}>
+                      View all
+                    </NavLink>
+                  </Link>
+                </Flex>
                 <TopPlayers creator={address!} />
               </Flex>
             </Card>

@@ -6,6 +6,37 @@ import { SolanaAddress } from "@/components/SolanaAddress"
 import { Flex, Table, Text } from "@radix-ui/themes"
 import React from "react"
 import { useParams } from "react-router-dom"
+import { ThingCard } from "../Pool/PoolView"
+import { SkeletonFallback } from "../Dashboard/PoolList"
+
+function PlayerStats() {
+  const { address } = useParams<{address: string}>()
+  const { data, isLoading } = useApi<PlayerResponse>("/player", {user: address!})
+  return (
+    <Flex gap="2" wrap="wrap">
+      <ThingCard title="Volume">
+        <SkeletonFallback loading={isLoading}>
+          ${(data?.usd_volume ?? 0).toLocaleString()}
+        </SkeletonFallback>
+      </ThingCard>
+      <ThingCard title="Estimated Fees">
+        <SkeletonFallback loading={isLoading}>
+          ${(data?.usd_profit ?? 0).toLocaleString()}
+        </SkeletonFallback>
+      </ThingCard>
+      <ThingCard title="Plays">
+        <SkeletonFallback loading={isLoading}>
+          {data?.games_played ?? 0}
+        </SkeletonFallback>
+      </ThingCard>
+      <ThingCard title="Wins">
+        <SkeletonFallback loading={isLoading}>
+          {data?.games_won ?? 0}
+        </SkeletonFallback>
+      </ThingCard>
+    </Flex>
+  )
+}
 
 export function PlayerView() {
   const { address } = useParams<{address: string}>()
@@ -13,46 +44,15 @@ export function PlayerView() {
 
   return (
     <Flex direction="column" gap="4">
-      <Table.Root variant="surface">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell>
-              <PlayerAccountItem address={address!} />
-            </Table.ColumnHeaderCell>
-          </Table.Row>
-        </Table.Header>
-
-        <Details
-          title="Details"
-          rows={[
-            ["Address", <SolanaAddress address={address!} />],
-            [
-              "Volume",
-              <Text>
-                ${(data?.usd_volume ?? 0).toLocaleString()}
-              </Text>
-            ],
-            [
-              "Profit",
-              <Text>
-                ${(data?.usd_profit ?? 0).toLocaleString()}
-              </Text>
-            ],
-            [
-              "Games played",
-              <Text>
-                {data?.games_played ?? 0}
-              </Text>
-            ],
-            [
-              "Games won",
-              <Text>
-                {data?.games_won ?? 0}
-              </Text>
-            ],
-          ]}
-        />
-      </Table.Root>
+      <PlayerStats />
+      <Details
+        title={
+          <PlayerAccountItem address={address!} />
+        }
+        rows={[
+          ["Address", <SolanaAddress address={address!} />],
+        ]}
+      />
       <Text color="gray">
         Recent Plays
       </Text>

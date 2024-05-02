@@ -25,6 +25,7 @@ import { ConnectUserCard } from "../Debug/DebugUser"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
+import { SkeletonCard } from "../Dashboard/Dashboard"
 
 export function ThingCard(props: { title: string, children: ReactNode }) {
   return (
@@ -201,6 +202,49 @@ function PoolPlays({ pool }: {pool: UiPool}) {
   )
 }
 
+export function PoolDeposits({pool}: {pool: UiPool}) {
+  const { data: poolChanges = [], isLoading } = useSWRInfinite(
+    (index, previousData) => {
+      return getApiUrl("/events/poolChanges", { pool: pool.publicKey.toString() })
+    },
+    async (endpoint) => {
+      return await apiFetcher<PoolChangesResponse>(endpoint)
+    }
+  )
+
+  return (
+    <Card>
+      <Grid gap="2">
+        {isLoading && <SkeletonCard size="1" />}
+        {poolChanges
+          .flatMap(
+            ({results}) =>
+              results.map(
+                (change, i) => {
+                  return (
+                    <Card key={i} size="1">
+                      <Flex justify="between" align="center">
+                        <Flex gap="2" align="center">
+                          <SolanaAddress truncate address={change.user} />
+                          <Badge color={change.action === "deposit" ? "green" : "red"}>
+                            {change.action === "deposit" ? "+" : "-"}
+                            <TokenValue2 exact mint={pool.underlyingTokenMint} amount={change.amount} />
+                          </Badge>
+                        </Flex>
+                        <Link target="_blank" href={"https://solscan.io/tx/" + change.signature}>
+                          <TimeDiff time={change.time} />
+                        </Link>
+                      </Flex>
+                    </Card>
+                  )
+                },
+              )
+          )}
+      </Grid>
+    </Card>
+  )
+}
+
 function PoolManager({ pool }: {pool: UiPool}) {
   const wallet = useWallet()
   const navigate = useNavigate()
@@ -217,14 +261,6 @@ function PoolManager({ pool }: {pool: UiPool}) {
 
   const { data: dailyVolume = [] } = useApi<DailyVolume[]>("/daily", {pool: pool.publicKey.toString()})
   const { data: ratioData = [] } = useApi<RatioData[]>("/ratio", {pool: pool.publicKey.toString()})
-  const { data: poolChanges = [] } = useSWRInfinite(
-    (index, previousData) => {
-      return getApiUrl("/events/poolChanges", { pool: pool.publicKey.toString() })
-    },
-    async (endpoint) => {
-      return await apiFetcher<PoolChangesResponse>(endpoint)
-    }
-  )
 
   const chart = React.useMemo(
     () => {
@@ -426,37 +462,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
             <PoolPlays pool={pool} />
           </Tabs.Content>
           <Tabs.Content value="deposits">
-            <Card>
-              <Grid gap="2">
-                {
-                  poolChanges
-                    .flatMap(
-                      ({results}) =>
-                        results.map(
-                          (change, i) => {
-                            return (
-                              <Card key={i} size="1">
-                                <Flex justify="between" align="center">
-                                  <Flex gap="2" align="center">
-                                    <SolanaAddress truncate address={change.user} />
-                                    <Badge color={change.action === "deposit" ? "green" : "red"}>
-                                      {change.action === "deposit" ? "+" : "-"}
-                                      <TokenValue2 exact mint={pool.underlyingTokenMint} amount={change.amount} />
-                                    </Badge>
-                                  </Flex>
-                                  <Link target="_blank" href={"https://solscan.io/tx/" + change.signature}>
-                                    <TimeDiff time={change.time} />
-                                  </Link>
-                                </Flex>
-                              </Card>
-                            )
-                          },
-                        )
-                    )
-                }
-              </Grid>
-            </Card>
-
+            <PoolDeposits pool={pool} />
           </Tabs.Content>
         </Box>
       </Tabs.Root>
@@ -475,8 +481,9 @@ export default function PoolView() {
       <Flex align="center" justify="center" p="4">
         <Spinner />
       </Flex>
-    );
+    )
   }
+
   return (
     <>
       {data && (

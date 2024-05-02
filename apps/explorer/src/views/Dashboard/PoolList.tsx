@@ -6,6 +6,7 @@ import { decodeAta } from "@/hooks"
 import { useGetTokenMeta, useTokenMeta } from "@/hooks/useTokenMeta"
 import { ProgramAccount } from "@coral-xyz/anchor"
 import { Avatar, Badge, Flex, Table, Text } from "@radix-ui/themes"
+import { TextProps } from "@radix-ui/themes/dist/cjs/components/text"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { PoolState, decodePool, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from "gamba-core-v2"
@@ -42,8 +43,9 @@ export interface UiPool {
 }
 
 export const SkeletonFallback = (props: React.PropsWithChildren<{loading: boolean}>) => {
-  if (props.loading) return <SkeletonText />
-  return props.children
+  const {children, loading, ...rest} = props
+  if (loading) return <SkeletonText {...rest} />
+  return children
 }
 
 function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
@@ -135,10 +137,9 @@ export function usePopulatedPool(account: ProgramAccount<PoolState>) {
   return useSWR("populated-pool-" + account.publicKey.toBase58(), () => populatePool(connection, account.publicKey, account.account))
 }
 
-export function PoolList() {
+export function PoolList({limit = Infinity}: {limit?: number}) {
   const program = useGambaProgram()
   const getTokenMeta = useGetTokenMeta()
-  // const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
 
   const sortedPools = React.useMemo(
@@ -194,7 +195,7 @@ export function PoolList() {
           </>
         ) : (
           <>
-            {sortedPools.map(pool => (
+            {sortedPools.slice(0, limit).map(pool => (
               <PoolTableRow
                 key={pool.publicKey.toBase58()}
                 pool={pool}

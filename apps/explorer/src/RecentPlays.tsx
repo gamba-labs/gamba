@@ -10,6 +10,7 @@ import { PlusIcon } from "@radix-ui/react-icons"
 import { RecentPlaysResponse, apiFetcher, getApiUrl } from "./api"
 import { PlatformAccountItem, PlayerAccountItem } from "./components/AccountItem"
 import { TokenValue2 } from "./components/TokenValue2"
+import { Spinner } from "./components/Spinner"
 
 export function TimeDiff({ time }: {time: number}) {
   const diff = (Date.now() - time)
@@ -59,6 +60,14 @@ export default function RecentPlays({ pool, creator, user, onlyJackpots }: Recen
       return { total: data.total, results: data.results }
     }
   )
+
+  if (isLoading) {
+    return (
+      <Flex align="center" justify="center" gap="2">
+        <Spinner />
+      </Flex>
+    )
+  }
 
   return (
     <Flex direction="column" gap="2">

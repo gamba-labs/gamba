@@ -3,6 +3,7 @@ import { DailyVolume, useApi } from "@/api"
 import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
 import { TokenItem } from "@/components"
 import { Details } from "@/components/Details"
+import { SkeletonBarChart } from "@/components/Skeleton"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useGetTokenMeta, useTokenAccountsByOwner } from "@/hooks"
@@ -36,7 +37,7 @@ function ButtonWithDialog(props: React.PropsWithChildren & {label: React.ReactNo
 }
 
 function TotalVolume() {
-  const { data: daily = [] } = useApi<DailyVolume[]>(
+  const { data: daily = [], isLoading } = useApi<DailyVolume[]>(
     "/chart/dao-usd",
   )
   const [hovered, setHovered] = React.useState<LineChartDataPoint | null>(null)
@@ -68,6 +69,7 @@ function TotalVolume() {
         </Text>
       </Flex>
       <div style={{height: '200px'}}>
+        {isLoading && <SkeletonBarChart bars={20} />}
         <LineChart
           chart={{data: cumsum}}
           onHover={setHovered}

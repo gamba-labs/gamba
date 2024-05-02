@@ -6,12 +6,11 @@ import { BPS_PER_WHOLE, NATIVE_MINT, decodeGambaState, getGambaStateAddress, get
 import { useAccount, useGambaProgram, usePool, useWalletAddress } from "gamba-react-v2"
 import React, { ReactNode } from "react"
 import { NavLink, useNavigate, useParams } from "react-router-dom"
-import styled, { css } from "styled-components"
+import styled from "styled-components"
 import useSWR from "swr"
 
 import RecentPlays, { TimeDiff } from "@/RecentPlays"
-import { DailyVolume, PoolChangesResponse, RatioData, apiFetcher, getApiUrl, useApi } from "@/api"
-import { LineChart, LineChartDataPoint } from "@/charts/LineChart"
+import { PoolChangesResponse, apiFetcher, getApiUrl } from "@/api"
 import { SolanaAddress } from "@/components/SolanaAddress"
 import { Spinner } from "@/components/Spinner"
 import { useBalance } from "@/hooks"
@@ -26,6 +25,7 @@ import { ConnectUserCard } from "../Debug/DebugUser"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
+import { PoolCharts } from "./PoolCharts"
 
 export function ThingCard(props: { title: string, children: ReactNode }) {
   return (
@@ -41,42 +41,6 @@ export function ThingCard(props: { title: string, children: ReactNode }) {
     </Card>
   )
 }
-
-const chartIds = ["price", "volume", "liquidity"] as const
-
-type ChartId = typeof chartIds[number]
-
-const chartNames: Record<ChartId, string> = {
-  price: "LP Price",
-  volume: "Volume",
-  liquidity: "Liquidity",
-}
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 5px;
-  border-radius: 50px;
-  padding: 6px;
-  background: var(--slate-6);
-  align-items: center;
-`
-
-const SelectableButton = styled.button<{$selected: boolean}>`
-  all: unset;
-  cursor: pointer;
-  border-radius: 50px;
-  background: transparent;
-  padding: 2px 6px;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  &:hover {
-    background: var(--slate-5);
-  }
-  ${props => props.$selected && css`
-    background: var(--slate-1);
-  `}
-`
 
 const ResponsiveButtonContainer = styled(Flex)`
   @media (max-width: 576px) {
@@ -252,96 +216,61 @@ function PoolManager({ pool }: {pool: UiPool}) {
   const balances = useBalance(pool.underlyingTokenMint, pool.poolAuthority)
   const _pool = usePool(pool.underlyingTokenMint, pool.poolAuthority)
 
-  const [chartId, setChart] = React.useState<ChartId>("price")
-  const [hovered, hover] = React.useState<LineChartDataPoint | null>(null)
 
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
 
   const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
 
-  const { data: dailyVolume = [] } = useApi<DailyVolume[]>("/daily", {pool: pool.publicKey.toString()})
-  const { data: ratioData = [] } = useApi<RatioData[]>("/ratio", {pool: pool.publicKey.toString()})
-
-  const chart = React.useMemo(
-    () => {
-      if (chartId === "volume")
-        return {
-          data: dailyVolume.map(
-            ({ date, total_volume }) => ({
-              date,
-              value: total_volume,
-            }),
-          ),
-        }
-      if (chartId === "liquidity")
-        return {
-          data: ratioData.map(
-            ({ date, pool_liquidity }) => ({
-              date,
-              value: pool_liquidity,
-            }),
-          ),
-        }
-      if (chartId === "price")
-        return {
-          data: ratioData.map(
-            ({ date, pool_liquidity, lp_supply }) => ({
-              date,
-              value: lp_supply ? (pool_liquidity / lp_supply) : 1,
-            }),
-          ),
-        }
-
-      return { data: [] }
-    },
-    [chartId, ratioData, dailyVolume],
-  )
-
-  const totalVolume = React.useMemo(() => dailyVolume.reduce((prev, x) => prev + x.total_volume, 0) ?? 0, [dailyVolume])
 
   return (
-    <Grid gap="4">
-      <Flex justify={{ sm: "between" }} align={{ sm: "end" }} py="4" direction={{ initial: "column", sm: "row" }} gap="4">
+    <Flex direction="column" gap="4">
+      <Flex
+        justify={{ sm: "between" }}
+        align={{ sm: "end" }}
+        py="4"
+        direction={{ initial: "column", sm: "row" }}
+        gap="4"
+      >
         <Flex direction="column" gap="4">
           <PoolHeader pool={pool} />
         </Flex>
-        <ResponsiveButtonContainer align="center" gap="4">
         <Flex align="center" gap="4">
-          <Dialog.Root>
-            <Dialog.Trigger>
-              <Button size="1" variant="ghost">
-                Bonus <PlusIcon />
-              </Button>
-            </Dialog.Trigger>
-            <Dialog.Content>
-              <PoolMintBonus pool={pool} />
-            </Dialog.Content>
-          </Dialog.Root>
-          <Dialog.Root>
-            <Dialog.Trigger>
-              <Button size="1" variant="ghost">
-                Jackpot <PlusIcon />
-              </Button>
-            </Dialog.Trigger>
-            <Dialog.Content>
-              <PoolJackpotDeposit pool={pool} />
-            </Dialog.Content>
-          </Dialog.Root>
+          <Flex align="center" gap="4">
+            <Dialog.Root>
+              <Dialog.Trigger>
+                <Button size="1" variant="ghost">
+                  Bonus <PlusIcon />
+                </Button>
+              </Dialog.Trigger>
+              <Dialog.Content>
+                <PoolMintBonus pool={pool} />
+              </Dialog.Content>
+            </Dialog.Root>
+            <Dialog.Root>
+              <Dialog.Trigger>
+                <Button size="1" variant="ghost">
+                  Jackpot <PlusIcon />
+                </Button>
+              </Dialog.Trigger>
+              <Dialog.Content>
+                <PoolJackpotDeposit pool={pool} />
+              </Dialog.Content>
+            </Dialog.Root>
           </Flex>
           <Flex align="center" gap="4">
-          {!token.mint.equals(NATIVE_MINT) && (
-            <LinkWarningDialog
-              url={`https://jup.ag/swap/SOL-${token.mint.toBase58()}`}>
-                <Button variant="soft" size="3">
-                Buy {token.symbol}
-              </Button>
-            </LinkWarningDialog>
-          )}
-          <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
-            Add Liquidity <RocketIcon />
-          </Button>
+            {!token.mint.equals(NATIVE_MINT) && (
+              <LinkWarningDialog
+                url={`https://jup.ag/swap/SOL-${token.mint.toBase58()}`}>
+                  <Button variant="soft" size="3">
+                  Buy {token.symbol}
+                </Button>
+              </LinkWarningDialog>
+            )}
+            <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
+              Add Liquidity <RocketIcon />
+            </Button>
+          </Flex>
         </Flex>
-        </ResponsiveButtonContainer>
       </Flex>
       <Grid gap="2" columns="1">
         <Flex gap="2" wrap="wrap">
@@ -367,56 +296,8 @@ function PoolManager({ pool }: {pool: UiPool}) {
             {pool.plays.toLocaleString(undefined)}
           </ThingCard>
         </Flex>
-        <Card>
-          <Flex justify="between" align="start">
-            <Flex direction="column" gap="2">
-              <Text size="7" weight="bold">
-                {chartId === "liquidity" && (
-                  <TokenValue2
-                    exact
-                    mint={pool.underlyingTokenMint}
-                    amount={hovered?.value ?? Number(pool.liquidity)}
-                  />
-                )}
-                {chartId === "volume" && (
-                  <TokenValue2
-                    exact
-                    mint={pool.underlyingTokenMint}
-                    amount={hovered?.value ?? totalVolume}
-                  />
-                )}
-                {chartId === "price" && (
-                  <>
-                    {(hovered?.value ?? pool.ratio).toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
-                  </>
-                )}
-              </Text>
-              <Text color="gray">
-                {new Date(hovered?.date ?? Date.now()).toLocaleString(undefined, {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </Text>
-            </Flex>
-            <ButtonGroup>
-              {chartIds.map(id => (
-                <SelectableButton key={id} onClick={() => setChart(id)} $selected={id === chartId}>
-                  {chartNames[id]}
-                </SelectableButton>
-              ))}
-            </ButtonGroup>
-          </Flex>
-          <div style={{ height: "200px" }}>
-            <LineChart
-              chart={chart}
-              onHover={hover}
-              lineColor="#8280ff"
-            />
-          </div>
-        </Card>
       </Grid>
+      <PoolCharts pool={pool} />
       {balances.lpBalance > 0 ? (
         <Card size="3">
           <Grid gap="2">
@@ -466,7 +347,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
           </Tabs.Content>
         </Box>
       </Tabs.Root>
-    </Grid>
+    </Flex>
   )
 }
 

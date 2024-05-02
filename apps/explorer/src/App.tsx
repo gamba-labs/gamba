@@ -5,7 +5,7 @@ import { Box, Button, Callout, Container, Flex, Link } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { useTransactionError } from "gamba-react-v2"
-import React, { useEffect } from "react"
+import React from "react"
 import { NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom"
 import styled, { css } from "styled-components"
 
@@ -14,7 +14,7 @@ import CreatePoolView from "@/views/CreatePool/CreatePoolView"
 import DebugUserView from "@/views/Debug/DebugUser"
 import DebugView from "@/views/Debug/DebugView"
 
-import Dashboard, { TopPlayers } from "@/views/Dashboard/Dashboard"
+import Dashboard from "@/views/Dashboard/Dashboard"
 import AllUsers from "@/views/Debug/AllUsers"
 import DaoView from "@/views/Debug/DaoView"
 import { PlatformView } from "@/views/Platform/PlatformView"
@@ -28,8 +28,8 @@ import { StatusResponse, useApi } from "./api"
 import NavigationMenu from "./components/NavigationMenu"
 import { PoolList } from "./views/Dashboard/PoolList"
 import { TopPlatforms } from "./views/Dashboard/TopPlatforms"
-import EmbeddedTransactionView from "./views/Transaction/EmbeddedTransaction"
 import { PlayersView } from "./views/PlayersView"
+import EmbeddedTransactionView from "./views/Transaction/EmbeddedTransaction"
 
 const Header = styled(Box)`
   background-color: var(--color-panel);
@@ -39,6 +39,9 @@ const Logo = styled(NavLink)`
   display: flex;
   justify-content: center;
   align-items: center;
+  text-decoration: none;
+  color: white;
+  gap: 10px;
   & > img {
     height: 35px;
   }
@@ -82,7 +85,8 @@ function Sidebar(props: React.PropsWithChildren<{open: boolean, onClose: () => v
   const { key } = useLocation()
   const wallet = useWallet()
   const walletModal = useWalletModal()
-  useEffect(() => props.onClose(), [key])
+  React.useEffect(() => props.onClose(), [key])
+
   return (
     <StyledSidebar $open={props.open}>
       <Box p="2" px="4">

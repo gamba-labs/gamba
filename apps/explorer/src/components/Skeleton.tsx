@@ -44,15 +44,21 @@ const Bar = styled.div`
   width: 20%;
   height: 100%;
   animation: ${skeletonShine} 1s linear infinite;
-  border-radius: 10px;
+  border-radius: 5px;
 `
 
-export const SkeletonBarChart = () => {
+export const SkeletonBarChart = ({bars = 8}: {bars?: number}) => {
   return (
     <BarChartWrapper>
-      {Array.from({length: 8})
+      {Array.from({length: bars})
         .map((_ ,i) => (
-          <Bar key={i} style={{height: 50 + (Math.sin(i) * 25) + '%'}} />
+          <Bar
+            key={i}
+            style={{
+              width: 100 / bars + '%',
+              height: 50 + (Math.sin(i / bars * 2) * 25 + Math.cos(i / bars * 50) * 5 - Math.abs(Math.cos(i / bars * 10) * 20)) + '%',
+            }}
+          />
         ))}
     </BarChartWrapper>
   )

@@ -124,6 +124,12 @@ export const PLATFORMS = [
     name: 'YKD games',
     image: '/logos/ykdgames.png',
   },
+  {
+    address: 'GzzWXXDjLD4FDwDkWB5sARjC2aaLSfCQDjx3dmpoTY7K',
+    name: 'NEXTjs DEMO (Community Made)',
+    url: 'https://play-gamba.vercel.app',
+    image: '/logos/gamba.png',
+  },
 ]
 
 const PLATFORMS_BY_ADDRESS = PLATFORMS.reduce((prev, meta) => ({

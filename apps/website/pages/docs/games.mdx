@@ -1,3 +1,8 @@
+import Simulator from "./games-simulator";
+import { Callout } from "nextra-theme-docs";
+import { Steps } from "nextra/components";
+import { Tabs } from "nextra/components";
+
 # 🎲 Games
 
 Games are initiated by the player, typically via a [frontend app](/docs/apps). The Gamba on-chain Program will validate each game, making sure the player doesn't have an unfair advantage. A random number will then be generated to determine the winner. (Either the player or the [liquidity pool](/docs/pools) being played against).
@@ -22,22 +27,148 @@ For instance, we can simulate a coin toss by creating a bet with `[2, 0]` (Meani
 
 We can create arrays of different lengths and values to simulate more complex games. As long as the bet is fair it will be allowed. Examples:
 
-* [0, 2] equal odds = allowed ✅
-* [1.5, .5] equal odds = allowed ✅
-* [0, 0, 0, 6] player has an advantage = not allowed ❌
-* [0, 3] player has an advantage = not allowed ❌
+- [0, 2] equal odds = allowed ✅
+- [1.5, .5] equal odds = allowed ✅
+- [0, 0, 0, 0, 5] equal odds = allowed ✅
+- [0, 0, 0, 6] player has an advantage = not allowed ❌
+- [0, 3] player has an advantage = not allowed ❌
 
 With these simple rules, and a bit of UI design, we can create a wide variety of classic arcade games, like Roulette, Plinko, Crash, and more.
 
 ## How is the outcome determined
 
-Every result on Gamba are fairly determined using the following variables:
+<Tabs items={['Stepper', 'FlowChart', 'Sequence', 'ClassChart']}>
+<Tabs.Tab>
+<Steps>
+### User Places Bet
+The user places a bet using any Gamba [platform](/docs/apps).
+
+### Gamba Runs RNG and Returns Result
+
+Gamba programs process the bet using on-chain RNG, which selects a resultIndex that corresponds to one of the predefined multipliers in the bet_array.
+
+### End Game & Payout Multiplier
+
+Gamba returns the result to the frontend and credits the player if a payout is due.
+</Steps>
+</Tabs.Tab>
+<Tabs.Tab>
+```mermaid
+flowchart TB
+    D[rng_seed] -- Provided by Gamba --> A
+    E[client_seed] -- Provided by User --> A
+    F[nonce] -- Provided by Gamba --> A
+    G[bet_array] -- Provided by Game --> A
+
+    A[User Places Bet] --> B[Gamba Runs RNG and Returns Result]
+    B --> C[Set Multiplier Based on resultIndex in bet_array]
+    C -- result.multiplier > 0x --> W[Win State] -- Pay Multiplier --> H
+    C -- result.multiplier = 0x --> L[Loss State] -- No Pay --> H
+    H[End Game & Payout Multiplier]
+
+    style D fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style E fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style F fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style G fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+
+    style A fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style B fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style C fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style W fill:#4CAF50,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style L fill:#F44336,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    style H fill:#2196F3,stroke:#ffffff,stroke-width:2px,color:#ffffff
+
+````
+</Tabs.Tab>
+<Tabs.Tab>
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User
+    participant Game
+    participant Gamba
+
+    %% Group Input Data
+    User->>Game: Provide bet_array
+    User->>Gamba: Provide client_seed
+    Gamba->>User: Acknowledge Seed Received
+    Gamba->>Game: Request rng_seed and nonce
+    Game->>Gamba: Return rng_seed and nonce
+
+    %% Group Betting Process
+    User->>Gamba: Place Bet
+    Gamba->>Gamba: Run RNG and Set resultIndex
+
+    %% Group Result Processing
+    Gamba->>Game: Send resultIndex and multiplier
+    alt result.multiplier > 0x
+        Game->>User: Win State and Payout Multiplier 🎉
+    else result.multiplier = 0x
+        Game->>User: Loss State and No Pay 😢
+    end
+
+    %% Final Result
+    User->>Gamba: End Game & Receive Final Result
+````
+</Tabs.Tab>
+<Tabs.Tab>
+```mermaid
+classDiagram
+    %% Bet Class
+    class Bet {
+        +int id
+        +string clientSeed
+        +string rngSeed
+        +int nonce
+        +int[] betArray
+
+        +void placeBet()
+        +boolean isValid()
+    }
+
+    %% Result Class
+    class Result {
+        +int resultIndex
+        +float multiplier
+
+        +float calculatePayout()
+        +boolean isWinning()
+    }
+
+    %% Payout Class
+    class Payout {
+        +Bet bet
+        +Result result
+
+        +void providePayout()
+        +boolean isPaid()
+    }
+
+    %% Relationships between Classes
+    Bet "1" --> "1" Result : Sets
+    Result "1" --> "1" Payout : Generates
+    Payout "1" --> "1..*" User : Provides
+```
+</Tabs.Tab>
+</Tabs>
+
+Each result on Gamba is fairly, transparently and securely determined using the following variables:
+
+<details>
+  <Callout type="info">
+    <summary>Simulator</summary>
+    <p>Simulation Only</p>
+    <Simulator />
+  </Callout>
+</details>
 
 ```
-rng_seed - provided by Gamba's "RNG Provider"
-client_seed - provided by your browser and adjusted by you
-nonce - A number that increases with each bet you make
-```
+> rng_seed - A cryptographic hash (SHA-256) supplied by Gamba's RNG Provider.
+> client_seed: An adjustable, random user seed generated by your browser.
+> nonce: A unique, sequential number incremented per bet to ensure a one-time cryptographic hash.
+> bet_array: A set of predefined multipliers per game. The RNG selects a `resultIndex` to multiply the wager and calculate the player's resulting token payout.
+
+````
 
 Prior to initiating a game, the player receive an encrypted hash of the `rng_seed`. Since they know the hash in advance, they know that Gamba cannot change it. Meanwhile, the player can change their `client_seed` via the frontend they're playing on, which will alter the games result. When a game is finished, the player will once again receive the hashed `rng_seed` for their next game.
 

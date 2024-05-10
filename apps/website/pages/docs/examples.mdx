@@ -1,12 +1,76 @@
-import { Callout, Card, Cards } from 'nextra-theme-docs';
-import Image from 'next/image'
+import { Card, Cards } from "nextra-theme-docs";
+import { projects } from "../../components/projects";
 
 # 👨‍💻 Examples
 
-Examples and templates
+Projects built on Gamba
 
-<Cards num={2}>
-  <Card image arrow title="Multi-Game Platform" target="_blank" href="https://github.com/gamba-labs/platform">
-    <>![templates card](/demo.png)</>
-  </Card>
+<Cards>
+  {projects.map(({ name, link, thumbnail }) => (
+    <Card
+      style={{
+        position: "relative",
+      }}
+      arrow
+      image={thumbnail}
+      title={name}
+      target="_blank"
+      href={link}
+      key={name}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          zIndex: 10,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "white",
+          fontSize: "24px",
+          overflow: "hidden",
+          transition: "background-color 0.3s",
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = "rgba(0, 0, 0, 0)";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        }}
+      />
+      <div
+        style={{
+          position: "relative",
+          height: "100px",
+          backgroundImage: `url(${thumbnail})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}
+      ></div>
+    </Card>
+  ))}
+</Cards>
+<Cards
+  style={{
+    display: "flex",
+    justifyContent: "center",
+  }}
+>
+  <Card
+    arrow
+    title="Add Your Project"
+    target="_blank"
+    href="https://github.com/gamba-labs/gamba/blob/docs/apps/website/pages/docs/exampleLinks.js"
+    key="add-your-project"
+    style={{
+      width: "33%",
+      margin: "auto",
+    }}
+  />
 </Cards>

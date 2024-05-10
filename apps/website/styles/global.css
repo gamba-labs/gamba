@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --gamba-ui-button-default-background: #0e0e16;
+  --gamba-ui-button-default-background-hover: #11111d;
+  --gamba-ui-button-main-background: #8851ff;
+  --gamba-ui-button-main-background-hover: #9564ff;
+  --gamba-ui-button-default-color: white;
+
+  --gamba-ui-input-background: #0e0e16;
+  --gamba-ui-input-background-hover: #11111d;
+  --gamba-ui-input-color: #ffffff;
+
+  --gamba-ui-border-radius: 10px;
+}
+
 html,
 body {
   font-family: Space Grotesk, -apple-system, BlinkMacSystemFont, avenir next,

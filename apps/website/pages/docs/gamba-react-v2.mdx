@@ -1,4 +1,7 @@
 import { Callout } from "nextra-theme-docs";
+import { Tabs } from 'nextra/components'
+
+# 🧩 `gamba-react-v2`
 
 <div
   style={{
@@ -8,9 +11,6 @@ import { Callout } from "nextra-theme-docs";
     marginTop: "24px",
   }}
 >
-  <h2 style={{ margin: 0, fontSize: "32px", lineHeight: "1.2" }}>
-    🧩 `gamba-react-v2`
-  </h2>
   <a
     href="https://www.npmjs.com/package/gamba-react-v2"
     target="_blank"
@@ -36,4 +36,22 @@ import { Callout } from "nextra-theme-docs";
 <Callout type="info" emoji="">
   Gamba React package with essential hooks and context providers
 </Callout>
+
+<Tabs items={['npm', 'yarn', 'pnpm']}>
+  <Tabs.Tab>
+    ```bash copy
+    npm install gamba-react-v2
+    ```
+  </Tabs.Tab>
+    <Tabs.Tab>
+    ```bash  copy
+    yarn add gamba-react-v2
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash  copy
+    pnpm add gamba-react-v2
+    ```
+  </Tabs.Tab>
+</Tabs>
 

@@ -93,7 +93,7 @@ export default function Simulator() {
             }}
         >
             <label style={{ display: "block", fontWeight: "bold", fontSize: "24px" }}>
-                Result Simulator
+                Gamba Play Simulator
             </label>
             <div style={{ marginBottom: "15px" }}>
                 <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>

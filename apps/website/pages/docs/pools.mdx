@@ -1,49 +1,45 @@
+import { Card, Cards } from "nextra-theme-docs";
+
 # 🏦 Pools
 
-Gamba liquidity pools serve as counterparties to bets made by players via various frontend apps.
+Gamba liquidity pools act as the foundation for bets placed by players through various [frontend apps](/docs/apps), resembling the house in a traditional casino. However, unlike a traditional setup, Gamba offers the advantage of inclusivity, allowing anyone to participate and share in the profits.
 
-They function similarly to the house of a traditional casino, with the added benefit that anyone can participate and earn a part of the profits.
+<Cards>
+  <Card arrow title="View Pools" href="https://explorer.gamba.so/pools" />
+</Cards>
 
 ## Creating a Pool
 
-Anyone can create a Gamba pool for any custom Solana token via the explorer UI, or deposit to an already existing one: https://explorer.gamba.so/create
+Creating a Gamba pool for any custom Solana token is a straightforward process, accessible via the explorer UI or by depositing into an existing pool. Moreover, pools can be effortlessly managed and interacted with through the Gamba SDK.
 
-Pools can also be created and interracted with via the Gamba SDK. [Read more.](/docs/methods#createPool)
+<Cards>
+  <Card arrow title="Create Pool" href="https://explorer.gamba.so/create" />
+</Cards>
 
 ## LP Token
 
-When a pool is created for a given token (refered to in this article as the pool's "underlying token"), a corresponding LP token is created along with it.
+Upon creation of a pool for a specific token (referred to herein as the pool's "underlying token"), a corresponding LP token is generated. These LP tokens are minted through deposits, with initial deposits establishing an LP token ratio of 1:1 to the underlying token. However, this ratio dynamically adjusts over time as player activity influences the pool's total liquidity.
 
-The pool's LP tokens are minted by making deposits. Initial deposits to the pool prior to any play having occured in it will mint an LP amount of 1:1 to the underlying token. However, this ratio will change over time as plays occur.
-
-Any changes in a pools total liqudity as a result of players losing or winning will alter the LP token's ratio to the underlying token (price).
-
-The new ratio will determine how many LP tokens are minted to a liqudity provider upon depositing, and how many tokens a holder will get back when withdrawing. Put another way: when players lose, the LP ratio goes up, and liqudity providers get happy.
+Changes in liquidity, driven by player wins or losses, directly impact the LP token's ratio to the underlying token (price). Consequently, this ratio dictates the quantity of LP tokens minted for liquidity providers upon deposit and the tokens redeemed upon withdrawal. In essence, as players incur losses, liquidity providers benefit from an increased LP ratio.
 
 ## Bonuses
 
-Every pool has a corresponding Bonus token. These tokens can be used by players as free plays (or discounts).
+Every pool is accompanied by a Bonus token, which players can utilize for free plays or discounts. These Bonus tokens are minted by any participant in exchange for the pool's underlying token. However, Bonus tokens cannot be exchanged back; they are exclusively utilized for betting against the pool. In the event of a win, the underlying tokens from the Bonus fund are awarded to the player, while losses contribute to the primary liquidity fund, effectively burning the Bonus tokens used.
 
-Bonus tokens can be minted by anyone in exchange for the pool's underlying token, but they can never be swapped back - they can only be used to make bets against the pool. The underlying tokens in the Bonus fund will either go to the player if they win or back in the main liqudity fund if they lose. The Bonus tokens used will get burned.
-
-90% the underlying tokens used to mint bonus tokens will end up in a seperate fund, which can only be won when players use the associated bonus tokens.
-
-The remaining 10% end up in the jackpot pool, explained below.
+90% of the underlying tokens utilized for minting Bonus tokens are allocated to a separate fund, exclusively accessible to players utilizing associated Bonus tokens. The remaining 10% are directed to the jackpot pool, detailed below.
 
 ## Jackpot
 
-Every pool has a seperate fund called the jackpot.
+Each pool features a dedicated jackpot fund. Fees accumulated from failed jackpot attempts contribute to this fund, incrementally enhancing the potential payout until a successful win.
 
-Fees resulting from player's failed attempts to win the jackpot will end up in the fund, increasing the potential payout until someone finally wins.
+Upon jackpot victory, a portion of the player's winnings is reinvested into the liquidity pool's primary fund.
 
-When a jackpot is won a small % of the players win goes back into the liqudity pool's main fund.
+While participation in the jackpot is optional, [frontend apps](/docs/apps) have the flexibility to configure it as desired, including setting it to 0.
 
-Playing for the jackpot is completely optional and frontends can choose to always set it to 0 if they want.
+## Fees & Max Payout
 
-## Fees & Max payout
+Stay updated on current fees [here](https://explorer.gamba.so/fees) (Coming Soon).
 
-See current fees: https://explorer.gamba.so/fees (Soon)
+## Private Pools
 
-## Private Pools (Soon)
-
-Private pools generally work the same way as public ones, but gives its owner the ability to configure various parameters - like fees, max potential payout, and more.
+Private pools operate similarly to public ones but provide owners with extensive configuration options, such as fees, maximum potential payout, and more.

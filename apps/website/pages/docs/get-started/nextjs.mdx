@@ -1,0 +1,670 @@
+import { Tabs, Steps } from "nextra/components";
+import { FileTree } from "../../../components/docs/FileTree";
+import GitHubFileTree from "../../../components/docs/FileTreeBuilder";
+
+# ⚛️ NEXT.ᴊs
+
+This guide provides a step-by-step walkthrough for integrating Gamba into your NEXT.ᴊs application.
+
+<Steps>
+### Installation
+
+First, ensure you have the necessary Gamba packages installed in your project:
+
+<Tabs items={["npm", "yarn", "pnpm"]}>
+  <Tabs.Tab>
+    ```bash copy 
+    npm install gamba-core-v2 gamba-react-v2 gamba-react-ui-v2
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash copy
+    yarn add gamba-core-v2 gamba-react-v2 gamba-react-ui-v2
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash copy
+    pnpm add gamba-core-v2 gamba-react-v2 gamba-react-ui-v2
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### Congfiguration
+
+> Create .env
+
+```bash copy
+NEXT_PUBLIC_RPC_ENDPOINT=<HELIUS API KEY>
+```
+
+> Create constants.ts
+
+```ts copy
+// Solana creator to receive fees
+const PLATFORM_CREATOR_ADDRESS = new PublicKey(
+  "GzzWXXDjLD4FDwDkWB5sARjC2aaLSfCQDjx3dmpoTY7K"
+);
+
+const TOKENLIST = [
+  // SOL
+  {
+    mint: new PublicKey("So11111111111111111111111111111111111111112"),
+    name: "Solana",
+    symbol: "SOL",
+    image: "/logo.png",
+    decimals: 9,
+    baseWager: 0.01e9,
+  },
+  // USDC
+  {
+    mint: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+    name: "USD Coin",
+    symbol: "USDC",
+    image: "/logo.png",
+    decimals: 9,
+    baseWager: 0.01e9,
+  },
+];
+```
+
+### Setting Up Gamba Provider
+
+> Update the `src/pages/_app.tsx` file to include the GambaProvider, SendTransactionProvider, TokenMetaProvider, GambaPlatformProvider ect
+
+```tsx copy
+import "@/styles/globals.css";
+import "@solana/wallet-adapter-react-ui/styles.css";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { GambaPlatformProvider, TokenMetaProvider } from "gamba-react-ui-v2";
+import { GambaProvider, SendTransactionProvider } from "gamba-react-v2";
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  TorusWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
+import React, { useMemo } from "react";
+
+import { AppProps } from "next/app";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { PublicKey } from "@solana/web3.js";
+import { PLATFORM_CREATOR_ADDRESS, TOKENLIST } from "../../constants";
+
+function MyApp({ Component, pageProps }: AppProps) {
+  const network = WalletAdapterNetwork.Mainnet;
+  const RPC_ENDPOINT =
+    process.env.NEXT_PUBLIC_RPC_ENDPOINT ??
+    "https://api.mainnet-beta.solana.com";
+
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter({ network }),
+      new TorusWalletAdapter(),
+    ],
+    [network]
+  );
+
+  return (
+    <ConnectionProvider
+      endpoint={RPC_ENDPOINT}
+      config={{ commitment: "processed" }}
+    >
+      <WalletProvider autoConnect wallets={wallets}>
+        <WalletModalProvider>
+          <TokenMetaProvider tokens={TOKENLIST}>
+            <SendTransactionProvider priorityFee={400_201}>
+              <GambaProvider>
+                <GambaPlatformProvider
+                  creator={PLATFORM_CREATOR_ADDRESS}
+                  defaultCreatorFee={0.05} // 5% Creator FEE
+                  defaultJackpotFee={0.01} // 1% Jackpot FEE
+                >
+                  <Component {...pageProps} />
+                </GambaPlatformProvider>
+              </GambaProvider>
+            </SendTransactionProvider>
+          </TokenMetaProvider>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
+}
+
+export default MyApp;
+```
+### Setting Up Gamba Render
+
+> Create the page and render the game
+
+```tsx
+import React, { useState, useEffect } from "react";
+import { GambaUi, GameBundle } from "gamba-react-ui-v2";
+import ExampleGame from "./ExampleGame";
+import dynamic from "next/dynamic";
+
+const GAMES: GameBundle[] = [
+  {
+    id: "exampleGame",
+    meta: {
+      background: "#ff6490",
+      name: "Example Game",
+      image: "/ExampleGame.png",
+      description: "This is an example.",
+    },
+    app: dynamic(() => <ExampleGame />),
+  },
+];
+
+const GamePage = () => {
+  return (
+    <div className="flex flex-col justify-center items-center mx-auto max-w-6xl max-sm:max-w-sm pt-20">
+      <GambaUi.Game game={game} errorFallback={<CustomError />}>
+        <CustomRenderer />
+      </GambaUi.Game>
+    </div>
+  );
+};
+
+export default GamePage;
+```
+
+### Create Game Renderer
+
+> Create customRender component uses PortalTarget to dynamically manage content defined by Portal for flexible UI updates, including the ability to place custom error messages and alerts across the interface for better error handling in Gamba UI.
+
+```tsx copy
+import {
+  GambaUi,
+  useGambaAudioStore,
+  useSound,
+  useWagerInput,
+} from "gamba-react-ui-v2";
+import React, { FC, useEffect, useMemo } from "react";
+import { decodeGame, getGameAddress } from "gamba-core-v2";
+import {
+  useAccount,
+  useTransactionStore,
+  useWalletAddress,
+} from "gamba-react-v2";
+
+interface TransactionStepperProps {
+  currentStep: number;
+}
+
+const TransactionStepper: FC<TransactionStepperProps> = ({ currentStep }) => {
+  const steps = ["Signing", "Sending", "Settling"];
+
+  return (
+    <div className="flex justify-center">
+      {steps.map((step, index) => (
+        <div
+          key={step}
+          className={`w-full h-2 rounded-md mx-1 flex items-center justify-center transition-all duration-300
+            ${index < currentStep ? "bg-orange-500" : ""}
+            ${index === currentStep ? "bg-yellow-600 animate-pulse" : ""}
+            ${index > currentStep ? "bg-green-500" : ""}
+            `}
+        />
+      ))}
+    </div>
+  );
+};
+
+function useLoadingState() {
+  const userAddress = useWalletAddress();
+  const game = useAccount(getGameAddress(userAddress), decodeGame);
+  const txStore = useTransactionStore();
+
+  return useMemo(() => {
+    if (txStore.label !== "play") {
+      return -1;
+    }
+    if (game?.status.resultRequested) {
+      return 2;
+    }
+    if (txStore.state === "processing" || txStore.state === "sending") {
+      return 1;
+    }
+    if (txStore.state === "simulating" || txStore.state === "signing") {
+      return 0;
+    }
+    return -1;
+  }, [txStore, game]);
+}
+
+function CustomError() {
+  return (
+    <>
+      <GambaUi.Portal target="error">
+        <GambaUi.Responsive>
+          <h1>😭 Oh no!</h1>
+          <p>Something went wrong</p>
+        </GambaUi.Responsive>
+      </GambaUi.Portal>
+    </>
+  );
+}
+
+export default function CustomRenderer() {
+  const { game } = GambaUi.useGame();
+  const audioStore = useGambaAudioStore();
+  const [wager, setWager] = useWagerInput();
+  const currentStep = useLoadingState();
+  const sound = useSound({
+    play: "/play.mp3",
+    win: "/lose.mp3",
+    lose: "/win.mp3",
+  });
+
+  useEffect(() => {
+    audioStore.set(1);
+  });
+
+  return (
+    <>
+      <div className="w-full relative grid gap-1">
+        <div className="relative flex-grow bg-gray-800 rounded-lg overflow-hidden transition-height duration-200 md:min-h-[550px] min-h-[500px]">
+          <GambaUi.PortalTarget target="error" />
+          <GambaUi.PortalTarget target="screen" />
+          <div className="absolute left-0 bottom-0 p-1 flex gap-2">
+            <button
+              className="p-2 text-white bg-transparent hover:bg-[#ffffff22] rounded-lg cursor-pointer focus:outline-none"
+              onClick={() =>
+                audioStore.set(audioStore.masterGain === 0 ? 1 : 0)
+              }
+            >
+              {audioStore.masterGain === 0 ? "0%" : "100%"}
+            </button>
+          </div>
+        </div>
+        <TransactionStepper currentStep={currentStep} />
+        <div className="w-full bg-gray-800 p-2 sm:p-5 text-white rounded-lg flex flex-wrap gap-2 sm:flex-row">
+          <div className="flex-grow flex items-center justify-start gap-2">
+            <GambaUi.PortalTarget target="controls" />
+            <GambaUi.PortalTarget target="play" />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+```
+
+### Create Game Component
+
+> Create game component to leverage Gamba UI's `Portals` we created in the custom renderer as well as several hooks and components from Gamba UI. The main focus is on handling user wagers and initiating the game.
+
+```tsx
+import { GambaUi, useSound, useWagerInput } from "gamba-react-ui-v2";
+import React, { useEffect } from "react";
+
+export default function ExampleGame() {
+  const { game } = GambaUi.useGame();
+  const [wager, setWager] = useWagerInput();
+  const sound = useSound({
+    play: "/play.mp3",
+    win: "/lose.mp3",
+    lose: "/win.mp3",
+  });
+
+  const play = async () => {
+    try {
+      sound.play("play");
+      await game.play({
+        wager,
+        bet: [2, 0],
+      });
+      const result = await game.result();
+
+      if (result.payout < 0) {
+        sound.play("win");
+      } else {
+        sound.play("lose");
+      }
+    } catch (err: any) {
+      console.log(`An error occurred: ${err.message}`);
+    }
+  };
+
+  return (
+    <>
+      <GambaUi.Portal target="screen"></GambaUi.Portal>
+      <GambaUi.Portal target="controls">
+        <GambaUi.WagerInput value={wager} onChange={setWager} />
+        <GambaUi.PlayButton disabled={!wager} onClick={play}>
+          Play
+        </GambaUi.PlayButton>
+      </GambaUi.Portal>
+    </>
+  );
+}
+```
+
+</Steps>
+
+### File Tree
+
+<FileTree>
+  <FileTree.Folder name="src" defaultOpen>
+
+    <FileTree.File name=".env">
+      ```tsx copy showLineNumbers
+      NEXT_PUBLIC_RPC_ENDPOINT="https://mainnet.helius-rpc.com/?api-key=xxx-xxx-xxx"
+      ```
+    </FileTree.File>
+
+    <FileTree.File name="constants.ts">
+      ```ts copy showLineNumbers
+      // Solana creator to receive fees
+      const PLATFORM_CREATOR_ADDRESS = new PublicKey(
+        "GzzWXXDjLD4FDwDkWB5sARjC2aaLSfCQDjx3dmpoTY7K"
+      );
+
+      // Supported Tokens
+      const TOKENLIST = [
+        // SOL
+        {
+          mint: new PublicKey("So11111111111111111111111111111111111111112"),
+          name: "Solana",
+          symbol: "SOL",
+          image: "/logo.png",
+          decimals: 9,
+          baseWager: 0.01e9,
+        },
+        // USDC
+        {
+          mint: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+          name: "USD Coin",
+          symbol: "USDC",
+          image: "/logo.png",
+          decimals: 9,
+          baseWager: 0.01e9,
+        },
+      ];
+      ```
+    </FileTree.File>
+
+    <FileTree.Folder name="src" defaultOpen>
+      <FileTree.Folder name="pages" defaultOpen>
+
+        <FileTree.File name="_app.tsx">
+          ```tsx copy showLineNumbers
+          import "@/styles/globals.css";
+          import "@solana/wallet-adapter-react-ui/styles.css";
+          import {
+            ConnectionProvider,
+            WalletProvider,
+          } from "@solana/wallet-adapter-react";
+          import { GambaPlatformProvider, TokenMetaProvider } from "gamba-react-ui-v2";
+          import { GambaProvider, SendTransactionProvider } from "gamba-react-v2";
+          import {
+            PhantomWalletAdapter,
+            SolflareWalletAdapter,
+            TorusWalletAdapter,
+          } from "@solana/wallet-adapter-wallets";
+          import React, { useMemo } from "react";
+
+          import { AppProps } from "next/app";
+          import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+          import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+          import { PublicKey } from "@solana/web3.js";
+          import {
+            PLATFORM_CREATOR_ADDRESS,
+            TOKENLIST,
+          } from "../../constants";
+
+          function MyApp({ Component, pageProps }: AppProps) {
+            const network = WalletAdapterNetwork.Mainnet;
+            const RPC_ENDPOINT =
+              process.env.NEXT_PUBLIC_RPC_ENDPOINT ??
+              "https://api.mainnet-beta.solana.com";
+
+            const wallets = useMemo(
+              () => [
+                new PhantomWalletAdapter(),
+                new SolflareWalletAdapter({ network }),
+                new TorusWalletAdapter(),
+              ],
+              [network]
+            );
+
+            return (
+              <ConnectionProvider
+                endpoint={RPC_ENDPOINT}
+                config={{ commitment: "processed" }}
+              >
+                <WalletProvider autoConnect wallets={wallets}>
+                  <WalletModalProvider>
+                    <TokenMetaProvider tokens={TOKENLIST}>
+                      <SendTransactionProvider priorityFee={400_201}>
+                        <GambaProvider>
+                          <GambaPlatformProvider
+                            creator={PLATFORM_CREATOR_ADDRESS}
+                            defaultCreatorFee={0.05} // 5% Creator FEE
+                            defaultJackpotFee={0.01} // 1% Jackpot FEE
+                          >
+                            <Component {...pageProps} />
+                          </GambaPlatformProvider>
+                        </GambaProvider>
+                      </SendTransactionProvider>
+                    </TokenMetaProvider>
+                  </WalletModalProvider>
+                </WalletProvider>
+              </ConnectionProvider>
+            );
+          }
+
+          export default MyApp;
+          ```
+        </FileTree.File>
+
+        <FileTree.File name="index.tsx">
+          ```tsx copy showLineNumbers
+            import React, { useState, useEffect } from "react";
+            import { GambaUi } from "gamba-react-ui-v2";
+            import ExampleGame from "./ExampleGame";
+
+            const GamePage = () => {
+
+              return (
+                <>
+
+                  {isLoading ? (
+                    <div className="flex justify-center items-center min-h-screen" />
+                  ) : (
+                    <div className="flex flex-col justify-center items-center mx-auto max-w-6xl max-sm:max-w-sm pt-20">
+                      <GambaUi.Game game={game} errorFallback={<CustomError />}>
+                        <CustomRenderer />
+                      </GambaUi.Game>
+                    </div>
+                  )}
+                </>
+              );
+            };
+
+            export default GamePage;
+          ```
+        </FileTree.File>
+
+      </FileTree.Folder>
+      <FileTree.Folder name="components" defaultOpen>
+
+        <FileTree.File name="customRender.tsx">
+          ```tsx copy showLineNumbers
+            import { GambaUi, useGambaAudioStore, useSound, useWagerInput } from "gamba-react-ui-v2";
+            import React, { FC, useEffect, useMemo } from "react";
+            import { decodeGame, getGameAddress } from "gamba-core-v2";
+            import {
+              useAccount,
+              useTransactionStore,
+              useWalletAddress,
+            } from "gamba-react-v2";
+
+            interface TransactionStepperProps {
+              currentStep: number;
+            }
+
+            const TransactionStepper: FC<TransactionStepperProps> = ({ currentStep }) => {
+              const steps = ["Signing", "Sending", "Settling"];
+
+              return (
+                <div className="flex justify-center">
+                  {steps.map((step, index) => (
+                    <div
+                      key={step}
+                      className={`w-full h-2 rounded-md mx-1 flex items-center justify-center transition-all duration-300
+                      ${index < currentStep ? "bg-orange-500" : ""}
+                      ${index === currentStep ? "bg-yellow-600 animate-pulse" : ""}
+                      ${index > currentStep ? "bg-green-500" : ""}
+                      `}
+                    />
+                  ))}
+                </div>
+              );
+            };
+
+            function useLoadingState() {
+              const userAddress = useWalletAddress();
+              const game = useAccount(getGameAddress(userAddress), decodeGame);
+              const txStore = useTransactionStore();
+
+              return useMemo(() => {
+                if (txStore.label !== "play") {
+                  return -1;
+                }
+                if (game?.status.resultRequested) {
+                  return 2;
+                }
+                if (txStore.state === "processing" || txStore.state === "sending") {
+                  return 1;
+                }
+                if (txStore.state === "simulating" || txStore.state === "signing") {
+                  return 0;
+                }
+                return -1;
+              }, [txStore, game]);
+            }
+
+            function CustomError() {
+              return (
+                <>
+                  <GambaUi.Portal target="error">
+                    <GambaUi.Responsive>
+                      <h1>😭 Oh no!</h1>
+                      <p>Something went wrong</p>
+                    </GambaUi.Responsive>
+                  </GambaUi.Portal>
+                </>
+              );
+            }
+
+            export default function CustomRenderer() {
+              const { game } = GambaUi.useGame();
+              const audioStore = useGambaAudioStore();
+              const [wager, setWager] = useWagerInput();
+              const currentStep = useLoadingState();
+              const sound = useSound({
+                play: "/play.mp3",
+                win: "/lose.mp3",
+                lose: "/win.mp3",
+              });
+
+              useEffect(() => {
+                audioStore.set(1);
+              });
+
+              return (
+                <>
+                  <div className="w-full relative grid gap-1">
+                    <div className="relative flex-grow bg-gray-800 rounded-lg overflow-hidden transition-height duration-200 md:min-h-[550px] min-h-[500px]">
+                      <GambaUi.PortalTarget target="error" />
+                      <GambaUi.PortalTarget target="screen" />
+                      <div className="absolute left-0 bottom-0 p-1 flex gap-2">
+                        <button
+                          className="p-2 text-white bg-transparent hover:bg-[#ffffff22] rounded-lg cursor-pointer focus:outline-none"
+                          onClick={() =>
+                            audioStore.set(audioStore.masterGain === 0 ? 1 : 0)
+                          }
+                        >
+                          {audioStore.masterGain === 0 ? "0%" : "100%"}
+                        </button>
+                      </div>
+                    </div>
+                    <TransactionStepper currentStep={currentStep} />
+                    <div className="w-full bg-gray-800 p-2 sm:p-5 text-white rounded-lg flex flex-wrap gap-2 sm:flex-row">
+                      <div className="flex-grow flex items-center justify-start gap-2">
+                        <GambaUi.PortalTarget target="controls" />
+                        <GambaUi.PortalTarget target="play" />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+            }
+          ```
+        </FileTree.File>
+
+      </FileTree.Folder>
+      <FileTree.Folder name="game">
+
+        <FileTree.File name="exampleGame.tsx">
+          ```tsx copy showLineNumbers
+            import { GambaUi, useSound, useWagerInput } from "gamba-react-ui-v2";
+            import React, { useEffect } from "react";
+
+            export default function ExampleGame() {
+              const { game } = GambaUi.useGame();
+              const [wager, setWager] = useWagerInput();
+              const sound = useSound({
+                play: "/play.mp3",
+                win: "/lose.mp3",
+                lose: "/win.mp3",
+              });
+
+              const play = async () => {
+                try {
+                  sound.play("play");
+                  await game.play({
+                    wager,
+                    bet: [2, 0],
+                  });
+                  const result = await game.result();
+
+                  if (result.payout < 0) {
+                    sound.play("win");
+                  } else {
+                    sound.play("lose");
+                  }
+                } catch (err: any) {
+                  console.log(`An error occurred: ${err.message}`);
+                }
+              };
+
+              return (
+                <>
+                  <GambaUi.Portal target="screen">
+
+                  </GambaUi.Portal>
+                  <GambaUi.Portal target="controls">
+                      <GambaUi.WagerInput value={wager} onChange={setWager} />
+                      <GambaUi.PlayButton disabled={!wager} onClick={play}>
+                        Play
+                      </GambaUi.PlayButton>
+                  </GambaUi.Portal>
+                </>
+              );
+            }
+          ```
+        </FileTree.File>
+
+      </FileTree.Folder>
+    </FileTree.Folder>
+
+  </FileTree.Folder>
+</FileTree>
+
+For further customization and advanced usage, refer to the documentation and explore how you can extend these concepts to fit your specific game development needs.

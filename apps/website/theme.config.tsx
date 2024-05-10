@@ -13,6 +13,7 @@ const config: DocsThemeConfig = {
     defaultTheme: 'dark',
     forcedTheme: 'dark',
   },
+  
   themeSwitch: { component: () => null },
   footer: { text: 'Gamba ©©©©©©©©' },
   head: () => {

@@ -1,4 +1,7 @@
 import { Callout } from "nextra-theme-docs";
+import { Tabs } from 'nextra/components'
+
+# 🔧 `gamba-core-v2`
 
 <div
   style={{
@@ -8,9 +11,6 @@ import { Callout } from "nextra-theme-docs";
     marginTop: "24px",
   }}
 >
-  <h2 style={{ margin: 0, fontSize: "32px", lineHeight: "1.2" }}>
-    🔧 `gamba-core-v2`
-  </h2>
   <a
     href="https://www.npmjs.com/package/gamba-core-v2"
     target="_blank"
@@ -37,4 +37,20 @@ import { Callout } from "nextra-theme-docs";
   Gamba Core package with a provider for the Anchor program + utilities
 </Callout>
 
-> Note: This is about `gamba-core-v2`. If you are building a React app, go to [the React docs](/docs/gamba-react-v2) instead.
+<Tabs items={['npm', 'yarn', 'pnpm']}>
+  <Tabs.Tab>
+    ```bash copy
+    npm install gamba-core-v2
+    ```
+  </Tabs.Tab>
+    <Tabs.Tab>
+    ```bash  copy
+    yarn add gamba-core-v2
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash  copy
+    pnpm add gamba-core-v2
+    ```
+  </Tabs.Tab>
+</Tabs>

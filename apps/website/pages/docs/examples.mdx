@@ -1,22 +1,22 @@
 import { Card, Cards } from "nextra-theme-docs";
-import { projectLinks } from "./exampleLinks";
+import { projects } from "../../components/projects";
 
 # 👨‍💻 Examples
 
 Projects built on Gamba
 
 <Cards>
-  {projectLinks.map(({ title, href, image }) => (
+  {projects.map(({ name, link, thumbnail }) => (
     <Card
       style={{
         position: "relative",
       }}
       arrow
-      image
-      title={title}
+      image={thumbnail}
+      title={name}
       target="_blank"
-      href={href}
-      key={title}
+      href={link}
+      key={name}
     >
       <div
         style={{
@@ -46,7 +46,7 @@ Projects built on Gamba
         style={{
           position: "relative",
           height: "100px",
-          backgroundImage: `url(${image})`,
+          backgroundImage: `url(${thumbnail})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           borderRadius: "8px",
@@ -64,7 +64,6 @@ Projects built on Gamba
 >
   <Card
     arrow
-    image
     title="Add Your Project"
     target="_blank"
     href="https://github.com/gamba-labs/gamba/blob/docs/apps/website/pages/docs/exampleLinks.js"

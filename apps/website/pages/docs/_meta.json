@@ -8,13 +8,13 @@
   "pools": "🏦 Pools",
   "games": "🎲 Games",
   "explorer": "🔎 Explorer",
+  "examples": "👨‍💻 Examples",
   "dao": "🏛️ DAO (Soon)",
   "-- Development": {
     "type": "separator",
     "title": "Development"
   },
-  "templates": "📄 Templates",
-  "examples": "👨‍💻 Examples",
+  "get-started": "🚀 Get Started",
   "packages": "📦 Packages",
   "-- SDK Docs": {
     "type": "separator",

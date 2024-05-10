@@ -433,7 +433,7 @@ const {
 
 </Callout>
 
-<Callout type="info" emoji="🎮">
+<Callout type="none" emoji="🎮">
 ### GameContext
 
 Offers game-specific data, including player input and game results.
@@ -450,7 +450,7 @@ const { game } = useContext(GameContext);
 
 ## 🏷️ Token Metadata
 
-<Callout type="info" emoji="💰">
+<Callout type="none" emoji="💰">
 ### TokenMeta
 
 Contains metadata for tokens, such as their symbol, image, and base wager.
@@ -470,7 +470,7 @@ const tokenMeta: TokenMeta = {
 
 </Callout>
 
-<Callout type="info" emoji="🔗">
+<Callout type="none" emoji="🔗">
 ### makeHeliusTokenFetcher
 
 Creates a fetcher to batch and retrieve token metadata using a Helius RPC API key.
@@ -479,108 +479,4 @@ Creates a fetcher to batch and retrieve token metadata using a Helius RPC API ke
 const tokenFetcher = makeHeliusTokenFetcher("HELIUS_API_KEY");
 ```
 
-</Callout>
-
-## 📝 Example
-
-<Callout type="info" emoji=" ">
-### Simple example overview
-
-```jsx
-import React, { useState } from 'react';
-import {
-  GambaUi,
-  useCurrentToken,
-  useSound,
-  useWagerInput,
-  useGame,
-} from 'gamba-react-ui-v2';
-
-function ExampleGame() {
-  const game = useGame();
-  const currentToken = useCurrentToken();
-  const userBalance = GambaUi.useTokenBalance();
-  const [wager, setWager] = useWagerInput();
-  const [gameState, setGameState] = useState('idle');
-  const [gameResult, setGameResult] = useState(null);
-
-  // Set up game sounds
-  const sounds = useSound({
-    play: '/play.mp3',
-    win: '/win.mp3',
-    loss: '/loss.mp3',
-    stop: () => {
-      Object.values(sounds.sounds).forEach(sound => sound.stop());
-    }
-  });
-
-  const play = async () => {
-    try {
-      // Set game state to 'playing'
-      setGameState('playing');
-
-      // Play game
-      sounds.play('play');
-      const gameInput = {
-        wager: wager,
-        bet: [2, 0],
-      };
-      await game.play(gameInput);
-
-      // Get game result
-      const result = await game.result();
-      sounds.stop();
-      setGameResult(result);
-
-      // Check if win or loss
-      if (result.payout > 0) {
-        sounds.stop();
-        sounds.play('win');
-        setGameState('win');
-      } else {
-        sounds.stop();
-        sounds.play('loss');
-        setGameState('loss');
-      }
-    } catch (error) {
-      // Handle errors
-      sounds.stop();
-      console.error('Error:', error);
-      setGameState('error');
-    }
-  };
-
-  const resetGame = () => {
-    // Reset game state and result
-    setGameState('idle');
-    setGameResult(null);
-    setWager(0);
-  };
-
-  return (
-    <>
-      {/* Screen Portal */}
-      <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-        {gameState === 'playing' && <p>Playing...</p>}
-        {gameState === 'win' && <p>You won!</p>}
-        {gameState === 'loss' && <p>You lost.</p>}
-        {gameState === 'error' && <p>Error: Something went wrong.</p>}
-        </GambaUi.Responsive>
-      </GambaUi.Portal>
-
-      {/* Controls Portal */}
-      <GambaUi.Portal target="controls">
-        <GambaUi.WagerInput value={wager} onChange={setWager} />
-        <GambaUi.PlayButton onClick={play} disabled={gameState === 'playing'}>
-          Play
-        </GambaUi.PlayButton>
-        <GambaUi.Button onClick={resetGame}>Reset</GambaUi.Button>
-      </GambaUi.Portal>
-    </>
-  );
-}
-
-export default ExampleGame;
-```
 </Callout>

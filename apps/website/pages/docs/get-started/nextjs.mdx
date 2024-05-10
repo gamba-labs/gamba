@@ -301,42 +301,72 @@ export default function CustomRenderer() {
 
 ```tsx copy showLineNumbers filename="src/game/exampleGame.tsx"
 import { GambaUi, useSound, useWagerInput } from "gamba-react-ui-v2";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function ExampleGame() {
   const { game } = GambaUi.useGame();
   const [wager, setWager] = useWagerInput();
-  const sound = useSound({
-    play: "/play.mp3",
-    win: "/lose.mp3",
-    lose: "/win.mp3",
+  const [gameState, setGameState] = useState('idle');
+  const [gameResult, setGameResult] = useState(null);
+ 
+  const sounds = useSound({
+    play: '/play.mp3',
+    win: '/win.mp3',
+    loss: '/loss.mp3',
+    stop: () => {
+      Object.values(sounds.sounds).forEach(sound => sound.stop());
+    }
   });
 
   const play = async () => {
     try {
-      sound.play("play");
-      await game.play({
-        wager,
+      // Set game state to 'playing'
+      setGameState('playing');
+ 
+      // Play game
+      sounds.play('play');
+      const gameInput = {
+        wager: wager,
         bet: [2, 0],
-      });
+      };
+      await game.play(gameInput);
+ 
+      // Get game result
       const result = await game.result();
-
-      if (result.payout < 0) {
-        sound.play("win");
+      sounds.stop();
+      setGameResult(result);
+ 
+      // Check if win or loss
+      if (result.payout > 0) {
+        sounds.stop();
+        sounds.play('win');
+        setGameState('win');
       } else {
-        sound.play("lose");
+        sounds.stop();
+        sounds.play('loss');
+        setGameState('loss');
       }
-    } catch (err: any) {
-      console.log(`An error occurred: ${err.message}`);
+    } catch (error) {
+      // Handle errors
+      sounds.stop();
+      console.error('Error:', error);
+      setGameState('error');
     }
   };
 
   return (
     <>
-      <GambaUi.Portal target="screen"></GambaUi.Portal>
+      <GambaUi.Portal target="screen">
+        <GambaUi.Responsive>
+          {gameState === 'playing' && <p>Playing...</p>}
+          {gameState === 'win' && <p>You won!</p>}
+          {gameState === 'loss' && <p>You lost.</p>}
+          {gameState === 'error' && <p>Error: Something went wrong.</p>}
+        </GambaUi.Responsive>
+      </GambaUi.Portal>
       <GambaUi.Portal target="controls">
         <GambaUi.WagerInput value={wager} onChange={setWager} />
-        <GambaUi.PlayButton disabled={!wager} onClick={play}>
+        <GambaUi.PlayButton onClick={play} disabled={gameState === 'playing'}>
           Play
         </GambaUi.PlayButton>
       </GambaUi.Portal>
@@ -615,46 +645,74 @@ export default function ExampleGame() {
         <FileTree.File name="exampleGame.tsx">
           ```tsx copy showLineNumbers
             import { GambaUi, useSound, useWagerInput } from "gamba-react-ui-v2";
-            import React, { useEffect } from "react";
+            import React, { useEffect, useState } from "react";
 
             export default function ExampleGame() {
               const { game } = GambaUi.useGame();
               const [wager, setWager] = useWagerInput();
-              const sound = useSound({
-                play: "/play.mp3",
-                win: "/lose.mp3",
-                lose: "/win.mp3",
+              const [gameState, setGameState] = useState('idle');
+              const [gameResult, setGameResult] = useState(null);
+            
+              const sounds = useSound({
+                play: '/play.mp3',
+                win: '/win.mp3',
+                loss: '/loss.mp3',
+                stop: () => {
+                  Object.values(sounds.sounds).forEach(sound => sound.stop());
+                }
               });
 
               const play = async () => {
                 try {
-                  sound.play("play");
-                  await game.play({
-                    wager,
+                  // Set game state to 'playing'
+                  setGameState('playing');
+            
+                  // Play game
+                  sounds.play('play');
+                  const gameInput = {
+                    wager: wager,
                     bet: [2, 0],
-                  });
+                  };
+                  await game.play(gameInput);
+            
+                  // Get game result
                   const result = await game.result();
-
-                  if (result.payout < 0) {
-                    sound.play("win");
+                  sounds.stop();
+                  setGameResult(result);
+            
+                  // Check if win or loss
+                  if (result.payout > 0) {
+                    sounds.stop();
+                    sounds.play('win');
+                    setGameState('win');
                   } else {
-                    sound.play("lose");
+                    sounds.stop();
+                    sounds.play('loss');
+                    setGameState('loss');
                   }
-                } catch (err: any) {
-                  console.log(`An error occurred: ${err.message}`);
+                } catch (error) {
+                  // Handle errors
+                  sounds.stop();
+                  console.error('Error:', error);
+                  setGameState('error');
                 }
               };
 
               return (
                 <>
                   <GambaUi.Portal target="screen">
-
+                    <GambaUi.Responsive>
+                      {gameState === 'playing' && <p>Playing...</p>}
+                      {gameState === 'win' && <p>You won!</p>}
+                      {gameState === 'loss' && <p>You lost.</p>}
+                      {gameState === 'error' && <p>Error: Something went wrong.</p>}
+                    </GambaUi.Responsive>
                   </GambaUi.Portal>
                   <GambaUi.Portal target="controls">
-                      <GambaUi.WagerInput value={wager} onChange={setWager} />
-                      <GambaUi.PlayButton disabled={!wager} onClick={play}>
-                        Play
-                      </GambaUi.PlayButton>
+                    <GambaUi.WagerInput value={wager} onChange={setWager} />
+                    <GambaUi.PlayButton onClick={play} disabled={gameState === 'playing'}>
+                      Play
+                    </GambaUi.PlayButton>
                   </GambaUi.Portal>
                 </>
               );

@@ -1,3 +1,4 @@
+
 import { Callout } from "nextra-theme-docs";
 
 # 🔧 `gamba-core-v2`
@@ -27,15 +28,920 @@ import { Callout } from "nextra-theme-docs";
   >
     <img
       src="https://img.shields.io/badge/GitHub-gamba--core--v2-blue?logo=github"
-      alt="gamba-core-v2"
+      alt="gamba-core-v2 GitHub Badge"
     />
   </a>
 </div>
 
-<Callout type="info" emoji="">
+<Callout type="info" emoji="🔧">
   Gamba Core package with a provider for the Anchor program + utilities
 </Callout>
 
 ```bash copy npm2yarn
 npm install gamba-core-v2
 ```
+
+## 🛠️ GambaProviders
+
+<Callout type="none" emoji="🛠️">
+### GambaProvider
+
+A provider class with methods to interact with the Gamba program.
+
+- **Props**:
+  - `gambaProgram`: `anchor.Program<Gamba>`
+  - `anchorProvider`: `anchor.AnchorProvider`
+  - `wallet`: `GambaProviderWallet`
+
+- **Methods**:
+  - `constructor(connection: Connection, wallet: GambaProviderWallet, opts?: ConfirmOptions)`: Initializes the `GambaProvider`.
+  - `static fromAnchorProvider(provider: anchor.AnchorProvider)`: Returns a `GambaProvider` from an `anchor.AnchorProvider`.
+  - `get user`: Returns the current user's `PublicKey`.
+  - `createPool(underlyingTokenMint: PublicKey, authority: PublicKey, slot: number)`: Creates a pool.
+  - `depositToPool(pool: PublicKey, underlyingTokenMint: PublicKey, amount: bigint | number)`: Deposits to the pool.
+  - `withdrawFromPool(pool: PublicKey, underlyingTokenMint: PublicKey, amount: bigint | number)`: Withdraws from the pool.
+  - `mintBonusTokens(pool: PublicKey, underlyingTokenMint: PublicKey, amount: bigint | number)`: Mints bonus tokens.
+  - `createPlayer()`: Creates an associated player account.
+  - `closePlayer()`: Closes the associated player account.
+  - `play(...)`: Plays a game with specified parameters.
+```jsx copy
+const gambaProvider = new GambaProvider(connection, wallet);
+gambaProvider.createPlayer();
+```
+</Callout>
+
+<Callout type="none" emoji="🛠️">
+### GambaProviderWallet
+
+A wallet type definition.
+
+- **Props**:
+  - `payer`: Optional `Keypair`.
+```jsx copy
+const wallet = { payer: Keypair.generate() };
+```
+</Callout>
+
+## 🔄 Transaction Utilities
+
+<Callout type="none" emoji="🔄">
+### parseTransactionEvents
+
+Extracts events from transaction logs.
+
+- **Parameters**:
+  - `logs: string[]`: Array of transaction logs.
+
+- **Returns**:
+  - `AnyGambaEvent[]`: List of parsed events.
+```jsx copy
+const events = parseTransactionEvents(logs);
+```
+</Callout>
+
+<Callout type="none" emoji="🔄">
+### parseGambaTransaction
+
+Parses a transaction to retrieve Gamba events.
+
+- **Parameters**:
+  - `transaction: ParsedTransactionWithMeta`: A parsed transaction with metadata.
+
+- **Returns**:
+  - `GambaTransaction<"GameSettled"> | GambaTransaction<"PoolChange">[]`: List of parsed transactions.
+```jsx copy
+const parsedEvents = parseGambaTransaction(transactionWithMeta);
+```
+</Callout>
+
+<Callout type="none" emoji="🔄">
+### fetchGambaTransactionsFromSignatures
+
+Fetches recent Gamba events using transaction signatures.
+
+- **Parameters**:
+  - `connection: Connection`: A Solana connection instance.
+  - `signatures: string[]`: Array of transaction signatures.
+
+- **Returns**:
+  - `Promise<(GambaTransaction<"GameSettled"> | GambaTransaction<"PoolChange">)[]>`: A promise resolving to a list of transactions.
+```jsx copy
+const gambaTransactions = await fetchGambaTransactionsFromSignatures(connection, signatures);
+```
+</Callout>
+
+<Callout type="none" emoji="🔄">
+### fetchGambaTransactions
+
+Fetches recent Gamba events based on an address.
+
+- **Parameters**:
+  - `connection: Connection`: A Solana connection instance.
+  - `address: PublicKey`: Address to fetch transactions from.
+  - `options: SignaturesForAddressOptions`: Signature query options.
+
+- **Returns**:
+  - `Promise<(GambaTransaction<"GameSettled"> | GambaTransaction<"PoolChange">)[]>`: A promise resolving to a list of transactions.
+```jsx copy
+const recentGambaTransactions = await fetchGambaTransactions(connection, address, options);
+```
+</Callout>
+
+## 🧩 Decoding Helpers
+
+<Callout type="none" emoji="🧩">
+### decodeAta
+
+Decodes an account to a raw Solana SPL token account.
+
+- **Parameters**:
+  - `acc: AccountInfo<Buffer> | null`: The account information buffer to decode.
+
+- **Returns**:
+  - `RawAccount | null`: A decoded Solana SPL token account or `null` if the account is invalid.
+```jsx copy
+const rawAccount = decodeAta(accountInfo);
+```
+</Callout>
+
+<Callout type="none" emoji="🧩">
+### decodePlayer
+
+Decodes an account to a structured PlayerState.
+
+- **Parameters**:
+  - `info: AccountInfo<Buffer> | null`: The account information buffer to decode.
+
+- **Returns**:
+  - `PlayerState | null`: A structured `PlayerState` object or `null` if the account is invalid.
+```jsx copy
+const playerState = decodePlayer(accountInfo);
+```
+</Callout>
+
+<Callout type="none" emoji="🧩">
+### decodeGame
+
+Decodes an account to a structured GameState.
+
+- **Parameters**:
+  - `info: AccountInfo<Buffer> | null`: The account information buffer to decode.
+
+- **Returns**:
+  - `GameState | null`: A structured `GameState` object or `null` if the account is invalid.
+```jsx copy
+const gameState = decodeGame(accountInfo);
+```
+</Callout>
+
+<Callout type="none" emoji="🧩">
+### decodePool
+
+Decodes an account to a structured PoolState.
+
+- **Parameters**:
+  - `info: AccountInfo<Buffer> | null`: The account information buffer to decode.
+
+- **Returns**:
+  - `PoolState | null`: A structured `PoolState` object or `null` if the account is invalid.
+```jsx copy
+const poolState = decodePool(accountInfo);
+```
+</Callout>
+
+<Callout type="none" emoji="🧩">
+### decodeGambaState
+
+Decodes an account to a structured GambaState.
+
+- **Parameters**:
+  - `info: AccountInfo<Buffer> | null`: The account information buffer to decode.
+
+- **Returns**:
+  - `GambaState | null`: A structured `GambaState` object or `null` if the account is invalid.
+```jsx copy
+const gambaState = decodeGambaState(accountInfo);
+```
+</Callout>
+
+## 🎮 Game Logic
+
+<Callout type="none" emoji="🎮">
+### getGameHash
+
+Computes a game hash from an RNG seed, client seed, and nonce.
+
+- **Parameters**:
+  - `rngSeed: string`: RNG seed value.
+  - `clientSeed: string`: Client seed value.
+  - `nonce: number`: Nonce value.
+
+- **Returns**:
+  - `Promise<string>`: A promise resolving to the game hash.
+```jsx copy
+const gameHash = await getGameHash(rngSeed, clientSeed, nonce);
+```
+</Callout>
+
+<Callout type="none" emoji="🎮">
+### getResultNumber
+
+Extracts a numeric result based on an RNG seed, client seed, and nonce.
+
+- **Parameters**:
+  - `rngSeed: string`: RNG seed value.
+  - `clientSeed: string`: Client seed value.
+  - `nonce: number`: Nonce value.
+
+- **Returns**:
+  - `Promise<number>`: A promise resolving to a numeric result.
+```jsx copy
+const resultNumber = await getResultNumber(rngSeed, clientSeed, nonce);
+```
+</Callout>
+
+<Callout type="none" emoji="🎮">
+### parseResult
+
+Parses a GameState object to provide detailed game result data.
+
+- **Parameters**:
+  - `state: GameState`: A `GameState` object to parse.
+
+- **Returns**:
+  - `GameResult`: Parsed game result data.
+```jsx copy
+const gameResult = parseResult(gameState);
+```
+</Callout>
+
+<Callout type="none" emoji="🎮">
+### getNextResult
+
+Fetches the next game result based on a previous nonce.
+
+- **Parameters**:
+  - `connection: Connection`: A Solana connection instance.
+  - `user: PublicKey`: User's public key.
+  - `prevNonce: number`: The previous nonce value.
+
+- **Returns**:
+  - `Promise<GameResult>`: A promise resolving to the next game result.
+```jsx copy
+const nextResult = await getNextResult(connection, user, prevNonce);
+```
+</Callout>
+
+<Callout type="none" emoji="🎮">
+### hmac256
+
+Generates an HMAC SHA-256 hash.
+
+- **Parameters**:
+  - `secretKey: string`: Secret key for HMAC generation.
+  - `message: string`: Message to be hashed.
+
+- **Returns**:
+  - `Promise<string>`: A promise resolving to the computed HMAC hash.
+```jsx copy
+const hmacHash = await hmac256(secretKey, message);
+```
+</Callout>
+
+## 🔑 Constants
+
+<Callout type="none" emoji="🔑">
+### PROGRAM_ID
+
+The public key of the Gamba program.
+
+- **Type**: `PublicKey`
+```jsx copy
+const programId = PROGRAM_ID;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### SYSTEM_PROGRAM
+
+The public key of the Solana System Program.
+
+- **Type**: `PublicKey`
+```jsx copy
+const systemProgram = SYSTEM_PROGRAM;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### GAMBA_STATE_SEED
+
+Seed for generating the Gamba state address.
+
+- **Type**: `string`
+- **Value**: `"GAMBA_STATE"`
+```jsx copy
+const gambaStateSeed = GAMBA_STATE_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### GAME_SEED
+
+Seed for generating game addresses.
+
+- **Type**: `string`
+- **Value**: `"GAME"`
+```jsx copy
+const gameSeed = GAME_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### PLAYER_SEED
+
+Seed for generating player addresses.
+
+- **Type**: `string`
+- **Value**: `"PLAYER"`
+```jsx copy
+const playerSeed = PLAYER_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### POOL_SEED
+
+Seed for generating pool addresses.
+
+- **Type**: `string`
+- **Value**: `"POOL"`
+```jsx copy
+const poolSeed = POOL_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### POOL_ATA_SEED
+
+Seed for generating a pool's associated token account.
+
+- **Type**: `string`
+- **Value**: `"POOL_ATA"`
+```jsx copy
+const poolAtaSeed = POOL_ATA_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### POOL_JACKPOT_SEED
+
+Seed for generating a pool's jackpot account.
+
+- **Type**: `string`
+- **Value**: `"POOL_JACKPOT"`
+```jsx copy
+const poolJackpotSeed = POOL_JACKPOT_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### POOL_BONUS_UNDERLYING_TA_SEED
+
+Seed for generating a pool's bonus underlying token account.
+
+- **Type**: `string`
+- **Value**: `"POOL_BONUS_UNDERLYING_TA"`
+```jsx copy
+const poolBonusUnderlyingTaSeed = POOL_BONUS_UNDERLYING_TA_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### POOL_BONUS_MINT_SEED
+
+Seed for generating a pool's bonus mint account.
+
+- **Type**: `string`
+- **Value**: `"POOL_BONUS_MINT"`
+```jsx copy
+const poolBonusMintSeed = POOL_BONUS_MINT_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### POOL_LP_MINT_SEED
+
+Seed for generating a pool's liquidity provider mint account.
+
+- **Type**: `string`
+- **Value**: `"POOL_LP_MINT"`
+```jsx copy
+const poolLpMintSeed = POOL_LP_MINT_SEED;
+```
+</Callout>
+
+<Callout type="none" emoji="🔑">
+### BPS_PER_WHOLE
+
+Number of basis points per whole (percent).
+
+- **Type**: `number`
+- **Value**: `10000`
+```jsx copy
+const bpsPerWhole = BPS_PER_WHOLE;
+```
+</Callout>
+
+## 🗺️ Seed Address Generators
+
+<Callout type="none" emoji="🗺️">
+### getPdaAddress
+
+Generates a PDA (Program Derived Address) from seeds.
+
+- **Parameters**:
+  - `...seeds: (Uint8Array | Buffer)[]`: Variable list of seed buffers.
+
+- **Returns**:
+  - `PublicKey`: Generated PDA.
+```jsx copy
+const pdaAddress = getPdaAddress(...seeds);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPoolAddress
+
+Derives the pool address from a mint and authority.
+
+- **Parameters**:
+  - `underlyingMint: PublicKey`: Mint address of the underlying token.
+  - `authority?: PublicKey`: Optional authority for the pool.
+
+- **Returns**:
+  - `PublicKey`: The derived pool address.
+```jsx copy
+const underlyingMint = new PublicKey("So11111111111111111111111111111111111111112");
+const authority = new PublicKey("5tJXJGZh7bCSqP8kgYi4P1R9W4GmA5mZAn5xZZ2CGN4P");
+
+const poolAddress = getPoolAddress(underlyingMint, authority);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getGambaStateAddress
+
+Returns the Gamba state address.
+
+- **Returns**:
+  - `PublicKey`: The Gamba state address.
+```jsx copy
+const gambaStateAddress = getGambaStateAddress();
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPlayerAddress
+
+Retrieves the player address for an owner.
+
+- **Parameters**:
+  - `owner: PublicKey`: Public key of the player owner.
+
+- **Returns**:
+  - `PublicKey`: The derived player address.
+```jsx copy
+const playerOwner = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const playerAddress = getPlayerAddress(playerOwner);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getGameAddress
+
+Retrieves the address for a specific game.
+
+- **Parameters**:
+  - `owner: PublicKey`: Public key of the game owner.
+
+- **Returns**:
+  - `PublicKey`: The derived game address.
+```jsx copy
+const gameOwner = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const gameAddress = getGameAddress(gameOwner);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPoolLpAddress
+
+Fetches the liquidity pool address for a pool.
+
+- **Parameters**:
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: The liquidity pool address.
+```jsx copy
+const pool = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const poolLpAddress = getPoolLpAddress(pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPoolBonusAddress
+
+Fetches the bonus address for a pool.
+
+- **Parameters**:
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: The bonus address.
+```jsx copy
+const pool = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const poolBonusAddress = getPoolBonusAddress(pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPoolUnderlyingTokenAccountAddress
+
+Fetches the underlying token account address for a pool.
+
+- **Parameters**:
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: The underlying token account address.
+```jsx copy
+const pool = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const poolUnderlyingAccountAddress = getPoolUnderlyingTokenAccountAddress(pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPoolJackpotTokenAccountAddress
+
+Retrieves the jackpot account address for a pool.
+
+- **Parameters**:
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: The jackpot account address.
+```jsx copy
+const pool = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const poolJackpotAccountAddress = getPoolJackpotTokenAccountAddress(pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPoolBonusUnderlyingTokenAccountAddress
+
+Returns the address of the pool's bonus underlying token account.
+
+- **Parameters**:
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: Address of the bonus underlying token account.
+```jsx copy
+const pool = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const poolBonusUnderlyingTokenAccountAddress = getPoolBonusUnderlyingTokenAccountAddress(pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getUserUnderlyingAta
+
+Fetches a user's associated token account for an underlying mint.
+
+- **Parameters**:
+  - `user: PublicKey`: Public key of the user.
+  - `underlyingTokenMint: PublicKey`: Mint address of the underlying token.
+
+- **Returns**:
+  - `PublicKey`: User's associated token account address.
+```jsx copy
+const user = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+const underlyingTokenMint = new PublicKey("So11111111111111111111111111111111111111112");
+
+const userUnderlyingAta = getUserUnderlyingAta(user, underlyingTokenMint);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPlayerUnderlyingAta
+
+Retrieves a player's underlying token account.
+
+- **Parameters**:
+  - `user: PublicKey`: Public key of the player.
+  - `underlyingTokenMint: PublicKey`: Mint address of the underlying token.
+
+- **Returns**:
+  - `PublicKey`: Player's underlying token account address.
+```jsx copy
+const user = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+const underlyingTokenMint = new PublicKey("So11111111111111111111111111111111111111112");
+
+const playerUnderlyingAta = getPlayerUnderlyingAta(user, underlyingTokenMint);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getUserBonusAtaForPool
+
+Gets the bonus account for a user in a pool.
+
+- **Parameters**:
+  - `user: PublicKey`: Public key of the user.
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: User's bonus account address for the pool.
+```jsx copy
+const user = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+const pool = new PublicKey("So11111111111111111111111111111111111111112");
+
+const userBonusAta = getUserBonusAtaForPool(user, pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getUserLpAtaForPool
+
+Retrieves the user's liquidity pool token account.
+
+- **Parameters**:
+  - `user: PublicKey`: Public key of the user.
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: User's liquidity pool account address for the pool.
+```jsx copy
+const user = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+const pool = new PublicKey("So11111111111111111111111111111111111111112");
+
+const userLpAta = getUserLpAtaForPool(user, pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getPlayerBonusAtaForPool
+
+Fetches a player's bonus token account for a pool.
+
+- **Parameters**:
+  - `user: PublicKey`: Public key of the player.
+  - `pool: PublicKey`: Public key of the pool.
+
+- **Returns**:
+  - `PublicKey`: Player's bonus token account address for the pool.
+```jsx copy
+const user = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+const pool = new PublicKey("So11111111111111111111111111111111111111112");
+
+const playerBonusAta = getPlayerBonusAtaForPool(user, pool);
+```
+</Callout>
+
+<Callout type="none" emoji="🗺️">
+### getUserWsolAccount
+
+Retrieves a user's wrapped SOL account.
+
+- **Parameters**:
+  - `user: PublicKey`: Public key of the user.
+
+- **Returns**:
+  - `PublicKey`: User's wrapped SOL account address.
+```jsx copy
+const user = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+
+const userWsolAccount = getUserWsolAccount(user);
+```
+</Callout>
+
+
+## 📊 Utilities
+
+<Callout type="none" emoji="📊">
+### basisPoints
+
+Converts a percentage to basis points.
+
+- **Parameters**:
+  - `percent: number`: A percentage value.
+
+- **Returns**:
+  - `number`: The corresponding number of basis points.
+```jsx copy
+const basisPointsValue = basisPoints(percent);
+
+```
+</Callout>
+
+<Callout type="none" emoji="📊">
+### wrapSol
+
+Creates instructions to wrap SOL to native tokens.
+
+- **Parameters**:
+  - `from: PublicKey`: The source public key.
+  - `amount: bigint | number`: The amount to wrap.
+  - `create: boolean`: Indicates whether to create a new account.
+
+- **Returns**:
+  - `Promise<_solana_web3_js.TransactionInstruction[]>`: A promise resolving to an array of transaction instructions.
+```jsx copy
+const basisPointsValue = basisPoints(percent);
+```
+</Callout>
+
+<Callout type="none" emoji="📊">
+### unwrapSol
+
+Generates an instruction to unwrap SOL back to its native form.
+
+- **Parameters**:
+  - `from: PublicKey`: The source public key.
+
+- **Returns**:
+  - `Promise<_solana_web3_js.TransactionInstruction>`: A promise resolving to the transaction instruction.
+```jsx copy
+const from = new PublicKey("7Hj9wFkf4HhrFhUVGRi75mNY4PttytVgAhRRUNtBeJRx");
+const amount = BigInt(1000000); // 1 SOL
+const create = true;
+
+const instructions = await wrapSol(from, amount, create);
+```
+</Callout>
+
+<Callout type="none" emoji="📊">
+### isNativeMint
+
+Checks if a given public key matches the native mint.
+
+- **Parameters**:
+  - `pubkey: PublicKey`: The public key to check.
+
+- **Returns**:
+  - `boolean`: `true` if the key matches the native mint, otherwise `false`.
+```jsx copy
+const pubkey = new PublicKey("So11111111111111111111111111111111111111112");
+
+const isNative = isNativeMint(pubkey);
+```
+</Callout>
+
+## 📜 Types
+
+<Callout type="none" emoji="📜">
+### Gamba
+
+An interface for the Gamba IDL (program schema).
+
+- **Props**:
+  - `version: string`: The program version.
+  - `name: string`: The program name.
+  - `instructions: ...`: Instructions defined in the schema.
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### GambaEventType
+
+Event types for the Gamba program.
+
+- **Type**: `'GameSettled' | 'PoolChange'`
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### GambaEvent
+
+Event structure for a specific event type.
+
+- **Props**:
+  - `name: string`: Event name.
+  - `data: IdlEvents<Gamba>[T]`: Event data for the specified type `T`.
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### AnyGambaEvent
+
+Type representing any Gamba event.
+
+- **Type**: `GambaEvent<'GameSettled'> | GambaEvent<'PoolChange'>`
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### GambaTransaction
+
+Transaction type for the Gamba program.
+
+- **Props**:
+  - `signature: string`: Transaction signature.
+  - `time: number`: Timestamp of the transaction.
+  - `name: GambaEventType`: Type of event that occurred.
+  - `data: GambaEvent<Event>['data']`: Event data specific to the type.
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### GambaState
+
+Account structure representing the Gamba state.
+
+- **Props**:
+  - `authority: PublicKey`
+  - `rngAddress: PublicKey`
+  - `antiSpamFee: BN`
+  - `gambaFeeBps: BN`
+  - `...`: Other account properties related to Gamba state.
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### GameState
+
+Account structure representing a game.
+
+- **Props**:
+  - `nonce: BN`
+  - `tokenMint: PublicKey`
+  - `wager: BN`
+  - `...`: Other game-related properties.
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### PlayerState
+
+Account structure representing a player.
+
+- **Props**:
+  - `user: PublicKey`
+  - `nonce: BN`
+  - `...`: Other player-related properties.
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### PoolState
+
+Account structure representing a pool.
+
+- **Props**:
+  - `poolAuthority: PublicKey`
+  - `underlyingTokenMint: PublicKey`
+  - `plays: BN`
+  - `...`: Other pool-related properties.
+```jsx copy
+
+```
+</Callout>
+
+<Callout type="none" emoji="📜">
+### GameResult
+
+Parsed game result data.
+
+- **Props**:
+  - `creator: PublicKey`
+  - `user: PublicKey`
+  - `rngSeed: string`
+  - `payout: number`
+  - `...`: Other parsed game result properties.
+```jsx copy
+
+```
+</Callout>
+

@@ -13,7 +13,6 @@ const config: DocsThemeConfig = {
     defaultTheme: 'dark',
     forcedTheme: 'dark',
   },
-  
   themeSwitch: { component: () => null },
   footer: { text: 'Gamba ©©©©©©©©' },
   head: () => {
@@ -60,7 +59,7 @@ const config: DocsThemeConfig = {
       </>
     )
   },
-  sidebar: { toggleButton: true },
+  sidebar: { toggleButton: true, defaultMenuCollapseLevel: 1 },
   useNextSeoProps() {
     const { asPath } = useRouter()
 

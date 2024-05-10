@@ -1,23 +1,32 @@
 {
   "name": "gamba-website",
   "version": "0.0.1",
-  "description": "Nextra docs template",
+  "description": "gamba-labs docs",
+  "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "turbo run build",
+    "dev": "turbo run dev --no-cache --continue",
+    "next-dev": "next dev",
+    "api": "turbo run api --filter=gamba-api",
+    "api-dev": "turbo run dev --filter=gamba-api",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "changeset": "changeset",
+    "version-packages": "changeset version"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shuding/nextra-docs-template.git"
+    "url": "git+https://github.com/gamba-labs/gamba/tree/docs"
   },
   "author": "Shu Ding <g@shud.in>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/shuding/nextra-docs-template/issues"
+    "url": "https://github.com/gamba-labs/gamba/tree/docs/issues"
   },
-  "homepage": "https://github.com/shuding/nextra-docs-template#readme",
-  "dependencies": {
+  "homepage": "https://github.com/gamba-labs/gamba/tree/docs#readme",
+  "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "turbo": "^1.10.15",
+    "typescript": "^5.2.2",
     "@chakra-ui/react": "^2.7.0",
     "@codesandbox/sandpack-react": "^2.6.7",
     "@radix-ui/react-popover": "1.0.6",
@@ -32,11 +41,9 @@
     "react-markdown": "^8.0.7",
     "react-parallax-tilt": "^1.7.146",
     "react-syntax-highlighter": "^15.5.0",
-    "tailwindcss": "^3.3.2"
-  },
-  "devDependencies": {
+    "tailwindcss": "^3.3.2",
     "@types/node": "18.11.10",
-    "@types/react": "18.2.21",
-    "typescript": "^4.9.3"
-  }
+    "@types/react": "18.2.21"
+  },
+  "packageManager": "pnpm@8.6.10"
 }

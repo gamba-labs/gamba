@@ -1,6 +1,6 @@
 {
   "components": {
-    "title": "🧩 Components",
+    "title": "🖥️ Components",
     "href": "/docs/gamba-react-ui-v2#components"
   },
   "utilities-and-hooks": {
@@ -14,9 +14,5 @@
   "hooks": {
     "title": "🏷️ Token Metadata",
     "href": "/docs/gamba-react-ui-v2#token-metadata"
-  },
-  "example": {
-    "title": "📝 Example",
-    "href": "/docs/gamba-react-ui-v2#example"
   }
 }

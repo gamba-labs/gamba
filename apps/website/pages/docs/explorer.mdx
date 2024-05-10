@@ -1,11 +1,71 @@
 import { Card, Cards } from "nextra-theme-docs";
+import { Tabs } from "nextra/components";
 
 # 🔎 Explorer
 
-The [explorer](https://explorer.gamba.so) serves as a comprehensive tracker for games played across diverse frontends, offering both evidence and methods for verification.
+The [explorer](https://explorer.gamba.so) is a comprehensive dashboard and management tool that provides a transparent view of all games played across different frontends, offering detailed evidence and methods for verification. It allows users to track their own activities, manage liquidity pools, and oversee game statistics.
 
-Players typically initiate games through a [frontend application](/docs/apps). Once initiated, the Gamba on-chain Program undertakes validation procedures to ensure fair play, preventing any unfair advantages for the player. Subsequently, a random number is generated to determine the winner, whether it be the player or the [liquidity pool](/docs/pools) they are engaged with.
+- **User Account**: Manage your user account
+- **Portfolio**: Manage your LP tokens
+- **DAO**: Manage the DAO and distribution of fees
 
 <Cards>
-  <Card arrow title="View Explorer" href="https://explorer.gamba.so" />
+  <Card arrow title="User Account" href="https://explorer.gamba.so/user" />
+  <Card arrow title="Portfolio" href="https://explorer.gamba.so/portfolio" />
+  <Card arrow title="DAO" href="https://explorer.gamba.so/dao" />
+</Cards>
+
+## Transactions
+
+The Explorer provides in-depth visibility into each transaction's history, including:
+
+<Tabs items={['Details', 'Proof', 'Logs']}>
+<Tabs.Tab>
+Offers specific data points about each transaction, including:
+  - **Value**: The total amount of tokens or currency involved in the transaction.
+  - **Type**: The kind of transaction (e.g., win, loss, wager, deposit).
+  - **Involved Parties**: The abbreviated identifiers of the platform, pool, and player involved.
+  - **Time**: The exact date and time the transaction occurred.
+</Tabs.Tab>
+<Tabs.Tab>
+Presents cryptographic evidence verifying the authenticity and fairness of each transaction, including:
+  - **RNG Seed**: The tamper-proof, cryptographic hash provided by Gamba to ensure randomness.
+  - **Client Seed**: A user-generated seed that influences the result of the game.
+  - **Nonce**: A sequential value used to ensure unique transactions.
+  - **Next Hashed RNG Seed**: The SHA-256 hash of the next RNG seed, guaranteeing transparency.
+  - **Simulated Result**: A preview of what the results would be using the provided seeds.
+</Tabs.Tab>
+<Tabs.Tab>
+Provides access to detailed logs of all transaction events for audit and analysis, such as:
+  - **Program Invocations**: Identifies which programs were called during the transaction.
+  - **Instructions**: Details the instructions executed by each program.
+  - **Compute Units**: Specifies the amount of computational resources consumed per instruction.
+  - **Success or Failure**: Reports the success or failure of each invoked program.
+</Tabs.Tab>
+</Tabs>
+
+<Cards>
+  <Card arrow title="Example Transaction" href="https://explorer.gamba.so/tx/23ARo5bzvKXr5MJVMUnGtvfEYWHp4aPfvthna1Px5P8GCV5uBtqE7q37CQqhC7uhzA5PU7mEMBBkCDYi16oJqRK7" />
+</Cards>
+
+## Pools
+
+The "Pools" section enables users to monitor and manage liquidity pools effectively:
+- **Add Liquidity**: Deposit tokens into a pool to earn LP tokens.
+- **Mint Bonus Tokens**: Create bonus tokens tied to a specific pool's underlying token.
+- **Fund Jackpot**: Contribute to the jackpot pool for special games.
+- **Metrics & Data**: View all pools and their stats/activity.
+
+<Cards>
+  <Card arrow title="View Pools" href="https://explorer.gamba.so/pools" />
+  <Card arrow title="Create Pool" href="https://explorer.gamba.so/create" />
+</Cards>
+
+## Platforms
+The "Platforms" section enables users to view gamba transactions:
+
+- **Metrics & Data**: View detailed analytics for each gaming platform and their stats/activity.
+
+<Cards>
+  <Card arrow title="View Platforms" href="https://explorer.gamba.so/platforms" />
 </Cards>

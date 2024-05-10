@@ -33,13 +33,13 @@ First, ensure you have the necessary Gamba packages installed in your project:
 
 > Create .env
 
-```bash copy
+```bash copy showLineNumbers filename=".env"
 NEXT_PUBLIC_RPC_ENDPOINT=<HELIUS API KEY>
 ```
 
 > Create constants.ts
 
-```ts copy
+```ts copy showLineNumbers filename="constants.ts"
 // Solana creator to receive fees
 const PLATFORM_CREATOR_ADDRESS = new PublicKey(
   "GzzWXXDjLD4FDwDkWB5sARjC2aaLSfCQDjx3dmpoTY7K"
@@ -71,7 +71,7 @@ const TOKENLIST = [
 
 > Update the `src/pages/_app.tsx` file to include the GambaProvider, SendTransactionProvider, TokenMetaProvider, GambaPlatformProvider ect
 
-```tsx copy
+```tsx copy showLineNumbers filename="src/pages/_app.tsx"
 import "@/styles/globals.css";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import {
@@ -140,11 +140,12 @@ export default MyApp;
 
 > Create the page and render the game
 
-```tsx
+```tsx copy showLineNumbers filename="src/pages/index.tsx"
 import React, { useState, useEffect } from "react";
 import { GambaUi, GameBundle } from "gamba-react-ui-v2";
-import ExampleGame from "./ExampleGame";
+import ExampleGame from "./game/exampleGame";
 import dynamic from "next/dynamic";
+import CustomRenderer from "./components/customRender";
 
 const GAMES: GameBundle[] = [
   {
@@ -176,7 +177,7 @@ export default GamePage;
 
 > Create customRender component uses PortalTarget to dynamically manage content defined by Portal for flexible UI updates, including the ability to place custom error messages and alerts across the interface for better error handling in Gamba UI.
 
-```tsx copy
+```tsx copy showLineNumbers filename="src/components/customRender.tsx"
 import {
   GambaUi,
   useGambaAudioStore,
@@ -298,7 +299,7 @@ export default function CustomRenderer() {
 
 > Create game component to leverage Gamba UI's `Portals` we created in the custom renderer as well as several hooks and components from Gamba UI. The main focus is on handling user wagers and initiating the game.
 
-```tsx
+```tsx copy showLineNumbers filename="src/game/exampleGame.tsx"
 import { GambaUi, useSound, useWagerInput } from "gamba-react-ui-v2";
 import React, { useEffect } from "react";
 
@@ -349,7 +350,7 @@ export default function ExampleGame() {
 ### File Tree
 
 <FileTree>
-  <FileTree.Folder name="src" defaultOpen>
+  <FileTree.Folder name="NEXT.ᴊs" defaultOpen>
 
     <FileTree.File name=".env">
       ```tsx copy showLineNumbers

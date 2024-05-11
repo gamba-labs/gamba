@@ -5,10 +5,8 @@ import { useAccount, useWalletAddress } from "gamba-react-v2"
 import React from "react"
 import { NavLink, useNavigate } from "react-router-dom"
 
-import { SolanaAddress } from "@/components/SolanaAddress"
-
 import { TokenAvatar } from "@/components"
-import { SkeletonFallback } from "@/components/Skeleton"
+import { SolanaAddress } from "@/components/SolanaAddress"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { UiPool } from "../Dashboard/PoolList"
 
@@ -69,9 +67,7 @@ export function PoolHeader({pool}: {pool: UiPool}) {
             </Flex>
             <Flex direction="column">
               <Text color="gray" size="2">Pool Authority</Text>
-              <SkeletonFallback loading={true}>
-                <SolanaAddress address={pool?.poolAuthority!} />
-              </SkeletonFallback>
+              <SolanaAddress address={pool?.poolAuthority!} />
             </Flex>
           </Dialog.Description>
         </Dialog.Content>

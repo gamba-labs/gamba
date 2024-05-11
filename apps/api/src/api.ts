@@ -8,7 +8,7 @@ const cache = apicache.middleware
 
 const api = express.Router()
 
-const slow = () => (_, __, next) => setTimeout(next, 1000)
+const slow = () => (_, __, next) => next() // setTimeout(next, 1000)
 
 const poolChangesSchema = z.object({ query: z.object({ pool: z.string().optional() }) })
 

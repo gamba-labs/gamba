@@ -1,7 +1,7 @@
 import { useTokenMeta } from "@/hooks/useTokenMeta"
-import { Avatar, Flex, Text } from "@radix-ui/themes"
+import { Avatar, Card, Flex, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
-import React from "react"
+import React, { PropsWithChildren } from "react"
 import styled, { css } from "styled-components"
 import { TokenValue2 } from "./TokenValue2"
 import { SolanaAddress } from "./SolanaAddress"
@@ -77,5 +77,20 @@ export function TokenItem({ mint, balance, stuff }: TokenItemProps) {
       </Text>
       {stuff}
     </Flex>
+  )
+}
+
+export function DetailCard(props: PropsWithChildren & { title: string }) {
+  return (
+    <Card>
+      <Flex direction="column">
+        <Text size="2" color="gray">
+          {props.title}
+        </Text>
+        <Text weight="bold">
+          {props.children}
+        </Text>
+      </Flex>
+    </Card>
   )
 }

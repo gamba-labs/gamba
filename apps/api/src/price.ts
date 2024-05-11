@@ -2,18 +2,19 @@ import { config } from './config'
 
 const priceData: Record<string, {lastFetch: number, usdPerUnit: number}> = {}
 
-const needsFetch = (x: string) => {
-  if (!priceData[x]) return true
-  return priceData[x].lastFetch < Date.now() - 1000 * 60 * 5
-}
-
 export const getPrices = async (
   tokens: string[],
+  refreshMinutes = 10,
 ) => {
-  const tokensToFetch = Array.from(new Set(tokens.filter(needsFetch)))
+  // Only fetch tokens if they A. Don't exist or B. have not been fetched for (refreshMinutes) minutes
+  const tokensToFetch = Array.from(new Set(tokens.filter(
+    (x) => !priceData[x] || priceData[x].lastFetch < Date.now() - 6000 * refreshMinutes,
+  )))
+
   if (!tokensToFetch.length) {
     return priceData
   }
+
   console.log('Fetching token prices', tokensToFetch)
 
   const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${config().HELIUS_API_KEY}`, {

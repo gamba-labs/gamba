@@ -82,6 +82,16 @@ export interface TopPlayersResponse {
   }[]
 }
 
+export interface PoolsResponse {
+  pools: {
+    "block_time":number
+    "pool":string
+    "token":string
+    "liquidity":number
+    "tvl":number
+  }[]
+}
+
 export type PlatformTokenResponse = {
   usd_volume: number
   volume: number

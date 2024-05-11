@@ -5,16 +5,15 @@ import { NavLink, useParams } from "react-router-dom"
 
 import RecentPlays from "@/RecentPlays"
 import { PlatformTokenResponse, StatsResponse, useApi } from "@/api"
-import { TokenAvatar } from "@/components"
+import { DetailCard, TokenAvatar } from "@/components"
 import { truncateString } from "@/components/AccountItem"
 import { Details } from "@/components/Details"
-import { SkeletonCard, SkeletonFallback } from "@/components/Skeleton"
+import { SkeletonCardList, SkeletonFallback } from "@/components/Skeleton"
 import { useBonfidaName, usePlatformMeta, useTokenMeta } from "@/hooks"
 import { PublicKey } from "@solana/web3.js"
 import { minidenticon } from "minidenticons"
 import styled from "styled-components"
 import { TopPlayers, TotalVolume } from "../Dashboard/Dashboard"
-import { ThingCard } from "../Pool/PoolView"
 
 const OnlineIndicator = styled.div`
   width: 8px;
@@ -32,6 +31,42 @@ const OnlineIndicator = styled.div`
 
   animation: online-indicator-pulsing infinite 1s;
 `
+
+export function DetailCards({creator, startTime = 0}: {creator?: string | PublicKey, startTime?: number}) {
+  const { data, isLoading } = useApi<StatsResponse>('/stats', {creator: creator?.toString(), startTime})
+  return (
+    <Flex gap="2" wrap="wrap">
+      <DetailCard title="Volume">
+        <SkeletonFallback loading={isLoading}>
+          ${data?.usd_volume.toLocaleString()}
+        </SkeletonFallback>
+      </DetailCard>
+      <DetailCard title="Estimated Fees">
+        <SkeletonFallback loading={isLoading}>
+          ${data?.revenue_usd.toLocaleString()}
+        </SkeletonFallback>
+      </DetailCard>
+      <DetailCard title="Plays">
+        <SkeletonFallback loading={isLoading}>
+          {data?.plays.toLocaleString()}
+        </SkeletonFallback>
+      </DetailCard>
+      <DetailCard title="Players">
+        <SkeletonFallback loading={isLoading}>
+          {data?.players.toLocaleString()}
+        </SkeletonFallback>
+      </DetailCard>
+      {data && data.active_players > 0 && (
+        <DetailCard title="Active players">
+          <OnlineIndicator />
+          <SkeletonFallback loading={isLoading}>
+            {data?.active_players.toLocaleString()}
+          </SkeletonFallback>
+        </DetailCard>
+      )}
+    </Flex>
+  )
+}
 
 // const Card2 = styled(Card)<{$active: boolean}>`
 //   ${(props) => props.$active && css`
@@ -135,42 +170,6 @@ function PlatformHeader({ creator }: {creator: string}) {
   )
 }
 
-export function Things({creator, startTime = 0}: {creator?: string | PublicKey, startTime?: number}) {
-  const { data, isLoading } = useApi<StatsResponse>('/stats', {creator: creator?.toString(), startTime})
-  return (
-    <Flex gap="2" wrap="wrap">
-      <ThingCard title="Volume">
-        <SkeletonFallback loading={isLoading}>
-          ${data?.usd_volume.toLocaleString()}
-        </SkeletonFallback>
-      </ThingCard>
-      <ThingCard title="Estimated Fees">
-        <SkeletonFallback loading={isLoading}>
-          ${data?.revenue_usd.toLocaleString()}
-        </SkeletonFallback>
-      </ThingCard>
-      <ThingCard title="Plays">
-        <SkeletonFallback loading={isLoading}>
-          {data?.plays.toLocaleString()}
-        </SkeletonFallback>
-      </ThingCard>
-      <ThingCard title="Players">
-        <SkeletonFallback loading={isLoading}>
-          {data?.players.toLocaleString()}
-        </SkeletonFallback>
-      </ThingCard>
-      {data && data.active_players > 0 && (
-        <ThingCard title="Active players">
-          <OnlineIndicator />
-          <SkeletonFallback loading={isLoading}>
-            {data?.active_players.toLocaleString()}
-          </SkeletonFallback>
-        </ThingCard>
-      )}
-    </Flex>
-  )
-}
-
 export function PlatformView() {
   const { address } = useParams<{address: string}>()
   const { data: tokens = [], isLoading } = useApi<PlatformTokenResponse>("/tokens", {creator: address!.toString()})
@@ -182,7 +181,7 @@ export function PlatformView() {
           <PlatformHeader creator={address!} />
         </Flex>
 
-        <Things creator={address} />
+        <DetailCards creator={address} />
 
         <Grid gap="4" columns={{initial: '1', sm: '2'}}>
           <Flex gap="4" direction="column">
@@ -197,10 +196,9 @@ export function PlatformView() {
                   Volume by token
                 </Text>
                 <Flex direction="column" gap="2">
-                  {isLoading && !tokens.length &&
-                    Array.from({length: 3})
-                      .map((_, i) => <SkeletonCard key={i} />)
-                  }
+                  {isLoading && !tokens.length && (
+                    <SkeletonCardList cards={3} />
+                  )}
                   {tokens.map((token, i) => (
                     <TokenVolume key={i} token={token} />
                   ))}

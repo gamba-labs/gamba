@@ -9,6 +9,7 @@ import { SkeletonBarChart } from "@/components/Skeleton"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks"
 import { UiPool } from "../Dashboard/PoolList"
+import { usePoolId } from "./PoolView"
 
 const chartIds = ["price", "volume", "liquidity"] as const
 
@@ -47,11 +48,12 @@ const SelectableButton = styled.button<{$selected: boolean}>`
 `
 
 export function PoolCharts({pool}: {pool: UiPool}) {
+  const publicKey = usePoolId()
   const token = useTokenMeta(pool.underlyingTokenMint)
   const [chartId, setChart] = React.useState<ChartId>("price")
   const [hovered, hover] = React.useState<LineChartDataPoint | null>(null)
-  const { data: dailyVolume = [], isLoading: isLoadingDailyVolume } = useApi<DailyVolume[]>("/daily", {pool: pool.publicKey.toString()})
-  const { data: ratioData = [], isLoading: isLoadingRatioData, } = useApi<RatioData[]>("/ratio", {pool: pool.publicKey.toString()})
+  const { data: dailyVolume = [], isLoading: isLoadingDailyVolume } = useApi<DailyVolume[]>("/daily", {pool: publicKey.toString()})
+  const { data: ratioData = [], isLoading: isLoadingRatioData, } = useApi<RatioData[]>("/ratio", {pool: publicKey.toString()})
   const totalVolume = React.useMemo(() => dailyVolume.reduce((prev, x) => prev + x.total_volume, 0) ?? 0, [dailyVolume])
 
   const chart = React.useMemo(
@@ -91,7 +93,6 @@ export function PoolCharts({pool}: {pool: UiPool}) {
     },
     [chartId, ratioData, dailyVolume],
   )
-
 
   return (
     <>

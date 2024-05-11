@@ -1,4 +1,5 @@
-import { Card } from "@radix-ui/themes"
+import { Avatar, Card, Flex, Table } from "@radix-ui/themes"
+import { CardProps } from "@radix-ui/themes/dist/cjs/components/card"
 import React from 'react'
 import styled, { keyframes } from "styled-components"
 
@@ -27,7 +28,9 @@ export const SkeletonText = styled.div`
 
 export const SkeletonFallback = (props: React.PropsWithChildren<{loading: boolean}>) => {
   const {children, loading, ...rest} = props
-  if (loading) return <SkeletonText {...rest} />
+  if (loading) {
+    return <SkeletonText {...rest} />
+  }
   return children
 }
 
@@ -47,6 +50,15 @@ const Bar = styled.div`
   border-radius: 5px;
 `
 
+export function SkeletonCardList(props: {cards: number} & CardProps) {
+  const {cards, ...rest} = props
+  return (
+    <>
+      {Array.from({length: cards}).map((_, i) => <SkeletonCard key={i} {...rest} />)}
+    </>
+  )
+}
+
 export const SkeletonBarChart = ({bars = 8}: {bars?: number}) => {
   return (
     <BarChartWrapper>
@@ -61,5 +73,21 @@ export const SkeletonBarChart = ({bars = 8}: {bars?: number}) => {
           />
         ))}
     </BarChartWrapper>
+  )
+}
+
+export const SkeletonTableRows = ({rows = 3, cells = 3}: {rows?: number, cells?: number}) => {
+  return (
+    <>
+      {Array.from({ length: rows }).map((_, i) => (
+        <Table.Row key={i}>
+          {Array.from({ length: cells }).map((_, i) => (
+            <Table.Cell key={i}>
+              <SkeletonText />
+            </Table.Cell>
+          ))}
+        </Table.Row>
+      ))}
+    </>
   )
 }

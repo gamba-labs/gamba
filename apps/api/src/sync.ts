@@ -157,10 +157,7 @@ const storeEvents = async (events: (GambaTransaction<'GameSettled'> | GambaTrans
 const fetchAndStoreEventsFromSignatures = async (signatures: string[]) => {
   const signatureBatches = createBatches(signatures, 100)
 
-  // let batchIndex = 0
   for (const batch of signatureBatches) {
-    // console.log('Batch %d out of %d', ++batchIndex, signatureBatches.length)
-
     const attempt = async (attempts = 0): Promise<(GambaTransaction<'GameSettled'> | GambaTransaction<'PoolChange'>)[]> => {
       try {
         const transactions = (await connection.getParsedTransactions(

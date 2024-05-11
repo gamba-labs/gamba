@@ -14,7 +14,7 @@ export function useAccount<T>(
   decoder: (x: AccountInfo<Buffer> | null) => T,
 ) {
   const { connection } = useConnection()
-  const fetcheddata = data.value[address.toString()]
+  const fetchedData = data.value[address.toString()]
 
   React.useEffect(() => {
     // Clear old timeout whenever a new address should get fetched
@@ -52,5 +52,5 @@ export function useAccount<T>(
     }
   }, [address.toString()])
 
-  return decoder(fetcheddata)
+  return decoder(fetchedData)
 }

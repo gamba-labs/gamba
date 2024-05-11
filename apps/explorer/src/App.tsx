@@ -1,5 +1,5 @@
 import * as anchor from "@coral-xyz/anchor"
-import { Cross1Icon, EnterIcon, ExitIcon, HamburgerMenuIcon, PlusIcon, TimerIcon } from "@radix-ui/react-icons"
+import { EnterIcon, ExitIcon, HamburgerMenuIcon, PlusIcon, TimerIcon } from "@radix-ui/react-icons"
 import * as Toast from "@radix-ui/react-toast"
 import { Box, Button, Callout, Container, Flex, Link } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
@@ -7,7 +7,7 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { useTransactionError } from "gamba-react-v2"
 import React from "react"
 import { NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom"
-import styled, { css } from "styled-components"
+import styled from "styled-components"
 
 import { useMediaQuery, useToast, useToastStore } from "@/hooks"
 import CreatePoolView from "@/views/CreatePool/CreatePoolView"
@@ -24,6 +24,7 @@ import PoolDepositView from "@/views/Pool/PoolDeposit"
 import PoolView from "@/views/Pool/PoolView"
 import PortfolioView from "@/views/Portfolio/PortfolioView"
 import TransactionView from "@/views/Transaction/Transaction"
+import { Sidebar } from "./Sidebar"
 import { StatusResponse, useApi } from "./api"
 import NavigationMenu from "./components/NavigationMenu"
 import { PoolList } from "./views/Dashboard/PoolList"
@@ -46,85 +47,6 @@ const Logo = styled(NavLink)`
     height: 35px;
   }
 `
-
-const StyledSidebar = styled.div<{$open: boolean}>`
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  right: 0;
-  top: 0;
-  background-color: var(--slate-1);
-  z-index: 2;
-  transition: transform .2s ease;
-  ${(props) => props.$open ? css`
-    transform: translateX(0%);
-  ` : css`
-    transform: translateX(100%)
-  `}
-`
-
-const SidebarList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-`
-
-const NavLink2 = styled(NavLink)`
-  all: unset;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 6px;
-  background-color: var(--slate-2);
-  &:hover {
-    background-color: var(--violet-3);
-  }
-`
-
-function Sidebar(props: React.PropsWithChildren<{open: boolean, onClose: () => void}>) {
-  const { key } = useLocation()
-  const wallet = useWallet()
-  const walletModal = useWalletModal()
-  React.useEffect(() => props.onClose(), [key])
-
-  return (
-    <StyledSidebar $open={props.open}>
-      <Box p="2" px="4">
-        <Flex justify="between" align="center">
-          {!wallet.connected ? (
-            <Button disabled={wallet.connecting} onClick={() => walletModal.setVisible(true)} size="2" variant="soft">
-              Connect <EnterIcon />
-            </Button>
-          ) : (
-            <Button color="gray" onClick={() => wallet.disconnect()} size="2" variant="soft">
-              {wallet.publicKey?.toBase58().substring(0, 6)}...
-              <ExitIcon />
-            </Button>
-          )}
-          <Button onClick={props.onClose} color="gray" variant="soft" size="2">
-            <Cross1Icon />
-          </Button>
-        </Flex>
-      </Box>
-      <Box>
-        <SidebarList>
-          <NavLink2 to="/create">
-            Create Pool
-          </NavLink2>
-          <NavLink2 to="/user">
-            Manage User
-          </NavLink2>
-          <NavLink2 to="/portfolio">
-            Manage Portfolio
-          </NavLink2>
-          <NavLink2 to="/dao">
-            Manage DAO
-          </NavLink2>
-        </SidebarList>
-      </Box>
-    </StyledSidebar>
-  )
-}
 
 export function App() {
   const navigate = useNavigate()

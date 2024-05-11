@@ -1,4 +1,4 @@
-import { Badge, Button, Checkbox, Flex, Table, Text } from "@radix-ui/themes"
+import { Badge, Button, Card, Flex, Grid, Table, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import useSWRInfinite from 'swr/infinite'
@@ -9,8 +9,8 @@ import { TableRowNavLink } from "@/components/TableRowLink"
 import { PlusIcon } from "@radix-ui/react-icons"
 import { RecentPlaysResponse, apiFetcher, getApiUrl } from "./api"
 import { PlatformAccountItem, PlayerAccountItem } from "./components/AccountItem"
+import { SkeletonTableRows } from "./components/Skeleton"
 import { TokenValue2 } from "./components/TokenValue2"
-import { Spinner } from "./components/Spinner"
 
 export function TimeDiff({ time }: {time: number}) {
   const diff = (Date.now() - time)
@@ -61,13 +61,15 @@ export default function RecentPlays({ pool, creator, user, onlyJackpots }: Recen
     }
   )
 
-  if (isLoading) {
-    return (
-      <Flex align="center" justify="center" gap="2">
-        <Spinner />
-      </Flex>
-    )
-  }
+  const numResults = React.useMemo(() => data[0] ? data[0].total : 0, [data])
+
+  // if (isLoading) {
+  //   return (
+  //     <>
+  //       <SkeletonCard />
+  //     </>
+  //   )
+  // }
 
   return (
     <Flex direction="column" gap="2">
@@ -92,6 +94,9 @@ export default function RecentPlays({ pool, creator, user, onlyJackpots }: Recen
           </Table.Row>
         </Table.Header>
         <Table.Body>
+          {isLoading && (
+            <SkeletonTableRows cells={5} />
+          )}
           {data.flatMap(
             ({results}) => (
               results.map(
@@ -147,15 +152,25 @@ export default function RecentPlays({ pool, creator, user, onlyJackpots }: Recen
           )}
         </Table.Body>
       </Table.Root>
-      <Button
-        disabled={isLoading || isValidating}
-        onClick={() => setSize(size + 1)}
-        variant="soft"
-        size="3"
-        style={{ width: '100%' }}
-      >
-        Load more <PlusIcon />
-      </Button>
+      {(!isLoading && !numResults) ? (
+        <Card size="3">
+          <Grid gap="4" align="center" justify="center">
+            <Text align="center" color="gray">
+              No Results!
+            </Text>
+          </Grid>
+        </Card>
+      ) : (
+        <Button
+          disabled={isLoading || isValidating}
+          onClick={() => setSize(size + 1)}
+          variant="soft"
+          size="3"
+          style={{ width: '100%' }}
+        >
+          Load more <PlusIcon />
+        </Button>
+      )}
     </Flex>
   )
 }

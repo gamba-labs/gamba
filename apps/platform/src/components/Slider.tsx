@@ -44,7 +44,7 @@ export const StyledSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-top: 60px;
+  /* margin-top: 60px; */
 
   @media (min-width: 600px) {
     padding: 20px;

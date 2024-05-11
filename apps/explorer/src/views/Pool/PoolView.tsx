@@ -1,12 +1,11 @@
-import { ExternalLinkIcon, GearIcon, InfoCircledIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
-import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, IconButton, Link, Switch, Tabs, Text } from "@radix-ui/themes"
+import { ExternalLinkIcon, PlusIcon, RocketIcon } from "@radix-ui/react-icons"
+import { Badge, Box, Button, Card, Dialog, Flex, Grid, Heading, Link, Switch, Tabs, Text } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
-import { BPS_PER_WHOLE, NATIVE_MINT, decodeGambaState, getGambaStateAddress, getPoolBonusAddress, getPoolLpAddress } from "gamba-core-v2"
-import { useAccount, useGambaProgram, usePool, useWalletAddress } from "gamba-react-v2"
-import React, { ReactNode } from "react"
-import { NavLink, useNavigate, useParams } from "react-router-dom"
-import styled from "styled-components"
+import { BPS_PER_WHOLE, NATIVE_MINT, decodeAta, decodeGambaState, getGambaStateAddress, getPoolUnderlyingTokenAccountAddress } from "gamba-core-v2"
+import { useAccount, useGambaProgram, usePool } from "gamba-react-v2"
+import React from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import useSWR from "swr"
 
 import RecentPlays, { TimeDiff } from "@/RecentPlays"
@@ -16,103 +15,30 @@ import { Spinner } from "@/components/Spinner"
 import { useBalance } from "@/hooks"
 import { UiPool, fetchPool } from "@/views/Dashboard/PoolList"
 
-import { TokenAvatar } from "@/components"
+import { DetailCard } from "@/components"
 import { SkeletonCard } from "@/components/Skeleton"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
 import useSWRInfinite from "swr/infinite"
 import { ConnectUserCard } from "../Debug/DebugUser"
+import { PoolCharts } from "./PoolCharts"
+import { PoolHeader } from "./PoolHeader"
 import { PoolJackpotDeposit } from "./PoolJackpotDeposit"
 import { PoolMintBonus } from "./PoolMintBonus"
 import { PoolWithdraw } from "./PoolWithdraw"
-import { PoolCharts } from "./PoolCharts"
 
-export function ThingCard(props: { title: string, children: ReactNode }) {
-  return (
-    <Card>
-      <Flex direction="column">
-        <Text size="2" color="gray">
-          {props.title}
-        </Text>
-        <Text weight="bold">
-          {props.children}
-        </Text>
-      </Flex>
-    </Card>
-  )
+export function usePoolId() {
+  const params = useParams<{poolId: string}>()
+  return React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
 }
 
-const ResponsiveButtonContainer = styled(Flex)`
-  @media (max-width: 576px) {
-    flex-direction: column;
-  }
-`;
-
-export function PoolHeader({ pool }: {pool: UiPool}) {
-  const token = useTokenMeta(pool.underlyingTokenMint)
-  const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
-  const userPublicKey = useWalletAddress()
-  const navigate = useNavigate()
-  const isPoolAuthority = pool?.state?.poolAuthority?.equals(userPublicKey)
-  const isGambaStateAuthority = gambaState?.authority?.equals(userPublicKey)
-
-  return (
-    <Flex gap="4" align="center">
-      <NavLink to={"/pool/" + pool.publicKey.toBase58()} style={{ display: "contents", color: "unset" }}>
-        <TokenAvatar
-          size="3"
-          mint={pool.underlyingTokenMint}
-        />
-        <Flex align="center" gap="2">
-          <Heading>
-            {token.name}
-          </Heading>
-          <Text color="gray" size="4">
-            {token.symbol}
-          </Text>
-        </Flex>
-      </NavLink>
-
-      {(isPoolAuthority || isGambaStateAuthority) && (
-        <IconButton size="2" variant="ghost" onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/configure")}>
-          <GearIcon />
-        </IconButton>
-      )}
-      <Dialog.Root>
-        <Dialog.Trigger>
-          <IconButton size="2" variant="ghost">
-            <InfoCircledIcon />
-          </IconButton>
-        </Dialog.Trigger>
-        <Dialog.Content>
-          <Dialog.Title>Pool Details</Dialog.Title>
-          <Dialog.Description>
-            <Flex direction="column">
-              <Text color="gray" size="2">Token mint</Text>
-              <SolanaAddress address={pool.state.underlyingTokenMint} />
-            </Flex>
-            <Flex direction="column">
-              <Text color="gray" size="2">LP Token mint</Text>
-              <SolanaAddress address={getPoolLpAddress(pool.publicKey)} />
-            </Flex>
-            <Flex direction="column">
-              <Text color="gray" size="2">Bonus Token mint</Text>
-              <SolanaAddress address={getPoolBonusAddress(pool.publicKey)} />
-            </Flex>
-            <Flex direction="column">
-              <Text color="gray" size="2">Pool Address</Text>
-              <SolanaAddress address={pool.publicKey} />
-            </Flex>
-            <Flex direction="column">
-              <Text color="gray" size="2">Pool Authority</Text>
-              <SolanaAddress address={pool.state.poolAuthority} />
-            </Flex>
-          </Dialog.Description>
-        </Dialog.Content>
-      </Dialog.Root>
-    </Flex>
-  )
-}
+// export function usePoolAddresses() {
+//   const publicKey = usePoolId()
+//   const underlyingTokenMint = getPoolUnderlyingTokenAccountAddress(publicKey)
+//   return {
+//     underlyingTokenMint,
+//   }
+// }
 
 function LinkWarningDialog(props: React.PropsWithChildren<{url: string}>) {
   return (
@@ -144,7 +70,7 @@ function LinkWarningDialog(props: React.PropsWithChildren<{url: string}>) {
   )
 }
 
-function PoolPlays({ pool }: {pool: UiPool}) {
+function PoolRecentPlays({ pool }: {pool: UiPool}) {
   const [onlyJackpots, setOnlyJackpots] = React.useState(false)
   return (
     <>
@@ -211,16 +137,13 @@ export function PoolDeposits({pool}: {pool: UiPool}) {
 
 function PoolManager({ pool }: {pool: UiPool}) {
   const wallet = useWallet()
+  const poolId = usePoolId()
   const navigate = useNavigate()
   const token = useTokenMeta(pool.underlyingTokenMint)
   const balances = useBalance(pool.underlyingTokenMint, pool.poolAuthority)
   const _pool = usePool(pool.underlyingTokenMint, pool.poolAuthority)
-
-
   const gambaState = useAccount(getGambaStateAddress(), decodeGambaState)
-
   const jackpotPayoutPercentage = gambaState && gambaState.jackpotPayoutToUserBps ? gambaState.jackpotPayoutToUserBps.toNumber() / BPS_PER_WHOLE : 0
-
 
   return (
     <Flex direction="column" gap="4">
@@ -266,7 +189,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
                 </Button>
               </LinkWarningDialog>
             )}
-            <Button onClick={() => navigate("/pool/" + pool.publicKey.toBase58() + "/deposit")} size="3">
+            <Button onClick={() => navigate("/pool/" + poolId.toString() + "/deposit")} size="3">
               Add Liquidity <RocketIcon />
             </Button>
           </Flex>
@@ -274,27 +197,27 @@ function PoolManager({ pool }: {pool: UiPool}) {
       </Flex>
       <Grid gap="2" columns="1">
         <Flex gap="2" wrap="wrap">
-          <ThingCard title="LP price">
+          <DetailCard title="LP price">
             {pool.ratio.toLocaleString(undefined, { maximumFractionDigits: 3 })} {token.symbol}
-          </ThingCard>
-          <ThingCard title="Liquidity">
+          </DetailCard>
+          <DetailCard title="Liquidity">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.liquidity} />
-          </ThingCard>
-          <ThingCard title="LP Token Supply">
+          </DetailCard>
+          <DetailCard title="LP Token Supply">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.lpSupply} />
-          </ThingCard>
-          <ThingCard title="Max Payout">
+          </DetailCard>
+          <DetailCard title="Max Payout">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={_pool.maxPayout} />
-          </ThingCard>
-          <ThingCard title="Circulating Bonus">
+          </DetailCard>
+          <DetailCard title="Circulating Bonus">
             <TokenValue2 mint={pool.underlyingTokenMint} amount={pool.bonusBalance} />
-          </ThingCard>
-          <ThingCard title="Jackpot">
+          </DetailCard>
+          <DetailCard title="Jackpot">
             <TokenValue2 exact mint={pool.underlyingTokenMint} amount={Number(pool.jackpotBalance) * jackpotPayoutPercentage} />
-          </ThingCard>
-          <ThingCard title="Total Plays">
+          </DetailCard>
+          <DetailCard title="Total Plays">
             {pool.plays.toLocaleString(undefined)}
-          </ThingCard>
+          </DetailCard>
         </Flex>
       </Grid>
       <PoolCharts pool={pool} />
@@ -340,7 +263,7 @@ function PoolManager({ pool }: {pool: UiPool}) {
         </Tabs.List>
         <Box pt="4">
           <Tabs.Content value="plays">
-            <PoolPlays pool={pool} />
+            <PoolRecentPlays pool={pool} />
           </Tabs.Content>
           <Tabs.Content value="deposits">
             <PoolDeposits pool={pool} />
@@ -353,9 +276,8 @@ function PoolManager({ pool }: {pool: UiPool}) {
 
 export default function PoolView() {
   const program = useGambaProgram()
-  const params = useParams<{poolId: string}>()
-  const poolId = React.useMemo(() => new PublicKey(params.poolId!), [params.poolId])
-  const { data, isLoading } = useSWR("pool-" + params.poolId!, () => fetchPool(program.provider.connection, poolId))
+  const poolId = usePoolId()
+  const { data, isLoading } = useSWR("pool-" + poolId.toString(), () => fetchPool(program.provider.connection, poolId))
 
   if (isLoading) {
     return (

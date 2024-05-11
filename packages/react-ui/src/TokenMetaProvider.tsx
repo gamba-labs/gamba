@@ -15,17 +15,17 @@ export interface TokenMeta {
   usdPrice?: number
 }
 
-type TokenMetaFetcher = (ids: string[]) => (Record<string, TokenMeta> | Promise<Record<string, TokenMeta>>)
+export type TokenMetaFetcher = (ids: string[]) => (Record<string, TokenMeta> | Promise<Record<string, TokenMeta>>)
 
-type TokenMetaList = PartialTokenMetaWithMint[]
+export type TokenMetaList = PartialTokenMetaWithMint[]
 
-interface TokenMetaProps {
+export interface TokenMetaProps {
   fetcher?: TokenMetaFetcher
   tokens?: TokenMetaList
   debounce?: number
 }
 
-type PartialTokenMetaWithMint = Partial<TokenMeta> & {mint: PublicKey}
+export type PartialTokenMetaWithMint = Partial<TokenMeta> & {mint: PublicKey}
 
 interface TokenMetaContext extends TokenMetaProps {
   fallback?: (mint: string | PublicKey) => Partial<PartialTokenMetaWithMint> | undefined

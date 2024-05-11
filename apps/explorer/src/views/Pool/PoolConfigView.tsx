@@ -11,9 +11,9 @@ import useSWR, { mutate } from "swr"
 import { Spinner } from "@/components/Spinner"
 import { fetchPool, UiPool } from "@/views/Dashboard/PoolList"
 
-import PoolGambaConfigDialog from "./PoolGambaConfig"
-import { PoolHeader } from "./PoolView"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
+import PoolGambaConfigDialog from "./PoolGambaConfig"
+import { PoolHeader } from "./PoolHeader"
 
 const Thing = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <Grid columns="2">

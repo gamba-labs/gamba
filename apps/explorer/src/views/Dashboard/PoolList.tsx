@@ -35,6 +35,34 @@ export interface UiPool {
   plays: number
 }
 
+const populatePool = async (
+  connection: Connection,
+  publicKey: PublicKey,
+  state: PoolState,
+): Promise<UiPool> => {
+  const { value: lp } = await connection.getTokenSupply(getPoolLpAddress(publicKey))
+  const underlyingAccount = decodeAta(await connection.getAccountInfo(getPoolUnderlyingTokenAccountAddress(publicKey)))
+  const bonusUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolBonusUnderlyingTokenAccountAddress(publicKey)))
+  const underlyingBalance = underlyingAccount?.amount ?? BigInt(0)
+  const bonusBalance = bonusUnderlyingTokenAccount?.amount ?? BigInt(0)
+  const jackpotUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolJackpotTokenAccountAddress(publicKey)))
+  const jackpotBalance = jackpotUnderlyingTokenAccount?.amount ?? BigInt(0)
+  const lpSupply = BigInt(lp.amount)
+  const ratio = !lpSupply ? 1 : Number(underlyingBalance) / Number(lpSupply)
+  return {
+    publicKey,
+    state,
+    liquidity: underlyingBalance,
+    underlyingTokenMint: state.underlyingTokenMint,
+    lpSupply,
+    bonusBalance,
+    jackpotBalance,
+    ratio,
+    poolAuthority: state.poolAuthority,
+    plays: Number(state.plays),
+  }
+}
+
 function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
   const populated = usePopulatedPool(pool)
   const token = useTokenMeta(pool.account.underlyingTokenMint)
@@ -85,36 +113,9 @@ function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
   )
 }
 
-const populatePool = async (
-  connection: Connection,
-  publicKey: PublicKey,
-  state: PoolState,
-): Promise<UiPool> => {
-  const { value: lp } = await connection.getTokenSupply(getPoolLpAddress(publicKey))
-  const underlyingAccount = decodeAta(await connection.getAccountInfo(getPoolUnderlyingTokenAccountAddress(publicKey)))
-  const bonusUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolBonusUnderlyingTokenAccountAddress(publicKey)))
-  const underlyingBalance = underlyingAccount?.amount ?? BigInt(0)
-  const bonusBalance = bonusUnderlyingTokenAccount?.amount ?? BigInt(0)
-  const jackpotUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolJackpotTokenAccountAddress(publicKey)))
-  const jackpotBalance = jackpotUnderlyingTokenAccount?.amount ?? BigInt(0)
-  const lpSupply = BigInt(lp.amount)
-  const ratio = !lpSupply ? 1 : Number(underlyingBalance) / Number(lpSupply)
-  return {
-    publicKey,
-    state,
-    liquidity: underlyingBalance,
-    underlyingTokenMint: state.underlyingTokenMint,
-    lpSupply,
-    bonusBalance,
-    jackpotBalance,
-    ratio,
-    poolAuthority: state.poolAuthority,
-    plays: Number(state.plays),
-  }
-}
-
 export async function fetchPool(connection: Connection, publicKey: PublicKey) {
-  const pool = decodePool(await connection.getAccountInfo(publicKey))
+  const accountInfo = await connection.getAccountInfo(publicKey)
+  const pool = decodePool(accountInfo)
   if (!pool) return null
   return await populatePool(connection, publicKey, pool)
 }

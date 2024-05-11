@@ -1,6 +1,6 @@
 import { TopCreatorsData, useApi } from "@/api"
 import { PlatformAccountItem } from "@/components/AccountItem"
-import { SkeletonCard } from "@/components/Skeleton"
+import { SkeletonCard, SkeletonCardList } from "@/components/Skeleton"
 import { Badge, Card, Flex, Text } from "@radix-ui/themes"
 import React from "react"
 import { NavLink } from "react-router-dom"
@@ -50,11 +50,7 @@ export function TopPlatforms({limit = 10, days = 7}: {limit?: number, days?: num
   return (
   <Flex gap="2" direction="column">
     {isLoading ? (
-      <>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
-      </>
+      <SkeletonCardList cards={8} />
     ) : (
       <>
         {platforms.map((platform, i) => (

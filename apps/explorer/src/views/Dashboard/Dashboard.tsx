@@ -2,13 +2,12 @@ import RecentPlays from "@/RecentPlays"
 import { DailyVolume, TopPlayersResponse, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
-import { SkeletonBarChart, SkeletonCard } from "@/components/Skeleton"
-import { Spinner } from "@/components/Spinner"
+import { SkeletonBarChart, SkeletonCardList } from "@/components/Skeleton"
 import { Badge, Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import { NavLink } from "react-router-dom"
-import { Things } from "../Platform/PlatformView"
+import { DetailCards } from "../Platform/PlatformView"
 import { PoolList } from "./PoolList"
 import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
 
@@ -76,8 +75,7 @@ export function TopPlayers({
     <>
       <Flex direction="column" gap="2">
         {isLoading && !data.players.length &&
-          Array.from({length: 4})
-            .map((_, i) => <SkeletonCard key={i} />)
+          <SkeletonCardList cards={4} />
         }
         {data.players
           .map((player, i) => (
@@ -107,10 +105,46 @@ export function TopPlayers({
   )
 }
 
+// WIP
+// function PoolCard({pool}: {pool: PoolsResponse['pools'][number]}) {
+//   const getTokenMeta = useTokenMeta(pool.token)
+
+//   return (
+//     <UnstyledNavLink to={`/pool/${pool.pool}`}>
+//       <Card style={{width: '200px'}}>
+//         <Flex direction="column" gap="2" align="center">
+//           <TokenAvatar mint={pool.token} />
+//           <Text size="4">{getTokenMeta.name}</Text>
+//           <Flex justify="between">
+//             <Text>
+//               ${pool.tvl.toLocaleString()}
+//             </Text>
+//           </Flex>
+//         </Flex>
+//       </Card>
+//     </UnstyledNavLink>
+//   )
+// }
+
+// function PoolList2() {
+//   const { data = { pools: [] }, isLoading } = useApi<PoolsResponse>("/pools")
+
+//   console.log(data)
+//   return (
+//     <Flex gap="4" wrap="wrap">
+//       {data.pools.map((pool, i) => (
+//         <PoolCard key={pool.pool} pool={pool} />
+//       ))}
+//     </Flex>
+//   )
+// }
+
 export default function Dashboard() {
   return (
     <Flex direction="column" gap="4">
-      <Things />
+
+      <DetailCards />
+
       <Grid gap="4" columns={{initial: '1', sm: '2'}}>
         <Flex direction="column" gap="4">
           <TotalVolume />

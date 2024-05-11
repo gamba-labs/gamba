@@ -2,14 +2,13 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { FAKE_TOKEN_MINT, GambaPlatformProvider, TokenMetaProvider, makeHeliusTokenFetcher } from 'gamba-react-ui-v2'
-import { GambaProvider, SendTransactionProvider } from 'gamba-react-v2'
+import { GambaPlatformProvider, TokenMetaProvider } from 'gamba-react-ui-v2'
+import { GambaProvider, SendTransactionProvider, createCustomFeePlugin } from 'gamba-react-v2'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
-import { PLATFORM_CREATOR_ADDRESS, POOLS } from './constants'
-import { GAMES } from './games'
+import { DEFAULT_POOL, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
 import './styles.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
@@ -26,45 +25,27 @@ function Root() {
   return (
     <BrowserRouter>
       <ConnectionProvider
-        endpoint={import.meta.env.VITE_RPC_ENDPOINT}
+        endpoint={RPC_ENDPOINT}
         config={{ commitment: 'processed' }}
       >
         <WalletProvider autoConnect wallets={wallets}>
           <WalletModalProvider>
             <TokenMetaProvider
-              // A method for fetching token metadata
-              fetcher={
-                makeHeliusTokenFetcher(
-                  import.meta.env.VITE_HELIUS_API_KEY,
-                  { dollarBaseWager: 1 },
-                )
-              }
-              // List of known token metadata
-              tokens={[
-                {
-                  mint: FAKE_TOKEN_MINT,
-                  name: 'Fake',
-                  symbol: 'FAKE',
-                  image: '/fakemoney.png',
-                  baseWager: 1e9,
-                  decimals: 9,
-                  usdPrice: 0,
-                },
-              ]}
+              tokens={TOKEN_METADATA}
+              fetcher={TOKEN_METADATA_FETCHER}
             >
               <SendTransactionProvider priorityFee={400_201}>
                 <GambaProvider
-                // __experimental_plugins={[
-                //   // Custom fee (1%)
-                //   createCustomFeePlugin('PUBKEY', .01),
-                // ]}
+                  __experimental_plugins={[
+                    // Custom fee (1%)
+                    createCustomFeePlugin('3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT', .01),
+                  ]}
                 >
                   <GambaPlatformProvider
                     creator={PLATFORM_CREATOR_ADDRESS}
-                    games={GAMES}
-                    defaultCreatorFee={0.01}
-                    defaultJackpotFee={0.001}
-                    defaultPool={POOLS[0]}
+                    defaultCreatorFee={PLATFORM_CREATOR_FEE}
+                    defaultJackpotFee={PLATFORM_JACKPOT_FEE}
+                    defaultPool={DEFAULT_POOL}
                   >
                     <App />
                   </GambaPlatformProvider>

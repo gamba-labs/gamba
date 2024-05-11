@@ -1,6 +1,6 @@
 import * as SplToken from '@solana/spl-token'
 import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
-import { GambaProvider, NATIVE_MINT } from 'gamba-core-v2'
+import { GambaProvider } from 'gamba-core-v2'
 import { GambaPlayInput } from './hooks'
 
 export interface GambaPluginInput {
@@ -20,7 +20,7 @@ export const createCustomFeePlugin = (
 ): GambaPlugin => async (stuff, provider) => {
   const receiver = new PublicKey(_receiver)
   // Send native SOL
-  if (stuff.token.equals(NATIVE_MINT)) {
+  if (stuff.token.equals(SplToken.NATIVE_MINT)) {
     return [
       SystemProgram.transfer({
         fromPubkey: stuff.wallet,

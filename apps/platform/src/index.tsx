@@ -38,7 +38,7 @@ function Root() {
                 <GambaProvider
                   __experimental_plugins={[
                     // Custom fee (1%)
-                    createCustomFeePlugin('3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT', .01),
+                    // createCustomFeePlugin('<SOLANA ADDRESS>', .01),
                   ]}
                 >
                   <GambaPlatformProvider

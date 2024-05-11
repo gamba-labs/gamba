@@ -1,17 +1,17 @@
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+import { GambaUi } from 'gamba-react-ui-v2'
 import { useTransactionError } from 'gamba-react-v2'
 import React from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { Modal } from './components/Modal'
-import { StyledSection } from './components/Slider'
 import { useToast } from './hooks/useToast'
+import { useUserStore } from './hooks/useUserStore'
 import Dashboard from './sections/Dashboard/Dashboard'
 import Game from './sections/Game/Game'
 import Header from './sections/Header'
 import RecentPlays from './sections/RecentPlays/RecentPlays'
 import Toasts from './sections/Toasts'
-import { useUserStore } from './hooks/useUserStore'
-import { GambaUi } from 'gamba-react-ui-v2'
+import styled from 'styled-components'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -45,6 +45,27 @@ function ErrorHandler() {
     </>
   )
 }
+
+const MainWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  transition: width .25s ease, padding .25s ease;
+  margin: 0 auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 60px;
+  @media (min-width: 600px) {
+    padding: 20px;
+    width: 1000px;
+  }
+  @media (min-width: 1280px) {
+    padding: 20px;
+    width: 1100px;
+  }
+`
 
 export default function App() {
   const newcomer = useUserStore((state) => state.newcomer)
@@ -80,14 +101,14 @@ export default function App() {
       <ErrorHandler />
       <Header />
       <Toasts />
-      <StyledSection>
+      <MainWrapper>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/:gameId" element={<Game />} />
         </Routes>
         <h2 style={{ textAlign: 'center' }}>Recent Plays</h2>
         <RecentPlays />
-      </StyledSection>
+      </MainWrapper>
     </>
   )
 }

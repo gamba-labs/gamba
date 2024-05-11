@@ -4,14 +4,9 @@
   "description": "gamba-labs docs",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --no-cache --continue",
-    "next-dev": "next dev",
-    "api": "turbo run api --filter=gamba-api",
-    "api-dev": "turbo run dev --filter=gamba-api",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "changeset": "changeset",
-    "version-packages": "changeset version"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "repository": {
     "type": "git",
@@ -23,15 +18,11 @@
     "url": "https://github.com/gamba-labs/gamba/tree/docs/issues"
   },
   "homepage": "https://github.com/gamba-labs/gamba/tree/docs#readme",
-  "devDependencies": {
-    "@changesets/cli": "^2.26.2",
-    "turbo": "^1.10.15",
-    "typescript": "^5.2.2",
+  "dependencies": {
     "@chakra-ui/react": "^2.7.0",
     "@codesandbox/sandpack-react": "^2.6.7",
     "@radix-ui/react-popover": "1.0.6",
     "bright": "^0.8.2",
-    "clsx": "^2.1.1",
     "next": "^13.0.6",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
@@ -41,9 +32,11 @@
     "react-markdown": "^8.0.7",
     "react-parallax-tilt": "^1.7.146",
     "react-syntax-highlighter": "^15.5.0",
-    "tailwindcss": "^3.3.2",
-    "@types/node": "18.11.10",
-    "@types/react": "18.2.21"
+    "tailwindcss": "^3.3.2"
   },
-  "packageManager": "pnpm@8.6.10"
+  "devDependencies": {
+    "@types/node": "18.11.10",
+    "@types/react": "18.2.21",
+    "typescript": "^4.9.3"
+  }
 }

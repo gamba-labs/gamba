@@ -1,5 +1,4 @@
 import { Callout } from "nextra-theme-docs";
-import { Tabs } from 'nextra/components'
 
 # 🎨 `gamba-react-ui-v2`
 
@@ -34,30 +33,16 @@ import { Tabs } from 'nextra/components'
 </div>
 
 <Callout type="info" emoji="">
- Gamba React UI library with components, hooks, for building Gamba apps
+  Gamba React UI library with components, hooks, for building Gamba apps
 </Callout>
 
-<Tabs items={['npm', 'yarn', 'pnpm']}>
-  <Tabs.Tab>
-    ```bash copy
-    npm install gamba-react-ui-v2
-    ```
-  </Tabs.Tab>
-    <Tabs.Tab>
-    ```bash copy
-    yarn add gamba-react-ui-v2
-    ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-    ```bash copy
-    pnpm add gamba-react-ui-v2
-    ```
-  </Tabs.Tab>
-</Tabs>
+```bash copy npm2yarn
+npm install gamba-react-ui-v2
+```
 
 ## 🖥️ Components
 
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.Button
 
 A versatile button component that can be used in various contexts.
@@ -68,9 +53,15 @@ A versatile button component that can be used in various contexts.
   - `onClick`: function
   - `disabled`: boolean
 
+```jsx copy
+<GambaUi.Button main onClick={connect} disabled={false} size="medium">
+  Connect
+</GambaUi.Button>
+```
+
 </Callout>
 
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.PlayButton
 
 A specialized button for initiating gameplay actions.
@@ -80,9 +71,15 @@ A specialized button for initiating gameplay actions.
   - `onClick`: function
   - `disabled`: boolean
 
+```jsx copy
+<GambaUi.PlayButton onClick={play} disabled={false} size="medium">
+  Play
+</GambaUi.PlayButton>
+```
+
 </Callout>
 
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.WagerInput
 
 A component for inputting wagers.
@@ -93,9 +90,18 @@ A component for inputting wagers.
   - `type`: 'text' | 'select'
   - `options`: number[]
 
+```jsx copy
+<GambaUi.WagerInput
+  value={0}
+  onChange={(newValue: number) => {}}
+  type="text"
+  options={[10, 20, 30]}
+/>
+```
+
 </Callout>
 
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.WagerSelect
 
 A dropdown selection for wager amounts.
@@ -105,9 +111,17 @@ A dropdown selection for wager amounts.
   - `value`: number
   - `onChange`: function
 
+```jsx copy
+<GambaUi.WagerSelect
+  options={[10, 20, 30]}
+  value={10}
+  onChange={(newValue: number) => {}}
+/>
+```
+
 </Callout>
 
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.Switch
 
 A component for toggling states.
@@ -117,10 +131,17 @@ A component for toggling states.
   - `onChange`: function
   - `disabled`: boolean
 
+```jsx copy
+<GambaUi.Switch
+  checked={false}
+  onChange={(newValue: boolean) => {}}
+  disabled={false}
+/>
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.Select
 
 A dropdown selection component.
@@ -130,10 +151,17 @@ A dropdown selection component.
   - `options`: any[]
   - `onChange`: function
 
+```jsx copy
+<GambaUi.Select
+  value={null}
+  options={["Option 1", "Option 2", "Option 3"]}
+  onChange={(newValue: string) => {}}
+/>
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.TextInput
 
 A text input field for user input.
@@ -144,10 +172,18 @@ A text input field for user input.
   - `disabled`: boolean
   - `onClick`: function
 
+```jsx copy
+<GambaUi.TextInput
+  value=""
+  onChange={(newValue: string) => {}}
+  disabled={false}
+  onClick={() => {}}
+/>
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.EffectTest
 
 A component for testing sound effects.
@@ -155,10 +191,13 @@ A component for testing sound effects.
 - **Props**:
   - `src`: string
 
+```jsx copy
+<GambaUi.EffectTest src="sound-effect.mp3" />
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.ResponsiveSize
 
 A wrapper component to adjust children based on available screen size.
@@ -167,10 +206,15 @@ A wrapper component to adjust children based on available screen size.
   - `maxScale`: number
   - `overlay`: boolean
 
+```jsx copy
+<GambaUi.ResponsiveSize maxScale={1.5} overlay={true}>
+  {/* Children components */}
+</GambaUi.ResponsiveSize>
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.Portal
 
 Renders child elements to a specified target.
@@ -178,10 +222,15 @@ Renders child elements to a specified target.
 - **Props**:
   - `target`: string
 
+```jsx copy
+<GambaUi.Portal target="portal-target">
+  {/* Children components */}
+</GambaUi.Portal>
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.PortalTarget
 
 Renders elements passed through the `Portal` component.
@@ -189,10 +238,15 @@ Renders elements passed through the `Portal` component.
 - **Props**:
   - `target`: string
 
+```jsx copy
+<GambaUi.PortalTarget target="portal-target">
+  {/* Children components */}
+</GambaUi.PortalTarget>
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.Game
 
 A context provider for a specific game session.
@@ -202,10 +256,15 @@ A context provider for a specific game session.
   - `children`: React.ReactNode
   - `errorFallback`: React.ReactNode
 
+```jsx copy
+<GambaUi.Game game={gameBundle} errorFallback={<ErrorFallback />}>
+  {/* Children components */}
+</GambaUi.Game>
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.Canvas
 
 A custom canvas rendering component.
@@ -214,10 +273,13 @@ A custom canvas rendering component.
   - `zIndex`: number
   - `render`: function
 
+```jsx copy
+<GambaUi.Canvas zIndex={5} render={() => {}} />
+```
+
 </Callout>
 
-
-<Callout type=" " emoji="🕹️">
+<Callout type="none" emoji="🖥️">
 ### GambaUi.TokenValue
 
 Displays the value of a token.
@@ -228,12 +290,15 @@ Displays the value of a token.
   - `suffix`: string
   - `exact`: boolean
 
-</Callout>
+```jsx copy
+<GambaUi.TokenValue mint={publicKey} amount={100} suffix="SOL" exact={false} />
+```
 
+</Callout>
 
 ## 🛠️ Utilities and Hooks
 
-<Callout type=" " emoji="🎮">
+<Callout type="none" emoji="🛠️">
 ### useGame
 
 A hook for interacting with game functions, like initiating gameplay and processing results.
@@ -244,7 +309,7 @@ const game = useGame();
 
 </Callout>
 
-<Callout type=" " emoji="💼">
+<Callout type="none" emoji="🛠️">
 ### useGambaPlatformContext
 
 Provides the current platform-specific context, including platform fees, selected tokens, and the current creator fee.
@@ -265,7 +330,7 @@ const {
 
 </Callout>
 
-<Callout type=" " emoji="🔊">
+<Callout type="none" emoji="🛠️">
 ### useSound
 
 A hook to define and play audio effects.
@@ -280,7 +345,7 @@ const sound = useSound({
 
 </Callout>
 
-<Callout type=" " emoji="💰">
+<Callout type="none" emoji="🛠️">
 ### useCurrentToken
 
 Retrieves the metadata of the current token.
@@ -291,7 +356,7 @@ const currentToken = useCurrentToken();
 
 </Callout>
 
-<Callout type=" " emoji="💳">
+<Callout type="none" emoji="🛠️">
 ### useTokenBalance
 
 Fetches and returns the user's current balance.
@@ -310,12 +375,13 @@ const userBalance = useTokenBalance();
 ~~Fetches and returns the user's current balance.~~
 
 ```jsx
-const userBalance = useUserBalance();
+// Deprecated: useUserBalance hook
+// const userBalance = useUserBalance();
 ```
 
 </Callout>
 
-<Callout type=" " emoji="💸">
+<Callout type="none" emoji="🛠️">
 ### useWagerInput
 
 A hook to manage and update wager input state.
@@ -326,7 +392,7 @@ const [wager, setWager] = useWagerInput();
 
 </Callout>
 
-<Callout type=" " emoji="🎲">
+<Callout type="none" emoji="🛠️">
 ### useNextFakeResult
 
 Simulates the next game result for testing & development purposes.
@@ -337,7 +403,7 @@ const fakeGame = useNextFakeResult();
 
 </Callout>
 
-<Callout type=" " emoji="🤖">
+<Callout type="none" emoji="🛠️">
 ### useFakeAccountStore
 
 Provides a store to manage a fake balance for testing & development purposes.
@@ -348,7 +414,7 @@ const fakeAccountStore = useFakeAccountStore();
 
 </Callout>
 
-<Callout type=" " emoji="🔊">
+<Callout type="none" emoji="🛠️">
 ### useGambaAudioStore
 
 Provides an audio store with adjustable master gain.
@@ -367,7 +433,8 @@ const { masterGain, set } = useGambaAudioStore();
 ~~Returns list of tokens.~~
 
 ```jsx copy
-const tokens = useTokenList();
+// Deprecated: useTokenList hook
+// const tokens = useTokenList();
 ```
 
 </Callout>
@@ -379,13 +446,15 @@ const tokens = useTokenList();
 
 ~~Returns list of Gamba default tokens.~~
 
-```typescript
-const { fake, sol, usdc, guac } = GambaStandardTokens;
+```jsx copy
+// Deprecated: GambaStandardTokens hook
+// const { fake, sol, usdc, guac } = GambaStandardTokens;
+
 ```
 
 </Callout>
 
-<Callout type=" " emoji="📊">
+<Callout type="none" emoji="🛠️">
 ### useCurrentPool
 
 Returns the current state of the UI pool.
@@ -398,7 +467,7 @@ const currentPool = useCurrentPool();
 
 ## 🔄 Contexts
 
-<Callout type=" " emoji="💼">
+<Callout type="none" emoji="🔄">
 ### GambaPlatformContext
 
 Provides platform-specific information like fees, tokens, and pool authority.
@@ -433,7 +502,7 @@ const {
 
 </Callout>
 
-<Callout type="none" emoji="🎮">
+<Callout type="none" emoji="🔄">
 ### GameContext
 
 Offers game-specific data, including player input and game results.
@@ -450,7 +519,7 @@ const { game } = useContext(GameContext);
 
 ## 🏷️ Token Metadata
 
-<Callout type="none" emoji="💰">
+<Callout type="none" emoji="🏷️">
 ### TokenMeta
 
 Contains metadata for tokens, such as their symbol, image, and base wager.
@@ -470,7 +539,7 @@ const tokenMeta: TokenMeta = {
 
 </Callout>
 
-<Callout type="none" emoji="🔗">
+<Callout type="none" emoji="🏷️">
 ### makeHeliusTokenFetcher
 
 Creates a fetcher to batch and retrieve token metadata using a Helius RPC API key.

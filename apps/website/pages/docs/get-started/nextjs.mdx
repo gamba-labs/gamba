@@ -124,12 +124,10 @@ export default MyApp;
 > Create the page and render the game
 
 ```tsx copy showLineNumbers filename="src/pages/index.tsx"
-import CustomRenderer, { CustomError } from "@/components/customRender";
+import { CustomError, CustomRenderer } from "@/components/customRender";
 import { GambaUi, GameBundle } from "gamba-react-ui-v2";
-
-import React from "react";
-import dynamic from "next/dynamic";
-
+import React, { useEffect, useState } from 're
+import dynamic from 'next/dyna
 const GAME: GameBundle[] = [
   {
     id: "exampleGame",
@@ -137,27 +135,30 @@ const GAME: GameBundle[] = [
       background: "#ff6490",
       name: "Example Game",
       image: "/ExampleGame.png",
-      description: "This is an example game.",
+      description: "This is an example game."
     },
     app: dynamic(() => import("../game/exampleGame")),
   },
-];
 
 export default function HomePage() {
+  const [loading, setLoading] = useState(t
+  useEffect(() => {
+    setLoading(false);
+  },
   return (
-    <>
-      {GAME[0] ? (
-        <div className="flex flex-col justify-center items-center mx-auto max-w-6xl max-sm:max-w-sm pt-20">
-          <GambaUi.Game game={GAME[0]} errorFallback={<CustomError />}>
-            <CustomRenderer />
-          </GambaUi.Game>
+    <div className="flex flex-col justify-center items-center mx-auto max-w-6xl max-sm:max-w-sm pt-20">
+      {loading ? (
+        <div className="w-full relative grid gap-1">
+          <div className="relative flex-grow bg-gray-800 rounded-lg overflow-hidden transition-height duration-200 md:min-h-[600px] min-h-[600px] flex items-center justify-center">
+            <div style={{ textAlign: "center" }}>Loading game...</div>
+          </div>
         </div>
       ) : (
-        <div className="bg-black animate-pulse mt-20 flex flex-col justify-center items-center mx-auto max-w-5xl px-10 py-20 rounded-lg shadow-xl">
-          <CustomError />
-        </div>
+        <GambaUi.Game game={GAME[0]} errorFallback={<CustomError />}>
+          <CustomRenderer />
+        </GambaUi.Game>
       )}
-    </>
+    </div>
   );
 }
 ```
@@ -355,7 +356,7 @@ export default function ExampleGame() {
               <p>Error: Something went wrong during the game.</p>
             )}
             <GambaUi.Button
-              disabled={gameState !== "idle"}
+              disabled={gameState === "flipping"}
               onClick={() => setSide(side === "Heads" ? "Tails" : "Heads")}
             >
               {side}
@@ -498,12 +499,12 @@ export default function ExampleGame() {
 
         <FileTree.File name="index.tsx">
           ```tsx copy showLineNumbers
-            import CustomRenderer, { CustomError } from "@/components/customRender";
+            import { CustomError, CustomRenderer } from "@/components/customRender";
             import { GambaUi, GameBundle } from "gamba-react-ui-v2";
-            
-            import React from "react";
-            import dynamic from "next/dynamic";
-            
+            import React, { useEffect, useState } from 'react';
+
+            import dynamic from 'next/dynamic';
+
             const GAME: GameBundle[] = [
               {
                 id: "exampleGame",
@@ -511,27 +512,33 @@ export default function ExampleGame() {
                   background: "#ff6490",
                   name: "Example Game",
                   image: "/ExampleGame.png",
-                  description: "This is an example game.",
+                  description: "This is an example game."
                 },
                 app: dynamic(() => import("../game/exampleGame")),
               },
             ];
-            
+
             export default function HomePage() {
+              const [loading, setLoading] = useState(true);
+
+              useEffect(() => {
+                setLoading(false);
+              }, []);
+
               return (
-                <>
-                  {GAME[0] ? (
-                    <div className="flex flex-col justify-center items-center mx-auto max-w-6xl max-sm:max-w-sm pt-20">
-                      <GambaUi.Game game={GAME[0]} errorFallback={<CustomError />}>
-                        <CustomRenderer />
-                      </GambaUi.Game>
+                <div className="flex flex-col justify-center items-center mx-auto max-w-6xl max-sm:max-w-sm pt-20">
+                  {loading ? (
+                    <div className="w-full relative grid gap-1">
+                      <div className="relative flex-grow bg-gray-800 rounded-lg overflow-hidden transition-height duration-200 md:min-h-[600px] min-h-[600px] flex items-center justify-center">
+                        <div style={{ textAlign: "center" }}>Loading game...</div>
+                      </div>
                     </div>
                   ) : (
-                    <div className="bg-black animate-pulse mt-20 flex flex-col justify-center items-center mx-auto max-w-5xl px-10 py-20 rounded-lg shadow-xl">
-                      <CustomError />
-                    </div>
+                    <GambaUi.Game game={GAME[0]} errorFallback={<CustomError />}>
+                      <CustomRenderer />
+                    </GambaUi.Game>
                   )}
-                </>
+                </div>
               );
             }
           ```
@@ -731,7 +738,7 @@ export default function ExampleGame() {
                           <p>Error: Something went wrong during the game.</p>
                         )}
                         <GambaUi.Button
-                          disabled={gameState !== "idle"}
+                          disabled={gameState === "flipping"}
                           onClick={() => setSide(side === "Heads" ? "Tails" : "Heads")}
                         >
                           {side}

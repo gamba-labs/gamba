@@ -32,7 +32,7 @@ export const projects = [
   {
     name: "NinjaTSS Casino",
     link: "https://www.ninjatsscasino.xyz/",
-    thumbnail: "/thumbnails/fronk.png"
+    thumbnail: "/thumbnails/ninjaturtles.png"
   },
   {
     name: 'SolarMoon',

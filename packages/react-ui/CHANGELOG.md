@@ -1,5 +1,14 @@
 # gamba-react-ui-v2
 
+## 0.4.6
+
+### Patch Changes
+
+- Small change to useSendTransaction
+- Updated dependencies
+  - gamba-core-v2@0.3.1
+  - gamba-react-v2@1.1.4
+
 ## 0.4.5
 
 ### Patch Changes

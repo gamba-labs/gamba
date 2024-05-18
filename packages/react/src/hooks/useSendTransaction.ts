@@ -113,7 +113,7 @@ export function useSendTransaction() {
       const signedTransaction = await wallet.signTransaction(transaction)
 
       store.set({ state: 'sending' })
-      const txId = await connection.sendTransaction(signedTransaction)
+      const txId = await connection.sendTransaction(signedTransaction, { skipPreflight: true })
 
       store.set({ state: 'processing', txId })
       console.debug('TX sent', txId)

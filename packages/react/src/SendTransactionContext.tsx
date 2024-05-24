@@ -1,3 +1,4 @@
+import { Commitment } from '@solana/web3.js'
 import React from 'react'
 
 export interface SendTransactionContext {
@@ -6,6 +7,8 @@ export interface SendTransactionContext {
   simulationUnits: number
   /** % of the consumed units in the simulation to be used as computeUnitLimit in the actual transaction */
   computeUnitLimitMargin: number
+  /**  */
+  blockhashCommitment?: Commitment
 }
 
 const defaultValue: SendTransactionContext = {

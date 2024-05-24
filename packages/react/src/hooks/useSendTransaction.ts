@@ -109,16 +109,19 @@ export function useSendTransaction() {
       )()
 
       // Create and sign the actual transaction
-      const transaction = await createTx(computeUnitLimit, (await connection.getLatestBlockhash()).blockhash)
+      const transaction = await createTx(computeUnitLimit, (await connection.getLatestBlockhash(context.blockhashCommitment)).blockhash)
       const signedTransaction = await wallet.signTransaction(transaction)
 
       store.set({ state: 'sending' })
-      const txId = await connection.sendTransaction(signedTransaction, { skipPreflight: true })
+      const txId = await connection.sendTransaction(signedTransaction, {
+        skipPreflight: true,
+        preflightCommitment: context.blockhashCommitment,
+      })
 
       store.set({ state: 'processing', txId })
       console.debug('TX sent', txId)
 
-      const blockhash = await connection.getLatestBlockhash()
+      const blockhash = await connection.getLatestBlockhash(context.blockhashCommitment)
 
       const confirmStrategy: TransactionConfirmationStrategy = {
         blockhash: blockhash.blockhash,

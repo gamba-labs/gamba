@@ -1,5 +1,11 @@
 # gamba-react-v2
 
+## 1.1.6
+
+### Patch Changes
+
+- Include blockhashCommitment prop to SendTransactionProvider
+
 ## 1.1.5
 
 ### Patch Changes

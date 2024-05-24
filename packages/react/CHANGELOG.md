@@ -1,5 +1,11 @@
 # gamba-react-v2
 
+## 1.1.5
+
+### Patch Changes
+
+- Improvements
+
 ## 1.1.4
 
 ### Patch Changes

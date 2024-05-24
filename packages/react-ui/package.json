@@ -1,7 +1,7 @@
 {
   "name": "gamba-react-ui-v2",
   "private": false,
-  "version": "0.4.6",
+  "version": "0.5.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

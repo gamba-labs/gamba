@@ -71,7 +71,7 @@ export default function Slots() {
     () => {
       // Clear timeout when user leaves
       return () => {
-        clearTimeout(timeout.current)
+        timeout.current && clearTimeout(timeout.current)
       }
     },
     [],
@@ -92,14 +92,12 @@ export default function Slots() {
 
     if (slot < NUM_SLOTS - 1) {
       // Reveal next slot
-      console.log('NEXT')
       timeout.current = setTimeout(
         () => revealSlot(combination, slot + 1),
         REVEAL_SLOT_DELAY,
       )
     } else if (slot === NUM_SLOTS - 1) {
       // Show final results
-      console.log('REVEAL')
       sounds.sounds.spin.player.stop()
       timeout.current = setTimeout(() => {
         setSpinning(false)

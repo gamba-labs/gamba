@@ -38,6 +38,10 @@ export function useGambaPlay() {
     const token = new PublicKey(input.token ?? NATIVE_MINT)
     const poolAuthority = new PublicKey(input.poolAuthority ?? SYSTEM_PROGRAM)
 
+    if (!connected) {
+      throw throwTransactionError(new Error('NOT_CONNECTED'))
+    }
+
     const pluginInput: GambaPluginInput = {
       wallet: provider.user,
       creator,
@@ -50,10 +54,6 @@ export function useGambaPlay() {
     const pluginInstructions = (await Promise.all(
       context.plugins.map((x) => x(pluginInput, provider)),
     )).flat()
-
-    if (!connected) {
-      throw throwTransactionError(new Error('NOT_CONNECTED'))
-    }
 
     const pool = getPoolAddress(token, poolAuthority)
 

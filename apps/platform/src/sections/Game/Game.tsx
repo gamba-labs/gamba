@@ -1,4 +1,4 @@
-import { GambaUi, useGambaAudioStore } from 'gamba-react-ui-v2'
+import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
@@ -33,12 +33,10 @@ function CustomRenderer() {
   const { game } = GambaUi.useGame()
   const [info, setInfo] = React.useState(false)
   const [provablyFair, setProvablyFair] = React.useState(false)
-  // const [txModal, setTransactionModal] = React.useState(false)
-  const audioStore = useGambaAudioStore()
+  const soundStore = useSoundStore()
   const firstTimePlaying = useUserStore((state) => !state.gamesPlayed.includes(game.id))
   const markGameAsPlayed = useUserStore((state) => () => state.markGameAsPlayed(game.id, true))
   const [ready, setReady] = React.useState(false)
-  // const loading = useLoadingState()
 
   React.useEffect(
     () => {
@@ -98,8 +96,8 @@ function CustomRenderer() {
             <IconButton onClick={() => setProvablyFair(true)}>
               <Icon.Fairness />
             </IconButton>
-            <IconButton onClick={() => audioStore.set(audioStore.masterGain ? 0 : .5)}>
-              {audioStore.masterGain ? '🔈' : '🔇'}
+            <IconButton onClick={() => soundStore.set(soundStore.volume ? 0 : .5)}>
+              {soundStore.volume ? '🔈' : '🔇'}
             </IconButton>
           </MetaControls>
         </Screen>

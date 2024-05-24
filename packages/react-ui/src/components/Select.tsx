@@ -8,6 +8,7 @@ export interface SelectProps<T> extends React.PropsWithChildren {
   options: T[]
   onChange: (value: T) => void
   label?: (value: T) => React.ReactNode
+  className?: string
 }
 
 const StyledWrapper = styled.div`
@@ -52,7 +53,7 @@ export function Select<T>(props: SelectProps<T>) {
   }
 
   return (
-    <StyledWrapper>
+    <StyledWrapper className={props.className}>
       <Button disabled={props.disabled} onClick={() => setOpen(!open)}>
         {props.label ? props.label(props.value) : JSON.stringify(props.value)}
       </Button>

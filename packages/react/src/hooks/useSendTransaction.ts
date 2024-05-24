@@ -13,7 +13,7 @@ export const throwTransactionError = (error: any) => {
   return error
 }
 
-export function useTransactionError(callback: (error: Error) => void) {
+export function useTransactionError(callback: (error: any) => void) {
   React.useLayoutEffect(
     () => transactionEventEmitter.subscribe(callback),
     [callback],

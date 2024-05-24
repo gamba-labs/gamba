@@ -11,7 +11,8 @@ import Game from './sections/Game/Game'
 import Header from './sections/Header'
 import RecentPlays from './sections/RecentPlays/RecentPlays'
 import Toasts from './sections/Toasts'
-import styled from 'styled-components'
+import { MainWrapper, TosInner, TosWrapper } from './styles'
+import { TOS_HTML } from './constants'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -30,7 +31,7 @@ function ErrorHandler() {
         walletModal.setVisible(true)
         return
       }
-      toast({ title: '❌ Transaction error', description: error?.error?.errorMessage ?? error.message })
+      toast({ title: '❌ Transaction error', description: error.error?.errorMessage ?? error.message })
     },
   )
 
@@ -46,27 +47,6 @@ function ErrorHandler() {
   )
 }
 
-const MainWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  transition: width .25s ease, padding .25s ease;
-  margin: 0 auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: 60px;
-  @media (min-width: 600px) {
-    padding: 20px;
-    width: 1000px;
-  }
-  @media (min-width: 1280px) {
-    padding: 20px;
-    width: 1100px;
-  }
-`
-
 export default function App() {
   const newcomer = useUserStore((state) => state.newcomer)
   const set = useUserStore((state) => state.set)
@@ -75,20 +55,9 @@ export default function App() {
       {newcomer && (
         <Modal>
           <h1>Welcome</h1>
-          <div style={{ position: 'relative' }}>
-            <div style={{ maxHeight: '400px', padding: '10px', overflow: 'auto', position: 'relative' }}>
-              <p><b>1. Age Requirement:</b> Must be at least 18 years old.</p>
-              <p><b>2. Legal Compliance:</b> Follow local laws responsibly.</p>
-              <p><b>3. Risk Acknowledgement:</b> Games involve risk; no guaranteed winnings.</p>
-              <p><b>4. No Warranty:</b> Games provided "as is"; operate randomly.</p>
-              <p><b>5. Limitation of Liability:</b> We're not liable for damages.</p>
-              <p><b>6. Licensing Disclaimer:</b> Not a licensed casino; for simulation only.</p>
-              <p><b>7. Fair Play:</b> Games are conducted fairly and transparently.</p>
-              <p><b>8. Data Privacy:</b> Your privacy is important to us.</p>
-              <p><b>9. Responsible Gaming:</b> Play responsibly; seek help if needed.</p>
-            </div>
-            <div style={{ background: 'linear-gradient(180deg, transparent, #15151f)', height: '50px', pointerEvents: 'none', width: '100%', position: 'absolute', bottom: '0px', left: '0px' }}></div>
-          </div>
+          <TosWrapper>
+            <TosInner dangerouslySetInnerHTML={{ __html: TOS_HTML }} />
+          </TosWrapper>
           <p>
             By playing on our platform, you confirm your compliance.
           </p>

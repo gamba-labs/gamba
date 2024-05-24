@@ -1,12 +1,10 @@
 import { PublicKey } from '@solana/web3.js'
 import { FAKE_TOKEN_MINT, GambaPlatformContext, GambaUi, PoolToken, TokenValue, useCurrentToken, useTokenBalance, useTokenMeta } from 'gamba-react-ui-v2'
-import { useGamba, useGambaProvider } from 'gamba-react-v2'
 import React from 'react'
 import styled from 'styled-components'
 import { Dropdown } from '../components/Dropdown'
 import { Modal } from '../components/Modal'
 import { POOLS } from '../constants'
-import { getGameAddress } from 'gamba-core-v2'
 
 const StyledToken = styled.div`
   display: flex;

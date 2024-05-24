@@ -1,0 +1,70 @@
+{
+  "baseUrl": {
+    "title": "Base URL",
+    "href": "#base-url"
+  },
+  "endpoints": {
+    "title": "🎯 Endpoints",
+    "href": "#endpoints"
+  },
+  "getEventsPoolChanges": {
+    "title": "GET /events/poolChanges",
+    "href": "#get-eventspoolchanges"
+  },
+  "getEventsSettledGames": {
+    "title": "GET /events/settledGames",
+    "href": "#get-eventssettledgames"
+  },
+  "getPlayer": {
+    "title": "GET /player",
+    "href": "#get-player"
+  },
+  "getRatio": {
+    "title": "GET /ratio",
+    "href": "#get-ratio"
+  },
+  "getChartPlays": {
+    "title": "GET /chart/plays",
+    "href": "#get-chartplays"
+  },
+  "getChartDailyUsd": {
+    "title": "GET /chart/daily-usd",
+    "href": "#get-chartdaily-usd"
+  },
+  "getChartDaoUsd": {
+    "title": "GET /chart/dao-usd",
+    "href": "#get-chartdao-usd"
+  },
+  "getDaily": {
+    "title": "GET /daily",
+    "href": "#get-daily"
+  },
+  "getTotal": {
+    "title": "GET /total",
+    "href": "#get-total"
+  },
+  "getPlatformsByPool": {
+    "title": "GET /platforms-by-pool",
+    "href": "#get-platforms-by-pool"
+  },
+  "getPlatforms": {
+    "title": "GET /platforms",
+    "href": "#get-platforms"
+  },
+  "getTokens": {
+    "title": "GET /tokens",
+    "href": "#get-tokens"
+  },
+  "getPlayers": {
+    "title": "GET /players",
+    "href": "#get-players"
+  },
+  "getStatus": {
+    "title": "GET /status",
+    "href": "#get-status"
+  },
+  "getStats": {
+    "title": "GET /stats",
+    "href": "#get-stats"
+  }
+}

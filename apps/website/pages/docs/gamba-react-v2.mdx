@@ -32,7 +32,7 @@ import { Callout } from "nextra-theme-docs";
   </a>
 </div>
 
-<Callout type="info" emoji="">
+<Callout type="info" emoji="🧩">
   Gamba React package with essential hooks and context providers
 </Callout>
 
@@ -51,17 +51,22 @@ npm install gamba-react-v2
   - `computeUnitLimitMargin: number`
 
 ```jsx copy
-import { SendTransactionProvider } from 'gamba-react-v2';
+import { SendTransactionProvider } from "gamba-react-v2";
 
 // Wrap your app in SendTransactionProvider
 function App() {
   return (
-    <SendTransactionProvider priorityFee={10} simulationUnits={1000} computeUnitLimitMargin={200}>
+    <SendTransactionProvider
+      priorityFee={10}
+      simulationUnits={1000}
+      computeUnitLimitMargin={200}
+    >
       {/* Your application code */}
     </SendTransactionProvider>
   );
 }
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔄">
@@ -72,7 +77,7 @@ function App() {
   - `plugins: GambaPlugin[]`
 
 ```jsx copy
-import { GambaProvider } from 'gamba-react-v2';
+import { GambaProvider } from "gamba-react-v2";
 
 // Wrap your app in GambaProvider
 function App() {
@@ -83,6 +88,7 @@ function App() {
   );
 }
 ```
+
 </Callout>
 
 <Callout type="none" emoji="⚙️">
@@ -93,17 +99,22 @@ function App() {
   - Additional props from `SendTransactionContext`.
 
 ```jsx copy
-import { SendTransactionProvider } from 'gamba-react-v2';
+import { SendTransactionProvider } from "gamba-react-v2";
 
 // Wrap your app or component in SendTransactionProvider
 function App() {
   return (
-    <SendTransactionProvider priorityFee={10} simulationUnits={1000} computeUnitLimitMargin={200}>
+    <SendTransactionProvider
+      priorityFee={10}
+      simulationUnits={1000}
+      computeUnitLimitMargin={200}
+    >
       {/* Your application code */}
     </SendTransactionProvider>
   );
 }
 ```
+
 </Callout>
 
 <Callout type="none" emoji="⚙️">
@@ -125,8 +136,8 @@ function App() {
   );
 }
 ```
-</Callout>
 
+</Callout>
 
 ## 📜 **Types**
 
@@ -136,8 +147,9 @@ function App() {
 - **Type**: `'GameSettled' | 'PoolChange'`
 
 ```jsx copy
-const eventType = 'GameSettled';
+const eventType = "GameSettled";
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -151,12 +163,15 @@ const eventType = 'GameSettled';
 
 ```jsx copy
 const gambaTransaction = {
-  signature: 'example-signature',
+  signature: "example-signature",
   time: Date.now(),
-  name: 'GameSettled',
-  data: { /* event data */ }
+  name: "GameSettled",
+  data: {
+    /* event data */
+  },
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -170,12 +185,13 @@ const gambaTransaction = {
 
 ```jsx copy
 const gameResult = {
-  creator: new PublicKey('example-creator'),
-  user: new PublicKey('example-user'),
-  rngSeed: 'example-seed',
-  payout: 1000
+  creator: new PublicKey("example-creator"),
+  user: new PublicKey("example-user"),
+  rngSeed: "example-seed",
+  payout: 1000,
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -194,9 +210,10 @@ const gameResult = {
 const playInput = {
   wager: 100,
   bet: [1, 2, 3],
-  creator: new PublicKey('example-creator')
+  creator: new PublicKey("example-creator"),
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -210,11 +227,12 @@ const playInput = {
 
 ```jsx copy
 const options = {
-  confirmation: 'finalized',
-  lookupTable: [new PublicKey('example-lookup')],
-  priorityFee: 500
+  confirmation: "finalized",
+  lookupTable: [new PublicKey("example-lookup")],
+  priorityFee: 500,
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -226,9 +244,10 @@ const options = {
 ```jsx copy
 const sendTransactionProps = {
   ...options,
-  simulationUnits: 50000
+  simulationUnits: 50000,
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -239,9 +258,12 @@ const sendTransactionProps = {
 
 ```jsx copy
 const gambaProviderProps = {
-  __experimental_plugins: [/* array of plugins */]
+  __experimental_plugins: [
+    /* array of plugins */
+  ],
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -255,12 +277,13 @@ const gambaProviderProps = {
 
 ```jsx copy
 const transactionStore = {
-  state: 'none',
-  label: 'Sample Transaction',
+  state: "none",
+  label: "Sample Transaction",
   signatureResult: {},
-  txId: 'sample-tx-id'
+  txId: "sample-tx-id",
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -273,11 +296,12 @@ const transactionStore = {
 
 ```jsx copy
 const gambaEventsParams = {
-  address: new PublicKey('example-address'),
+  address: new PublicKey("example-address"),
   signatureLimit: 10,
-  listen: true
+  listen: true,
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -290,11 +314,12 @@ const gambaEventsParams = {
 
 ```jsx copy
 const poolState = {
-  publicKey: new PublicKey('pool-address'),
-  token: new PublicKey('token-address'),
-  liquidity: BigInt(500000)
+  publicKey: new PublicKey("pool-address"),
+  token: new PublicKey("token-address"),
+  liquidity: BigInt(500000),
 };
 ```
+
 </Callout>
 
 <Callout type="none" emoji="📜">
@@ -309,13 +334,14 @@ const poolState = {
 
 ```jsx copy
 const pluginInput = {
-  wallet: new PublicKey('wallet-address'),
-  creator: new PublicKey('creator-address'),
-  token: new PublicKey('token-address'),
+  wallet: new PublicKey("wallet-address"),
+  creator: new PublicKey("creator-address"),
+  token: new PublicKey("token-address"),
   bet: [1, 2, 3],
-  wager: 500
+  wager: 500,
 };
 ```
+
 </Callout>
 
 ## 🔍 **Methods and Hooks**
@@ -328,8 +354,9 @@ const pluginInput = {
   - `decoder: (x: AccountInfo<Buffer> | null) => T`
 
 ```jsx copy
-const accountData = useAccount(new PublicKey('account-address'), decodeAccount);
+const accountData = useAccount(new PublicKey("account-address"), decodeAccount);
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -340,6 +367,7 @@ Returns the public key of the current wallet.
 ```jsx copy
 const walletAddress = useWalletAddress();
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -350,8 +378,12 @@ const walletAddress = useWalletAddress();
   - `token: PublicKey`
 
 ```jsx copy
-const { balance, nativeBalance } = useBalance(new PublicKey('wallet-address'), new PublicKey('token-address'));
+const { balance, nativeBalance } = useBalance(
+  new PublicKey("wallet-address"),
+  new PublicKey("token-address")
+);
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -362,9 +394,10 @@ const { balance, nativeBalance } = useBalance(new PublicKey('wallet-address'), n
 
 ```jsx copy
 useTransactionError((error) => {
-  console.error('Transaction Error:', error);
+  console.error("Transaction Error:", error);
 });
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -377,6 +410,7 @@ useTransactionError((error) => {
 const sendTransaction = useSendTransaction();
 const txSignature = await sendTransaction([instruction]);
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -390,6 +424,7 @@ const txSignature = await sendTransaction([instruction]);
 const playGame = useGambaPlay();
 const gameResult = await playGame(playInput, [instruction]);
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -401,6 +436,7 @@ Fetches the next game result.
 const getNextResult = useNextResult();
 const nextResult = await getNextResult();
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -412,6 +448,7 @@ Returns several functions, properties, and states.
 const { play, result, userCreated } = useGamba();
 const resultData = await result();
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -420,10 +457,11 @@ const resultData = await result();
 Adds an event listener for a specific Gamba event type.
 
 ```jsx copy
-useGambaEventListener('GameSettled', (event) => {
-  console.log('Game Settled:', event);
+useGambaEventListener("GameSettled", (event) => {
+  console.log("Game Settled:", event);
 });
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -432,8 +470,11 @@ useGambaEventListener('GameSettled', (event) => {
 Fetches previous Gamba events.
 
 ```jsx copy
-const gambaEvents = useGambaEvents('GameSettled', { address: new PublicKey('event-address') });
+const gambaEvents = useGambaEvents("GameSettled", {
+  address: new PublicKey("event-address"),
+});
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -444,8 +485,12 @@ const gambaEvents = useGambaEvents('GameSettled', { address: new PublicKey('even
   - `authority?: PublicKey`
 
 ```jsx copy
-const poolData = usePool(new PublicKey('token-address'), new PublicKey('authority-address'));
+const poolData = usePool(
+  new PublicKey("token-address"),
+  new PublicKey("authority-address")
+);
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -456,6 +501,7 @@ Manages the transaction store states.
 ```jsx copy
 const transactionState = useTransactionStore();
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -466,6 +512,7 @@ Returns the current Gamba provider.
 ```jsx copy
 const gambaProvider = useGambaProvider();
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -476,6 +523,7 @@ Returns the Anchor program for the Gamba IDL.
 ```jsx copy
 const gambaProgram = useGambaProgram();
 ```
+
 </Callout>
 
 <Callout type="none" emoji="🔍">
@@ -486,6 +534,7 @@ Provides access to the Gamba context.
 ```jsx copy
 const gambaContext = useGambaContext();
 ```
+
 </Callout>
 
 ## ⚙️ **Utilities and Functions**
@@ -500,12 +549,14 @@ try {
   throwTransactionError(error);
 }
 ```
+
 </Callout>
 
 <Callout type="none" emoji="⚙️">
 ### createCustomFeePlugin
 
 ```jsx copy
-const feePlugin = createCustomFeePlugin('receiver-address', 5);
+const feePlugin = createCustomFeePlugin("receiver-address", 5);
 ```
+
 </Callout>

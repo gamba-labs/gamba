@@ -1,0 +1,512 @@
+import { Callout, Card, Cards } from "nextra-theme-docs";
+
+# 🌐 API Documentation
+
+Welcome to the Gamba API documentation. Here you will find all the information you need to interact with our API.
+
+## Base URL
+
+```
+https://api.gamba.so/
+```
+
+Explore the different endpoints below for detailed information on how to use each one.
+
+## 🎯 Endpoints
+
+### GET /events/poolChanges
+
+Returns transaction signatures of recent pool changes.
+
+**Query Parameters**:
+
+- `pool` (optional): Filter by pool ID.
+
+**Response**:
+
+```json
+{
+  "results": [
+    {
+      "signature": "string",
+      "action": "string",
+      "amount": "number",
+      "user": "string",
+      "token": "string",
+      "pool": "string",
+      "lp_supply": "number",
+      "post_liquidity": "number",
+      "time": "timestamp"
+    }
+  ]
+}
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/events/poolChanges?pool=examplePoolId
+```
+
+---
+
+### GET /events/settledGames
+
+Returns settled games with various filtering and pagination options.
+
+**Query Parameters**:
+
+- `page` (optional): Page number for pagination.
+- `onlyJackpots` (optional): Filter by jackpots.
+- `creator` (optional): Filter by creator.
+- `pool` (optional): Filter by pool.
+- `token` (optional): Filter by token.
+- `user` (optional): Filter by user.
+- `orderBy` (optional): Sort results by `multiplier`, `usd_profit`, or `time`.
+- `sorting` (optional): Sorting order `ASC` or `DESC`.
+- `itemsPerPage` (optional): Number of items per page (1-200).
+
+**Response**:
+
+```json
+{
+  "results": [
+    {
+      "signature": "string",
+      "wager": "number",
+      "payout": "number",
+      "usd_wager": "number",
+      "usd_profit": "number",
+      "profit": "number",
+      "user": "string",
+      "creator": "string",
+      "token": "string",
+      "jackpot": "number",
+      "multiplier": "number",
+      "time": "timestamp"
+    }
+  ],
+  "total": "number"
+}
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/events/settledGames?page=1&itemsPerPage=10&orderBy=time&sorting=DESC
+```
+
+---
+
+### GET /player
+
+Returns player statistics.
+
+**Query Parameters**:
+
+- `user` (required): Filter by user.
+- `creator` (optional): Filter by creator.
+- `token` (optional): Filter by token.
+
+**Response**:
+
+```json
+{
+  "games_played": "number",
+  "total_result_mod_1000": "number",
+  "usd_profit": "number",
+  "usd_creator_fees_paid": "number",
+  "usd_pool_fees_paid": "number",
+  "usd_dao_fees_paid": "number",
+  "usd_volume": "number",
+  "games_won": "number",
+  "randomness_score": "number",
+  "first_bet_time": "timestamp"
+}
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/player?user=exampleUserId
+```
+
+---
+
+### GET /ratio
+
+Returns hourly ratio (LP Price) change of a specific pool.
+
+**Query Parameters**:
+
+- `pool` (required): Filter by pool ID.
+
+**Response**:
+
+```json
+[
+  {
+    "date": "string",
+    "pool_liquidity": "number",
+    "lp_supply": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/ratio?pool=examplePoolId
+```
+
+---
+
+### GET /chart/plays
+
+Returns the number of plays per day.
+
+**Response**:
+
+```json
+[
+  {
+    "date": "string",
+    "total_volume": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/chart/plays
+```
+
+---
+
+### GET /chart/daily-usd
+
+Returns daily volume in USD.
+
+**Query Parameters**:
+
+- `creator` (optional): Filter by creator.
+
+**Response**:
+
+```json
+[
+  {
+    "date": "string",
+    "total_volume": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/chart/daily-usd
+```
+
+---
+
+### GET /chart/dao-usd
+
+Returns daily DAO volume in USD.
+
+**Response**:
+
+```json
+[
+  {
+    "date": "string",
+    "total_volume": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/chart/dao-usd
+```
+
+---
+
+### GET /daily
+
+Returns daily volume for a specific pool in the underlying token.
+
+**Query Parameters**:
+
+- `pool` (required): Filter by pool ID.
+
+**Response**:
+
+```json
+[
+  {
+    "date": "string",
+    "total_volume": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/daily?pool=examplePoolId
+```
+
+---
+
+### GET /total
+
+Returns the total volume.
+
+**Query Parameters**:
+
+- `pool` (required): Filter by pool ID.
+
+**Response**:
+
+```json
+{
+  "volume": "number"
+}
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/total?pool=examplePoolId
+```
+
+---
+
+### GET /platforms-by-pool
+
+Returns a list of platforms sorted by their volume for a specific pool.
+
+**Query Parameters**:
+
+- `pool` (required): Filter by pool ID.
+
+**Response**:
+
+```json
+[
+  {
+    "creator": "string",
+    "volume": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/platforms-by-pool?pool=examplePoolId
+```
+
+---
+
+### GET /platforms
+
+Returns top creators by volume in USD.
+
+**Query Parameters**:
+
+- `limit` (optional): Limit the number of results.
+- `days` (optional): Filter by the number of days.
+- `sortBy` (optional): Sort results by a specific field.
+
+**Response**:
+
+```json
+[
+  {
+    "creator": "string",
+    "usd_volume": "number",
+    "usd_revenue": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/platforms?limit=10&days=7
+```
+
+---
+
+### GET /tokens
+
+Returns top tokens used by a platform.
+
+**Query Parameters**:
+
+- `creator` (optional): Filter by creator.
+
+**Response**:
+
+```json
+[
+  {
+    "creator": "string",
+    "usd_volume": "number",
+    "volume": "number",
+    "token": "string",
+    "num_plays": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/tokens
+```
+
+---
+
+### GET /players
+
+Returns a list of top-performing players.
+
+**Query Parameters**:
+
+- `creator` (optional): Filter by creator.
+- `token` (optional): Filter by token.
+- `pool` (optional): Filter by pool.
+- `limit` (optional): Limit the number of results.
+- `offset` (optional): Offset for pagination.
+- `sortBy` (optional): Sort results by `usd_volume`, `usd_profit`, `token_volume`, or `token_profit`.
+- `startTime` (optional): Filter results starting from a specific time.
+
+**Response**:
+
+```json
+{
+  "players": [
+    {
+      "user": "string",
+      "creator_fees_usd": "number",
+      "usd_profit": "number",
+      "usd_volume": "number",
+      "token_volume": "number",
+      "token_profit": "number"
+    }
+  ]
+}
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/players?limit=5&sortBy=usd_profit
+```
+
+---
+
+### GET /status
+
+Returns the status of the syncing process.
+
+**Response**:
+
+```json
+{
+  "syncing": "boolean"
+}
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/status
+```
+
+---
+
+### GET /stats
+
+Returns various statistics.
+
+**Query Parameters**:
+
+- `creator` (optional): Filter by creator.
+- `startTime` (optional): Filter results starting from a specific time.
+
+**Response**:
+
+```json
+{
+  "players": "number",
+  "usd_volume": "number",
+  "plays": "number",
+  "creators": "number",
+  "revenue_usd": "number",
+  "player_net_profit_usd": "number",
+  "active_players": "number",
+  "first_bet_time": "timestamp"
+}
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/stats?startTime=1622520000
+```
+
+---
+
+### GET /chart/daily-usd
+
+Returns daily volume in USD.
+
+**Query Parameters**:
+
+- `creator` (optional): Filter by creator.
+
+**Response**:
+
+```json
+[
+  {
+    "date": "string",
+    "total_volume": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/chart/daily-usd
+```
+
+---
+
+### GET /chart/dao-usd
+
+Returns daily DAO volume in USD.
+
+**Response**:
+
+```json
+[
+  {
+    "date": "string",
+    "total_volume": "number"
+  }
+]
+```
+
+**Example Request**:
+
+```
+GET https://api.gamba.so/chart/dao-usd
+```

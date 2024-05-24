@@ -1,9 +1,10 @@
 import { useGamba } from 'gamba-react-v2'
-import React from 'react'
+import React, { useRef } from 'react'
 import styled, { css } from 'styled-components'
 import { useCurrentToken, useFees, useUserBalance } from '../hooks'
 import { TokenValue } from './TokenValue'
 import { StyledPopup } from './Select'
+import useOnClickOutside from '../hooks/useOnClickOutside'
 
 const StyledWagerInput = styled.div<{$edit: boolean}>`
   display: flex;
@@ -105,6 +106,7 @@ export function WagerInput(props: WagerInputProps) {
   const balance = useUserBalance() // useBalance(walletAddress, token.mint)
   const fees = useFees()
   const [isEditing, setIsEditing] = React.useState(false)
+  const ref = useRef<HTMLDivElement>(null!)
 
   React.useEffect(
     () => {
@@ -113,7 +115,11 @@ export function WagerInput(props: WagerInputProps) {
     [token.mint.toString()],
   )
 
-  const edit = () => {
+  const startEditInput = () => {
+    if (props.options) {
+      setIsEditing(!isEditing)
+      return
+    }
     setIsEditing(true)
     setInput(String(props.value / (10 ** token.decimals)))
   }
@@ -129,10 +135,12 @@ export function WagerInput(props: WagerInputProps) {
     props.onChange(Math.max(0, Math.min(nextValue, availableBalance - nextValue * fees)))
   }
 
+  useOnClickOutside(ref, () => setIsEditing(false))
+
   return (
-    <div className={props.className} style={{ position: 'relative' }}>
+    <div ref={ref} className={props.className} style={{ position: 'relative' }}>
       <StyledWagerInput $edit={isEditing}>
-        <Flex onClick={() => !gamba.isPlaying && edit()}>
+        <Flex onClick={() => !gamba.isPlaying && startEditInput()}>
           <TokenImage src={token.image} />
           {(!isEditing || props.options) ? (
             <WagerAmount
@@ -178,7 +186,7 @@ export function WagerInput(props: WagerInputProps) {
                 setIsEditing(false)
               }}
             >
-              <img src={token.image} height="25px" style={{ margin: '0 5px', borderRadius: '50%', aspectRatio: '1/1' }} />
+              <TokenImage src={token.image} />
               <TokenValue amount={valueInBaseWager * token.baseWager} mint={token.mint} />
             </button>
           ))}

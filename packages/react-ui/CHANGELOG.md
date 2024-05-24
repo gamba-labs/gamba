@@ -1,5 +1,11 @@
 # gamba-react-ui-v2
 
+## 0.5.2
+
+### Patch Changes
+
+- Fixed WagerInput issues
+
 ## 0.5.1
 
 ### Patch Changes

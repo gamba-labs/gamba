@@ -74,6 +74,7 @@ api.get('/events/settledGames', cache('5 minutes'), slow(), validate(settledGame
   const sorting = req.query.sorting ?? 'DESC'
 
   const query = `
+    AND user != "8RY8Ga5j34dJb1W3aXLemFLvxJ9cQSAYQVn6Qr8pmUYT"
     ${req.query.user ? 'AND user = :user' : ''}
     ${req.query.creator ? 'AND creator = :creator' : ''}
     ${req.query.pool ? 'AND pool = :pool' : ''}

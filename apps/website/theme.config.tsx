@@ -2,8 +2,6 @@ import { DocsThemeConfig, useConfig } from 'nextra-theme-docs'
 
 import { useRouter } from 'next/router'
 
-// import { ExtraContent } from './components/extra-content'
-
 const config: DocsThemeConfig = {
   logo: (<><img src="/logo.svg" alt="Gamba Logo" /></>),
   project: { link: 'https://github.com/gamba-labs' },

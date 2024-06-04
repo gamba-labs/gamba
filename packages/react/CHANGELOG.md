@@ -1,5 +1,54 @@
 # gamba-react-v2
 
+## 1.1.6
+
+### Patch Changes
+
+- Include blockhashCommitment prop to SendTransactionProvider
+
+## 1.1.5
+
+### Patch Changes
+
+- Improvements
+
+## 1.1.4
+
+### Patch Changes
+
+- Small change to useSendTransaction
+- Updated dependencies
+  - gamba-core-v2@0.3.1
+
+## 1.1.3
+
+### Patch Changes
+
+- Bug fixes
+
+## 1.1.2
+
+### Patch Changes
+
+- Backwards compatibility
+
+## 1.1.1
+
+### Patch Changes
+
+- Added computeUnitLimitMargin param to sendTx
+
+## 1.1.0
+
+### Minor Changes
+
+- Transaction optimizations
+
+### Patch Changes
+
+- Updated dependencies
+  - gamba-core-v2@0.3.0
+
 ## 1.0.0
 
 ### Minor Changes

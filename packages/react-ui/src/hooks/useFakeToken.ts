@@ -2,8 +2,8 @@ import { GambaPlayInput, GameResult, UiPoolState, throwTransactionError, useWall
 import React from 'react'
 import { StoreApi, create } from 'zustand'
 import { GambaPlatformContext } from '../GambaPlatformProvider'
-import { FAKE_TOKEN_MINT } from '../tokens'
 import { getPoolAddress, SYSTEM_PROGRAM } from 'gamba-core-v2'
+import { FAKE_TOKEN_MINT } from '../TokenMetaProvider'
 
 let betBuffer: GambaPlayInput
 

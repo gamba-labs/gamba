@@ -1,6 +1,6 @@
 import { BorshAccountsCoder, IdlAccounts } from '@coral-xyz/anchor'
-import { AccountLayout, NATIVE_MINT, createAssociatedTokenAccountInstruction, createCloseAccountInstruction, createSyncNativeInstruction, getAssociatedTokenAddressSync } from '@solana/spl-token'
-import { AccountInfo, Connection, PublicKey, SystemProgram } from '@solana/web3.js'
+import { AccountLayout, NATIVE_MINT, getAssociatedTokenAddressSync } from '@solana/spl-token'
+import { AccountInfo, Connection, PublicKey } from '@solana/web3.js'
 import { GambaIdl, GameState } from '.'
 import { GAMBA_STATE_SEED, GAME_SEED, PLAYER_SEED, POOL_ATA_SEED, POOL_BONUS_MINT_SEED, POOL_BONUS_UNDERLYING_TA_SEED, POOL_JACKPOT_SEED, POOL_LP_MINT_SEED, POOL_SEED, PROGRAM_ID } from './constants'
 import { IDL } from './idl'
@@ -144,48 +144,6 @@ export const getUserWsolAccount = (user: PublicKey) => {
 }
 
 export const isNativeMint = (pubkey: PublicKey) => NATIVE_MINT.equals(pubkey)
-
-export const wrapSol = async (
-  from: PublicKey,
-  amount: bigint | number,
-  create: boolean,
-) => {
-  const wsolAta = getUserWsolAccount(from)
-
-  const instructions = [
-    SystemProgram.transfer({
-      fromPubkey: from,
-      toPubkey: wsolAta,
-      lamports: amount,
-    }),
-    createSyncNativeInstruction(wsolAta),
-  ]
-
-  if (create) {
-    return [
-      createAssociatedTokenAccountInstruction(
-        from,
-        wsolAta,
-        from,
-        NATIVE_MINT,
-      ),
-      ...instructions,
-    ]
-  }
-
-  return instructions
-}
-
-export const unwrapSol = async (
-  from: PublicKey,
-) => {
-  const wsolAta = getUserWsolAccount(from)
-  return createCloseAccountInstruction(
-    wsolAta,
-    from,
-    from,
-  )
-}
 
 export type GameResult = ReturnType<typeof parseResult>
 

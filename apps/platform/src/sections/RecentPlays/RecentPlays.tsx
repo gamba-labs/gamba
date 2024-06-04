@@ -1,7 +1,7 @@
 import { BPS_PER_WHOLE, GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import React from 'react'
-import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
+import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { extractMetadata } from '../../utils'
 import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles'
@@ -39,7 +39,7 @@ function RecentPlay({ event }: {event: GambaTransaction<'GameSettled'>}) {
   return (
     <>
       <img src={game?.meta.image} style={{ height: '1.5em' }} />
-      <div style={{ color: '#a079ff' }}>
+      <div style={{ color: 'var(--gamba-ui-primary-color)' }}>
         {data.user.toBase58().substring(0, 4)}...
       </div>
       {md && (profit >= 0 ? ' won ' : ' lost ')}
@@ -90,7 +90,7 @@ export default function RecentPlays() {
           </Recent>
         ),
       )}
-      <GambaUi.Button main onClick={() => window.open('https://explorer.gamba.so/platform/' + PLATFORM_CREATOR_ADDRESS + '?embed')}>
+      <GambaUi.Button main onClick={() => window.open(`${EXPLORER_URL}/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`)}>
         🚀 Explorer
       </GambaUi.Button>
     </Container>

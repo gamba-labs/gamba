@@ -19,7 +19,7 @@ export function PoolWithdraw({ pool }: { pool: UiPool }) {
   const [loading, setLoading] = React.useState(false)
   const [amountText, setAmountText] = React.useState("")
   const token = useTokenMeta(pool.underlyingTokenMint)
-  const balances = useBalance(pool.underlyingTokenMint)
+  const balances = useBalance(pool.underlyingTokenMint, pool.poolAuthority)
   const sendTransaction = useSendTransaction()
 
   // const amount = Math.round(Number(amountText) * (10 ** token.decimals))

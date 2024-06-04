@@ -141,20 +141,18 @@ function Inner() {
 
       const pool = getPoolAddress(selectedToken.mint, authority)
 
-      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 1_000_000 })
       const slot = await connection.getSlot()
 
-      const combinedInstructions = [
-        modifyComputeUnits,
-        ...gamba.createPool(selectedToken.mint, authority, slot),
-      ]
-
       const tx = await sendTx(
-        combinedInstructions,
-        { confirmation: "confirmed" },
+        gamba.createPool(selectedToken.mint, authority, slot),
+        {
+          confirmation: "confirmed",
+          priorityFee: 201_000,
+          computeUnits: 400_000,
+        }
       )
 
-      console.log("TXID", tx)
+      console.log("Create pool txId", tx)
 
       navigate("/pool/" + pool.toBase58() + "")
     } catch (err) {

@@ -1,31 +1,35 @@
-import { signal } from '@preact/signals-react'
-import React from 'react'
-import * as Tone from 'tone'
-
-const materGain = signal(.5)
+import { useCallback, useEffect, useMemo } from 'react'
+import { Player, Gain } from 'tone'
+import { StoreApi, create } from 'zustand'
 
 interface PlaySoundParams {
   playbackRate?: number
   gain?: number
 }
 
-export interface GambaAudioStore {
-  masterGain: number
+export interface SoundStore {
+  volume: number
   set: (gain: number) => void
+  get: StoreApi<SoundStore>['getState']
+  /** @deprecated Use "volume" */
+  masterGain: number
 }
 
-export const useGambaAudioStore = () => {
-  return {
-    masterGain: materGain.value,
-    set: (gain: number) => {
-      materGain.value = gain
-    },
-  }
-}
+export const useSoundStore = create<SoundStore>(
+  (set, get) => ({
+    volume: .5,
+    masterGain: .5,
+    set: (volume) => set({ volume, masterGain: volume }),
+    get,
+  }),
+)
 
-class GambaSound {
-  player = new Tone.Player
-  gain = new Tone.Gain
+/** @deprecated use "useSoundStore" */
+export const useGambaAudioStore = useSoundStore
+
+class Sound {
+  player = new Player
+  gain = new Gain
   ready = false
   private url?: string
 
@@ -56,44 +60,59 @@ class GambaSound {
 }
 
 export function useSound<T extends {[s: string]: string}>(definition: T) {
+  const store = useSoundStore()
   const sources = Object.keys(definition)
-
-  const sounds = React.useMemo(
+  const soundById = useMemo(
     () =>
       Object
         .entries(definition)
         .map(([id, url]) => {
-          const sound = new GambaSound(url)
+          const sound = new Sound(url)
           return { id, sound }
         })
         .reduce((prev, { id, sound }) => ({
           ...prev,
           [id]: sound,
-        }), {} as Record<keyof T, GambaSound>)
+        }), {} as Record<keyof T, Sound>)
     ,
     [...sources],
   )
+  const sounds = useMemo(() => Object.entries(soundById).map(([_, s]) => s), [soundById])
 
-  React.useEffect(
+  // Mute all sounds on unmount
+  useEffect(
     () => {
       return () => {
-        Object.entries(sounds).map(([_, s]) => s.player.stop())
+        sounds.forEach((sound) => {
+          sound.player.stop()
+          sound.player.dispose()
+        })
       }
     },
-    [sounds],
+    [soundById],
   )
 
-  const play = React.useCallback(
-    (s: keyof typeof sounds, x?: PlaySoundParams) => {
-      const gain = x?.gain ?? 1
-      const opts: PlaySoundParams = { ...x, gain: gain * materGain.value }
-      sounds[s].play(opts)
+  // Update the gain of played sounds
+  useEffect(
+    () => {
+      sounds.forEach((sound) => {
+        sound.gain.set({ gain: store.volume })
+      })
     },
-    [sounds],
+    [store.volume],
+  )
+
+  const play = useCallback(
+    (soundId: keyof T, params?: PlaySoundParams) => {
+      const gain = params?.gain ?? 1
+      const opts: PlaySoundParams = { ...params, gain: gain * store.get().volume }
+      soundById[soundId].play(opts)
+    },
+    [soundById],
   )
 
   return {
     play,
-    sounds,
+    sounds: soundById,
   }
 }

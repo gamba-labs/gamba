@@ -1,13 +1,13 @@
 import { Button, Flex, Grid, Heading, IconButton, Text, TextField } from "@radix-ui/themes"
-import { decodeAta, getPoolBonusAddress, getUserWsolAccount, isNativeMint, wrapSol } from "gamba-core-v2"
+import { decodeAta, getUserWsolAccount, isNativeMint, wrapSol } from "gamba-core-v2"
 import { useAccount, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
 import { mutate } from "swr"
 
-import { UiPool } from "@/views/Dashboard/PoolList"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useBalance, useToast } from "@/hooks"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
+import { UiPool } from "@/views/Dashboard/PoolList"
 import { stringtoBigIntUnits } from "./PoolDeposit"
 
 export function PoolMintBonus({ pool }: { pool: UiPool }) {
@@ -27,7 +27,7 @@ export function PoolMintBonus({ pool }: { pool: UiPool }) {
       const { publicKey, state } = pool
       const underlyingTokenMint = state.underlyingTokenMint
 
-      const poolBonusMint = getPoolBonusAddress(publicKey)
+      // const poolBonusMint = getPoolBonusAddress(publicKey)
 
       const mintInstructions = gamba.mintBonusTokens(
         publicKey,

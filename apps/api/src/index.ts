@@ -1,12 +1,13 @@
 import cors from 'cors'
 import express from 'express'
 import api from './api'
-import { sync2 } from './sync'
+import { config } from './config'
+import { sync } from './sync'
 
-sync2()
+sync()
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = config().PORT || 3000
 
 app.use(express.json())
 app.use(cors())

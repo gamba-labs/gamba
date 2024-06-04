@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
-import { TokenMeta } from './tokens'
+import { TokenMeta } from './TokenMetaProvider'
 
 interface HeliusTokenFetcherParams {
   dollarBaseWager?: number

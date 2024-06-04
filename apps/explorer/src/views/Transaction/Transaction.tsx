@@ -8,14 +8,13 @@ import { NavLink, useParams } from "react-router-dom"
 import styled, { css } from "styled-components"
 import useSWR from "swr"
 
-import { TokenAvatar } from "@/components"
+import { DetailCard, TokenAvatar } from "@/components"
 import { PlatformAccountItem, PlayerAccountItem } from "@/components/AccountItem"
 import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
-import { useAccount, usePool } from "gamba-react-v2"
-import { useTokenMeta } from "@/hooks"
 import { SYSTEM_PROGRAM } from "@/constants"
-import { ThingCard } from "../Pool/PoolView"
+import { useTokenMeta } from "@/hooks"
+import { useAccount } from "gamba-react-v2"
 
 const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
   --rank-0: #ff293b;
@@ -598,23 +597,23 @@ export default function TransactionView() {
         <Tabs.Content value="details">
           <Grid gap="4">
             <Flex wrap="wrap" gap="2">
-              <ThingCard title="Win change">
+              <DetailCard title="Win change">
                 {(winChange * 100).toLocaleString(undefined, {maximumFractionDigits: 3})}%
-              </ThingCard>
-              <ThingCard title="Max win">
+              </DetailCard>
+              <DetailCard title="Max win">
                 <TokenValue2
                   mint={game.tokenMint}
                   amount={
                     game.wager * (potentialWin / BPS_PER_WHOLE)
                   }
                 />
-              </ThingCard>
-              <ThingCard title="Max multiplier">
+              </DetailCard>
+              <DetailCard title="Max multiplier">
                 {(potentialWin / BPS_PER_WHOLE)}x
-              </ThingCard>
-              <ThingCard title="House edge">
+              </DetailCard>
+              <DetailCard title="House edge">
                 {parseFloat((100 - oddsScore * 100).toFixed(1))}%
-              </ThingCard>
+              </DetailCard>
             </Flex>
             <TransactionDetails parsed={data.parsed} />
           </Grid>

@@ -8,13 +8,14 @@ export interface SelectProps<T> extends React.PropsWithChildren {
   options: T[]
   onChange: (value: T) => void
   label?: (value: T) => React.ReactNode
+  className?: string
 }
 
 const StyledWrapper = styled.div`
   position: relative;
 `
 
-const StyledPopup = styled.div`
+export const StyledPopup = styled.div`
   position: absolute;
   bottom: 100%;
   left: 0;
@@ -28,11 +29,15 @@ const StyledPopup = styled.div`
   background: var(--gamba-ui-input-background);
   white-space: nowrap;
   transform: translateY(-5px);
+  z-index: 100;
   & > button {
     all: unset;
+    box-sizing: border-box;
     cursor: pointer;
     font-size: inherit;
     padding: 5px;
+    display: flex;
+    align-items: center;
     &:hover {
       background: var(--gamba-ui-input-background-hover);
     }
@@ -48,7 +53,7 @@ export function Select<T>(props: SelectProps<T>) {
   }
 
   return (
-    <StyledWrapper>
+    <StyledWrapper className={props.className}>
       <Button disabled={props.disabled} onClick={() => setOpen(!open)}>
         {props.label ? props.label(props.value) : JSON.stringify(props.value)}
       </Button>

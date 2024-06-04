@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
-import { FAKE_TOKEN_MINT, GambaPlatformContext, GambaUi, PoolToken, TokenValue, useCurrentToken, useTokenMeta, useUserBalance } from 'gamba-react-ui-v2'
+import { FAKE_TOKEN_MINT, GambaPlatformContext, GambaUi, PoolToken, TokenValue, useCurrentToken, useTokenBalance, useTokenMeta } from 'gamba-react-ui-v2'
 import React from 'react'
 import styled from 'styled-components'
 import { Dropdown } from '../components/Dropdown'
@@ -22,9 +22,13 @@ const StyledTokenImage = styled.img`
 `
 
 const StyledTokenButton = styled.button`
-  all: unset;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  color: inherit;
   cursor: pointer;
   display: flex;
+  width: 100%;
   align-items: center;
   gap: 10px;
   padding: 10px;
@@ -41,11 +45,11 @@ function TokenImage({ mint, ...props }: {mint: PublicKey}) {
   )
 }
 
-function TokenName({ mint }: { mint: PublicKey }) {
-  const meta = useTokenMeta(mint)
+function TokenSelectItem({ mint }: {mint: PublicKey}) {
+  const balance = useTokenBalance(mint)
   return (
     <>
-      {meta.symbol}
+      <TokenImage mint={mint} /> <TokenValue mint={mint} amount={balance.balance} />
     </>
   )
 }
@@ -55,9 +59,10 @@ export default function TokenSelect() {
   const [warning, setWarning] = React.useState(false)
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
-  const balance = useUserBalance()
+  const balance = useTokenBalance()
 
   const selectPool = (pool: PoolToken) => {
+    // if (gamba.isPlaying) return
     context.setPool(pool.token, pool.authority)
     setVisible(false)
     if (
@@ -101,9 +106,9 @@ export default function TokenSelect() {
           )}
         </GambaUi.Button>
         <Dropdown visible={visible}>
-          {POOLS.map((x, i) => (
-            <StyledTokenButton onClick={() => selectPool(x)} key={i}>
-              <TokenImage mint={x.token} /> <TokenName mint={x.token} />
+          {POOLS.map((pool, i) => (
+            <StyledTokenButton onClick={() => selectPool(pool)} key={i}>
+              <TokenSelectItem mint={pool.token} />
             </StyledTokenButton>
           ))}
         </Dropdown>

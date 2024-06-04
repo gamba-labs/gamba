@@ -157,10 +157,7 @@ const storeEvents = async (events: (GambaTransaction<'GameSettled'> | GambaTrans
 const fetchAndStoreEventsFromSignatures = async (signatures: string[]) => {
   const signatureBatches = createBatches(signatures, 100)
 
-  // let batchIndex = 0
   for (const batch of signatureBatches) {
-    // console.log('Batch %d out of %d', ++batchIndex, signatureBatches.length)
-
     const attempt = async (attempts = 0): Promise<(GambaTransaction<'GameSettled'> | GambaTransaction<'PoolChange'>)[]> => {
       try {
         const transactions = (await connection.getParsedTransactions(
@@ -218,7 +215,7 @@ const search = async () => {
   await search()
 }
 
-export async function sync2() {
+export async function sync() {
   try {
     await setupDb()
     await new Promise((resolve) => setTimeout(resolve, 10))
@@ -227,6 +224,6 @@ export async function sync2() {
     console.error('❌ Sync error', err)
     console.log('Retrying sync..')
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    sync2()
+    sync()
   }
 }

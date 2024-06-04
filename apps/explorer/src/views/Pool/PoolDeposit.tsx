@@ -15,7 +15,7 @@ import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { ConnectUserCard } from "../Debug/DebugUser"
-import { PoolHeader } from "./PoolView"
+import { PoolHeader } from "./PoolHeader"
 
 export const stringtoBigIntUnits = (s: string, decimals: number) => {
   try {
@@ -88,7 +88,7 @@ export function PoolDeposit({ pool }: {pool: UiPool}) {
     <>
       <Grid gap="2">
         <Heading>
-          Add Liqudity
+          Add Liquidity
         </Heading>
         <TextField.Root>
           <TextField.Input

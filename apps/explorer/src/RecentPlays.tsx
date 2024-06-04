@@ -1,4 +1,4 @@
-import { Badge, Button, Flex, Table } from "@radix-ui/themes"
+import { Badge, Button, Card, Flex, Grid, Table, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import useSWRInfinite from 'swr/infinite'
@@ -9,6 +9,7 @@ import { TableRowNavLink } from "@/components/TableRowLink"
 import { PlusIcon } from "@radix-ui/react-icons"
 import { RecentPlaysResponse, apiFetcher, getApiUrl } from "./api"
 import { PlatformAccountItem, PlayerAccountItem } from "./components/AccountItem"
+import { SkeletonTableRows } from "./components/Skeleton"
 import { TokenValue2 } from "./components/TokenValue2"
 
 export function TimeDiff({ time }: {time: number}) {
@@ -30,7 +31,14 @@ export function TimeDiff({ time }: {time: number}) {
   }, [diff])
 }
 
-export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey | string, creator?: PublicKey | string, user?: PublicKey | string}) {
+interface RecentPlaysProps {
+  pool?: PublicKey | string
+  creator?: PublicKey | string
+  user?: PublicKey | string
+  onlyJackpots?: boolean
+}
+
+export default function RecentPlays({ pool, creator, user, onlyJackpots }: RecentPlaysProps) {
   const {
     data = [],
     size,
@@ -40,16 +48,28 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
   } = useSWRInfinite(
     (index, previousData) =>
       getApiUrl("/events/settledGames", {
+        onlyJackpots,
         pool: pool?.toString(),
         creator: creator?.toString(),
         user: user?.toString(),
         page: index,
+        itemsPerPage: 10,
       }),
     async (endpoint) => {
       const data = await apiFetcher<RecentPlaysResponse>(endpoint)
       return { total: data.total, results: data.results }
     }
   )
+
+  const numResults = React.useMemo(() => data[0] ? data[0].total : 0, [data])
+
+  // if (isLoading) {
+  //   return (
+  //     <>
+  //       <SkeletonCard />
+  //     </>
+  //   )
+  // }
 
   return (
     <Flex direction="column" gap="2">
@@ -74,6 +94,9 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
           </Table.Row>
         </Table.Header>
         <Table.Body>
+          {isLoading && (
+            <SkeletonTableRows cells={5} />
+          )}
           {data.flatMap(
             ({results}) => (
               results.map(
@@ -111,6 +134,11 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
                           <Badge color={result.payout >= result.wager ? "green" : "gray"}>
                             {Math.abs(result.multiplier).toFixed(2)}x
                           </Badge>
+                          {result.jackpot > 0 && (
+                            <Badge color="pink">
+                              JACKPOT
+                            </Badge>
+                          )}
                         </Flex>
                       </Table.Cell>
                       <Table.Cell align="right">
@@ -124,15 +152,25 @@ export default function RecentPlays({ pool, creator, user }: {pool?: PublicKey |
           )}
         </Table.Body>
       </Table.Root>
-      <Button
-        disabled={isLoading || isValidating}
-        onClick={() => setSize(size + 1)}
-        variant="soft"
-        size="3"
-        style={{ width: '100%' }}
-      >
-        Load more <PlusIcon />
-      </Button>
+      {(!isLoading && !numResults) ? (
+        <Card size="3">
+          <Grid gap="4" align="center" justify="center">
+            <Text align="center" color="gray">
+              No Results!
+            </Text>
+          </Grid>
+        </Card>
+      ) : (
+        <Button
+          disabled={isLoading || isValidating}
+          onClick={() => setSize(size + 1)}
+          variant="soft"
+          size="3"
+          style={{ width: '100%' }}
+        >
+          Load more <PlusIcon />
+        </Button>
+      )}
     </Flex>
   )
 }

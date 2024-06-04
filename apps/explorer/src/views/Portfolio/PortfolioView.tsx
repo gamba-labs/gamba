@@ -11,7 +11,7 @@ import { Spinner } from "@/components/Spinner"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { useTokenList } from "@/hooks"
 import { useTokenMeta } from "@/hooks/useTokenMeta"
-import { SkeletonFallback, usePopulatedPool } from "@/views/Dashboard/PoolList"
+import { usePopulatedPool } from "@/views/Dashboard/PoolList"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { ConnectUserCard } from "../Debug/DebugUser"
 

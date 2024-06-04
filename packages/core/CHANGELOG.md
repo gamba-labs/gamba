@@ -1,5 +1,17 @@
 # gamba-core-v2
 
+## 0.3.1
+
+### Patch Changes
+
+- Small change to useSendTransaction
+
+## 0.3.0
+
+### Minor Changes
+
+- Transaction optimizations
+
 ## 0.2.0
 
 ### Minor Changes

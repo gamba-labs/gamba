@@ -1,19 +1,10 @@
 import * as anchor from "@coral-xyz/anchor"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Flex, Grid, Heading, Text, TextField } from "@radix-ui/themes"
+import { Button, Flex, Grid, Heading, Text, TextField } from "@radix-ui/themes"
 import { Keypair, PublicKey } from "@solana/web3.js"
 import { basisPoints, decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useSendTransaction } from "gamba-react-v2"
 import React from "react"
-
-const Thing = ({ title, children }: {title: string, children: React.ReactNode}) => (
-  <Grid columns="2">
-    <Text>
-      {title}
-    </Text>
-    {children}
-  </Grid>
-)
+import { DetailCard } from "./components"
 
 interface GambaStateInput {
   rngAddress: string;
@@ -139,9 +130,6 @@ export function ConfigDialog() {
 
   return (
     <>
-      <Heading mb="4">
-        Gamba State
-      </Heading>
       {!gambaState ? (
         <Button onClick={initialize}>
           Initialize Gamba
@@ -149,34 +137,26 @@ export function ConfigDialog() {
       ) : (
         <>
           <Flex gap="2" direction="column">
-            <Callout.Root color="orange" mb="4">
-              <Callout.Icon>
-                <ExclamationTriangleIcon />
-              </Callout.Icon>
-              <Callout.Text>
-                You are probably not the authority of this DAO and can't make any changes
-              </Callout.Text>
-            </Callout.Root>
-            <Thing title="Authority">
+            <DetailCard title="Authority">
               <TextField.Root>
                 <TextField.Input
                   value={authorityInput ?? gambaState?.authority.toBase58()}
                   onChange={e => setAuthorityInput(e.target.value)}
                 />
               </TextField.Root>
-            </Thing>
+            </DetailCard>
             <Button onClick={setAuthority} variant="soft">
               Update authority
             </Button>
-            <Thing title="RNG address">
+            <DetailCard title="RNG address">
               <TextField.Root>
                 <TextField.Input
                   value={input.rngAddress ?? ""}
                   onChange={e => updateInput({ rngAddress: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="DAO fee %">
+            </DetailCard>
+            <DetailCard title="DAO fee %">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -185,8 +165,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ gambaFee: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Max creator fee (%)">
+            </DetailCard>
+            <DetailCard title="Max creator fee (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -195,8 +175,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ maxCreatorFee: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Max house edge (%)">
+            </DetailCard>
+            <DetailCard title="Max house edge (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -205,8 +185,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ maxHouseEdge: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Pool creation fee (SOL)">
+            </DetailCard>
+            <DetailCard title="Pool creation fee (SOL)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -215,8 +195,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ poolCreationFee: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Anti-spam fee (SOL)">
+            </DetailCard>
+            <DetailCard title="Anti-spam fee (SOL)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -225,8 +205,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ antiSpamFee: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Default pool fee (%)">
+            </DetailCard>
+            <DetailCard title="Default pool fee (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -235,8 +215,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ defaultPoolFee: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Jackpot payout to user (%)">
+            </DetailCard>
+            <DetailCard title="Jackpot payout to user (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -245,8 +225,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ jackpotPayoutToUserBps: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Jackpot payout to creator (%)">
+            </DetailCard>
+            <DetailCard title="Jackpot payout to creator (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -255,8 +235,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ jackpotPayoutToCreatorBps: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Jackpot payout to pool (%)">
+            </DetailCard>
+            <DetailCard title="Jackpot payout to pool (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -265,8 +245,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ jackpotPayoutToPoolBps: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Jackpot payout to DAO (%)">
+            </DetailCard>
+            <DetailCard title="Jackpot payout to DAO (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -275,8 +255,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ jackpotPayoutToGambaBps: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Bonus to Jackpot ratio (%)">
+            </DetailCard>
+            <DetailCard title="Bonus to Jackpot ratio (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -285,8 +265,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ bonusToJackpotRatioBps: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Max payout(%)">
+            </DetailCard>
+            <DetailCard title="Max payout(%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -295,8 +275,8 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ maxPayoutBps: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Pool withdraw fee (%)">
+            </DetailCard>
+            <DetailCard title="Pool withdraw fee (%)">
               <TextField.Root>
                 <TextField.Input
                   min={0}
@@ -305,43 +285,43 @@ export function ConfigDialog() {
                   onChange={e => updateInput({ poolWithdrawFeeBps: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
-            <Thing title="Pool creation enabled">
+            </DetailCard>
+            <DetailCard title="Pool creation enabled">
               <input
                 type="checkbox"
                 checked={input.poolCreationAllowed || false}
                 onChange={e => updateInput({ poolCreationAllowed: e.target.checked })}
               />
-            </Thing>
-            <Thing title="Pool deposit enabled">
+            </DetailCard>
+            <DetailCard title="Pool deposit enabled">
               <input
                 type="checkbox"
                 checked={input.poolDepositAllowed || false}
                 onChange={e => updateInput({ poolDepositAllowed: e.target.checked })}
               />
-            </Thing>
-            <Thing title="Pool withdraw enabled">
+            </DetailCard>
+            <DetailCard title="Pool withdraw enabled">
               <input
                 type="checkbox"
                 checked={input.poolWithdrawAllowed || false}
                 onChange={e => updateInput({ poolWithdrawAllowed: e.target.checked })}
               />
-            </Thing>
-            <Thing title="Playing enabled">
+            </DetailCard>
+            <DetailCard title="Playing enabled">
               <input
                 type="checkbox"
                 checked={input.playingAllowed || false}
                 onChange={e => updateInput({ playingAllowed: e.target.checked })}
               />
-            </Thing>
-            <Thing title="Distribution recipient">
+            </DetailCard>
+            <DetailCard title="Distribution recipient">
               <TextField.Root>
                 <TextField.Input
                   value={input.distributionRecipient ?? ""}
                   onChange={e => updateInput({ distributionRecipient: e.target.value })}
                 />
               </TextField.Root>
-            </Thing>
+            </DetailCard>
             <Button variant="soft" onClick={update}>
               Update
             </Button>

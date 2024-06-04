@@ -16,6 +16,13 @@ export interface StatusResponse {
   syncing: boolean
 }
 
+export interface PlayerResponse {
+  games_played: number
+  games_won: number
+  usd_profit: number
+  usd_volume: number
+}
+
 export interface RecentPlaysResponse {
   total: number
   results: {
@@ -26,6 +33,7 @@ export interface RecentPlaysResponse {
     time: number
     wager: number
     payout: number
+    jackpot: number
     multiplier: number
   }[]
 }
@@ -58,6 +66,7 @@ export interface RatioData {
 export interface TopCreatorsData {
   creator: string
   usd_volume: number
+  usd_revenue: number
 }
 
 export interface TopPlayersResponse {
@@ -70,6 +79,16 @@ export interface TopPlayersResponse {
 
     token_volume?: number
     token_profit?: number
+  }[]
+}
+
+export interface PoolsResponse {
+  pools: {
+    "block_time":number
+    "pool":string
+    "token":string
+    "liquidity":number
+    "tvl":number
   }[]
 }
 

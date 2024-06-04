@@ -1,42 +1,58 @@
 import RecentPlays from "@/RecentPlays"
-import { useApi } from "@/api"
+import { PlayerResponse, useApi } from "@/api"
+import { DetailCard } from "@/components"
 import { PlayerAccountItem } from "@/components/AccountItem"
-import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Flex, Grid, Link, Table, Text } from "@radix-ui/themes"
+import { Details } from "@/components/Details"
+import { SkeletonFallback } from "@/components/Skeleton"
+import { SolanaAddress } from "@/components/SolanaAddress"
+import { Flex, Text } from "@radix-ui/themes"
 import React from "react"
 import { useParams } from "react-router-dom"
 
+function PlayerStats() {
+  const { address } = useParams<{address: string}>()
+  const { data, isLoading } = useApi<PlayerResponse>("/player", {user: address!})
+  return (
+    <Flex gap="2" wrap="wrap">
+      <DetailCard title="Volume">
+        <SkeletonFallback loading={isLoading}>
+          ${(data?.usd_volume ?? 0).toLocaleString()}
+        </SkeletonFallback>
+      </DetailCard>
+      <DetailCard title="Profit">
+        <SkeletonFallback loading={isLoading}>
+          ${(data?.usd_profit ?? 0).toLocaleString()}
+        </SkeletonFallback>
+      </DetailCard>
+      <DetailCard title="Plays">
+        <SkeletonFallback loading={isLoading}>
+          {data?.games_played ?? 0}
+        </SkeletonFallback>
+      </DetailCard>
+      <DetailCard title="Wins">
+        <SkeletonFallback loading={isLoading}>
+          {data?.games_won ?? 0}
+        </SkeletonFallback>
+      </DetailCard>
+    </Flex>
+  )
+}
+
 export function PlayerView() {
   const { address } = useParams<{address: string}>()
-  const { data } = useApi<any>("/player", {user: address!})
+  const { data } = useApi<PlayerResponse>("/player", {user: address!})
 
   return (
     <Flex direction="column" gap="4">
-      <Table.Root variant="surface">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell>
-              <PlayerAccountItem address={address!} />
-            </Table.ColumnHeaderCell>
-          </Table.Row>
-        </Table.Header>
-
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>
-              <Grid columns="2" gap="4">
-                <Text weight="bold">
-                  Address
-                </Text>
-                <Link target="_blank" href={`https://solscan.io/address/${address}`} rel="noreferrer">
-                  {address} <ExternalLinkIcon />
-                </Link>
-              </Grid>
-            </Table.Cell>
-          </Table.Row>
-
-        </Table.Body>
-      </Table.Root>
+      <PlayerStats />
+      <Details
+        title={
+          <PlayerAccountItem address={address!} />
+        }
+        rows={[
+          ["Address", <SolanaAddress address={address!} />],
+        ]}
+      />
       <Text color="gray">
         Recent Plays
       </Text>

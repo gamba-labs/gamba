@@ -6,3 +6,4 @@ dev-dist/
 trash.*
 .turbo
 .env
+.next/

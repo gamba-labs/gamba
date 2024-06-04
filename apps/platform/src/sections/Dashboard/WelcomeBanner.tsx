@@ -109,7 +109,7 @@ export function WelcomeBanner() {
       </div>
       <Buttons>
         <button onClick={() => window.open('https://v2.gamba.so/', '_blank')}>
-          🚀 Add Liqudity
+          🚀 Add Liquidity
         </button>
         <button onClick={() => window.open('https://github.com/gamba-labs/gamba', '_blank')}>
           👨‍💻 Build your own

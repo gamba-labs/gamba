@@ -1,17 +1,18 @@
 import RecentPlays from "@/RecentPlays"
-import { DailyVolume, StatsResponse, TopPlayersResponse, useApi } from "@/api"
+import { DailyVolume, TopPlayersResponse, useApi } from "@/api"
 import { BarChart } from "@/charts/BarChart"
 import { PlayerAccountItem } from "@/components/AccountItem"
-import { Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
+import { SkeletonBarChart, SkeletonCardList } from "@/components/Skeleton"
+import { Badge, Card, Flex, Grid, Link, Text } from "@radix-ui/themes"
 import { PublicKey } from "@solana/web3.js"
 import React from "react"
 import { NavLink } from "react-router-dom"
-import styled from "styled-components"
+import { DetailCards } from "../Platform/PlatformView"
 import { PoolList } from "./PoolList"
 import { TopPlatforms, UnstyledNavLink } from "./TopPlatforms"
 
 export function TotalVolume(props: {creator?: string}) {
-  const { data: daily = [] } = useApi<DailyVolume[]>(
+  const { data: daily = [], isLoading } = useApi<DailyVolume[]>(
     "/chart/daily-usd",
     {creator: props.creator},
   )
@@ -32,6 +33,7 @@ export function TotalVolume(props: {creator?: string}) {
         </Text>
       </Flex>
       <div style={{height: '200px'}}>
+        {isLoading && <SkeletonBarChart />}
         <BarChart
           dailyVolume={daily}
           onHover={setHovered}
@@ -43,26 +45,39 @@ export function TotalVolume(props: {creator?: string}) {
 
 const WEEK = Date.now() - 604800000
 
-export function TopPlayers({ creator, limit = 5, startTime = WEEK }: {creator?: PublicKey | string, limit?: number, startTime?: number}) {
-  const [sortBy] = React.useState('usd_profit')
+export interface TopPlayersProps {
+  creator?: PublicKey | string
+  limit?: number
+  startTime?: number
+  token?: PublicKey | string
+  sortBy?: 'usd_volume' | 'usd_profit'
+}
+
+export function TopPlayers({
+  token,
+  creator,
+  limit = 5,
+  startTime = WEEK,
+  sortBy = 'usd_profit'
+}: TopPlayersProps) {
   const { data = { players: [] }, isLoading } = useApi<TopPlayersResponse>(
     "/players",
     {
       creator: creator?.toString(),
+      token: token?.toString(),
       limit,
       sortBy,
       startTime,
     }
   )
 
-  if (isLoading) return <SkeletonCard />
-
   return (
-    <Card>
+    <>
       <Flex direction="column" gap="2">
-        <Text color="gray">Player Leaderboard</Text>
+        {isLoading && !data.players.length &&
+          <SkeletonCardList cards={4} />
+        }
         {data.players
-          .filter((x) => x.usd_profit > 0)
           .map((player, i) => (
             <UnstyledNavLink key={i} to={"/player/" + player.user}>
               <Card>
@@ -72,96 +87,79 @@ export function TopPlayers({ creator, limit = 5, startTime = WEEK }: {creator?: 
                   </Text>
                   <Flex gap="2" justify="between" grow="1">
                     <PlayerAccountItem avatarSize="1" address={player.user} />
-                    <Text>
-                      +${player.usd_profit.toLocaleString(undefined, {maximumFractionDigits: 2})}
-                    </Text>
+                    <Flex gap="2" align="center">
+                      <Text color="gray" size="2">
+                        ${player.usd_volume.toLocaleString(undefined, {maximumFractionDigits: 2})}
+                      </Text>
+                      <Badge color={player.usd_profit >= 0 ? "green" : "gray"}>
+                        {player.usd_profit >= 0 ? '+' : '-'}${Math.abs(player.usd_profit).toLocaleString(undefined, {maximumFractionDigits: 2})}
+                      </Badge>
+                    </Flex>
                   </Flex>
                 </Flex>
               </Card>
             </UnstyledNavLink>
           ))}
       </Flex>
-    </Card>
+    </>
   )
 }
 
-const SkeletonCard = styled(Card)`
-  overflow: hidden;
-  background-color: #DDDBDD;
-  border-radius: var(--radius-4);
-  height: 59px;
-  animation: skeleton-shine 1s linear infinite;
+// WIP
+// function PoolCard({pool}: {pool: PoolsResponse['pools'][number]}) {
+//   const getTokenMeta = useTokenMeta(pool.token)
 
-  @keyframes skeleton-shine {
-    0%, 100% {
-      background-color: #DDDBDD33;
-    }
-    50% {
-      background-color: #DDDBDD22;
-    }
-  }
-`
+//   return (
+//     <UnstyledNavLink to={`/pool/${pool.pool}`}>
+//       <Card style={{width: '200px'}}>
+//         <Flex direction="column" gap="2" align="center">
+//           <TokenAvatar mint={pool.token} />
+//           <Text size="4">{getTokenMeta.name}</Text>
+//           <Flex justify="between">
+//             <Text>
+//               ${pool.tvl.toLocaleString()}
+//             </Text>
+//           </Flex>
+//         </Flex>
+//       </Card>
+//     </UnstyledNavLink>
+//   )
+// }
 
-function AllTimeStats() {
-  const {data, isLoading} = useApi<StatsResponse>("/stats")
+// function PoolList2() {
+//   const { data = { pools: [] }, isLoading } = useApi<PoolsResponse>("/pools")
 
-  if (isLoading) return <SkeletonCard size="2" />
+//   console.log(data)
+//   return (
+//     <Flex gap="4" wrap="wrap">
+//       {data.pools.map((pool, i) => (
+//         <PoolCard key={pool.pool} pool={pool} />
+//       ))}
+//     </Flex>
+//   )
+// }
 
-  return (
-    <Card size="2">
-      <Grid
-        gap="9"
-        columns={{initial: '2', sm: '2', md: '4'}}
-        align="center"
-        justify="center"
-      >
-        <Flex gap="2" justify="center">
-          <Text color="gray">
-            Volume
-          </Text>
-          <Text weight="bold">
-            ${(data?.usd_volume ?? 0).toLocaleString(undefined, {maximumFractionDigits: 1})}
-          </Text>
-        </Flex>
-        <Flex gap="2" justify="center">
-          <Text color="gray">
-            Players
-          </Text>
-          <Text weight="bold">
-            {(data?.players ?? 0).toLocaleString(undefined)}
-          </Text>
-        </Flex>
-        <Flex gap="2" justify="center">
-          <Text color="gray">
-            Plays
-          </Text>
-          <Text weight="bold">
-            {(data?.plays ?? 0).toLocaleString(undefined)}
-          </Text>
-        </Flex>
-        <Flex gap="2" justify="center">
-          <Text color="gray">
-            Platforms
-          </Text>
-          <Text weight="bold">
-            {(data?.creators ?? 0).toLocaleString(undefined)}
-          </Text>
-        </Flex>
-      </Grid>
-    </Card>
-  )
-}
 export default function Dashboard() {
   return (
     <Flex direction="column" gap="4">
-      <AllTimeStats />
+
+      <DetailCards />
+
       <Grid gap="4" columns={{initial: '1', sm: '2'}}>
         <Flex direction="column" gap="4">
           <TotalVolume />
-          {/* <TotalVolume2 /> */}
-          <TopPlayers />
+          <Card>
+            <Flex direction="column" gap="2">
+              <Flex justify="between">
+                <Text color="gray">7d Leaderboard</Text>
+                <Link asChild>
+                  <NavLink to="/leaderboard">View all</NavLink>
+                </Link>
+              </Flex>
+              <TopPlayers />
+            </Flex>
+          </Card>
         </Flex>
-
         <Card>
           <Flex direction="column" gap="2">
             <Flex justify="between">
@@ -174,7 +172,12 @@ export default function Dashboard() {
           </Flex>
         </Card>
       </Grid>
-      <Text color="gray">Top Pools</Text>
+      <Flex justify="between">
+        <Text color="gray">Top Pools</Text>
+        <Link asChild>
+          <NavLink to="/pools">View all</NavLink>
+        </Link>
+      </Flex>
       <PoolList />
       <Text color="gray">Recent Plays</Text>
       <RecentPlays />

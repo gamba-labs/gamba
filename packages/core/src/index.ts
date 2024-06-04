@@ -4,6 +4,8 @@ export * from './GambaProvider'
 export * from './constants'
 export * from './events'
 export { IDL, type Gamba as GambaIdl } from './idl'
+export * from './instructions'
 export * from './types'
 export * from './utils'
 export { NATIVE_MINT }
+

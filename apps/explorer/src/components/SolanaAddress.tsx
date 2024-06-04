@@ -29,7 +29,7 @@ export function SolanaAddress(props: Props) {
           {text}
         </>
       ) : (
-        <Link target="_blank" href={`https://solscan.io/address/${props.address.toString()}?cluster=devnet`} rel="noreferrer">
+        <Link target="_blank" href={`https://solscan.io/address/${props.address.toString()}`} rel="noreferrer">
           {text}
         </Link>
       )}

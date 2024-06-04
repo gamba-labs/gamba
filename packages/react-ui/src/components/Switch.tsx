@@ -38,12 +38,14 @@ interface SwitchProps {
   checked?: boolean
   onChange?: (checked: boolean) => void
   disabled?: boolean
+  className?: string
 }
 
 export function Switch(props: SwitchProps) {
   return (
     <SwitchButton
       type="checkbox"
+      className={props.className}
       checked={props.checked}
       disabled={props.disabled}
       onChange={(evt) => props.onChange && props.onChange(evt.target.checked)}

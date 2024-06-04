@@ -1,26 +1,19 @@
 import { TokenAvatar } from "@/components"
-import { TableRowHref, TableRowNavLink } from "@/components/TableRowLink"
+import { SkeletonFallback, SkeletonText } from "@/components/Skeleton"
+import { TableRowNavLink } from "@/components/TableRowLink"
 import { TokenValue2 } from "@/components/TokenValue2"
 import { SYSTEM_PROGRAM } from "@/constants"
 import { decodeAta } from "@/hooks"
 import { useGetTokenMeta, useTokenMeta } from "@/hooks/useTokenMeta"
 import { ProgramAccount } from "@coral-xyz/anchor"
 import { Avatar, Badge, Flex, Table, Text } from "@radix-ui/themes"
-import { NATIVE_MINT } from "@solana/spl-token"
 import { useConnection } from "@solana/wallet-adapter-react"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { PoolState, decodePool, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from "gamba-core-v2"
-import { useAccount, useGambaProgram } from "gamba-react-v2"
+import { useGambaProgram } from "gamba-react-v2"
 import React from "react"
 import styled from "styled-components"
 import useSWR from "swr"
-
-const SkeletonText = styled.div`
-  height: 1em;
-  min-width: 40px;
-  background: #cccccccc;
-  border-radius: 5px;
-`
 
 const StyledTableCell = styled(Table.Cell)`
   vertical-align: middle;
@@ -42,9 +35,32 @@ export interface UiPool {
   plays: number
 }
 
-export const SkeletonFallback = (props: React.PropsWithChildren<{loading: boolean}>) => {
-  if (props.loading) return <SkeletonText />
-  return props.children
+const populatePool = async (
+  connection: Connection,
+  publicKey: PublicKey,
+  state: PoolState,
+): Promise<UiPool> => {
+  const { value: lp } = await connection.getTokenSupply(getPoolLpAddress(publicKey))
+  const underlyingAccount = decodeAta(await connection.getAccountInfo(getPoolUnderlyingTokenAccountAddress(publicKey)))
+  const bonusUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolBonusUnderlyingTokenAccountAddress(publicKey)))
+  const underlyingBalance = underlyingAccount?.amount ?? BigInt(0)
+  const bonusBalance = bonusUnderlyingTokenAccount?.amount ?? BigInt(0)
+  const jackpotUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolJackpotTokenAccountAddress(publicKey)))
+  const jackpotBalance = jackpotUnderlyingTokenAccount?.amount ?? BigInt(0)
+  const lpSupply = BigInt(lp.amount)
+  const ratio = !lpSupply ? 1 : Number(underlyingBalance) / Number(lpSupply)
+  return {
+    publicKey,
+    state,
+    liquidity: underlyingBalance,
+    underlyingTokenMint: state.underlyingTokenMint,
+    lpSupply,
+    bonusBalance,
+    jackpotBalance,
+    ratio,
+    poolAuthority: state.poolAuthority,
+    plays: Number(state.plays),
+  }
 }
 
 function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
@@ -97,36 +113,9 @@ function PoolTableRow({ pool }: { pool: ProgramAccount<PoolState> }) {
   )
 }
 
-const populatePool = async (
-  connection: Connection,
-  publicKey: PublicKey,
-  state: PoolState,
-): Promise<UiPool> => {
-  const { value: lp } = await connection.getTokenSupply(getPoolLpAddress(publicKey))
-  const underlyingAccount = decodeAta(await connection.getAccountInfo(getPoolUnderlyingTokenAccountAddress(publicKey)))
-  const bonusUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolBonusUnderlyingTokenAccountAddress(publicKey)))
-  const underlyingBalance = underlyingAccount?.amount ?? BigInt(0)
-  const bonusBalance = bonusUnderlyingTokenAccount?.amount ?? BigInt(0)
-  const jackpotUnderlyingTokenAccount = decodeAta(await connection.getAccountInfo(getPoolJackpotTokenAccountAddress(publicKey)))
-  const jackpotBalance = jackpotUnderlyingTokenAccount?.amount ?? BigInt(0)
-  const lpSupply = BigInt(lp.amount)
-  const ratio = !lpSupply ? 1 : Number(underlyingBalance) / Number(lpSupply)
-  return {
-    publicKey,
-    state,
-    liquidity: underlyingBalance,
-    underlyingTokenMint: state.underlyingTokenMint,
-    lpSupply,
-    bonusBalance,
-    jackpotBalance,
-    ratio,
-    poolAuthority: state.poolAuthority,
-    plays: Number(state.plays),
-  }
-}
-
 export async function fetchPool(connection: Connection, publicKey: PublicKey) {
-  const pool = decodePool(await connection.getAccountInfo(publicKey))
+  const accountInfo = await connection.getAccountInfo(publicKey)
+  const pool = decodePool(accountInfo)
   if (!pool) return null
   return await populatePool(connection, publicKey, pool)
 }
@@ -136,10 +125,9 @@ export function usePopulatedPool(account: ProgramAccount<PoolState>) {
   return useSWR("populated-pool-" + account.publicKey.toBase58(), () => populatePool(connection, account.publicKey, account.account))
 }
 
-export function PoolList() {
+export function PoolList({limit = Infinity}: {limit?: number}) {
   const program = useGambaProgram()
   const getTokenMeta = useGetTokenMeta()
-  const legacyPool = useAccount(new PublicKey("7qNr9KTKyoYsAFLtavitryUXmrhxYgVg2cbBKEN5w6tu"), info => info?.lamports ?? 0)
   const { data: pools = [], isLoading: isLoadingPools } = useSWR("pools", () => program.account.pool.all())
 
   const sortedPools = React.useMemo(
@@ -195,30 +183,12 @@ export function PoolList() {
           </>
         ) : (
           <>
-            {sortedPools.map(pool => (
+            {sortedPools.slice(0, limit).map(pool => (
               <PoolTableRow
                 key={pool.publicKey.toBase58()}
                 pool={pool}
               />
             ))}
-            <TableRowHref href="https://v1.gamba.so">
-              <StyledTableCell>
-                <Flex gap="4" align="center">
-                  <TokenAvatar mint={NATIVE_MINT} size="2" />
-                  <Text>V1 Pool</Text>
-                  <Text size="2" color="gray">SOL</Text>
-                </Flex>
-              </StyledTableCell>
-              <StyledTableCell>
-                <TokenValue2 mint={NATIVE_MINT} amount={legacyPool} />
-              </StyledTableCell>
-              <StyledTableCell>
-                <TokenValue2 dollar mint={NATIVE_MINT} amount={legacyPool} />
-              </StyledTableCell>
-              <StyledTableCell>
-                -
-              </StyledTableCell>
-            </TableRowHref>
           </>
         )}
       </Table.Body>

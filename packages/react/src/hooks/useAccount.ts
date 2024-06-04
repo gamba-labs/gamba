@@ -1,80 +1,56 @@
+import { signal } from '@preact/signals-react'
 import { useConnection } from '@solana/wallet-adapter-react'
-import { AccountInfo, Connection, PublicKey } from '@solana/web3.js'
+import { AccountInfo, PublicKey } from '@solana/web3.js'
 import React from 'react'
-import { create } from 'zustand'
 
-interface AccountsStore {
-  accountByAddress: Record<string, AccountInfo<Buffer> | null>
-  numListenersByAddress: Record<string, number>
-  subscribe: (connection: Connection, address: PublicKey) => void
-  unsubscribe: (address: PublicKey) => void
-}
+const DEFAULT_DEBOUNCE_MS = 1
+const addresses = signal(new Set<string>)
+const data = signal<Record<string, AccountInfo<Buffer> | null>>({})
 
-// Todo
-const _tmpAddressCache = new Set<string>()
+let fetchTimeout: any
 
-export const useAccountStore = create<AccountsStore>(
-  (set, get) => ({
-    accountByAddress: {},
-
-    numListenersByAddress: {},
-
-    async subscribe(connection, address) {
-      const _address = address.toBase58()
-      // const listeners = get().numListenersByAddress[_address] ?? 0
-
-      if (!_tmpAddressCache.has(address.toBase58())) {
-        _tmpAddressCache.add(address.toBase58())
-        const setAccount = (info: AccountInfo<Buffer> | null) => {
-          set((x) => ({
-            accountByAddress: {
-              ...x.accountByAddress,
-              [_address]: info,
-            },
-          }))
-        }
-        // Todo unsubscribe when no listeners
-        const subscription = connection.onAccountChange(address, setAccount)
-
-        console.debug('Account subscription', address.toBase58(), subscription, get())
-
-        const accountInfo = await connection.getAccountInfo(address)
-
-        setAccount(accountInfo)
-      }
-
-      set((x) => ({
-        numListenersByAddress: {
-          ...x.numListenersByAddress,
-          [_address]: (x.numListenersByAddress[_address] ?? 0) + 1,
-        },
-      }))
-    },
-
-    unsubscribe(address) {
-      const _address = address.toBase58()
-      const listeners = get().numListenersByAddress[_address] ?? 0
-      console.debug('Unsubscribe', address.toBase58(), listeners, get())
-    },
-  }),
-)
-
-/**
- * Returns a Solana account, auto fetch & auto updates
- */
 export function useAccount<T>(
   address: PublicKey,
   decoder: (x: AccountInfo<Buffer> | null) => T,
 ) {
   const { connection } = useConnection()
-  const subscribe = useAccountStore((state) => state.subscribe)
-  const unsubscribe = useAccountStore((state) => state.unsubscribe)
-  const account = useAccountStore((state) => state.accountByAddress[address.toBase58()] ?? null)
+  const fetchedData = data.value[address.toString()]
 
   React.useEffect(() => {
-    subscribe(connection, address)
-    return () => unsubscribe(address)
-  }, [connection, address.toBase58()])
+    // Clear old timeout whenever a new address should get fetched
+    addresses.value.add(address.toString())
 
-  return decoder(account)
+    clearTimeout(fetchTimeout)
+
+    fetchTimeout = setTimeout(async () => {
+      const unique = Array.from(addresses.value).filter((x) => !Object.keys(data.value).includes(x))
+      if (!unique.length) {
+        return
+      }
+
+      // const newData = await useTokenMeta.fetcher(unique)
+      const accounts = await connection.getMultipleAccountsInfo(unique.map((x) => new PublicKey(x)))
+
+      console.debug('Fetching accounts', unique)
+
+      const newData = unique.reduce((prev, curr, ci) => {
+        return { ...prev, [curr]: accounts[ci] }
+      }, {} as Record<string, AccountInfo<Buffer> | null>)
+
+      data.value = { ...data.value, ...newData }
+      addresses.value.clear()
+    }, DEFAULT_DEBOUNCE_MS)
+
+
+    const subscription = connection.onAccountChange(address, (info) => {
+      data.value = { ...data.value, [address.toString()]: info }
+    })
+
+    return () => {
+      clearTimeout(fetchTimeout)
+      connection.removeAccountChangeListener(subscription)
+    }
+  }, [address.toString()])
+
+  return decoder(fetchedData)
 }

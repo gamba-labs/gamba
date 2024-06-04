@@ -16,7 +16,6 @@ export interface PoolToken {
 
 export interface GambaPlatformContext {
   platform: PlatformMeta
-  games: GameBundle[]
   selectedPool: PoolToken
   defaultCreatorFee: number
   defaultJackpotFee: number
@@ -31,7 +30,10 @@ export const GambaPlatformContext = React.createContext<GambaPlatformContext>(nu
 
 interface GambaPlatformProviderProps extends React.PropsWithChildren {
   creator: PublicKey | string
-  games: GameBundle[]
+  /** @deprecated */
+  games?: GameBundle[]
+  /** @deprecated */
+  tokens?: any[]
   defaultPool?: PoolToken
   /** How much the player should pay in fees to the platform */
   defaultCreatorFee?: number
@@ -41,7 +43,7 @@ interface GambaPlatformProviderProps extends React.PropsWithChildren {
 }
 
 export function GambaPlatformProvider(props: GambaPlatformProviderProps) {
-  const { creator, children, games } = props
+  const { creator, children } = props
   const [selectedPool, setSelectedPool] = React.useState<PoolToken>(props.defaultPool ?? { token: NATIVE_MINT })
   const [clientSeed, setClientSeed] = React.useState(String(Math.random() * 1e9 | 0))
   const [defaultJackpotFee, setDefaultJackpotFee] = React.useState(props.defaultJackpotFee ?? 0.001)
@@ -68,7 +70,6 @@ export function GambaPlatformProvider(props: GambaPlatformProviderProps) {
           name: '',
           creator: new PublicKey(creator),
         },
-        games,
         selectedPool,
         setToken,
         setPool,

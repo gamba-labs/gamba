@@ -4,6 +4,8 @@ import { GambaPlatformContext } from '../GambaPlatformProvider'
 import { useCurrentPool } from './useCurrentPool'
 import { useFakeToken } from './useFakeToken'
 import { useTokenMeta } from './useTokenMeta'
+import { PublicKey } from '@solana/web3.js'
+import { FAKE_TOKEN_MINT } from '../TokenMetaProvider'
 
 export * from './useCurrentPool'
 export * from './useFakeToken'
@@ -15,27 +17,30 @@ export function useGambaPlatformContext() {
   return React.useContext(GambaPlatformContext)
 }
 
+/**
+ *
+ * @returns Total amount of fees for the given pool and platform
+ */
 export function useFees() {
   const context = React.useContext(GambaPlatformContext)
   const pool = useCurrentPool()
   const creatorFee = context.defaultCreatorFee
-  const jackpotFee = context.defaultCreatorFee
-  const totalTokenFees = creatorFee + pool.gambaFee + pool.poolFee + jackpotFee
-  return totalTokenFees
+  const jackpotFee = context.defaultJackpotFee
+  return creatorFee + pool.gambaFee + pool.poolFee + jackpotFee
 }
 
-export const useCurrentToken = () => {
+export function useCurrentToken() {
   const { token } = React.useContext(GambaPlatformContext).selectedPool
   return useTokenMeta(token)
 }
 
-export const useUserBalance = () => {
+export function useTokenBalance(mint?: PublicKey) {
   const token = useCurrentToken()
   const userAddress = useWalletAddress()
-  const realBalance = useBalance(userAddress, token.mint)
+  const realBalance = useBalance(userAddress, mint ?? token.mint)
   const fake = useFakeToken()
 
-  if (fake.isActive) {
+  if ((!mint && fake.isActive) || mint?.equals(FAKE_TOKEN_MINT)) {
     return {
       ...realBalance,
       balance: fake.balance.balance,
@@ -44,4 +49,9 @@ export const useUserBalance = () => {
   }
 
   return realBalance
+}
+
+/** @deprecated renamed to "useTokenBalance" */
+export function useUserBalance(mint?: PublicKey) {
+  return useTokenBalance(mint)
 }

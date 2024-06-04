@@ -2,11 +2,11 @@ import { GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import { Flex } from '../../components'
 import { Modal } from '../../components/Modal'
-import { PLATFORM_SHARABLE_URL } from '../../constants'
+import { EXPLORER_URL, PLATFORM_SHARABLE_URL } from '../../constants'
 import { extractMetadata } from '../../utils'
-import styled from 'styled-components'
 
 const Container = styled.div`
   display: grid;
@@ -23,7 +23,7 @@ const Inner = styled.div`
 const Content = styled.div`
   border-radius: 10px;
   padding: 20px;
-  background: linear-gradient(156deg, #4141ff22, #12121700); // #121217;
+  background: linear-gradient(156deg, #52527822, #12121700);
 `
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
@@ -66,7 +66,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
           </Content>
         </Inner>
         <Flex>
-          <GambaUi.Button size="small" onClick={() => window.open(`https://explorer.gamba.so/tx/${event.signature}`, '_blank')}>
+          <GambaUi.Button size="small" onClick={() => window.open(`${EXPLORER_URL}/tx/${event.signature}`, '_blank')}>
             Verify
           </GambaUi.Button>
           <GambaUi.Button size="small" onClick={gotoGame}>

@@ -1,4 +1,4 @@
-import Tilt from "react-parallax-tilt";
+import Tilt from 'react-parallax-tilt'
 
 export function GameCard({ title, image, link }) {
   return (
@@ -31,5 +31,5 @@ export function GameCard({ title, image, link }) {
         </div>
       </a>
     </Tilt>
-  );
+  )
 }

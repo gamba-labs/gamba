@@ -45,12 +45,9 @@ rules:
   operator-linebreak: [2, before]
   implicit-arrow-linebreak: [error, beside]
   object-curly-spacing: ['error', 'always']
-
   "@typescript-eslint/semi": [error, never]
   '@typescript-eslint/indent': [error, 2]
   '@typescript-eslint/type-annotation-spacing': error
-
-  react/jsx-space-before-closing: [error, always]
   react/jsx-closing-tag-location: error
   react/jsx-wrap-multilines: [
     error, {

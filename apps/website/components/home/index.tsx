@@ -1,27 +1,27 @@
-import Link from "next/link";
-import { useEffect } from "react";
-import { projects } from "../projects";
-import { GameCard } from "./gameCard";
-import Tilt from "react-parallax-tilt";
-import { CodeBlock, dracula } from "react-code-blocks";
+import Link from 'next/link'
+import { useEffect } from 'react'
+import { projects } from '../projects'
+import { GameCard } from './gameCard'
+import Tilt from 'react-parallax-tilt'
+import { CodeBlock, dracula } from 'react-code-blocks'
 
 export function Home() {
   const randomProjects = [...projects]
     .sort(() => 0.5 - Math.random())
-    .slice(0, 6);
+    .slice(0, 6)
 
   useEffect(() => {
     setTimeout(async () => {
-      const video = document.querySelector("#hero-video") as HTMLVideoElement;
-      await video.play();
-      video.setAttribute("autoplay", "true");
-    }, 100);
-  }, []);
+      const video = document.querySelector('#hero-video') as HTMLVideoElement
+      await video.play()
+      video.setAttribute('autoplay', 'true')
+    }, 100)
+  }, [])
 
   const code = `
 import React from 'react';
 import { GambaProvider, SendTransactionProvider } from "gamba-react-v2";
-import { 
+import {
   GambaPlatformProvider,
   GambaUi,
   TokenMetaProvider
@@ -85,7 +85,7 @@ function App() {
     </TokenMetaProvider>
   );
 }
-`;
+`
 
   return (
     <div>
@@ -175,7 +175,7 @@ function App() {
               Plug and Earn
             </h2>
             <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-              Gamba's open-source SDK is really easy to work with. Simply
+              Gamba{'\''}s open-source SDK is really easy to work with. Simply
               provide your Solana address and start earning on every bet made on
               your site.
             </p>
@@ -280,11 +280,11 @@ function App() {
             </p>
             <p className="text-lg my-8 text-zinc-600 dark:text-zinc-300">
               People are already earning SOL by hosting their own gamba casinos
-              - Check out the{" "}
+              - Check out the{' '}
               <a
                 href="https://explorer.gamba.so/"
                 target="_blank"
-                className="text-[#8851ff] hover:underline"
+                className="text-[#8851ff] hover:underline" rel="noreferrer"
               >
                 Gamba explorer
               </a>
@@ -293,5 +293,5 @@ function App() {
         </div>
       </div>
     </div>
-  );
+  )
 }

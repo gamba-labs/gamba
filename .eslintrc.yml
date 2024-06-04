@@ -45,7 +45,6 @@ rules:
   object-property-newline: ['error', {'allowAllPropertiesOnSameLine': true}]
   object-curly-newline: ['error', {'multiline': true}]
   space-infix-ops: 'error'
-  react/jsx-space-before-closing: ['error', 'always']
   react/react-in-jsx-scope: 'off'
   react/no-unknown-property: 'off'
   react/display-name: 'off'

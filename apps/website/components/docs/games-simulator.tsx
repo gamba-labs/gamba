@@ -1,110 +1,110 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
 
 function simulateBetOutcome(
   betArray: number[],
   clientSeed: string,
-  nonce: number
+  nonce: number,
 ): number {
-  const hash = `${clientSeed}-${nonce}`;
-  const randomValue = hash.length + Math.random();
-  return Math.floor(randomValue % betArray.length);
+  const hash = `${clientSeed}-${nonce}`
+  const randomValue = hash.length + Math.random()
+  return Math.floor(randomValue % betArray.length)
 }
 
 function generateNumericString(length: number): string {
-  let result = "";
+  let result = ''
   for (let i = 0; i < length; i++) {
-    result += Math.floor(Math.random() * 10).toString();
+    result += Math.floor(Math.random() * 10).toString()
   }
-  return result;
+  return result
 }
 
 export default function Simulator(): JSX.Element {
   const [clientSeed, setClientSeed] = useState<string>(
-    generateNumericString(9)
-  );
-  const [rngSeed, setRngSeed] = useState<string>(generateNumericString(64));
-  const [nonce, setNonce] = useState<number>(1);
-  const [betArray, setBetArray] = useState<number[]>([5, 0, 0, 0, 0]);
-  const [simulationResult, setSimulationResult] = useState<number | null>(null);
-  const [validationMessage, setValidationMessage] = useState<string>("");
+    generateNumericString(9),
+  )
+  const [rngSeed, setRngSeed] = useState<string>(generateNumericString(64))
+  const [nonce, setNonce] = useState<number>(1)
+  const [betArray, setBetArray] = useState<number[]>([5, 0, 0, 0, 0])
+  const [simulationResult, setSimulationResult] = useState<number | null>(null)
+  const [validationMessage, setValidationMessage] = useState<string>('')
   const [validationStatus, setValidationStatus] = useState<
-    "success" | "error" | ""
-  >("");
+  'success' | 'error' | ''
+  >('')
 
   const validateBetArray = (betArray: number[]) => {
-    const sum = betArray.reduce((acc, curr) => acc + curr, 0);
-    const expectedValue = sum / betArray.length;
+    const sum = betArray.reduce((acc, curr) => acc + curr, 0)
+    const expectedValue = sum / betArray.length
 
     if (expectedValue === 1) {
-      setValidationMessage("Equal odds = allowed ✅");
-      setValidationStatus("success");
+      setValidationMessage('Equal odds = allowed ✅')
+      setValidationStatus('success')
     } else if (expectedValue > 1) {
-      setValidationMessage("Player has an advantage = not allowed ❌");
-      setValidationStatus("error");
+      setValidationMessage('Player has an advantage = not allowed ❌')
+      setValidationStatus('error')
     } else {
-      setValidationMessage("House has an advantage = not allowed ❌");
-      setValidationStatus("error");
+      setValidationMessage('House has an advantage = not allowed ❌')
+      setValidationStatus('error')
     }
-  };
+  }
 
   const handleSimulate = () => {
-    const result = simulateBetOutcome(betArray, clientSeed, nonce);
-    setSimulationResult(result);
-    validateBetArray(betArray);
-  };
+    const result = simulateBetOutcome(betArray, clientSeed, nonce)
+    setSimulationResult(result)
+    validateBetArray(betArray)
+  }
 
   const renderBetArrayWithHighlight = (): JSX.Element => (
     <div
       style={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "10px",
-        marginTop: "5px",
-        justifyContent: "center",
-        maxWidth: "100%",
-        overflow: "hidden",
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '10px',
+        marginTop: '5px',
+        justifyContent: 'center',
+        maxWidth: '100%',
+        overflow: 'hidden',
       }}
     >
       {betArray.map((value, index) => (
         <div
           key={index}
           style={{
-            padding: "auto",
-            borderRadius: "25%",
-            backgroundColor: index === simulationResult ? "#4CAF50" : "#f44336",
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: "16px",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-            textAlign: "center",
-            width: "25px",
-            height: "25px",
+            padding: 'auto',
+            borderRadius: '25%',
+            backgroundColor: index === simulationResult ? '#4CAF50' : '#f44336',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            textAlign: 'center',
+            width: '25px',
+            height: '25px',
           }}
         >
           {value}x
         </div>
       ))}
     </div>
-  );
+  )
 
   return (
     <div
       style={{
-        maxWidth: "500px",
-        margin: "auto",
-        padding: "20px",
-        borderRadius: "10px",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-        textAlign: "center",
-        border: "1px solid #ccc",
+        maxWidth: '500px',
+        margin: 'auto',
+        padding: '20px',
+        borderRadius: '10px',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+        textAlign: 'center',
+        border: '1px solid #ccc',
       }}
     >
-      <label style={{ display: "block", fontWeight: "bold", fontSize: "24px" }}>
+      <label style={{ display: 'block', fontWeight: 'bold', fontSize: '24px' }}>
         Gamba Play Simulator
       </label>
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: '15px' }}>
         <label
-          style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}
+          style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}
         >
           RNG Seed:
         </label>
@@ -113,16 +113,16 @@ export default function Simulator(): JSX.Element {
           value={rngSeed}
           onChange={(e) => setRngSeed(e.target.value)}
           style={{
-            width: "100%",
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
+            width: '100%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '5px',
           }}
         />
       </div>
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: '15px' }}>
         <label
-          style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}
+          style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}
         >
           Client Seed:
         </label>
@@ -131,16 +131,16 @@ export default function Simulator(): JSX.Element {
           value={clientSeed}
           onChange={(e) => setClientSeed(e.target.value)}
           style={{
-            width: "100%",
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
+            width: '100%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '5px',
           }}
         />
       </div>
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: '15px' }}>
         <label
-          style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}
+          style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}
         >
           Nonce:
         </label>
@@ -149,53 +149,53 @@ export default function Simulator(): JSX.Element {
           value={nonce}
           onChange={(e) => setNonce(parseInt(e.target.value))}
           style={{
-            width: "100%",
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
+            width: '100%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '5px',
           }}
         />
       </div>
-      <div style={{ marginBottom: "15px" }}>
+      <div style={{ marginBottom: '15px' }}>
         <label
-          style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}
+          style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}
         >
           Bet Array (comma-separated):
         </label>
         <input
-          value={betArray.join(",")}
-          onChange={(e) => setBetArray(e.target.value.split(",").map(Number))}
+          value={betArray.join(',')}
+          onChange={(e) => setBetArray(e.target.value.split(',').map(Number))}
           style={{
-            width: "100%",
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
+            width: '100%',
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '5px',
           }}
         />
       </div>
       <button
         onClick={handleSimulate}
         style={{
-          padding: "10px 20px",
-          border: "none",
-          borderRadius: "5px",
-          backgroundColor: "#8851ff",
-          color: "#fff",
-          cursor: "pointer",
-          fontWeight: "bold",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-          transition: "background-color 0.3s ease",
+          padding: '10px 20px',
+          border: 'none',
+          borderRadius: '5px',
+          backgroundColor: '#8851ff',
+          color: '#fff',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+          transition: 'background-color 0.3s ease',
         }}
-        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#9564ff")}
-        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#8851ff")}
+        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#9564ff')}
+        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#8851ff')}
       >
         Simulate Play
       </button>
       <p
         style={{
-          marginTop: "10px",
-          color: validationStatus === "success" ? "#4CAF50" : "#f44336",
-          fontWeight: "bold",
+          marginTop: '10px',
+          color: validationStatus === 'success' ? '#4CAF50' : '#f44336',
+          fontWeight: 'bold',
         }}
       >
         {validationMessage}
@@ -203,5 +203,5 @@ export default function Simulator(): JSX.Element {
       <label>Result:</label>
       {simulationResult !== null && renderBetArrayWithHighlight()}
     </div>
-  );
+  )
 }

@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
+    "next": "^13.0.6",
     "turbo": "^1.13.3",
     "typescript": "^5.2.2"
   },

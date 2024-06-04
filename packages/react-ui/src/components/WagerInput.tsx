@@ -115,6 +115,8 @@ export function WagerInput(props: WagerInputProps) {
     [token.mint.toString()],
   )
 
+  useOnClickOutside(ref, () => setIsEditing(false))
+
   const startEditInput = () => {
     if (props.options) {
       setIsEditing(!isEditing)
@@ -134,8 +136,6 @@ export function WagerInput(props: WagerInputProps) {
     const nextValue = Math.max(token.baseWager, (props.value * 2) || token.baseWager)
     props.onChange(Math.max(0, Math.min(nextValue, availableBalance - nextValue * fees)))
   }
-
-  useOnClickOutside(ref, () => setIsEditing(false))
 
   return (
     <div ref={ref} className={props.className} style={{ position: 'relative' }}>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 // import { ExtraContent } from './components/extra-content'
 
 const config: DocsThemeConfig = {
-  logo: (<><img src="/thumbnails/logo.svg" alt="Gamba Logo" /></>),
+  logo: (<><img src="/logo.svg" alt="Gamba Logo" /></>),
   project: { link: 'https://github.com/gamba-labs' },
   chat: { link: 'https://discord.gg/xjBsW3e8fK' },
   docsRepositoryBase: 'https://github.com/gamba-labs/gamba/tree/docs/apps/website',

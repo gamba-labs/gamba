@@ -2,7 +2,7 @@
 
 This monorepo contains all of Gamba's npm packages and apps.
 
-If you want to build your own project on Gamba we recommend checking out the [platform template](https://github.com/gamba-labs/platform), or the [docs (WIP)](https://docs-v2-delta.vercel.app/docs).
+If you want to build your own project on Gamba we recommend checking out the [platform template](https://github.com/gamba-labs/platform), or the [docs (WIP)](https://gamba.so/docs).
 
 Anyone who wants to contribute is welcome to submit a PR!
 

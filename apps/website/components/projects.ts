@@ -5,6 +5,11 @@ export const projects = [
     thumbnail: '/thumbnails/guac.png',
   },
   {
+    name: 'Fabled Fortune',
+    link: 'https://fabled-fortune.fabled-adventure.xyz',
+    thumbnail: '/thumbnails/fabled-fortune.png',
+  },
+  {
     name: 'Oh Yeah Bet',
     link: 'https://www.ohyeah.bet/',
     thumbnail: '/thumbnails/ohyeah.png',
@@ -20,11 +25,6 @@ export const projects = [
     thumbnail: '/thumbnails/solbets.png',
   },
   {
-    name: 'SKB Gaming',
-    link: 'https://skbgaming.solkillerbunnies.io/',
-    thumbnail: '/thumbnails/skbgaming.png',
-  },
-  {
     name: 'Felt Gaming Casino',
     link: 'https://casino.feltgaming.io/',
     thumbnail: '/thumbnails/feltgaming.png',
@@ -33,10 +33,5 @@ export const projects = [
     name: 'NinjaTSS Casino',
     link: 'https://www.ninjatsscasino.xyz/',
     thumbnail: '/thumbnails/ninjaturtles.png',
-  },
-  {
-    name: 'SolarMoon',
-    thumbnail: '/thumbnails/solarmoon.png',
-    link: 'https://flip.solarmoon.xyz/',
   },
 ]

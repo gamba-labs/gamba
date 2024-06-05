@@ -101,17 +101,17 @@ function App() {
           <video id="hero-video" src="/hero.mp4" muted playsInline />
           <div className="flex flex-wrap justify-center align-center gap-6">
             <Link
+              href="https://explorer.gamba.so"
+              target="_blank"
+              className="relative flex h-11 w-full overflow-hidden items-center justify-center px-6 active:duration-75 sm:w-max gamba-main-button filled"
+            >
+              <span>Explore ✨</span>
+            </Link>
+            <Link
               href="/docs"
               className="relative flex h-11 w-full items-center justify-center px-6 active:duration-75 sm:w-max gamba-main-button"
             >
-              <span>Learn more</span>
-            </Link>
-            <Link
-              href="https://explorer.gamba.so"
-              target="_blank"
-              className="relative flex h-11 w-full items-center justify-center px-6 active:duration-75 sm:w-max gamba-main-button"
-            >
-              <span>Explore</span>
+              <span>Docs</span>
             </Link>
           </div>
         </div>
@@ -148,7 +148,7 @@ function App() {
           >
             <Link
               href="/docs/examples"
-              className="outline outline-white outline-1 rounded-lg px-4 py-2 text-center"
+              className="px-4 py-2 text-center"
               rel="noreferrer"
             >
               Explore more →
@@ -232,7 +232,7 @@ function App() {
           >
             <Link
               href="/docs"
-              className="outline outline-white outline-1 rounded-lg px-4 py-2 text-center"
+              className="px-4 py-2 text-center"
               rel="noreferrer"
             >
               Start Building →
@@ -268,26 +268,24 @@ function App() {
           </div>
           <div className="md:w-7/12 lg:w-1/2">
             <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl dark:text-white">
-              Wow so easy 🤯
+              ✨ Zero deployments
             </h1>
             <p className="text-lg my-8 text-zinc-600 dark:text-zinc-300">
-              With just a few lines of code you can build betting games that
+              With just a static webpage you can build betting games that
               interact directly with the Solana blockchain, and collect fees on
               every bet made via your frontend.
             </p>
             <p className="text-lg my-8 text-zinc-600 dark:text-zinc-300">
-              No blockchain coding needed!
-            </p>
-            <p className="text-lg my-8 text-zinc-600 dark:text-zinc-300">
-              People are already earning SOL by hosting their own gamba casinos
-              - Check out the{' '}
+              Check out our
+              {' '}
               <a
-                href="https://explorer.gamba.so/"
+                href="https://github.com/gamba-labs"
                 target="_blank"
                 className="text-[#8851ff] hover:underline" rel="noreferrer"
               >
-                Gamba explorer
+                Github
               </a>
+              {' '}to get started
             </p>
           </div>
         </div>

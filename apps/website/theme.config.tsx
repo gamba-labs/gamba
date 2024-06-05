@@ -3,7 +3,7 @@ import { DocsThemeConfig, useConfig } from 'nextra-theme-docs'
 import { useRouter } from 'next/router'
 
 const config: DocsThemeConfig = {
-  logo: (<><img src="/logo.svg" alt="Gamba Logo" /></>),
+  logo: (<><img src="/logo2.svg" alt="Gamba Logo" /></>),
   project: { link: 'https://github.com/gamba-labs' },
   chat: { link: 'https://discord.gg/xjBsW3e8fK' },
   docsRepositoryBase: 'https://github.com/gamba-labs/gamba/tree/docs/apps/website',
@@ -20,7 +20,7 @@ const config: DocsThemeConfig = {
       title: 'Gamba',
       description: 'Build your own web3 games with Gamba, a decentralized betting platform on Solana',
       author: { twitter: 'gambalabs' },
-      favicon: '/favicon.svg',
+      favicon: '/gamba.svg',
     }
     const favicon = String(ogConfig.favicon)
     const title = String(frontMatter.title || ogConfig.title)

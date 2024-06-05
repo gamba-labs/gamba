@@ -175,6 +175,10 @@ body {
   background: rgba(17,17,17,.95);
 }
 
+:is(html[class~=dark] .gamba-main-button.filled) {
+  background: none;
+}
+
 .gamba-main-button::before {
   content: '';
   position: absolute;

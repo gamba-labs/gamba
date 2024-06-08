@@ -31,3 +31,4 @@ Simply fork the repository, provide your own Solana address, and begin collectin
 [Discord](https://discord.com/invite/xjBsW3e8fK)
 
 [NextJS version by BankkRoll](https://github.com/BankkRoll/Gamba-V2-Next.js)
+

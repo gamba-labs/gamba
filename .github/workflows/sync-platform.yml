@@ -35,7 +35,7 @@ jobs:
 
       - name: Update Dependencies
         run: |
-          cd temp/example
+          cd temp/platform
           for package in $(jq -r '.dependencies | keys[]' package.json); do
             version=$(pnpm info $package version)
             jq --arg pkg $package --arg ver $version '.dependencies[$pkg] = $ver' package.json > tmp.json && mv tmp.json package.json

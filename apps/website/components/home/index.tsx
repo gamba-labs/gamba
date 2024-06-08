@@ -1,14 +1,20 @@
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { CodeBlock, dracula } from 'react-code-blocks'
+import Tilt from 'react-parallax-tilt'
 import { projects } from '../projects'
 import { GameCard } from './gameCard'
-import Tilt from 'react-parallax-tilt'
-import { CodeBlock, dracula } from 'react-code-blocks'
 
 export function Home() {
-  const randomProjects = [...projects]
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 6)
+  // const randomProjects = [...projects].sort(() => 0.5 - Math.random()).slice(0, 6)
+  // <3 next.js - https://stackoverflow.com/questions/73071457/randomize-an-array-using-useeffect-in-nextjs
+  const [randomProjects, setRandomProjects] = useState([])
+  useEffect(() => {
+    const shuffledProjects = [...projects]
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 6)
+    setRandomProjects(shuffledProjects)
+  }, [projects])
 
   useEffect(() => {
     setTimeout(async () => {
@@ -20,12 +26,8 @@ export function Home() {
 
   const code = `
 import React from 'react';
-import { GambaProvider, SendTransactionProvider } from "gamba-react-v2";
-import {
-  GambaPlatformProvider,
-  GambaUi,
-  TokenMetaProvider
-} from "gamba-react-ui-v2";
+import { GambaProvider } from "gamba-react-v2";
+import { GambaPlatformProvider, GambaUi } from "gamba-react-ui-v2";
 
 function DoubleOrNothing() {
   const game = GambaUi.useGame();
@@ -35,17 +37,17 @@ function DoubleOrNothing() {
       await game.play({
         bet: [0, 2],
         wager: solToLamports(0.1)
-      });
+      })
 
-      const result = await game.result();
+      const result = await game.result()
 
       if (result.payout > 0) {
-        console.log("win");
+        console.log("Win")
       } else {
-        console.log("loss");
+        console.log("Loss")
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error:", error)
     }
   };
 
@@ -57,40 +59,20 @@ function DoubleOrNothing() {
 }
 
 function App() {
-  const TOKENLIST = [
-    {
-      mint: new PublicKey("So11111111111111111111111111111111111111112"),
-      name: "Solana",
-      symbol: "SOL",
-      image: "/logo.png",
-      decimals: 9,
-      baseWager: 0.01e9,
-    },
-    // Add more tokens here
-  ];
-
   return (
-    <TokenMetaProvider tokens={TOKENLIST}>
-      <SendTransactionProvider priorityFee={400_201}>
-        <GambaProvider>
-          <GambaPlatformProvider
-            creator={"xxCREATOR_ADDRESS_HERExx"}
-            defaultCreatorFee={0.01}
-            defaultJackpotFee={0.01}
-          >
-            <DoubleOrNothing />
-          </GambaPlatformProvider>
-        </GambaProvider>
-      </SendTransactionProvider>
-    </TokenMetaProvider>
+    <GambaProvider>
+      <GambaPlatformProvider creator={"<CREATOR_ADDRESS_HERE>"}>
+        <DoubleOrNothing />
+      </GambaPlatformProvider>
+    </GambaProvider>
   );
 }
 `
 
   return (
-    <div>
+    <div className="fadeIn">
       <div className="hero max-w-7xl mx-auto px-6 md:px-12 xl:px-6 py-32">
-        <div className="lg:w-2/3 text-center mx-auto">
+        <div className="appear lg:w-2/3 text-center mx-auto">
           <h1 className="text-zinc-900 dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
             Build <span className="gradient-text">on-chain</span> games on
             Solana
@@ -117,7 +99,7 @@ function App() {
         </div>
       </div>
 
-      <div className="fadeIn mt-24 max-w-7xl mx-auto px-6 md:px-12 xl:px-6 text-center">
+      <div className="mt-24 max-w-7xl mx-auto px-6 md:px-12 xl:px-6 text-center">
         <h1 className="text-2xl text-center font-bold text-zinc-900 dark:text-white md:text-3xl lg:text-4xl">
           Built on Gamba
         </h1>
@@ -125,9 +107,9 @@ function App() {
           Some projects that have integrated with Gamba
         </p>
         <div className="relative mt-12 grid gap-9 sm:grid-cols-2 lg:grid-cols-3">
-          {randomProjects.map((project, index) => (
+          {randomProjects.map((project) => (
             <GameCard
-              key={index}
+              key={project.name}
               title={project.name}
               image={project.thumbnail}
               link={project.link}
@@ -135,25 +117,13 @@ function App() {
           ))}
         </div>
         <p className="mt-8 text-xl text-zinc-700 dark:text-zinc-300 leading-8">
-          <Tilt
-            tiltMaxAngleX={5}
-            tiltMaxAngleY={5}
-            perspective={500}
-            transitionSpeed={1000}
-            gyroscope={true}
-            glareMaxOpacity={0.5}
-            tiltAngleYInitial={-2}
-            tiltAngleXInitial={2}
-            className="inline-block"
+          <Link
+            href="/docs/examples"
+            className="px-4 py-2 text-center"
+            rel="noreferrer"
           >
-            <Link
-              href="/docs/examples"
-              className="px-4 py-2 text-center"
-              rel="noreferrer"
-            >
-              Explore more →
-            </Link>
-          </Tilt>
+            Explore more →
+          </Link>
         </p>
       </div>
 
@@ -219,25 +189,13 @@ function App() {
           </Tilt>
         </div>
         <p className="flex justify-center mt-8 text-xl text-zinc-700 dark:text-zinc-300 leading-8">
-          <Tilt
-            tiltMaxAngleX={5}
-            tiltMaxAngleY={5}
-            perspective={500}
-            transitionSpeed={1000}
-            gyroscope={true}
-            glareMaxOpacity={0.5}
-            tiltAngleYInitial={-2}
-            tiltAngleXInitial={2}
-            className="inline-block"
+          <Link
+            href="/docs"
+            className="px-4 py-2 text-center"
+            rel="noreferrer"
           >
-            <Link
-              href="/docs"
-              className="px-4 py-2 text-center"
-              rel="noreferrer"
-            >
-              Start Building →
-            </Link>
-          </Tilt>
+            Start Building →
+          </Link>
         </p>
       </div>
 

@@ -119,15 +119,6 @@ body {
 	}
 }
 
-.hero {
-  animation: fadeIn 2s ease, heroAnimation 4s cubic-bezier(0.08, 0.82, 0.17, 1.21);
-  min-height: 75vh;
-}
-
-.fadeIn {
-  animation: fadeIn 3s ease;
-}
-
 @keyframes heroAnimation {
 	0% {
 		transform: scale(.9);
@@ -221,13 +212,15 @@ footer {
 
 .hero {
   position: relative;
+  min-height: 75vh;
 }
 
-.hero > div {
-  /* position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%); */
+.appear {
+  animation: heroAnimation 2s cubic-bezier(0.08, 0.82, 0.17, 1.21);
+}
+
+.fadeIn {
+  animation: fadeIn 1s ease;
 }
 
 video#hero-video {
@@ -235,10 +228,6 @@ video#hero-video {
   max-width: 800px;
   position: relative;
   max-width: 100%;
-  /* position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  left: 50%; */
   z-index: -10;
 }
 

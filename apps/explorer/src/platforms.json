@@ -126,5 +126,10 @@
     "name": "Fabled Fortune",
     "url": "https://fabled-fortune.fabled-adventure.xyz",
     "image": "/logos/fabledadventure.png"
+  },
+  {
+    "address": "4vUKV5uYzcKG59hB8X7sEGjzFUcyaveFYqLkeq4BuLye",
+    "name": "Geowmbles",
+    "image": "/logos/geowmbles.png"
   }
 ]

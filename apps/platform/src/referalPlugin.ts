@@ -12,22 +12,24 @@ export const makeReferalPlugin = (
   fixedSolFallback = 0.01,
 ): GambaPlugin => async (input, context) => {
   try {
-    const _receiver = window.location.hash.slice(1)
-    const receiver = new PublicKey(_receiver)
+    const _recipient = window.location.hash.slice(1)
+    if (!_recipient) return []
+
+    const recipient = new PublicKey(_recipient)
 
     // Send native SOL
     if (input.token.equals(SplToken.NATIVE_MINT)) {
       return [
         SystemProgram.transfer({
           fromPubkey: input.wallet,
-          toPubkey: receiver,
+          toPubkey: recipient,
           lamports: input.wager * tokenPercent,
         }),
       ]
     }
 
     const fromAta = SplToken.getAssociatedTokenAddressSync(input.token, input.wallet)
-    const toAta = SplToken.getAssociatedTokenAddressSync(input.token, receiver)
+    const toAta = SplToken.getAssociatedTokenAddressSync(input.token, recipient)
 
     const recipientHasAta = await (async () => {
       try {
@@ -60,7 +62,7 @@ export const makeReferalPlugin = (
     return [
       SystemProgram.transfer({
         fromPubkey: input.wallet,
-        toPubkey: receiver,
+        toPubkey: recipient,
         lamports: fixedSolFallback * LAMPORTS_PER_SOL,
       }),
     ]
@@ -71,7 +73,7 @@ export const makeReferalPlugin = (
     //   SplToken.createAssociatedTokenAccountInstruction(
     //     input.wallet,
     //     toAta,
-    //     receiver,
+    //     recipient,
     //     input.token,
     //   ),
     //   SplToken.createTransferInstruction(

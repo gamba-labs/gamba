@@ -84,79 +84,6 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
-  apps/bot:
-    dependencies:
-      '@coral-xyz/anchor':
-        specifier: ^0.27.0
-        version: 0.27.0
-      '@solana/spl-token':
-        specifier: ^0.3.8
-        version: 0.3.8(@solana/web3.js@1.78.5)
-      '@solana/web3.js':
-        specifier: ^1.73.5
-        version: 1.78.5
-      apicache:
-        specifier: ^1.6.3
-        version: 1.6.3
-      cors:
-        specifier: ^2.8.5
-        version: 2.8.5
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      express:
-        specifier: ^4.18.2
-        version: 4.18.2
-      gamba-core-v2:
-        specifier: workspace:*
-        version: link:../../packages/core
-      node-cron:
-        specifier: ^3.0.3
-        version: 3.0.3
-      sqlite3:
-        specifier: ^5.1.6
-        version: 5.1.6
-      telegraf:
-        specifier: ^4.16.3
-        version: 4.16.3
-      zod:
-        specifier: ^3.22.4
-        version: 3.22.4
-    devDependencies:
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.21
-      '@types/node':
-        specifier: ^18.15.3
-        version: 18.15.3
-      '@types/node-cron':
-        specifier: ^3.0.11
-        version: 3.0.11
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^5.54.1
-        version: 5.54.1(@typescript-eslint/parser@5.54.1)(eslint@8.48.0)(typescript@4.9.5)
-      '@typescript-eslint/parser':
-        specifier: ^5.54.1
-        version: 5.54.1(eslint@8.48.0)(typescript@4.9.5)
-      eslint:
-        specifier: ^8.35.0
-        version: 8.48.0
-      nodemon:
-        specifier: ^3.0.1
-        version: 3.0.1
-      pm2:
-        specifier: ^5.3.0
-        version: 5.3.0
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@18.15.3)(typescript@4.9.5)
-      tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(ts-node@10.9.1)(typescript@4.9.5)
-      typescript:
-        specifier: ^4.9.5
-        version: 4.9.5
-
   apps/explorer:
     dependencies:
       '@coral-xyz/anchor':
@@ -384,7 +311,80 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1
 
-  apps/referal:
+  apps/trash.bot:
+    dependencies:
+      '@coral-xyz/anchor':
+        specifier: ^0.27.0
+        version: 0.27.0
+      '@solana/spl-token':
+        specifier: ^0.3.8
+        version: 0.3.8(@solana/web3.js@1.93.0)
+      '@solana/web3.js':
+        specifier: ^1.73.5
+        version: 1.93.0
+      apicache:
+        specifier: ^1.6.3
+        version: 1.6.3
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      express:
+        specifier: ^4.18.2
+        version: 4.18.2
+      gamba-core-v2:
+        specifier: workspace:*
+        version: link:../../packages/core
+      node-cron:
+        specifier: ^3.0.3
+        version: 3.0.3
+      sqlite3:
+        specifier: ^5.1.6
+        version: 5.1.6
+      telegraf:
+        specifier: ^4.16.3
+        version: 4.16.3
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.21
+      '@types/node':
+        specifier: ^18.15.3
+        version: 18.15.3
+      '@types/node-cron':
+        specifier: ^3.0.11
+        version: 3.0.11
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^5.54.1
+        version: 5.54.1(@typescript-eslint/parser@5.54.1)(eslint@8.48.0)(typescript@4.9.5)
+      '@typescript-eslint/parser':
+        specifier: ^5.54.1
+        version: 5.54.1(eslint@8.48.0)(typescript@4.9.5)
+      eslint:
+        specifier: ^8.35.0
+        version: 8.48.0
+      nodemon:
+        specifier: ^3.0.1
+        version: 3.0.1
+      pm2:
+        specifier: ^5.3.0
+        version: 5.3.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.15.3)(typescript@4.9.5)
+      tsup:
+        specifier: ^6.7.0
+        version: 6.7.0(ts-node@10.9.1)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.5
+        version: 4.9.5
+
+  apps/trash.referal:
     dependencies:
       '@codemirror/lang-html':
         specifier: ^6.4.9
@@ -624,9 +624,6 @@ importers:
       '@solana/web3.js':
         specifier: ^1.93.0
         version: 1.93.0
-      '@widgetbot/react-embed':
-        specifier: ^1.9.0
-        version: 1.9.0(react@18.3.1)
       gamba-core:
         specifier: '*'
         version: 0.1.0
@@ -10220,21 +10217,6 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@widgetbot/embed-api@1.2.15:
-    resolution: {integrity: sha512-Uj83i7LxP/fZrMQ3RodB6CNX2qFVHO9Ue2ElJU6IC10sjy4np5420qRcILGhSiWXzrhgagE2bR7AVh89NC0pRg==}
-    dependencies:
-      post-robot: 8.0.31
-    dev: false
-
-  /@widgetbot/react-embed@1.9.0(react@18.3.1):
-    resolution: {integrity: sha512-+Qgqy7lwLy++lIiHmSsgxUjwcX80iFIHR0QJpKq4W82ePUmq4bTuxvUbxcE+VQH5IjNrWaydGNR8zROV5vUQsA==}
-    peerDependencies:
-      react: '>= 15'
-    dependencies:
-      '@widgetbot/embed-api': 1.2.15
-      react: 18.3.1
-    dev: false
-
   /@zag-js/element-size@0.3.2:
     resolution: {integrity: sha512-bVvvigUGvAuj7PCkE5AbzvTJDTw5f3bg9nQdv+ErhVN8SfPPppLJEmmWdxqsRzrHXgx8ypJt/+Ty0kjtISVDsQ==}
     dev: false
@@ -11726,18 +11708,6 @@ packages:
   /croner@4.1.97:
     resolution: {integrity: sha512-/f6gpQuxDaqXu+1kwQYSckUglPaOrHdbIlBAu0YuW8/Cdb45XwXYNUBXg3r/9Mo6n540Kn/smKcZWko5x99KrQ==}
     dev: true
-
-  /cross-domain-safe-weakmap@1.0.29:
-    resolution: {integrity: sha512-VLoUgf2SXnf3+na8NfeUFV59TRZkIJqCIATaMdbhccgtnTlSnHXkyTRwokngEGYdQXx8JbHT9GDYitgR2sdjuA==}
-    dependencies:
-      cross-domain-utils: 2.0.38
-    dev: false
-
-  /cross-domain-utils@2.0.38:
-    resolution: {integrity: sha512-zZfi3+2EIR9l4chrEiXI2xFleyacsJf8YMLR1eJ0Veb5FTMXeJ3DpxDjZkto2FhL/g717WSELqbptNSo85UJDw==}
-    dependencies:
-      zalgo-promise: 1.0.48
-    dev: false
 
   /cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -17736,14 +17706,6 @@ packages:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
     engines: {node: '>= 0.4'}
 
-  /post-robot@8.0.31:
-    resolution: {integrity: sha512-nUhtKgtmcgyuPm4RnIhUB3gsDYJBHOgFry3TvOxhIHpgfwYY/T69d4oB90tw4YUllFZUUwqLEv1Wgyg6eOoJ7A==}
-    dependencies:
-      cross-domain-safe-weakmap: 1.0.29
-      cross-domain-utils: 2.0.38
-      zalgo-promise: 1.0.48
-    dev: false
-
   /postcss-import@15.1.0(postcss@8.4.38):
     resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
     engines: {node: '>=14.0.0'}
@@ -21601,10 +21563,6 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-
-  /zalgo-promise@1.0.48:
-    resolution: {integrity: sha512-LLHANmdm53+MucY9aOFIggzYtUdkSBFxUsy4glTTQYNyK6B3uCPWTbfiGvSrEvLojw0mSzyFJ1/RRLv+QMNdzQ==}
-    dev: false
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}

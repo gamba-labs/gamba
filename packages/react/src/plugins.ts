@@ -12,30 +12,37 @@ export interface GambaPluginInput {
   input: GambaPlayInput
 }
 
-export type GambaPlugin = (stuff: GambaPluginInput, provider: GambaProvider) => Promise<TransactionInstruction[]> | TransactionInstruction[]
+export type GambaPluginOutput = TransactionInstruction[]
+
+export interface GambaPluginContext {
+  creatorFee: number
+  provider: GambaProvider
+}
+
+export type GambaPlugin = (input: GambaPluginInput, context: GambaPluginContext) => Promise<GambaPluginOutput> | GambaPluginOutput
 
 export const createCustomFeePlugin = (
-  _receiver: string,
+  _receiver: string | PublicKey,
   percent: number,
-): GambaPlugin => async (stuff, provider) => {
+): GambaPlugin => async (input, context) => {
   const receiver = new PublicKey(_receiver)
   // Send native SOL
-  if (stuff.token.equals(SplToken.NATIVE_MINT)) {
+  if (input.token.equals(SplToken.NATIVE_MINT)) {
     return [
       SystemProgram.transfer({
-        fromPubkey: stuff.wallet,
+        fromPubkey: input.wallet,
         toPubkey: receiver,
-        lamports: stuff.wager * percent,
+        lamports: input.wager * percent,
       }),
     ]
   }
 
-  const fromAta = SplToken.getAssociatedTokenAddressSync(stuff.token, stuff.wallet)
-  const toAta = SplToken.getAssociatedTokenAddressSync(stuff.token, receiver)
+  const fromAta = SplToken.getAssociatedTokenAddressSync(input.token, input.wallet)
+  const toAta = SplToken.getAssociatedTokenAddressSync(input.token, receiver)
 
   const createAtaInstruction = async () => {
     try {
-      await SplToken.getAccount(provider.anchorProvider.connection, toAta)
+      await SplToken.getAccount(context.provider.anchorProvider.connection, toAta, 'confirmed')
       // Recipient account exists, return empty
       return []
     } catch (error) {
@@ -43,10 +50,10 @@ export const createCustomFeePlugin = (
         // Recipient account doesnt exist, add create instruction
         return [
           SplToken.createAssociatedTokenAccountInstruction(
-            stuff.wallet,
+            input.wallet,
             toAta,
             receiver,
-            stuff.token,
+            input.token,
           ),
         ]
       } else {
@@ -61,8 +68,8 @@ export const createCustomFeePlugin = (
     SplToken.createTransferInstruction(
       fromAta,
       toAta,
-      stuff.wallet,
-      stuff.wager * percent,
+      input.wallet,
+      BigInt(input.wager) / BigInt(1 / percent),
     ),
   ]
 }

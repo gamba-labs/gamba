@@ -9,6 +9,9 @@ const SwitchButton = styled.input`
   aspect-ratio: 2 / 1;
   border-radius: 20px;
   background: #0e0e16;
+  &:checked {
+    background: #9564ff66;
+  }
   &:checked:after {
     left: 50%;
   }
@@ -27,10 +30,8 @@ const SwitchButton = styled.input`
     outline: #9564ff solid 1px;
     outline-offset: 1px;
   }
-  &:disabled {
-    &:after {
-      background: gray;
-    }
+  &:disabled:after {
+    background: gray;
   }
 `
 

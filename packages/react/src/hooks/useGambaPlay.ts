@@ -4,8 +4,8 @@ import { NATIVE_MINT, SYSTEM_PROGRAM, getPoolAddress } from 'gamba-core-v2'
 import React from 'react'
 import { useGambaProvider } from '.'
 import { GambaContext } from '../GambaProvider'
+import { GambaPluginContext, GambaPluginInput } from '../plugins'
 import { SendTransactionOptions, throwTransactionError, useSendTransaction } from './useSendTransaction'
-import { GambaPluginInput } from '../plugins'
 
 export interface GambaPlayInput {
   wager: number
@@ -28,7 +28,7 @@ export function useGambaPlay() {
 
   return async function play(
     input: GambaPlayInput,
-    instructions: TransactionInstruction[] = [],
+    additionalInstructions: TransactionInstruction[] = [],
     opts?: SendTransactionOptions,
   ) {
     const creator = new PublicKey(input.creator)
@@ -51,9 +51,18 @@ export function useGambaPlay() {
       input,
     }
 
-    const pluginInstructions = (await Promise.all(
-      context.plugins.map((x) => x(pluginInput, provider)),
-    )).flat()
+    const pluginContext: GambaPluginContext = {
+      creatorFee: creatorFee,
+      provider,
+    }
+    const pluginInstructions: TransactionInstruction[] = []
+
+    for (const plugin of context.plugins) {
+      const resolved = await plugin(pluginInput, pluginContext)
+      if (resolved) {
+        pluginInstructions.push(...resolved)
+      }
+    }
 
     const pool = getPoolAddress(token, poolAuthority)
 
@@ -66,13 +75,13 @@ export function useGambaPlay() {
           pool,
           token,
           creator,
-          creatorFee,
+          pluginContext.creatorFee,
           jackpotFee,
           meta,
           input.useBonus ?? false,
         ),
         ...pluginInstructions,
-        ...instructions,
+        ...additionalInstructions,
       ],
       { ...opts, label: 'play' },
     )

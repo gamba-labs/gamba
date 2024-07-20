@@ -36,13 +36,13 @@ export const parseGambaTransaction = (
   const logs = transaction.meta?.logMessages ?? []
   const events = parseTransactionEvents(logs)
 
-  return events.map((event): GambaTransaction<'GameSettled'> | GambaTransaction<'PoolChange'> => {
+  return events.map((event) => {
     return {
       signature: transaction.transaction.signatures[0],
       time: (transaction.blockTime ?? 0) * 1000,
-      name: event.name as any,
-      data: event.data as any,
-    }
+      name: event.name,
+      data: event.data,
+    } as GambaTransaction<'GameSettled'> | GambaTransaction<'PoolChange'>
   })
 }
 

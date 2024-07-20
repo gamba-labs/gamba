@@ -1,11 +1,12 @@
 import * as anchor from '@coral-xyz/anchor'
+import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from '@solana/spl-token'
 import { AddressLookupTableProgram, ConfirmOptions, Connection, Keypair, PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from '@solana/web3.js'
 import { PROGRAM_ID } from './constants'
 import { Gamba as GambaIdl, IDL } from './idl'
+import { getGambaStateAddress, getGameAddress, getPlayerAddress, getPoolAddress, getPoolBonusAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from './pdas'
 import { GambaProviderWallet } from './types'
-import { basisPoints, getGambaStateAddress, getGameAddress, getPlayerAddress, getPoolAddress, getPoolBonusAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from './utils'
-import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
+import { basisPoints } from './utils'
 
 export class GambaProvider {
   gambaProgram: anchor.Program<GambaIdl>

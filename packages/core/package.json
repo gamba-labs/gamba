@@ -21,7 +21,7 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
     "@solana/spl-token": "^0.3.8",
-    "@solana/web3.js": "^1.78.5"
+    "@solana/web3.js": "^1.93.0"
   },
   "devDependencies": {
     "eslint": "^8.48.0",
@@ -30,7 +30,7 @@
   },
   "peerDependencies": {
     "@coral-xyz/anchor": "^0.27.0",
-    "@solana/web3.js": "^1.78.5"
+    "@solana/web3.js": "^1.93.0"
   },
   "keywords": [],
   "author": "",

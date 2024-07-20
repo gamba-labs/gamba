@@ -23,7 +23,7 @@ interface GameProps extends React.PropsWithChildren {
   errorFallback?: React.ReactNode
 }
 
-export const GameContext = React.createContext<GameContext>(null!)
+export const GameContext = React.createContext<GameContext>({ game: { id: 'unknown', app: null! } })
 
 function Game({ game, children, errorFallback }: GameProps) {
   return (
@@ -64,6 +64,9 @@ export const GambaUi = {
   Responsive: ResponsiveSize,
   Canvas: GambaCanvas,
   WagerInput: WagerInput,
+  /**
+   * @deprecated Use WagerInput with "options" prop
+   */
   WagerSelect: WagerSelect,
   Switch: Switch,
   PlayButton,

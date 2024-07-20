@@ -13,7 +13,7 @@ const STANDARD_TOKEN_DATA = {
     symbol: 'SOL',
     decimals: 9,
     image: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
-    baseWager: 0.05 * 1e9,
+    baseWager: 0.01 * 1e9,
   },
   EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: {
     symbol: 'USDC',

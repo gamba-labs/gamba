@@ -110,9 +110,17 @@ export function useSendTransaction() {
 
       // Create and sign the actual transaction
       const transaction = await createTx(computeUnitLimit, (await connection.getLatestBlockhash(context.blockhashCommitment)).blockhash)
+
+      const serialized = transaction.serialize()
+      // Adding a byte for the number of signatures, I think you should be able to get the total size with:
+      const size = serialized.length + 1 + (transaction.signatures.length * 64)
+
+      console.log('SIZE', size)
+
       const signedTransaction = await wallet.signTransaction(transaction)
 
       store.set({ state: 'sending' })
+
       const txId = await connection.sendTransaction(signedTransaction, {
         skipPreflight: true,
         preflightCommitment: context.blockhashCommitment,

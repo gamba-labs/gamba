@@ -40,7 +40,7 @@ export function makeHeliusTokenFetcher(
           symbol: x.content?.metadata.symbol ?? info.symbol,
           decimals: info.decimals,
           name: x.content?.metadata.name ?? info.symbol,
-          baseWager: ((dollarBaseWager / usdPrice) * (10 ** info.decimals)) || 1,
+          baseWager: Math.floor((dollarBaseWager / usdPrice) * (10 ** info.decimals)) || 1,
           usdPrice,
           // usdPrice: info.price_info?.price_per_token ?? 0,
         }

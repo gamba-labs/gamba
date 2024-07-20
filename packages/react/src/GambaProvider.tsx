@@ -37,15 +37,20 @@ export function GambaProvider({ __experimental_plugins = [], children }: React.P
   )
 
   const provider = React.useMemo(
-    () => new GambaProviderCore(
-      connection,
-      wallet as any,
-    ),
+    () => {
+      return new GambaProviderCore(
+        connection,
+        wallet as any,
+      )
+    },
     [connection, wallet],
   )
 
   return (
-    <GambaContext.Provider value={{ provider, plugins: __experimental_plugins }}>
+    <GambaContext.Provider value={{
+      provider,
+      plugins: __experimental_plugins,
+    }}>
       {children}
     </GambaContext.Provider>
   )

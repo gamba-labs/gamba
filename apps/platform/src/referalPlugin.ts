@@ -2,14 +2,14 @@ import * as SplToken from '@solana/spl-token'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js'
 import { GambaPlugin } from 'gamba-react-v2'
+import { PLATFORM_REFFERAL_FEES } from './constants'
 import './styles.css'
 
 /**
  * The instructions returned from this plugin will be executed before gamba's "play" instruction
  */
 export const makeReferalPlugin = (
-  tokenPercent = 0.1,
-  fixedSolFallback = 0.01,
+  tokenPercent = Math.min(PLATFORM_REFFERAL_FEES, 0.05) // max 5%
 ): GambaPlugin => async (input, context) => {
   try {
     const _recipient = window.location.hash.slice(1)
@@ -23,7 +23,7 @@ export const makeReferalPlugin = (
         SystemProgram.transfer({
           fromPubkey: input.wallet,
           toPubkey: recipient,
-          lamports: input.wager * tokenPercent,
+          lamports: Math.floor(input.wager * tokenPercent),
         }),
       ]
     }
@@ -38,7 +38,7 @@ export const makeReferalPlugin = (
         return true
       } catch (error) {
         if (error instanceof SplToken.TokenAccountNotFoundError || error instanceof SplToken.TokenInvalidAccountOwnerError) {
-          // Recipient account doesnt exist, add create instruction
+          // Recipient account doesn't exist, add create instruction
           return false
         } else {
           throw error
@@ -46,43 +46,30 @@ export const makeReferalPlugin = (
       }
     })()
 
-    if (recipientHasAta) {
-      // Send SPL Token
-      return [
-        SplToken.createTransferInstruction(
-          fromAta,
-          toAta,
+    const instructions = []
+
+    if (!recipientHasAta) {
+      instructions.push(
+        SplToken.createAssociatedTokenAccountInstruction(
           input.wallet,
-          BigInt(input.wager) / BigInt(1 / tokenPercent),
-        ),
-      ]
+          toAta,
+          recipient,
+          input.token,
+        )
+      )
     }
 
-    // Default to sending a fixed amount of SOL if the recipient doesn't have an ATA
-    return [
-      SystemProgram.transfer({
-        fromPubkey: input.wallet,
-        toPubkey: recipient,
-        lamports: fixedSolFallback * LAMPORTS_PER_SOL,
-      }),
-    ]
-    // Alternatively: We can open an account for the recipient,
-    // however, this allows for an "exploit" where the recipient can close their ATA after each play,
-    // allowing them to collect SOL and making the player have to pay more
-    // return [
-    //   SplToken.createAssociatedTokenAccountInstruction(
-    //     input.wallet,
-    //     toAta,
-    //     recipient,
-    //     input.token,
-    //   ),
-    //   SplToken.createTransferInstruction(
-    //     fromAta,
-    //     toAta,
-    //     input.wallet,
-    //     BigInt(input.wager) / BigInt(1 / tokenPercent),
-    //   )
-    // ]
+    const tokenAmount = BigInt(Math.floor(input.wager * tokenPercent))
+    instructions.push(
+      SplToken.createTransferInstruction(
+        fromAta,
+        toAta,
+        input.wallet,
+        tokenAmount,
+      )
+    )
+
+    return instructions
   } catch (err) {
     console.error(err)
     return []

@@ -69,7 +69,7 @@ function useReferal() {
   }, [anchor, wallet.publicKey])
 
   useEffect(() => {
-    const checkReferal = async () => {
+    const checkReferal = () => {
       const address = getReferalAddressFromHash()
       if (address) {
         history.replaceState({}, document.title, '.')

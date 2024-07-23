@@ -37,7 +37,6 @@ export const makeReferalPlugin = (
 
   if (!onChain) {
     // Save the referal address on-chain
-    console.log('Save?')
     instructions.push(
       await createReferal(context.provider.anchorProvider!, input.creator, recipient),
     )

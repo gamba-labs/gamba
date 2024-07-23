@@ -2,6 +2,8 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import React from 'react'
 import styled from 'styled-components'
+import { PLATFORM_REFERRAL_FEE } from '../../constants'
+import { useToast } from '../../hooks/useToast'
 
 const Buttons = styled.div`
   overflow: hidden;
@@ -101,6 +103,7 @@ const Welcome = styled.div`
 `
 
 export function WelcomeBanner() {
+  const toast = useToast()
   const wallet = useWallet()
   const walletModal = useWalletModal()
   const copyInvite = () => {
@@ -109,6 +112,10 @@ export function WelcomeBanner() {
     }
     const referalLink = location.host + '#' + wallet.publicKey.toString()
     navigator.clipboard.writeText(referalLink)
+    toast({
+      title: '📋 Copied to clipboard',
+      description: `Share your link to earn a ${(PLATFORM_REFERRAL_FEE * 100)}% fee when players use this platform`,
+    })
   }
   return (
     <Welcome>

@@ -1,4 +1,5 @@
 import { useWallet } from '@solana/wallet-adapter-react'
+import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -101,8 +102,12 @@ const Welcome = styled.div`
 
 export function WelcomeBanner() {
   const wallet = useWallet()
+  const walletModal = useWalletModal()
   const copyInvite = () => {
-    const referalLink = location.host + '#' + wallet?.publicKey?.toString()
+    if (!wallet.publicKey) {
+      return walletModal.setVisible(true)
+    }
+    const referalLink = location.host + '#' + wallet.publicKey.toString()
     navigator.clipboard.writeText(referalLink)
   }
   return (
@@ -119,9 +124,6 @@ export function WelcomeBanner() {
         </button>
         <button onClick={() => window.open('https://v2.gamba.so/', '_blank')}>
           🚀 Add Liquidity
-        </button>
-        <button onClick={() => window.open('https://github.com/gamba-labs/gamba', '_blank')}>
-          👨‍💻 Build your own
         </button>
         <button onClick={() => window.open('https://discord.gg/HSTtFFwR', '_blank')}>
           💬 Discord

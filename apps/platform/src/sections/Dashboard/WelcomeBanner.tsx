@@ -1,3 +1,4 @@
+import { useWallet } from '@solana/wallet-adapter-react'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -99,6 +100,11 @@ const Welcome = styled.div`
 `
 
 export function WelcomeBanner() {
+  const wallet = useWallet()
+  const copyInvite = () => {
+    const referalLink = location.host + '#' + wallet?.publicKey?.toString()
+    navigator.clipboard.writeText(referalLink)
+  }
   return (
     <Welcome>
       <div>
@@ -108,6 +114,9 @@ export function WelcomeBanner() {
         </p>
       </div>
       <Buttons>
+        <button onClick={copyInvite}>
+          💸 Copy Invite
+        </button>
         <button onClick={() => window.open('https://v2.gamba.so/', '_blank')}>
           🚀 Add Liquidity
         </button>

@@ -38,29 +38,29 @@ export function DetailCards({creator, startTime = 0}: {creator?: string | Public
     <Flex gap="2" wrap="wrap">
       <DetailCard title="Volume">
         <SkeletonFallback loading={isLoading}>
-          ${data?.usd_volume.toLocaleString()}
+          ${data?.usd_volume?.toLocaleString()}
         </SkeletonFallback>
       </DetailCard>
       <DetailCard title="Estimated Fees">
         <SkeletonFallback loading={isLoading}>
-          ${data?.revenue_usd.toLocaleString()}
+          ${data?.revenue_usd?.toLocaleString()}
         </SkeletonFallback>
       </DetailCard>
       <DetailCard title="Plays">
         <SkeletonFallback loading={isLoading}>
-          {data?.plays.toLocaleString()}
+          {data?.plays?.toLocaleString()}
         </SkeletonFallback>
       </DetailCard>
       <DetailCard title="Players">
         <SkeletonFallback loading={isLoading}>
-          {data?.players.toLocaleString()}
+          {data?.players?.toLocaleString()}
         </SkeletonFallback>
       </DetailCard>
       {data && data.active_players > 0 && (
         <DetailCard title="Active players">
           <OnlineIndicator />
           <SkeletonFallback loading={isLoading}>
-            {data?.active_players.toLocaleString()}
+            {data?.active_players?.toLocaleString()}
           </SkeletonFallback>
         </DetailCard>
       )}

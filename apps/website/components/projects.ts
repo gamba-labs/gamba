@@ -34,4 +34,9 @@ export const projects = [
     link: 'https://www.ninjatsscasino.xyz/',
     thumbnail: '/thumbnails/ninjaturtles.png',
   },
+  {
+    name: 'Bet Your Memes',
+    link: 'https://betyourmemes.fun/',
+    thumbnail: '/thumbnails/betyourmemes.png',
+  },
 ]

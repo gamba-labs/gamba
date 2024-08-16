@@ -12,6 +12,6 @@ Anyone who wants to contribute is welcome to submit a PR!
 
 * `gamba-core-v2` - Core package with a provider for the Anchor program + utilities
 
-* `gamba-react-v2` - Essential hooks and context providers for interracting with the Gamba program in a React app
+* `gamba-react-v2` - Essential hooks and context providers for interacting with the Gamba program in a React app
 
 * `gamba-react-ui-v2` - Framework for building platform UIs and games

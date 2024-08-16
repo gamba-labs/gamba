@@ -144,5 +144,11 @@
     "name": "Bet Your Memes",
     "url": "https://betyourmemes.fun/",
     "image": "/logos/betyourmemes.png"
+  },
+  {
+    "address": "49VmFApTZ9aRBGARH56vA7Mr32SwHi7XBCRvyKpbTZNG",
+    "name": "ShibaBets",
+    "url": "https://www.dogebets.casino/",
+    "image": "/logos/shibabets.png"
   }
 ]

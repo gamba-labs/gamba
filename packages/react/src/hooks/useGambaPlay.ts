@@ -29,7 +29,7 @@ export function useGambaPlay() {
   return async function play(
     input: GambaPlayInput,
     additionalInstructions: TransactionInstruction[] = [],
-    opts?: SendTransactionOptions,
+    opts?: SendTransactionOptions & { lookupTables?: PublicKey[] },
   ) {
     const creator = new PublicKey(input.creator)
     const creatorFee = input.creatorFee ?? 0
@@ -68,6 +68,7 @@ export function useGambaPlay() {
 
     return sendTx(
       [
+        ...additionalInstructions, 
         provider.play(
           input.wager,
           input.bet,
@@ -81,9 +82,8 @@ export function useGambaPlay() {
           input.useBonus ?? false,
         ),
         ...pluginInstructions,
-        ...additionalInstructions,
       ],
-      { ...opts, label: 'play' },
+      { ...opts, label: 'play', lookupTable: opts?.lookupTables }
     )
   }
 }

@@ -22,7 +22,7 @@ const getRecipientFromStorage = () => {
 }
 
 /**
- * The instructions returned from this plugin will be executed before gamba's "play" instruction
+ * This function returns additional instructions that will be executed before playing
  */
 export const makeReferalPlugin = (
   feePercent = PLATFORM_REFERRAL_FEE,

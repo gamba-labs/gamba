@@ -37,7 +37,7 @@ function Root() {
             >
               <SendTransactionProvider priorityFee={400_201}>
                 <GambaProvider
-                  __experimental_plugins={[
+                  plugins={[
                     makeReferalPlugin(),
                   ]}
                 >

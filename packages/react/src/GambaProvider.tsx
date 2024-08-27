@@ -1,20 +1,24 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { GambaProvider as GambaProviderCore } from 'gamba-core-v2'
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { GambaPlugin } from './plugins'
 
 export interface GambaContext {
   provider: GambaProviderCore
   plugins: GambaPlugin[]
+  addPlugin: (plugin: GambaPlugin) => void
 }
 
 export interface GambaProviderProps {
-  __experimental_plugins?: GambaPlugin[]
+  plugins?: GambaPlugin[]
+  /** @deprecated use "plugins" */
+  __experimental_plugins?: any[]
 }
 
 export const GambaContext = React.createContext<GambaContext>({
   provider: null!,
   plugins: [],
+  addPlugin: () => null!,
 })
 
 export function useGambaContext() {
@@ -23,11 +27,12 @@ export function useGambaContext() {
   return context
 }
 
-export function GambaProvider({ __experimental_plugins = [], children }: React.PropsWithChildren<GambaProviderProps>) {
+export function GambaProvider({ plugins: _plugins = [], children }: React.PropsWithChildren<GambaProviderProps>) {
+  const [plugins, setPlugins] = useState<GambaPlugin[]>(_plugins)
   const { connection } = useConnection()
   const walletContext = useWallet()
 
-  const wallet = React.useMemo(
+  const wallet = useMemo(
     () => {
       if (walletContext.connected && walletContext.wallet?.adapter?.publicKey) {
         return walletContext.wallet.adapter
@@ -36,7 +41,7 @@ export function GambaProvider({ __experimental_plugins = [], children }: React.P
     [walletContext],
   )
 
-  const provider = React.useMemo(
+  const provider = useMemo(
     () => {
       return new GambaProviderCore(
         connection,
@@ -46,10 +51,20 @@ export function GambaProvider({ __experimental_plugins = [], children }: React.P
     [connection, wallet],
   )
 
+  const addPlugin = (plugin: GambaPlugin) => {
+    setPlugins((plugins) => [...plugins, plugin])
+    return () => {
+      setPlugins(
+        (plugins) => plugins.filter((p) => p !== plugin),
+      )
+    }
+  }
+
   return (
     <GambaContext.Provider value={{
       provider,
-      plugins: __experimental_plugins,
+      plugins,
+      addPlugin,
     }}>
       {children}
     </GambaContext.Provider>

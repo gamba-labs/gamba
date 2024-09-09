@@ -3,8 +3,36 @@ import React, { useRef } from 'react'
 import styled, { css } from 'styled-components'
 import { useCurrentToken, useFees, useUserBalance } from '../hooks'
 import { TokenValue } from './TokenValue'
-import { StyledPopup } from './Select'
 import useOnClickOutside from '../hooks/useOnClickOutside'
+
+const StyledPopup = styled.div`
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-radius: 10px;
+  padding: 5px;
+  color: var(--gamba-ui-input-color);
+  background: var(--gamba-ui-input-background);
+  white-space: nowrap;
+  transform: translateY(-5px);
+  z-index: 100;
+  & > button {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: inherit;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    &:hover {
+      background: var(--gamba-ui-input-background-hover);
+    }
+  }
+`
 
 const StyledWagerInput = styled.div<{$edit: boolean}>`
   display: flex;

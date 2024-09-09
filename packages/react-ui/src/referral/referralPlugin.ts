@@ -1,44 +1,20 @@
 import * as SplToken from '@solana/spl-token'
-import '@solana/wallet-adapter-react-ui/styles.css'
 import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 import { GambaPlugin } from 'gamba-react-v2'
-import { PLATFORM_REFERRAL_FEE } from '../constants'
-import { createReferal } from './program'
+import { createReferral } from './program'
 
-const getRecipientFromStorage = () => {
-  try {
-    const referalAddressOnChain = sessionStorage.getItem('referalAddressOnChain')
-    const referalAddressLocal = sessionStorage.getItem('referalAddress')
-    const referalAddress = referalAddressOnChain ?? referalAddressLocal
-    console.log(referalAddressOnChain, referalAddressLocal)
-    if (!referalAddress) return null
-    return {
-      recipient: new PublicKey(referalAddress),
-      onChain: !!referalAddressOnChain,
-    }
-  } catch {
-    return null
-  }
-}
-
-/**
- * This function returns additional instructions that will be executed before playing
- */
-export const makeReferalPlugin = (
-  feePercent = PLATFORM_REFERRAL_FEE,
+export const makeReferralPlugin = (
+  recipient: PublicKey,
+  upsert: boolean,
+  feePercent = 0.01,
 ): GambaPlugin => async (input, context) => {
-  const referal = getRecipientFromStorage()
-  if (!referal) return []
-
   const instructions: TransactionInstruction[] = []
   const tokenAmount = BigInt(Math.floor(input.wager * feePercent))
 
-  const { recipient, onChain } = referal
-
-  if (!onChain) {
-    // Save the referal address on-chain
+  if (upsert) {
+    // Save the referral address on-chain
     instructions.push(
-      await createReferal(context.provider.anchorProvider!, input.creator, recipient),
+      await createReferral(context.provider.anchorProvider!, input.creator, recipient),
     )
   }
 

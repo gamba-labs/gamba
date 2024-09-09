@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const StyledTextInput = styled.input`
+const StyledTextInput = styled.input`
   color: var(--gamba-ui-input-color);
   background: var(--gamba-ui-input-background);
   &:hover {

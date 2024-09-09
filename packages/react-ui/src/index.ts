@@ -13,6 +13,8 @@ export * from './components/Canvas'
 export * from './components/TokenValue'
 export * from './hooks'
 export * from './makeHeliusTokenFetcher'
+export * from './referral/ReferralContext'
+export * from './referral/useReferral'
 
 export interface GameBundle<T = any> {
   id: string

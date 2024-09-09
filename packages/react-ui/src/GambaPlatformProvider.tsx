@@ -1,7 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import { NATIVE_MINT } from 'gamba-core-v2'
 import React from 'react'
-import { GameBundle } from '.'
 import { PortalProvider } from './PortalContext'
 
 interface PlatformMeta {
@@ -30,16 +29,11 @@ export const GambaPlatformContext = React.createContext<GambaPlatformContext>(nu
 
 interface GambaPlatformProviderProps extends React.PropsWithChildren {
   creator: PublicKey | string
-  /** @deprecated */
-  games?: GameBundle[]
-  /** @deprecated */
-  tokens?: any[]
   defaultPool?: PoolToken
   /** How much the player should pay in fees to the platform */
   defaultCreatorFee?: number
   /** How much the player should pay in fees to play for the jackpot in every game. 0.001 = 0.1% */
   defaultJackpotFee?: number
-  /**  */
 }
 
 export function GambaPlatformProvider(props: GambaPlatformProviderProps) {

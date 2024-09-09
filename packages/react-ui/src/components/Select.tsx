@@ -15,7 +15,7 @@ const StyledWrapper = styled.div`
   position: relative;
 `
 
-export const StyledPopup = styled.div`
+const StyledPopup = styled.div`
   position: absolute;
   bottom: 100%;
   left: 0;

@@ -11,6 +11,6 @@
     "gamba-platform-template",
     "gamba-explorer",
     "gamba-api",
-    "gamba-website"
+    "website"
   ]
 }

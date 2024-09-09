@@ -44,11 +44,11 @@ function UserModal() {
       </h1>
       <div style={{ display: 'flex', gap: '20px', flexDirection: 'column', width: '100%', padding: '0 20px' }}>
         <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', width: '100%' }}>
-          <GambaUi.Button onClick={copyInvite}>
-            💸 Copy link
+          <GambaUi.Button main onClick={copyInvite}>
+            💸 Copy invite link
           </GambaUi.Button>
           <div style={{ opacity: '.8', fontSize: '80%' }}>
-            Share your link to earn a {(PLATFORM_REFERRAL_FEE * 100)}% fee when players use this platform.
+            Share your link with new users to earn {(PLATFORM_REFERRAL_FEE * 100)}% every time they play on this platform.
           </div>
         </div>
         {PLATFORM_ALLOW_REFERRER_REMOVAL && referral.recipient && (

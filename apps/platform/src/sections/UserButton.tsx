@@ -3,7 +3,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaUi, useReferral } from 'gamba-react-ui-v2'
 import React, { useState } from 'react'
 import { Modal } from '../components/Modal'
-import { PLATFORM_REFERRAL_FEE } from '../constants'
+import { PLATFORM_ALLOW_REFERRER_REMOVAL, PLATFORM_REFERRAL_FEE } from '../constants'
 import { useToast } from '../hooks/useToast'
 import { useUserStore } from '../hooks/useUserStore'
 import { truncateString } from '../utils'
@@ -43,16 +43,23 @@ function UserModal() {
         {truncateString(wallet.publicKey?.toString() ?? '', 6, 3)}
       </h1>
       <div style={{ display: 'flex', gap: '20px', flexDirection: 'column', width: '100%', padding: '0 20px' }}>
-        <GambaUi.Button onClick={copyInvite}>
-          💸 Copy Invite
-        </GambaUi.Button>
-        <div style={{ opacity: '.8', fontSize: '80%' }}>
-          Share your link to earn a {(PLATFORM_REFERRAL_FEE * 100)}% fee when players use this platform.
-        </div>
-        {referral.recipient && (
-          <GambaUi.Button disabled={removing} onClick={revokeInvite}>
-            Revoke invite
+        <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', width: '100%' }}>
+          <GambaUi.Button onClick={copyInvite}>
+            💸 Copy link
           </GambaUi.Button>
+          <div style={{ opacity: '.8', fontSize: '80%' }}>
+            Share your link to earn a {(PLATFORM_REFERRAL_FEE * 100)}% fee when players use this platform.
+          </div>
+        </div>
+        {PLATFORM_ALLOW_REFERRER_REMOVAL && referral.recipient && (
+          <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', width: '100%' }}>
+            <GambaUi.Button disabled={removing} onClick={revokeInvite}>
+              Revoke invite
+            </GambaUi.Button>
+            <div style={{ opacity: '.8', fontSize: '80%' }}>
+              You were invited by <a target="_blank" href={`https://solscan.io/account/${referral.recipient.toString()}`} rel="noreferrer">{referral.recipient.toString()}</a>
+            </div>
+          </div>
         )}
         <GambaUi.Button onClick={() => wallet.disconnect()}>
           Disconnect

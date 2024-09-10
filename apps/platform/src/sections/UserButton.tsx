@@ -57,9 +57,15 @@ function UserModal() {
               Remove invite
             </GambaUi.Button>
             <div style={{ opacity: '.8', fontSize: '80%' }}>
-              You were invited by <a target="_blank" href={`https://solscan.io/account/${referral.referrerAddress.toString()}`} rel="noreferrer">
-                {truncateString(referral.referrerAddress.toString(), 6, 6)}
-              </a>.
+              {!removing ? (
+                <>
+                  You were invited by <a target="_blank" href={`https://solscan.io/account/${referral.referrerAddress.toString()}`} rel="noreferrer">
+                    {truncateString(referral.referrerAddress.toString(), 6, 6)}
+                  </a>.
+                </>
+              ) : (
+                <>Removing invite...</>
+              )}
             </div>
           </div>
         )}

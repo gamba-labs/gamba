@@ -1,5 +1,11 @@
 # gamba-react-ui-v2
 
+## 0.7.0
+
+### Minor Changes
+
+- Referrals
+
 ## 0.6.0
 
 ### Minor Changes

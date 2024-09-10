@@ -10,24 +10,28 @@ import { getReferralAddressFromUrl } from './referralUtils'
 const defaultPrefix = 'code'
 
 export interface ReferralContext {
-  recipient: PublicKey | null
-  onChain: boolean
+  referrerAddress: PublicKey | null
+  isOnChain: boolean
   prefix: string
-  referralStatus: 'local' | 'on-chain' | 'loading'
+  referralStatus: 'local' | 'on-chain' | 'fetching'
   clearCache: () => void
+  setCache: (address: PublicKey, isOnChain?: boolean) => void
 }
 
 export const ReferralContext = createContext<ReferralContext>({
-  recipient: null,
-  onChain: false,
+  referrerAddress: null,
+  isOnChain: false,
   prefix: defaultPrefix,
   referralStatus: 'local',
   clearCache: () => null,
+  setCache: () => null,
 })
 
 export interface ReferralProviderProps {
   fee: number
   prefix?: string
+  autoAccept?: boolean
+  /** localStorage or sessionStorage */
   storage?: Storage
 }
 
@@ -35,7 +39,8 @@ export function ReferralProvider({
   fee,
   prefix = defaultPrefix,
   children,
-  storage = sessionStorage,
+  storage = localStorage,
+  autoAccept = true,
 }: PropsWithChildren<ReferralProviderProps>) {
   const wallet = useWallet()
   const owner = useWalletAddress()
@@ -70,12 +75,13 @@ export function ReferralProvider({
     let isCancelled = false
 
     const handleReferral = async () => {
-      // 1. Check if we have an active invite URL (?ref=<address>)
-      // (Update localStorage and refresh if found)
+      // Check if we have an active invite URL (?ref=<address>)
       const urlAddress = getReferralAddressFromUrl(prefix)
-      if (urlAddress) {
-        // Redirect and update localStorage cache.
-        sessionStorage.setItem('referral-new', urlAddress.toString())
+      if (autoAccept && urlAddress) {
+        // Store the referral address in "referral-new", since user might not have connected in this step
+        storage.setItem('referral-new', urlAddress.toString())
+
+        // Refresh
         const url = new URL(window.location.href)
         const params = url.searchParams
         params.delete(prefix)
@@ -86,36 +92,35 @@ export function ReferralProvider({
 
       if (!wallet.publicKey) {
         setReferralCache({ address: null, isOnChain: false })
+        return
       }
 
-      if (wallet.publicKey) {
-        // Fetch on-chain address determine if the transaction plugin needs to upsert a new one
-        setIsFetchingOnChain(true)
-        try {
-          const onChainAddress = await getOnChainAddress()
-          if (isCancelled) return
-          if (!onChainAddress) throw new Error
-          // Use on-chain address
-          setReferralCache({ address: onChainAddress, isOnChain: true })
-        } catch {
-          if (isCancelled) return
-          const storedReferralForAddress = getPublicKeyFromStorage('referral-' + wallet.publicKey.toString())
-          if (storedReferralForAddress) {
-            // Use local address
-            setReferralCache({ address: new PublicKey(storedReferralForAddress), isOnChain: false })
-            return
-          }
-          const newReferral = getPublicKeyFromStorage('referral-new')
-          if (newReferral && !newReferral.equals(wallet.publicKey)) {
-            // Update and use local address
-            setReferralCache({ address: new PublicKey(newReferral), isOnChain: false })
-            sessionStorage.setItem('referral-' + wallet.publicKey.toString(), newReferral.toString())
-            sessionStorage.removeItem('referral-new')
-          }
-        } finally {
-          if (!isCancelled)
-            setIsFetchingOnChain(false)
+      // Fetch on-chain address determine if the transaction plugin needs to upsert a new one
+      setIsFetchingOnChain(true)
+      try {
+        const onChainAddress = await getOnChainAddress()
+        if (isCancelled) return
+        if (!onChainAddress) throw new Error
+        // Use on-chain address
+        setReferralCache({ address: onChainAddress, isOnChain: true })
+      } catch {
+        if (isCancelled) return
+        const storedReferralForAddress = getPublicKeyFromStorage('referral-' + wallet.publicKey.toString())
+        if (storedReferralForAddress) {
+          // Use local address
+          setReferralCache({ address: storedReferralForAddress, isOnChain: false })
+          return
         }
+        const newReferral = getPublicKeyFromStorage('referral-new')
+        if (newReferral && !newReferral.equals(wallet.publicKey)) {
+          // Update and use local address
+          setReferralCache({ address: newReferral, isOnChain: false })
+          storage.setItem('referral-' + wallet.publicKey.toString(), newReferral.toString())
+          storage.removeItem('referral-new')
+        }
+      } finally {
+        if (!isCancelled)
+          setIsFetchingOnChain(false)
       }
     }
 
@@ -125,6 +130,7 @@ export function ReferralProvider({
       isCancelled = true
     }
   }, [
+    autoAccept,
     gambaPlatformContext.platform.creator.toString(),
     wallet.publicKey?.toString(),
     prefix,
@@ -137,25 +143,35 @@ export function ReferralProvider({
         referralCache.address,
         !referralCache.isOnChain,
         fee,
+        1,
       ),
     )
-  }, [referralCache])
+  }, [fee, referralCache.address, referralCache.isOnChain])
 
   const clearCache = () => {
     if (wallet.publicKey) {
-      sessionStorage.removeItem('referral-' + wallet.publicKey.toString())
+      storage.removeItem('referral-' + wallet.publicKey.toString())
     }
-    sessionStorage.removeItem('referral-new')
+    storage.removeItem('referral-new')
     setReferralCache({ address: null, isOnChain: false })
+  }
+
+  const setCache = (address: PublicKey, isOnChain = false) => {
+    if (wallet.publicKey) {
+      storage.setItem('referral-' + wallet.publicKey.toString(), address.toString())
+    }
+    storage.setItem('referral-new', address.toString())
+    setReferralCache({ address: address, isOnChain })
   }
 
   return (
     <ReferralContext.Provider value={{
       prefix,
-      onChain: referralCache.isOnChain,
-      recipient: referralCache.address,
-      referralStatus: isFetchingOnChain ? 'loading' : referralCache.isOnChain ? 'on-chain' : 'local',
+      isOnChain: referralCache.isOnChain,
+      referrerAddress: referralCache.address,
+      referralStatus: isFetchingOnChain ? 'fetching' : referralCache.isOnChain ? 'on-chain' : 'local',
       clearCache,
+      setCache,
     }}>
       {children}
     </ReferralContext.Provider>

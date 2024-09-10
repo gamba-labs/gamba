@@ -6,10 +6,11 @@ import { createReferral } from './program'
 export const makeReferralPlugin = (
   recipient: PublicKey,
   upsert: boolean,
-  feePercent = 0.01,
+  referralFee = 0.01,
+  creatorFeeDeduction = 1,
 ): GambaPlugin => async (input, context) => {
   const instructions: TransactionInstruction[] = []
-  const tokenAmount = BigInt(Math.floor(input.wager * feePercent))
+  const tokenAmount = BigInt(Math.floor(input.wager * referralFee))
 
   if (upsert) {
     // Save the referral address on-chain
@@ -69,7 +70,7 @@ export const makeReferralPlugin = (
   }
 
   // Override creatorFee so that the player doesn't end up paying more
-  context.creatorFee = Math.max(0, context.creatorFee - feePercent)
+  context.creatorFee = Math.max(0, context.creatorFee - referralFee * creatorFeeDeduction)
 
   return instructions
 }

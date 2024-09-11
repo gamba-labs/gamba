@@ -16,7 +16,9 @@ Simply fork the repository, provide your own Solana address, and begin collectin
 
 * Provably fair results
 
-* Bonuses
+* Player Invites
+
+* Free plays / Bonuses
 
 ## Quick Setup
 

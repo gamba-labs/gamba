@@ -1,4 +1,4 @@
-import { BorshCoder, EventParser } from '@coral-xyz/anchor'
+import { BorshCoder, EventParser, BN } from '@coral-xyz/anchor'
 import { Connection, ParsedTransactionWithMeta, PublicKey, SignaturesForAddressOptions } from '@solana/web3.js'
 import { AnyMultiplayerEvent, MultiplayerEvent, MultiplayerEventType, IDL, MULTIPLAYER_PROGRAM_ID } from '.'
 
@@ -15,7 +15,7 @@ const eventParser = new EventParser(MULTIPLAYER_PROGRAM_ID, new BorshCoder(IDL))
  * Converts event data fields from hex to decimal if they are hex strings
  */
 const convertEventData = (data: any) => {
-  const keysToConvert = ['expirationTimestamp', 'wager', 'totalWager', 'totalGambaFee', 'durationSeconds']
+  const keysToConvert = ['expirationTimestamp', 'wager', 'totalWager', 'totalGambaFee', 'durationSeconds', 'gameId']
   const convertedData = { ...data }
 
   keysToConvert.forEach((key) => {

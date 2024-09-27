@@ -379,8 +379,6 @@ export class MultiplayerProvider {
       .instruction()
   }
 
-  
-
 
   async fetchGames() {
     try {

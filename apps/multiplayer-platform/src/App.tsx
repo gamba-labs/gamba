@@ -1,16 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { WalletModalButton } from '@solana/wallet-adapter-react-ui'
 import { PublicKey, Connection } from '@solana/web3.js'
 import { BN } from '@coral-xyz/anchor'
 import { useWallet } from '@solana/wallet-adapter-react'
 import GameCard from './components/GameCard'
-import RecentMultiplayerEvents from './components/RecentMultiplayerEvents'
+import RecentEvents from './components/RecentEvents'
 import './styles.css'
 import { sendTransaction } from './utils'
-import { MultiplayerProvider, MULTIPLAYER_PROGRAM_ID } from 'gamba-multiplayer-core'
-import { RPC_ENDPOINT } from './constants'
+import { MultiplayerProvider } from 'gamba-multiplayer'
 
-const network = RPC_ENDPOINT
+const network = 'https://devnet.helius-rpc.com/?api-key=263bbbf4-4c17-47d9-8c12-7b8312067734'
 const opts = { preflightCommitment: 'processed' }
 
 const WagerType = {
@@ -20,62 +19,50 @@ const WagerType = {
 
 const App = () => {
   const wallet = useWallet()
-
   const [games, setGames] = useState([])
-  const [maxPlayers, setMaxPlayers] = useState('')
-  const [tokenMint, setTokenMint] = useState('So11111111111111111111111111111111111111112')
+  const [maxPlayers, setMaxPlayers] = useState() 
+  const [tokenMint, setTokenMint] = useState('So11111111111111111111111111111111111111112') 
   const [currentBlockchainTime, setCurrentBlockchainTime] = useState(null)
-  const [gameDuration, setGameDuration] = useState('')
-  const [wagerAmount, setWagerAmount] = useState('')
-  const [winners, setWinners] = useState('')
+  const [gameDuration, setGameDuration] = useState('') // Game duration in seconds
+  const [wagerAmount, setWagerAmount] = useState('') // Wager amount when creating game
+  const [winners, setWinners] = useState() 
   const [gameType, setGameType] = useState(WagerType.SameWager)
-  const [customWager, setCustomWager] = useState('')
+  const [customWager, setCustomWager] = useState('') // wager input when joining game
 
-  const connection = useMemo(() => new Connection(network, opts.preflightCommitment), [])
+  useEffect(() => {
+    const fetchInterval = 2500 // Fetch every n milliseconds
 
-  const provider = useMemo(() => {
-    if (!wallet || !wallet.publicKey) return null
-    return new MultiplayerProvider(connection, wallet)
-  }, [connection, wallet])
+    const intervalId = setInterval(() => {
+      if (wallet.connected) {
+        fetchGames()
+      }
+    }, fetchInterval)
 
-  // Define fetchGames using useCallback to prevent unnecessary re-renders
-  const fetchGames = useCallback(async () => {
-    if (!provider) return
+    return () => clearInterval(intervalId)
+  }, [wallet.connected]) // Re-run effect if wallet.connected changes
+
+  const getProvider = () => {
+    const connection = new Connection(network, opts.preflightCommitment)
+    const provider = new MultiplayerProvider(connection, wallet)
+    return provider
+  }
+
+  const fetchGames = async () => {
     try {
+      const provider = getProvider()
       const gameAccounts = await provider.fetchGames()
       const currentTimestamp = await provider.getCurrentBlockchainTime()
+      
       setCurrentBlockchainTime(currentTimestamp)
       setGames(gameAccounts)
     } catch (error) {
-      console.error('Error fetching games:', error)
+      console.error('Error fetching game accounts or blockchain timestamp:', error)
     }
-  }, [provider])
-
-  useEffect(() => {
-    if (!wallet.connected || !provider) return
-
-    // Fetch games initially
-    fetchGames()
-
-    // Subscribe to program account changes
-    const subscriptionId = connection.onProgramAccountChange(
-      new PublicKey(MULTIPLAYER_PROGRAM_ID),
-      (info) => {
-        // Whenever an account owned by the program changes, fetch updated games
-        fetchGames()
-      },
-      'confirmed',
-    )
-
-    // Cleanup subscription on unmount or dependency change
-    return () => {
-      connection.removeProgramAccountChangeListener(subscriptionId)
-    };
-  }, [wallet.connected, provider, connection, fetchGames])
+  }
 
   const gambaConfig = async () => {
-    if (!provider) return;
     try {
+      const provider = getProvider()
       const gambaFeeAddress = new PublicKey('BoDeHdqeVd2ds6keWYp2r63hwpL4UfjvNEPCyvVz38mQ')
       const gambaFeeBps = new BN(100) // 1%
       const rngAddress = new PublicKey('FaicqUdVsesTNxGRiVo3ZWMgrxdvhAVpSH7CPFnEN3aF')
@@ -89,47 +76,62 @@ const App = () => {
       )
 
       const txId = await sendTransaction(provider.anchorProvider, instruction)
+
       console.log('Transaction ID:', txId)
     } catch (error) {
       console.error('Error configuring gamba:', error)
     }
-  };
+  }
 
   const createGame = async () => {
-    if (!provider) return
     try {
+      const maxPlayersInt = maxPlayers
+      const winnersInt = winners
+      const durationSecondsInt = parseInt(gameDuration)
+      const wagerInt = parseInt(wagerAmount)
+
+      const mintPublicKey = new PublicKey(tokenMint)
+      const provider = getProvider()
+      const gameTypeValue = gameType === WagerType.SameWager ? 0 : 1
+
+
+
       const instruction = await provider.createGame(
-        new PublicKey(tokenMint),
-        parseInt(maxPlayers),
-        parseInt(winners),
-        gameType === WagerType.SameWager ? 0 : 1,
-        parseInt(wagerAmount),
-        parseInt(gameDuration),
-        600,  // optional hard settle, if not defined settles in 24 hours
+        mintPublicKey,
+        maxPlayersInt,
+        winnersInt,
+        gameTypeValue,
+        wagerInt,
+        durationSecondsInt,
       )
 
-      const txId = await sendTransaction(provider.anchorProvider, instruction, undefined, 5000);
+      const txId = await sendTransaction(provider.anchorProvider, instruction, undefined, 5000)
+
       console.log('Transaction ID:', txId)
     } catch (error) {
       console.error('Error creating game:', error)
     }
-  };
+  }
 
-  const joinGame = async (game, creatorAddressPubKey, creatorFee) => {
-    if (!provider) return
+  const joinGame = async (game, creatorAddressPubKey: PublicKey, creatorFee: number) => {
+    const wager = parseInt(customWager)
+    console.log(game.publicKey, creatorAddressPubKey, creatorFee, wager)
     try {
-      const wager = parseInt(customWager)
+      const provider = getProvider()
+
+      console.log('Joining game:', game.publicKey.toString())
       const instruction = await provider.joinGame(game, creatorAddressPubKey, creatorFee, wager)
       const txId = await sendTransaction(provider.anchorProvider, instruction)
+  
       console.log('Transaction ID:', txId)
     } catch (error) {
       console.error('Error joining game:', error)
     }
   }
-
-  const leaveGame = async (game) => {
-    if (!provider) return
+  
+  const leaveGame = async ( game ) => {
     try {
+      const provider = getProvider()
       const instruction = await provider.leaveGame(game)
       const txId = await sendTransaction(provider.anchorProvider, instruction)
       console.log('Transaction ID:', txId)
@@ -137,18 +139,25 @@ const App = () => {
       console.error('Error leaving game:', error)
     }
   }
-
-  const settleGame = async (game) => {
-    if (!provider) return
+  
+  const settleGame = async ( game ) => {
     try {
+      const provider = getProvider()
+
+      console.log('Settling game:', game.publicKey.toString())
+  
       const instruction = await provider.settleGame(game)
       const txId = await sendTransaction(provider.anchorProvider, instruction)
+  
       console.log('Settle Game Transaction ID:', txId)
     } catch (error) {
       console.error('Error settling game:', error)
     }
-  };
+  }
 
+  const connection = new Connection(network, opts.preflightCommitment)
+
+  
   return (
     <div>
       <WalletModalButton />
@@ -219,7 +228,7 @@ const App = () => {
         <button onClick={createGame}>Create Game</button>
       </div>
       <div className="button-row">
-        {/* Removed the Refresh Games button since updates are handled via subscriptions */}
+        <button onClick={fetchGames}>Refresh Games</button>
       </div>
       <div>
         {games.map((game, index) => (
@@ -235,12 +244,9 @@ const App = () => {
           />
         ))}
       </div>
-      {wallet.connected && wallet.publicKey && (
-        <RecentMultiplayerEvents address={wallet.publicKey} />
-      )}
-
+      <RecentEvents connection={connection} address={wallet.publicKey} />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App

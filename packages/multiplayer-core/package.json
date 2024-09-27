@@ -19,9 +19,10 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
+    "@coral-xyz/anchor": "^0.28.0",
     "@solana/spl-token": "^0.3.8",
-    "@solana/web3.js": "^1.93.0"
+    "@solana/web3.js": "^1.93.0",
+    "bn.js": "^5.2.0"
   },
   "devDependencies": {
     "eslint": "^8.48.0",

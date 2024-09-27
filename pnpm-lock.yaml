@@ -259,6 +259,9 @@ importers:
       gamba-react-v2:
         specifier: workspace:*
         version: link:../../packages/react
+      matter-js:
+        specifier: ^0.19.0
+        version: 0.19.0
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -268,6 +271,9 @@ importers:
       react-router-dom:
         specifier: ^6.21.0
         version: 6.23.1(react-dom@18.3.1)(react@18.3.1)
+      seedrandom:
+        specifier: ^3.0.5
+        version: 3.0.5
       styled-components:
         specifier: ^6.1.1
         version: 6.1.1(react-dom@18.3.1)(react@18.3.1)
@@ -20636,6 +20642,10 @@ packages:
     dependencies:
       extend-shallow: 2.0.1
       kind-of: 6.0.3
+    dev: false
+
+  /seedrandom@3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
     dev: false
 
   /select@1.1.2:

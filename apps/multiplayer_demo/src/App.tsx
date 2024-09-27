@@ -1,11 +1,13 @@
 // App.tsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import { WalletModalButton } from '@solana/wallet-adapter-react-ui'
 import { PublicKey, Connection } from '@solana/web3.js'
 import { BN } from '@coral-xyz/anchor'
 import { useWallet } from '@solana/wallet-adapter-react'
 import GameCard from './components/GameCard'
 import RecentMultiplayerEvents from './components/RecentMultiplayerEvents'
+import GameSimulation from './components/GameSimulation'
 import './styles.css'
 import { sendTransaction } from './utils'
 import { MultiplayerProvider, MULTIPLAYER_PROGRAM_ID } from 'gamba-multiplayer-core'
@@ -26,7 +28,7 @@ const App = () => {
   const [maxPlayers, setMaxPlayers] = useState('')
   const [tokenMint, setTokenMint] = useState('So11111111111111111111111111111111111111112')
   const [currentBlockchainTime, setCurrentBlockchainTime] = useState(null)
-  const [fetchTime, setFetchTime] = useState(null) // Record the local time when fetching data
+  const [fetchTime, setFetchTime] = useState(null)
   const [gameDuration, setGameDuration] = useState('')
   const [wagerAmount, setWagerAmount] = useState('')
   const [winners, setWinners] = useState('')
@@ -40,13 +42,12 @@ const App = () => {
     return new MultiplayerProvider(connection, wallet)
   }, [connection, wallet])
 
-  // Fetch games and blockchain time
   const fetchGames = useCallback(async () => {
     if (!provider) return
     try {
       const gameAccounts = await provider.fetchGames()
       const currentTimestamp = await provider.getCurrentBlockchainTime()
-      const fetchTime = Date.now() // Local time when data was fetched
+      const fetchTime = Date.now()
       setCurrentBlockchainTime(currentTimestamp)
       setFetchTime(fetchTime)
       setGames(gameAccounts)
@@ -58,20 +59,16 @@ const App = () => {
   useEffect(() => {
     if (!wallet.connected || !provider) return
 
-    // Initial fetch
     fetchGames()
 
-    // Subscribe to program account changes
     const subscriptionId = connection.onProgramAccountChange(
       new PublicKey(MULTIPLAYER_PROGRAM_ID),
       () => {
-        // Fetch updated games when any program account changes
         fetchGames()
       },
       'confirmed',
     )
 
-    // Cleanup subscription on unmount
     return () => {
       connection.removeProgramAccountChangeListener(subscriptionId)
     }
@@ -81,7 +78,7 @@ const App = () => {
     if (!provider) return
     try {
       const gambaFeeAddress = new PublicKey('BoDeHdqeVd2ds6keWYp2r63hwpL4UfjvNEPCyvVz38mQ')
-      const gambaFeeBps = new BN(100) // 1%
+      const gambaFeeBps = new BN(100)
       const rngAddress = new PublicKey('FaicqUdVsesTNxGRiVo3ZWMgrxdvhAVpSH7CPFnEN3aF')
       const authority = provider.wallet.publicKey
 
@@ -109,7 +106,7 @@ const App = () => {
         gameType === WagerType.SameWager ? 0 : 1,
         parseInt(wagerAmount),
         parseInt(gameDuration),
-        600, // Optional hard settle duration (in seconds)
+        600,
       )
 
       const txId = await sendTransaction(provider.anchorProvider, instruction, undefined, 5000)
@@ -222,22 +219,30 @@ const App = () => {
         </div>
         <button onClick={createGame}>Create Game</button>
       </div>
-      <div>
-        {games.map((game, index) => (
-          <GameCard
-            key={index}
-            game={game}
-            currentBlockchainTime={currentBlockchainTime}
-            fetchTime={fetchTime}
-            joinGame={joinGame}
-            leaveGame={leaveGame}
-            settleGame={settleGame}
-            customWager={customWager}
-            setCustomWager={setCustomWager}
-          />
-        ))}
-      </div>
-      {wallet.connected && wallet.publicKey && <RecentMultiplayerEvents />}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div>
+              {games.map((game, index) => (
+                <GameCard
+                  key={index}
+                  game={game}
+                  currentBlockchainTime={currentBlockchainTime}
+                  fetchTime={fetchTime}
+                  joinGame={joinGame}
+                  leaveGame={leaveGame}
+                  settleGame={settleGame}
+                  customWager={customWager}
+                  setCustomWager={setCustomWager}
+                />
+              ))}
+              {wallet.connected && wallet.publicKey && <RecentMultiplayerEvents />}
+            </div>
+          }
+        />
+        <Route path="/simulation/:signature" element={<GameSimulation />} />
+      </Routes>
     </div>
   )
 }

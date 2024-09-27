@@ -30,7 +30,7 @@ const GameCard: React.FC<GameCardProps> = ({
   useEffect(() => {
     if (currentBlockchainTime !== null && fetchTime !== null) {
       const expirationTimestamp = new BN(game.account.softExpirationTimestamp).toNumber()
-      const initialElapsedTime = (Date.now() - fetchTime) / 1000 // Time elapsed since data fetch in seconds
+      const initialElapsedTime = (Date.now() - fetchTime) / 1000
       const initialTimeUntilExpiration = Math.max(
         0,
         expirationTimestamp - (currentBlockchainTime + initialElapsedTime),

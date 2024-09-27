@@ -8,7 +8,7 @@ const RecentMultiplayerEvents = () => {
   const [recentEvents, setRecentEvents] = useState([]);
 
   useEffect(() => {
-    const setupEventListener = async () => {
+    const setupEventListener = () => {
       const programId = MULTIPLAYER_PROGRAM_ID;
 
       // Subscribe to program logs
@@ -16,16 +16,16 @@ const RecentMultiplayerEvents = () => {
         programId,
         (logs, context) => {
           const events = parseTransactionEvents(logs.logs);
-          const newEvents = events.map(event => ({
+          const newEvents = events.map((event) => ({
             ...event,
             signature: context.signature,
             slot: context.slot,
             time: Date.now(),
           }));
 
-          setRecentEvents(prevEvents => [...newEvents, ...prevEvents]);
+          setRecentEvents((prevEvents) => [...newEvents, ...prevEvents]);
         },
-        'confirmed'
+        'confirmed',
       );
 
       return () => {
@@ -33,7 +33,8 @@ const RecentMultiplayerEvents = () => {
       };
     };
 
-    setupEventListener();
+    const cleanup = setupEventListener();
+    return cleanup;
   }, [connection]);
 
   return (
@@ -61,7 +62,8 @@ const RecentMultiplayerEvents = () => {
           <div style={{ paddingLeft: '10px' }}>
             {Object.entries(event.data).map(([key, value]) => (
               <div key={key}>
-                <strong>{key}:</strong> {typeof value === 'object' ? JSON.stringify(value) : value}
+                <strong>{key}:</strong>{' '}
+                {typeof value === 'object' ? JSON.stringify(value) : value}
               </div>
             ))}
           </div>

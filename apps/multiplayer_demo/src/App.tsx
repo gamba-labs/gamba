@@ -1,3 +1,4 @@
+// App.tsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { WalletModalButton } from '@solana/wallet-adapter-react-ui'
 import { PublicKey, Connection } from '@solana/web3.js'
@@ -25,6 +26,7 @@ const App = () => {
   const [maxPlayers, setMaxPlayers] = useState('')
   const [tokenMint, setTokenMint] = useState('So11111111111111111111111111111111111111112')
   const [currentBlockchainTime, setCurrentBlockchainTime] = useState(null)
+  const [fetchTime, setFetchTime] = useState(null) // Record the local time when fetching data
   const [gameDuration, setGameDuration] = useState('')
   const [wagerAmount, setWagerAmount] = useState('')
   const [winners, setWinners] = useState('')
@@ -38,13 +40,15 @@ const App = () => {
     return new MultiplayerProvider(connection, wallet)
   }, [connection, wallet])
 
-  // Define fetchGames using useCallback to prevent unnecessary re-renders
+  // Fetch games and blockchain time
   const fetchGames = useCallback(async () => {
     if (!provider) return
     try {
       const gameAccounts = await provider.fetchGames()
       const currentTimestamp = await provider.getCurrentBlockchainTime()
+      const fetchTime = Date.now() // Local time when data was fetched
       setCurrentBlockchainTime(currentTimestamp)
+      setFetchTime(fetchTime)
       setGames(gameAccounts)
     } catch (error) {
       console.error('Error fetching games:', error)
@@ -54,27 +58,27 @@ const App = () => {
   useEffect(() => {
     if (!wallet.connected || !provider) return
 
-    // Fetch games initially
+    // Initial fetch
     fetchGames()
 
     // Subscribe to program account changes
     const subscriptionId = connection.onProgramAccountChange(
       new PublicKey(MULTIPLAYER_PROGRAM_ID),
-      (info) => {
-        // Whenever an account owned by the program changes, fetch updated games
+      () => {
+        // Fetch updated games when any program account changes
         fetchGames()
       },
       'confirmed',
     )
 
-    // Cleanup subscription on unmount or dependency change
+    // Cleanup subscription on unmount
     return () => {
       connection.removeProgramAccountChangeListener(subscriptionId)
-    };
+    }
   }, [wallet.connected, provider, connection, fetchGames])
 
   const gambaConfig = async () => {
-    if (!provider) return;
+    if (!provider) return
     try {
       const gambaFeeAddress = new PublicKey('BoDeHdqeVd2ds6keWYp2r63hwpL4UfjvNEPCyvVz38mQ')
       const gambaFeeBps = new BN(100) // 1%
@@ -93,7 +97,7 @@ const App = () => {
     } catch (error) {
       console.error('Error configuring gamba:', error)
     }
-  };
+  }
 
   const createGame = async () => {
     if (!provider) return
@@ -105,15 +109,15 @@ const App = () => {
         gameType === WagerType.SameWager ? 0 : 1,
         parseInt(wagerAmount),
         parseInt(gameDuration),
-        600,  // optional hard settle, if not defined settles in 24 hours
+        600, // Optional hard settle duration (in seconds)
       )
 
-      const txId = await sendTransaction(provider.anchorProvider, instruction, undefined, 5000);
+      const txId = await sendTransaction(provider.anchorProvider, instruction, undefined, 5000)
       console.log('Transaction ID:', txId)
     } catch (error) {
       console.error('Error creating game:', error)
     }
-  };
+  }
 
   const joinGame = async (game, creatorAddressPubKey, creatorFee) => {
     if (!provider) return
@@ -147,7 +151,7 @@ const App = () => {
     } catch (error) {
       console.error('Error settling game:', error)
     }
-  };
+  }
 
   return (
     <div>
@@ -218,15 +222,13 @@ const App = () => {
         </div>
         <button onClick={createGame}>Create Game</button>
       </div>
-      <div className="button-row">
-        {/* Removed the Refresh Games button since updates are handled via subscriptions */}
-      </div>
       <div>
         {games.map((game, index) => (
           <GameCard
             key={index}
             game={game}
             currentBlockchainTime={currentBlockchainTime}
+            fetchTime={fetchTime}
             joinGame={joinGame}
             leaveGame={leaveGame}
             settleGame={settleGame}
@@ -235,12 +237,9 @@ const App = () => {
           />
         ))}
       </div>
-      {wallet.connected && wallet.publicKey && (
-        <RecentMultiplayerEvents address={wallet.publicKey} />
-      )}
-
+      {wallet.connected && wallet.publicKey && <RecentMultiplayerEvents />}
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App

@@ -112,7 +112,7 @@ export class MultiplayerProvider {
 
 
   async joinGame(
-    game: any,
+    game: anchor.ProgramAccount<GameState>,
     creatorAddressPubKey: PublicKey,
     creatorFee: number,
     wager: number,
@@ -157,7 +157,7 @@ export class MultiplayerProvider {
   }
   
 
-  async leaveGame(game: any) {
+  async leaveGame(game: anchor.ProgramAccount<GameState>) {
     const playerPubKey = this.wallet.publicKey
   
     // If mint is wrapped SOL, set playerAta to null
@@ -186,7 +186,7 @@ export class MultiplayerProvider {
       .instruction()
   }
 
-  async settleGame(game: any) {
+  async settleGame(game: anchor.ProgramAccount<GameState>) {
     if (game.account.mint.equals(WRAPPED_SOL_MINT)) {
       return this.settleGameNative(game)
     } else {
@@ -194,7 +194,7 @@ export class MultiplayerProvider {
     }
   }
 
-  async settleGameSpl(game: any) {
+  async settleGameSpl(game: anchor.ProgramAccount<GameState>) {
     const gambaState = await getGambaStateAddress()
   
     // Fetch gambaConfig to get the gambaFeeAddress
@@ -256,7 +256,7 @@ export class MultiplayerProvider {
   
 
   // New function: settleWithUninitializedAccounts
-  async settleWithUninitializedAccounts(game: any) {
+  async settleWithUninitializedAccounts(game: anchor.ProgramAccount<GameState>) {
     const gambaState = await getGambaStateAddress()
   
     // Fetch gambaConfig to get addresses
@@ -336,7 +336,7 @@ export class MultiplayerProvider {
       .instruction()
   }
 
-  async settleGameNative(game: any) {
+  async settleGameNative(game: anchor.ProgramAccount<GameState>) {
     const gambaState = await getGambaStateAddress()
 
     // Fetch gambaConfig to get the gambaFeeAddress

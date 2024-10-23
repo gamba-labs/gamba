@@ -162,5 +162,11 @@
     "name": "JMoney Gamefi",
     "url": "https://j-money-gamefi.vercel.app/",
     "image": "/logos/jmoney.png"
+  },
+  {
+    "address": "ADqWkZKUdfCinTfM3x19wSVgSKhg2j7VtYDxC3JHXPrZ",
+    "name": "ORE Play",
+    "url": "https://www.ore-play.fun/ ",
+    "image": "/logos/ore_logo.png"
   }
 ]

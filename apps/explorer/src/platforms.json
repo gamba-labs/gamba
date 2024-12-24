@@ -180,5 +180,11 @@
     "name": "-THINGS-",
     "url": "https://www.things.casino/",
     "image": "/logos/things.png"
+  },
+  {
+    "address": "6N2rPffahmxkfKtQKeDgwD25XUjJUEBEctMhaYdVkJ26",
+    "name": "Poo.casino",
+    "url": "https://www.poo.casino/",
+    "image": "/logos/poocasino.svg"
   }
 ]

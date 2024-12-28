@@ -237,3 +237,15 @@ video#hero-video {
   display: inline-block;
   padding: 1px 10px;
 }
+
+.fade {
+  transition: opacity 0.75s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+.fade-in {
+  opacity: 1;
+}

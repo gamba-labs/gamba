@@ -34,4 +34,14 @@ export const projects = [
     link: 'https://www.ninjatsscasino.xyz/',
     thumbnail: '/thumbnails/ninjaturtles.png',
   },
+  {
+    name: 'PooCasino',
+    link: 'https://www.poo.casino/',
+    thumbnail: '/thumbnails/poocasino.png',
+  },
+  {
+    name: 'J-money',
+    link: 'https://j-money-gamefi.vercel.app/',
+    thumbnail: '/thumbnails/j-money.png',
+  },
 ]

@@ -1,28 +1,85 @@
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CodeBlock, dracula } from 'react-code-blocks'
 import Tilt from 'react-parallax-tilt'
-import { projects } from '../projects'
+import { projects as allProjects } from '../projects'
 import { GameCard } from './gameCard'
 
 export function Home() {
-  // const randomProjects = [...projects].sort(() => 0.5 - Math.random()).slice(0, 6)
-  // <3 next.js - https://stackoverflow.com/questions/73071457/randomize-an-array-using-useeffect-in-nextjs
-  const [randomProjects, setRandomProjects] = useState([])
+  const [randomProjects, setRandomProjects] = useState<any[]>([])
+  const [fadeStates, setFadeStates] = useState<string[]>([]) // e.g. ['fade-in', 'fade-in', ...]
+
+  // For controlling the interval
+  const intervalRef = useRef<NodeJS.Timer | null>(null)
+
+  // Randomly pick 6 to show on first render
   useEffect(() => {
-    const shuffledProjects = [...projects]
+    const shuffledProjects = [...allProjects]
       .sort(() => 0.5 - Math.random())
       .slice(0, 6)
     setRandomProjects(shuffledProjects)
-  }, [projects])
+    // Initialize all fade states to "fade-in"
+    setFadeStates(new Array(6).fill('fade-in'))
+  }, [])
 
+  // Start the video
   useEffect(() => {
     setTimeout(async () => {
       const video = document.querySelector('#hero-video') as HTMLVideoElement
-      await video.play()
-      video.setAttribute('autoplay', 'true')
+      if (video) {
+        await video.play().catch((err) => console.log(err))
+        video.setAttribute('autoplay', 'true')
+      }
     }, 100)
   }, [])
+
+  // Set up the interval to fade out and replace a random project
+  useEffect(() => {
+    if (randomProjects.length === 6) {
+      intervalRef.current = setInterval(() => {
+        // pick a random index from 0..5
+        const indexToReplace = Math.floor(Math.random() * 6)
+        // fade that index out
+        setFadeStates((prev) => {
+          const newStates = [...prev]
+          newStates[indexToReplace] = 'fade-out'
+          return newStates
+        })
+      }, 4000) // every 4 seconds (example)
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [randomProjects])
+
+  // This function picks a random project from the full list that is *not* already displayed
+  const getNewProject = (currentProjects: any[]) => {
+    const currentNames = currentProjects.map((p) => p.name)
+    const filtered = allProjects.filter((p) => !currentNames.includes(p.name))
+    // if everything is used up or you want duplicates allowed, you can remove this filter
+    if (filtered.length === 0) return allProjects[Math.floor(Math.random() * allProjects.length)]
+    return filtered[Math.floor(Math.random() * filtered.length)]
+  }
+
+  // handle transition end
+  const handleTransitionEnd = (index: number) => {
+    if (fadeStates[index] === 'fade-out') {
+      // we've just finished fading out, so let's swap the project and then fade in
+      setRandomProjects((prev) => {
+        const newProjects = [...prev]
+        newProjects[index] = getNewProject(prev) // pick a new random project
+        return newProjects
+      })
+      setFadeStates((prev) => {
+        const newStates = [...prev]
+        newStates[index] = 'fade-in'
+        return newStates
+      })
+    }
+  }
 
   const code = `
 import React from 'react';
@@ -70,9 +127,9 @@ function App() {
 `
 
   return (
-    <div className="fadeIn">
+    <div>
       <div className="hero max-w-7xl mx-auto px-6 md:px-12 xl:px-6 py-32">
-        <div className="appear lg:w-2/3 text-center mx-auto">
+        <div className="lg:w-2/3 text-center mx-auto">
           <h1 className="text-zinc-900 dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
             Build <span className="gradient-text">on-chain</span> games on
             Solana
@@ -99,6 +156,7 @@ function App() {
         </div>
       </div>
 
+      {/* BUILT ON GAMBA */}
       <div className="mt-24 max-w-7xl mx-auto px-6 md:px-12 xl:px-6 text-center">
         <h1 className="text-2xl text-center font-bold text-zinc-900 dark:text-white md:text-3xl lg:text-4xl">
           Built on Gamba
@@ -106,27 +164,32 @@ function App() {
         <p className="mt-8 text-xl text-zinc-700 dark:text-zinc-300 leading-8">
           Some projects that have integrated with Gamba
         </p>
+
         <div className="relative mt-12 grid gap-9 sm:grid-cols-2 lg:grid-cols-3">
-          {randomProjects.map((project) => (
-            <GameCard
+          {randomProjects.map((project, i) => (
+            <div
               key={project.name}
-              title={project.name}
-              image={project.thumbnail}
-              link={project.link}
-            />
+              // We combine our fade class + the fadeState for that index
+              className={`fade ${fadeStates[i]}`}
+              onTransitionEnd={() => handleTransitionEnd(i)}
+            >
+              <GameCard
+                title={project.name}
+                image={project.thumbnail}
+                link={project.link}
+              />
+            </div>
           ))}
         </div>
+
         <p className="mt-8 text-xl text-zinc-700 dark:text-zinc-300 leading-8">
-          <Link
-            href="/docs/examples"
-            className="px-4 py-2 text-center"
-            rel="noreferrer"
-          >
+          <Link href="/docs/examples" className="px-4 py-2 text-center" rel="noreferrer">
             Explore more →
           </Link>
         </p>
       </div>
 
+      {/* KEY FEATURES */}
       <div className="mt-36 max-w-7xl mx-auto px-6 md:px-12 xl:px-6">
         <h1 className="text-2xl text-center font-bold text-zinc-900 dark:text-white md:text-3xl lg:text-4xl">
           Key Features
@@ -145,7 +208,7 @@ function App() {
               Plug and Earn
             </h2>
             <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-              Gamba{'\''}s open-source SDK is really easy to work with. Simply
+              Gamba{'\'s'} open-source SDK is really easy to work with. Simply
               provide your Solana address and start earning on every bet made on
               your site.
             </p>
@@ -189,16 +252,13 @@ function App() {
           </Tilt>
         </div>
         <p className="flex justify-center mt-8 text-xl text-zinc-700 dark:text-zinc-300 leading-8">
-          <Link
-            href="/docs"
-            className="px-4 py-2 text-center"
-            rel="noreferrer"
-          >
+          <Link href="/docs" className="px-4 py-2 text-center" rel="noreferrer">
             Start Building →
           </Link>
         </p>
       </div>
 
+      {/* CODE EXAMPLE */}
       <div className="mt-32 max-w-7xl mx-auto px-6 md:px-12 xl:px-6">
         <div className="lg:py-20 space-y-6 md:flex md:gap-10 justify-center md:space-y-0">
           <div className="md:w-7/12 lg:w-1/2">
@@ -234,16 +294,16 @@ function App() {
               every bet made via your frontend.
             </p>
             <p className="text-lg my-8 text-zinc-600 dark:text-zinc-300">
-              Check out our
-              {' '}
+              Check out our{' '}
               <a
                 href="https://github.com/gamba-labs"
                 target="_blank"
-                className="text-[#8851ff] hover:underline" rel="noreferrer"
+                className="text-[#8851ff] hover:underline"
+                rel="noreferrer"
               >
                 Github
-              </a>
-              {' '}to get started
+              </a>{' '}
+              to get started
             </p>
           </div>
         </div>

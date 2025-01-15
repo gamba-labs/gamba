@@ -44,4 +44,9 @@ export const projects = [
     link: 'https://j-money-gamefi.vercel.app/',
     thumbnail: '/thumbnails/j-money.png',
   },
+  {
+    name: 'RoeVegas Web3 Casino',
+    link: 'https://roecoin.fun/',
+    thumbnail: '/thumbnails/roevegas.jpg',
+  },
 ]

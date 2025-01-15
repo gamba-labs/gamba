@@ -186,5 +186,11 @@
     "name": "Poo.casino",
     "url": "https://www.poo.casino/",
     "image": "/logos/poocasino.svg"
+  },
+  {
+    "address": "2etBGESoTCwbg912QPccnKUanGjFLi81ZYwEGT8J551Y",
+    "name": "RoeVegas",
+    "url": "https://roecoin.fun/",
+    "image": "/logos/roecoin.svg"
   }
 ]

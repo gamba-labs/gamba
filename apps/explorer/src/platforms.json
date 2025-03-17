@@ -198,5 +198,11 @@
     "name": "$SBETS",
     "url": "https://www.s-bets.fun/",
     "image": "/logos/s-bets.png"
+  },
+  {
+    "address": "8Zzxb2wsxJe8ZbWVMT1we1WsvhDbwr83YgVJFbrfqtdQ",
+    "name": "SolSpin",
+    "url": "https://solspin.xyz/",
+    "image": "https://solspin.xyz/favicon.svg"
   }
 ]

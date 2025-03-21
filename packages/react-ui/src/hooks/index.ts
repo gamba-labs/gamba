@@ -35,9 +35,10 @@ export function useCurrentToken() {
 }
 
 export function useTokenBalance(mint?: PublicKey) {
+  const pool = useCurrentPool()
   const token = useCurrentToken()
   const userAddress = useWalletAddress()
-  const realBalance = useBalance(userAddress, mint ?? token.mint)
+  const realBalance = useBalance(userAddress, mint ?? token.mint, pool.authority)
   const fake = useFakeToken()
 
   if ((!mint && fake.isActive) || mint?.equals(FAKE_TOKEN_MINT)) {

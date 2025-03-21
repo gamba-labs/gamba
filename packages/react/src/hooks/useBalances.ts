@@ -11,9 +11,9 @@ export function useWalletAddress() {
   return wallet.publicKey ?? emptyAccount.publicKey
 }
 
-export function useBalance(publicKey: PublicKey, token: PublicKey) {
+export function useBalance(publicKey: PublicKey, token: PublicKey, authority?: PublicKey) {
   const ata = getUserUnderlyingAta(publicKey, token)
-  const bonusAta = getUserBonusAtaForPool(publicKey, getPoolAddress(token))
+  const bonusAta = getUserBonusAtaForPool(publicKey, getPoolAddress(token, authority))
 
   const userAccount = useAccount(publicKey, (info) => info)
   const tokenAccount = useAccount(ata, decodeAta)

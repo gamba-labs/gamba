@@ -1,5 +1,14 @@
 # gamba-react-ui-v2
 
+## 0.7.1
+
+### Patch Changes
+
+- Minor change
+- Updated dependencies
+  - gamba-core-v2@0.4.1
+  - gamba-react-v2@1.2.1
+
 ## 0.7.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # gamba-react-v2
 
+## 1.2.1
+
+### Patch Changes
+
+- Minor change
+- Updated dependencies
+  - gamba-core-v2@0.4.1
+
 ## 1.2.0
 
 ### Minor Changes

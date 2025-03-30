@@ -1,5 +1,11 @@
 # gamba-core-v2
 
+## 0.4.1
+
+### Patch Changes
+
+- Minor change
+
 ## 0.4.0
 
 ### Minor Changes

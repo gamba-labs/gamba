@@ -204,5 +204,11 @@
     "name": "SolSpin",
     "url": "https://solspin.xyz/",
     "image": "https://solspin.xyz/favicon.svg"
+  },
+  {
+    "address": "Etnd3K8ZkMoUivezmxxaRkZBvVFTAvuQftpfvLyjhjBp",
+    "name": "banabets",
+    "url": "https://www.banabets.com/",
+    "image": "/logos/banabets.png"
   }
 ]

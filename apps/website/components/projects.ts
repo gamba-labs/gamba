@@ -1,4 +1,9 @@
 export const projects = [
+    {
+    name: "SOLjack",
+    link: "https://soljack.com/",
+    thumbnail: "https://pbs.twimg.com/profile_banners/1835288747845603328/1746831831/1500x500",
+  },
   {
     name: "Guacamole GG",
     link: "https://www.guacamole.gg/play",

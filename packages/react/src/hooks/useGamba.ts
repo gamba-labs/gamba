@@ -21,7 +21,7 @@ export function useGamba() {
   const userCreated = !!game
   const nextRngSeedHashed = game?.nextRngSeedHashed
   const txStore = useTransactionStore()
-  const isPlaying = txStore.state !== 'error' && txStore.state !== 'none' || !!game?.status.resultRequested
+  const isPlaying = txStore.state !== 'error' && txStore.state !== 'none' || !!game?.status.ResultRequested
 
   const play = useGambaPlay()
   const result = useNextResult()

@@ -1,47 +1,60 @@
 import { NATIVE_MINT } from '@solana/spl-token'
-import { Connection, PublicKey } from '@solana/web3.js'
-import { BPS_PER_WHOLE, GameState } from '.'
+import { Connection, PublicKey, AccountInfo } from '@solana/web3.js'
+import { BPS_PER_WHOLE } from '.'
 import { decodeGame } from './decoders'
 import { getGameAddress } from './pdas'
+import { GameState } from './types'
 
-export const basisPoints = (percent: number) => {
-  return Math.round(percent * BPS_PER_WHOLE)
-}
+export const basisPoints = (percent: number) =>
+  Math.round(percent * BPS_PER_WHOLE)
 
-export const isNativeMint = (pubkey: PublicKey) => NATIVE_MINT.equals(pubkey)
+export const isNativeMint = (pubkey: PublicKey) =>
+  NATIVE_MINT.equals(pubkey)
 
-export const hmac256 = async (secretKey: string, message: string) => {
-  const encoder = new TextEncoder
+export const hmac256 = async (
+  secretKey: string,
+  message: string,
+): Promise<string> => {
+  const encoder = new TextEncoder()
   const messageUint8Array = encoder.encode(message)
   const keyUint8Array = encoder.encode(secretKey)
-  const cryptoKey = await crypto.subtle.importKey('raw', keyUint8Array, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyUint8Array,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
   const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageUint8Array)
-  return Array.from(new Uint8Array(signature)).map((b) => b.toString(16).padStart(2, '0')).join('')
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
-export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) => {
-  return hmac256(rngSeed, [clientSeed, nonce].join('-'))
-}
+export const getGameHash = (rngSeed: string, clientSeed: string, nonce: number) =>
+  hmac256(rngSeed, [clientSeed, nonce].join('-'))
 
-export const getResultNumber = async (rngSeed: string, clientSeed: string, nonce: number) => {
+export const getResultNumber = async (
+  rngSeed: string,
+  clientSeed: string,
+  nonce: number,
+) => {
   const hash = await getGameHash(rngSeed, clientSeed, nonce)
   return parseInt(hash.substring(0, 5), 16)
 }
 
 export type GameResult = ReturnType<typeof parseResult>
 
-export const parseResult = (
-  state: GameState,
-) => {
-  const clientSeed = state.clientSeed
-  const bet = state.bet.map((x) => x / BPS_PER_WHOLE)
-  const nonce = state.nonce.toNumber() - 1
-  const rngSeed = state.rngSeed
+export const parseResult = (state: GameState) => {
+  const clientSeed  = state.clientSeed
+  const bet         = state.bet.map((x) => x / BPS_PER_WHOLE)
+  const nonce       = state.nonce.toNumber() - 1
+  const rngSeed     = state.rngSeed
   const resultIndex = state.result.toNumber()
-  const multiplier = bet[resultIndex]
-  const wager = state.wager.toNumber()
-  const payout = (wager * multiplier)
-  const profit = (payout - wager)
+  const multiplier  = bet[resultIndex]
+  const wager       = state.wager.toNumber()
+  const payout      = wager * multiplier
+  const profit      = payout - wager
 
   return {
     creator: state.creator,
@@ -65,11 +78,11 @@ export async function getNextResult(
   connection: Connection,
   user: PublicKey,
   prevNonce: number,
-) {
-  return new Promise<GameResult>((resolve, reject) => {
+): Promise<GameResult> {
+  return new Promise((resolve, reject) => {
     const listener = connection.onAccountChange(
       getGameAddress(user),
-      async (account) => {
+      async (account: AccountInfo<Buffer>) => {
         const current = decodeGame(account)
         if (!current) {
           connection.removeAccountChangeListener(listener)
@@ -77,8 +90,8 @@ export async function getNextResult(
         }
         if (current.nonce.toNumber() === prevNonce + 1) {
           connection.removeAccountChangeListener(listener)
-          const result = await parseResult(current)
-          return resolve(result)
+          const result = parseResult(current)
+          resolve(result)
         }
       },
     )

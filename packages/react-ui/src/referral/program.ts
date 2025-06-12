@@ -15,7 +15,7 @@ export const createReferral = async (
   creator: PublicKey,
   referAccount: PublicKey,
 ) => {
-  const referralProgram = new Program(REFERRAL_IDL, PROGRAM_ID, provider)
+  const referralProgram = new Program(REFERRAL_IDL, provider)
   return referralProgram.methods
     .configReferAccount(referAccount)
     .accounts({ referAccount: getReferrerPda(creator, provider.wallet.publicKey), creator })
@@ -26,7 +26,7 @@ export const closeReferral = async (
   provider: AnchorProvider,
   creator: PublicKey,
 ) => {
-  const referralProgram = new Program(REFERRAL_IDL, PROGRAM_ID, provider)
+  const referralProgram = new Program(REFERRAL_IDL, provider)
   return referralProgram.methods
     .closeReferAccount()
     .accounts({ referAccount: getReferrerPda(creator, provider.wallet.publicKey), creator })
@@ -37,7 +37,7 @@ export const fetchReferral = async (
   provider: AnchorProvider,
   pda: PublicKey,
 ) => {
-  const referralProgram = new Program(REFERRAL_IDL, PROGRAM_ID, provider)
+  const referralProgram = new Program(REFERRAL_IDL, provider)
   const account = await referralProgram.account.referAccount.fetch(pda)
   if (!account) return null
   return account.referrer

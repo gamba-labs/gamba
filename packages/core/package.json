@@ -19,7 +19,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
+    "@coral-xyz/anchor": "^0.31.1",
     "@solana/spl-token": "^0.3.8",
     "@solana/web3.js": "^1.93.0"
   },
@@ -29,7 +29,7 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
+    "@coral-xyz/anchor": "^0.31.1",
     "@solana/web3.js": "^1.93.0"
   },
   "keywords": [],

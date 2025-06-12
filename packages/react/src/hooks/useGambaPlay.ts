@@ -83,7 +83,7 @@ export function useGambaPlay() {
         ),
         ...pluginInstructions,
       ],
-      { ...opts, label: 'play', lookupTable: opts?.lookupTables }
+      { ...opts, label: 'play', lookupTable: opts?.lookupTables },
     )
   }
 }

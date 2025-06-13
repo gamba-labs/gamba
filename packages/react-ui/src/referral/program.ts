@@ -1,44 +1,78 @@
 import { AnchorProvider, Program } from '@coral-xyz/anchor'
-import { PublicKey } from '@solana/web3.js'
-import { REFERRAL_IDL } from './idl'
+import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
+import { REFERRAL_IDL, ReferralIdl } from './idl'
 
-export const PROGRAM_ID = new PublicKey('RefwFk2PPNd9bPehSyAkrkrehSHkvz6mTAHTNe8v9vH')
+// 1) Pull your on‐chain program ID straight from the IDL metadata:
+export const PROGRAM_ID = new PublicKey(REFERRAL_IDL.address || REFERRAL_IDL.metadata.address)
 
-export const getReferrerPda = (creator: PublicKey, authority: PublicKey) =>
-  PublicKey.findProgramAddressSync([
-    creator.toBytes(),
-    authority.toBytes(),
-  ], PROGRAM_ID)[0]
-
-export const createReferral = async (
-  provider: AnchorProvider,
+// 2) Helper: derive the PDA for [creator, authority]
+export function getReferrerPda(
   creator: PublicKey,
-  referAccount: PublicKey,
-) => {
-  const referralProgram = new Program(REFERRAL_IDL, provider)
-  return referralProgram.methods
-    .configReferAccount(referAccount)
-    .accounts({ referAccount: getReferrerPda(creator, provider.wallet.publicKey), creator })
-    .instruction()
+  authority: PublicKey,
+): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [creator.toBytes(), authority.toBytes()],
+    PROGRAM_ID,
+  )[0]
 }
 
-export const closeReferral = async (
+/**
+ * 3) Build the raw `configReferAccount` instruction.
+ */
+export function createReferral(
   provider: AnchorProvider,
   creator: PublicKey,
-) => {
-  const referralProgram = new Program(REFERRAL_IDL, provider)
-  return referralProgram.methods
-    .closeReferAccount()
-    .accounts({ referAccount: getReferrerPda(creator, provider.wallet.publicKey), creator })
-    .instruction()
+  referrer: PublicKey,
+): TransactionInstruction {
+  const program = new Program<ReferralIdl>(REFERRAL_IDL, provider)
+  const pda = getReferrerPda(creator, provider.wallet.publicKey!)
+
+  return program.instruction.configReferAccount(
+    referrer, // arg
+    {
+      accounts: {
+        authority:    provider.wallet.publicKey!,  // signer
+        referAccount: pda,                         // PDA to init
+        creator,                                   // caller-provided creator
+        systemProgram: SystemProgram.programId,    // <— must supply!
+      },
+    },
+  )
 }
 
-export const fetchReferral = async (
+/**
+ * 4) Build the raw `closeReferAccount` instruction.
+ */
+export function closeReferral(
   provider: AnchorProvider,
-  pda: PublicKey,
-) => {
-  const referralProgram = new Program(REFERRAL_IDL, provider)
-  const account = await referralProgram.account.referAccount.fetch(pda)
-  if (!account) return null
-  return account.referrer
+  creator: PublicKey,
+): TransactionInstruction {
+  const program = new Program<ReferralIdl>(REFERRAL_IDL, provider)
+  const pda = getReferrerPda(creator, provider.wallet.publicKey!)
+
+  return program.instruction.closeReferAccount({
+    accounts: {
+      authority:    provider.wallet.publicKey!,  // signer
+      referAccount: pda,                         // PDA to close
+      creator,                                   // creator
+      systemProgram: SystemProgram.programId,    // <— must supply!
+    },
+  })
+}
+
+/**
+ * 5) Fetch the on‐chain referral account; return `referrer` or null.
+ */
+export async function fetchReferral(
+  provider: AnchorProvider,
+  referAccountPda: PublicKey,
+): Promise<PublicKey | null> {
+  const program = new Program<ReferralIdl>(REFERRAL_IDL, provider)
+  try {
+    const acct = await program.account.referAccount.fetch(referAccountPda)
+    return acct.referrer
+  } catch (err: any) {
+    if (err.toString().includes('AccountNotFound')) return null
+    throw err
+  }
 }

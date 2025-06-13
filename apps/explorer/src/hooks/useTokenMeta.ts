@@ -42,7 +42,7 @@ const fetchTokenMeta = async (token: string) => {
       return
     }
 
-    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=7b05747c-b100-4159-ba5f-c85e8c8d3997`, {
+    const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

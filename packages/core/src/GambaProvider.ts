@@ -4,7 +4,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddres
 import { AddressLookupTableProgram, ConfirmOptions, Connection, Keypair, PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from '@solana/web3.js'
 import { PROGRAM_ID } from './constants'
 import { Gamba, IDL } from './idl'
-import { getGambaStateAddress, getGameAddress, getPlayerAddress, getPoolAddress, getPoolBonusAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress } from './pdas'
+import { getGambaStateAddress, getGameAddress, getPlayerAddress, getPoolAddress, getPoolBonusAddress, getPoolLpAddress, getPoolUnderlyingTokenAccountAddress, getPoolBonusUnderlyingTokenAccountAddress, getPoolJackpotTokenAccountAddress } from './pdas'
 import { GambaProviderWallet } from './types'
 import { basisPoints } from './utils'
 
@@ -225,7 +225,7 @@ export class GambaProvider {
   /**
    * Mints bonus tokens that can be used as free plays in the pool
    * @param pool Pool to mint bonus tokens for
-   * @param underlyingTokenMint Token to mint bonus tokens for (Has to be equal to pool.underlyingTokenMint)
+   * @param underlyingTokenMint Token to mint bonus tokens for
    * @param amount Amount of bonus tokens to mint
    */
   mintBonusTokens(
@@ -233,28 +233,34 @@ export class GambaProvider {
     underlyingTokenMint: PublicKey,
     amount: number | bigint,
   ) {
-    const bonusMint   = getPoolBonusAddress(pool)
-    const gambaState  = getGambaStateAddress()
+    const bonusMint     = getPoolBonusAddress(pool)
+    const gambaState    = getGambaStateAddress()
     const userUnderlyingAta = getAssociatedTokenAddressSync(
       underlyingTokenMint,
       this.wallet.publicKey,
     )
-    const userBonusAta = getAssociatedTokenAddressSync(
+    const userBonusAta  = getAssociatedTokenAddressSync(
       bonusMint,
       this.wallet.publicKey,
     )
 
-    const accs: Record<string, PublicKey | null> = {
+    const poolBonusUnderlyingTA = getPoolBonusUnderlyingTokenAccountAddress(pool)
+    const poolJackpotTA = getPoolJackpotTokenAccountAddress(pool)
+
+    const accs: Record<string, PublicKey> = {
       user: this.wallet.publicKey,
-      gambaState,
-      pool,
-      underlyingTokenMint,
-      bonusMint,
-      userUnderlyingAta,
-      userBonusAta,
+      gambaState: gambaState,
+      pool: pool,
+      underlyingTokenMint: underlyingTokenMint,
+      bonusMint: bonusMint,
+      userUnderlyingAta: userUnderlyingAta,
+      userBonusAta: userBonusAta,
+      poolBonusUnderlyingTokenAccount: poolBonusUnderlyingTA,
+      poolJackpotTokenAccount: poolJackpotTA,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       tokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: SystemProgram.programId,
+      rent: SYSVAR_RENT_PUBKEY,
     }
 
     return this.gambaProgram.methods
@@ -262,6 +268,7 @@ export class GambaProvider {
       .accountsPartial(accs as any)
       .instruction()
   }
+
 
   /**
    * Initializes an associated Player account for the connected wallet

@@ -43,9 +43,26 @@ export const getResultNumber = async (
   return parseInt(hash.substring(0, 5), 16)
 }
 
-export type GameResult = ReturnType<typeof parseResult>
+// ─── Explicit, portable return type ─────────────────────────────────────────
+export interface GameResult {
+  creator: PublicKey
+  user: PublicKey
+  rngSeed: string
+  clientSeed: string
+  nonce: number
+  bet: number[]
+  resultIndex: number
+  wager: number
+  payout: number
+  profit: number
+  multiplier: number
+  token: PublicKey
+  bonusUsed: number
+  jackpotWin: number
+}
 
-export const parseResult = (state: GameState) => {
+/** Parses a `GameState` into a plain object */
+export const parseResult = (state: GameState): GameResult => {
   const clientSeed  = state.clientSeed
   const bet         = state.bet.map((x) => x / BPS_PER_WHOLE)
   const nonce       = state.nonce.toNumber() - 1
@@ -74,6 +91,7 @@ export const parseResult = (state: GameState) => {
   }
 }
 
+/** Waits for the next game‐account change and resolves with its parsed result */
 export async function getNextResult(
   connection: Connection,
   user: PublicKey,

@@ -5,23 +5,25 @@ export interface AnimationFrameData {
   delta: number
 }
 
-export default (cb: (time: AnimationFrameData) => void) => {
+export default function useAnimationFrame(
+  cb: (time: AnimationFrameData) => void
+): void {
   if (typeof performance === 'undefined' || typeof window === 'undefined') {
     return
   }
 
-  const cbRef = useRef<(x: any) => void>(null!)
-  const frame = useRef<number>()
+  const cbRef = useRef<(x: AnimationFrameData) => void>(cb)
+  const frame = useRef<number | undefined>(undefined)
   const init = useRef(performance.now())
   const last = useRef(performance.now())
 
   cbRef.current = cb
 
   const animate = (now: number) => {
-    cbRef.current({
-      time: (now - init.current) / 1000,
-      delta: (now - last.current) / 1000,
-    })
+    const delta = (now - last.current) / 1000
+    const time = (now - init.current) / 1000
+
+    cbRef.current({ time, delta })
     last.current = now
     frame.current = requestAnimationFrame(animate)
   }
@@ -29,7 +31,9 @@ export default (cb: (time: AnimationFrameData) => void) => {
   useLayoutEffect(() => {
     frame.current = requestAnimationFrame(animate)
     return () => {
-      frame.current && cancelAnimationFrame(frame.current)
+      if (frame.current !== undefined) {
+        cancelAnimationFrame(frame.current)
+      }
     }
   }, [])
 }

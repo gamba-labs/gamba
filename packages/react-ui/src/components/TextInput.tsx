@@ -17,24 +17,45 @@ const StyledTextInput = styled.input`
 
   &:disabled {
     cursor: default;
-    opacity: .7;
+    opacity: 0.7;
   }
 `
 
-export interface TextInputProps<T extends number | string> extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
-  disabled?: boolean
-  onClick?: () => void
+export interface TextInputProps<T extends number | string>
+  // remove the problematic props
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    'children' | 'onChange' | 'formAction' | 'contentEditable'
+  > {
+  /** current input value */
   value: T
+  /** new-value callback */
   onChange?: (value: string) => void
+  /** click handler */
+  onClick?: () => void
+  /** disable input */
+  disabled?: boolean
 }
 
-export function TextInput<T extends number | string>({ onChange, ...props }: TextInputProps<T>) {
+export function TextInput<T extends number | string>({
+  value,
+  onChange,
+  ...props
+}: TextInputProps<T>) {
+  // cast away the styled-components overload complexity
+  const SInput: any = StyledTextInput
+
   return (
-    <StyledTextInput
-      type="text"
-      onChange={(evt) => onChange && onChange(evt.target.value)}
-      onFocus={(evt) => evt.target.select()}
+    <SInput
       {...props}
+      type="text"
+      value={value as any}
+      onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+        onChange?.(evt.target.value)
+      }
+      onFocus={(evt: React.FocusEvent<HTMLInputElement>) =>
+        evt.target.select()
+      }
     />
   )
 }

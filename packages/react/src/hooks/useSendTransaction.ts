@@ -1,3 +1,5 @@
+// src/hooks/useSendTransaction.ts
+
 import { AnchorError } from '@coral-xyz/anchor'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import {
@@ -15,56 +17,65 @@ import { PubSub } from '../PubSub'
 import { SendTransactionContext } from '../SendTransactionContext'
 import { useTransactionStore } from './useTransactionStore'
 
+// ——— Pub/Sub to broadcast transaction errors —————————————————————
 const transactionEventEmitter = new PubSub<[error: Error]>()
 
-export const throwTransactionError = (error: any) => {
-  transactionEventEmitter.emit(error)
-  return error
+export const throwTransactionError = (err: any) => {
+  transactionEventEmitter.emit(err)
+  return err
 }
 
 export function useTransactionError(callback: (error: any) => void) {
-  React.useLayoutEffect(() => transactionEventEmitter.subscribe(callback), [callback])
+  React.useLayoutEffect(
+    () => transactionEventEmitter.subscribe(callback),
+    [callback],
+  )
 }
 
+// ——— The main hook —————————————————————————————————————————
 export interface SendTransactionOptions {
-  confirmation?: Commitment
-  lookupTable?: PublicKey[]
-  priorityFee?: number
-  computeUnitLimitMargin?: number
-  computeUnits?: number
-  label?: string
+  confirmation?: Commitment       // optional finality to wait for
+  lookupTable?: PublicKey[]       // optional LUT addresses
+  priorityFee?: number            // μLamports per CU
+  computeUnitLimitMargin?: number // margin multiplier on simulated CU
+  computeUnits?: number           // override CU limit
+  label?: string                  // label for console logs
 }
 
 export function useSendTransaction() {
   const store = useTransactionStore()
   const { connection } = useConnection()
   const wallet = useWallet()
-  const context = React.useContext(SendTransactionContext)
+  const ctx = React.useContext(SendTransactionContext)
 
   return async (
     instructions:
     | TransactionInstruction
     | Promise<TransactionInstruction>
     | (TransactionInstruction | Promise<TransactionInstruction>)[],
-    opts?: SendTransactionOptions,
+    opts: SendTransactionOptions = {},
   ) => {
     try {
-      // … simulation & send logic unchanged …
-      store.set({ state: 'simulating', label: opts?.label })
-      if (!wallet.publicKey || !wallet.signTransaction) throw new Error('Wallet Not Connected')
+      // — 0) Pre-flight checks & resolve instructions
+      if (!wallet.publicKey || !wallet.signTransaction) {
+        throw new Error('Wallet Not Connected')
+      }
       const payer = wallet.publicKey
       if (!Array.isArray(instructions)) instructions = [instructions]
-      const priorityFee = opts?.priorityFee ?? context.priorityFee
-      const resolvedInstructions = await Promise.all(instructions)
-      const lookupTables = (
+      const resolvedIx = await Promise.all(instructions)
+
+      // — 1) Optional Address Lookup Tables
+      const lutAccounts: AddressLookupTableAccount[] = (
         await Promise.all(
-          (opts?.lookupTable ?? []).map(async (pk) =>
+          (opts.lookupTable ?? []).map(async (pk) =>
             (await connection.getAddressLookupTable(pk)).value,
           ),
         )
-      ).filter((x): x is AddressLookupTableAccount => !!x)
+      ).filter(Boolean) as AddressLookupTableAccount[]
 
-      const buildTx = async (units: number, recentBlockhash = PublicKey.default.toString()) => {
+      // — 2) Helper to build a versioned tx
+      const priorityFee = opts.priorityFee ?? ctx.priorityFee
+      const buildTx = async (units: number, recentBlockhash: string) => {
         const msg = new TransactionMessage({
           payerKey: payer,
           recentBlockhash,
@@ -73,122 +84,131 @@ export function useSendTransaction() {
               ? [ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee })]
               : []),
             ComputeBudgetProgram.setComputeUnitLimit({ units }),
-            ...resolvedInstructions,
+            ...resolvedIx,
           ],
-        }).compileToV0Message(lookupTables)
+        }).compileToV0Message(lutAccounts)
         return new VersionedTransaction(msg)
       }
 
-      const computeUnitLimit = await (async () => {
-        if (opts?.computeUnits) return opts.computeUnits
-        const simulated = await buildTx(context.simulationUnits)
-        const sim = await connection.simulateTransaction(simulated, {
-          replaceRecentBlockhash: true,
-          sigVerify: false,
-        })
+      // — 3) Simulate to get CU usage (unless overridden)
+      store.set({ state: 'simulating', label: opts.label })
+      const latest = await connection.getLatestBlockhash(ctx.blockhashCommitment)
+      const simUnits = opts.computeUnits ?? ctx.simulationUnits
+      const simulated = await buildTx(simUnits, latest.blockhash)
+      const simRes = await connection.simulateTransaction(simulated, {
+        replaceRecentBlockhash: true,
+        sigVerify: false,
+      })
 
-        console.groupCollapsed(`[Simulation logs] ${opts?.label ?? ''}`)
-        const logs = sim.value.logs ?? []
-        logs.forEach((l) => console.log(l))
-        console.groupEnd()
+      console.groupCollapsed(`[Simulation logs] ${opts.label ?? ''}`)
+      simRes.value.logs?.forEach((l) => console.log(l))
+      console.groupEnd()
 
-        if (sim.value.err) {
-          const rpcErr = sim.value.err as any
-          rpcErr.logs = logs
-          throw rpcErr
-        }
-        if (!sim.value.unitsConsumed) {
-          const err = new Error('Simulation consumed 0 units')
-          ;(err as any).logs = logs
-          throw err
-        }
-        return Math.floor(sim.value.unitsConsumed * (opts?.computeUnitLimitMargin ?? 1))
-      })()
+      if (simRes.value.err) {
+        const rpcErr = simRes.value.err as any
+        rpcErr.logs = simRes.value.logs
+        throw rpcErr
+      }
+      const consumed = simRes.value.unitsConsumed ?? 0
+      if (consumed === 0) {
+        const err = new Error('Simulation consumed 0 units')
+        ;(err as any).logs = simRes.value.logs
+        throw err
+      }
+      const finalUnits =
+        opts.computeUnits ??
+        Math.floor(consumed * (opts.computeUnitLimitMargin ?? 1))
 
-      const latest = await connection.getLatestBlockhash(context.blockhashCommitment)
-      const tx = await buildTx(computeUnitLimit, latest.blockhash)
-      const signedTx = await wallet.signTransaction(tx)
+      // — 4) Build, sign & send
+      const tx = await buildTx(finalUnits, latest.blockhash)
+      const signed = await wallet.signTransaction(tx)
       store.set({ state: 'sending' })
 
-      const txId = await connection.sendTransaction(signedTx, {
+      const signature = await connection.sendTransaction(signed, {
         skipPreflight: true,
-        preflightCommitment: context.blockhashCommitment,
+        preflightCommitment: ctx.blockhashCommitment,
       })
 
-      store.set({ state: 'processing', txId })
+      // — 5) Fire off confirmation flows
       const strat: TransactionConfirmationStrategy = {
+        signature,
         blockhash: latest.blockhash,
         lastValidBlockHeight: latest.lastValidBlockHeight,
-        signature: txId,
       }
-      connection.confirmTransaction(strat, 'processed').then((res) => {
-        store.set({ state: 'confirming', txId, signatureResult: res.value })
-      })
-      connection.confirmTransaction(strat, 'confirmed').then(() => {
-        store.set({ state: 'none' })
-      })
-      if (opts?.confirmation) {
+      connection
+        .confirmTransaction(strat, 'processed')
+        .then((res) =>
+          store.set({
+            state: 'confirming',
+            txId: signature,
+            signatureResult: res.value,
+          }),
+        )
+      connection
+        .confirmTransaction(strat, 'confirmed')
+        .then(() => store.set({ state: 'none' }))
+
+      if (opts.confirmation) {
         await connection.confirmTransaction(strat, opts.confirmation)
       }
 
+      // — 6) Fetch on-chain logs (always valid Finality)
       connection
-        .getTransaction(txId, { maxSupportedTransactionVersion: 0 })
+        .getTransaction(signature, {
+          maxSupportedTransactionVersion: 0,
+          commitment: 'confirmed',      // ← must be a Finality
+        })
         .then((info) => {
-          console.group(`[On-chain logs] ${txId}`)
+          console.group(`[On-chain logs] ${signature}`)
           info?.meta?.logMessages?.forEach((l) => console.log(l))
           console.groupEnd()
         })
         .catch((e) => console.warn('Failed to fetch on-chain logs', e))
 
-      return txId
+      return signature
     } catch (err) {
-      // —————— Tailored error extraction ——————
-      const logs = Array.isArray((err as any).logs) ? (err as any).logs as string[] : []
+      // — 7) Error parsing (unchanged) ——————————————————————————
+      const logs: string[] = Array.isArray((err as any).logs)
+        ? (err as any).logs
+        : []
 
-      // 1) Anchor errors: pull only the human message
+      // 7A) Anchor‐style error
       const parsed = logs.length ? AnchorError.parse(logs) : null
       if (parsed) {
-        // Extract after “Error Message: ”
-        const match = parsed.message.match(/Error Message:\s*(.*)$/)
-        const display = match ? match[1] : parsed.message
-        const finalError = new Error(display)
-        ;(finalError as any).logs = logs
-        ;(finalError as any).error = { errorMessage: display }
-        console.error('Transaction failed:', display)
+        const m = parsed.message.match(/Error Message:\s*(.*)$/)
+        const msg = m ? m[1] : parsed.message
+        const e = new Error(msg)
+        ;(e as any).logs = logs
+        ;(e as any).error = { errorMessage: msg }
         store.set({ state: 'error' })
-        throw throwTransactionError(finalError)
+        throw throwTransactionError(e)
       }
 
-      // 2) SPL-token “insufficient funds” or SOL “Transfer:” errors
-      const splErrors = logs.filter(
+      // 7B) SPL or lamport “insufficient funds”
+      const splErrs = logs.filter(
         (l) =>
-          l.startsWith('Transfer:') || // SOL lamports errors
-          l.includes('Error: insufficient funds'), // SPL-token error line
+          l.startsWith('Transfer:') || l.includes('Error: insufficient funds'),
       )
-
-      if (splErrors.length > 0) {
-        // Clean up e.g. “Program log: Error: insufficient funds”
-        const cleaned = splErrors.map((l) =>
+      if (splErrs.length) {
+        const cleaned = splErrs.map((l) =>
           l.replace(/^Program log:\s*/, '').replace(/^Error:\s*/, ''),
         )
-        const display = cleaned.join('\n')
-        const finalError = new Error(display)
-        ;(finalError as any).logs = logs
-        ;(finalError as any).error = { errorMessage: display }
-        console.error('Transaction failed:', display)
+        const msg = cleaned.join('\n')
+        const e = new Error(msg)
+        ;(e as any).logs = logs
+        ;(e as any).error = { errorMessage: msg }
         store.set({ state: 'error' })
-        throw throwTransactionError(finalError)
+        throw throwTransactionError(e)
       }
 
-      // 3) Fallback: show whatever remains after stripping all “Program ” boilerplate
+      // 7C) Fallback
       const generic = logs.filter((l) => !l.startsWith('Program '))
-      const display = generic.length ? generic.join('\n') : (err as Error).message
-      const finalError = new Error(display)
-      ;(finalError as any).logs = logs
-      ;(finalError as any).error = { errorMessage: display }
-      console.error('Transaction failed:', display)
+      const msg = generic.length ? generic.join('\n') : (err as Error).message
+      const e = new Error(msg)
+      ;(e as any).logs = logs
+      ;(e as any).error = { errorMessage: msg }
       store.set({ state: 'error' })
-      throw throwTransactionError(finalError)
+      throw throwTransactionError(e)
     }
   }
 }

@@ -1,4 +1,5 @@
 import * as anchor from '@coral-xyz/anchor'
+import { Buffer } from 'buffer'  
 import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet'
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from '@solana/spl-token'
 import { AddressLookupTableProgram, ConfirmOptions, Connection, Keypair, PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from '@solana/web3.js'

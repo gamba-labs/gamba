@@ -1,0 +1,42 @@
+{
+  "name": "@gamba-labs/multiplayer-sdk",
+  "version": "0.1.2",
+  "private": false,
+  "description": "Gamba Multiplayer on-chain game helper layer (Anchor 0.31.1)",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**",
+    "idl/**"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "peerDependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/web3.js": "^1.98.2",
+    "@solana/spl-token": "^0.4.13"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "tsup": "^8.5.0",
+    "typescript": "^5.2.2",
+    "vitest": "^1.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "solana",
+    "anchor",
+    "gamba",
+    "multiplayer"
+  ],
+  "license": "MIT"
+}

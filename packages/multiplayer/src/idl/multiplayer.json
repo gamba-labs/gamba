@@ -1,0 +1,1811 @@
+{
+  "address": "gambaMhWCfgqqBrc1KiEB4iBJnFG1RhQu2oFX6LV5xq",
+  "metadata": {
+    "name": "multiplayer",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "create_game_native",
+      "discriminator": [
+        14,
+        237,
+        122,
+        202,
+        102,
+        88,
+        48,
+        75
+      ],
+      "accounts": [
+        {
+          "name": "game_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  69
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "gamba_state.game_id",
+                "account": "GambaState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "always SOL (placeholder mint)"
+          ]
+        },
+        {
+          "name": "game_maker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "gamba_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pre_alloc_players",
+          "type": "u16"
+        },
+        {
+          "name": "max_players",
+          "type": "u16"
+        },
+        {
+          "name": "num_teams",
+          "type": "u8"
+        },
+        {
+          "name": "winners_target",
+          "type": "u16"
+        },
+        {
+          "name": "wager_type",
+          "type": "u8"
+        },
+        {
+          "name": "payout_type",
+          "type": "u8"
+        },
+        {
+          "name": "wager",
+          "type": "u64"
+        },
+        {
+          "name": "soft_duration",
+          "type": "i64"
+        },
+        {
+          "name": "hard_duration",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "create_game_spl",
+      "discriminator": [
+        80,
+        235,
+        44,
+        243,
+        14,
+        15,
+        248,
+        207
+      ],
+      "accounts": [
+        {
+          "name": "game_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  69
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "gamba_state.game_id",
+                "account": "GambaState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "the SPL mint for wagers"
+          ]
+        },
+        {
+          "name": "game_account_ta_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "game_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "game_maker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "gamba_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "pre_alloc_players",
+          "type": "u16"
+        },
+        {
+          "name": "max_players",
+          "type": "u16"
+        },
+        {
+          "name": "num_teams",
+          "type": "u8"
+        },
+        {
+          "name": "winners_target",
+          "type": "u16"
+        },
+        {
+          "name": "wager_type",
+          "type": "u8"
+        },
+        {
+          "name": "payout_type",
+          "type": "u8"
+        },
+        {
+          "name": "wager",
+          "type": "u64"
+        },
+        {
+          "name": "soft_duration",
+          "type": "i64"
+        },
+        {
+          "name": "hard_duration",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "distribute_native",
+      "discriminator": [
+        32,
+        200,
+        172,
+        49,
+        57,
+        234,
+        137,
+        89
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "The signer who calls this (doesn’t actually pay anything unless closing)."
+          ],
+          "signer": true
+        },
+        {
+          "name": "gamba_state",
+          "docs": [
+            "Global configuration account (V1). Used to check `gamba_fee_address`."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "game_account",
+          "docs": [
+            "Raw Game account; we will parse all fields “by hand” to avoid heap blowup."
+          ],
+          "writable": true
+        },
+        {
+          "name": "game_maker",
+          "docs": [
+            "This is the “game maker” address. If we close the PDA, any leftover lamports go here."
+          ],
+          "writable": true
+        },
+        {
+          "name": "gamba_fee_address",
+          "docs": [
+            "Protocol vault: collects “pending_gamba_fee” and any “dust” from closed accounts."
+          ],
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "Standard System program."
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "distribute_spl",
+      "discriminator": [
+        93,
+        24,
+        158,
+        238,
+        198,
+        173,
+        215,
+        228
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "gamba_state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "game_account",
+          "writable": true
+        },
+        {
+          "name": "game_account_ta",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "gamba_fee_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "gamba_fee_address"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "gamba_fee_address",
+          "writable": true
+        },
+        {
+          "name": "game_maker",
+          "writable": true
+        },
+        {
+          "name": "creator_ata_0",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "creator_ata_1",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "creator_ata_2",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "creator_ata_3",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "creator_ata_4",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_0",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_1",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_2",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_3",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_4",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_5",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_6",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_7",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_8",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_9",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_10",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_11",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_12",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_13",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "winner_ata_14",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "gamba_config",
+      "discriminator": [
+        232,
+        208,
+        249,
+        92,
+        159,
+        187,
+        21,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "gamba_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "fee_vault",
+          "type": "pubkey"
+        },
+        {
+          "name": "fee_bps",
+          "type": "u32"
+        },
+        {
+          "name": "rng",
+          "type": "pubkey"
+        },
+        {
+          "name": "authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "join_game",
+      "discriminator": [
+        107,
+        112,
+        18,
+        38,
+        56,
+        173,
+        60,
+        128
+      ],
+      "accounts": [
+        {
+          "name": "game_account",
+          "docs": [
+            "The on‐chain Game account as raw bytes (no automatic deserialization)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "gamba_state",
+          "docs": [
+            "Global config; used for fee BPS."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "game_account_ta",
+          "docs": [
+            "Optional escrow token account PDA."
+          ],
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "game_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The mint for this game (native SOL or SPL)."
+          ]
+        },
+        {
+          "name": "player_account",
+          "docs": [
+            "The player joining (payer + signer)."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "player_ata",
+          "docs": [
+            "Optional player ATA for SPL wagers."
+          ],
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "player_account"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "creator_address",
+          "docs": [
+            "Creator/referrer address that collects a fee."
+          ]
+        },
+        {
+          "name": "creator_ata",
+          "docs": [
+            "Creator’s ATA (we init if needed)."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "creator_address"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "Programs"
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "creator_fee_bps",
+          "type": "u32"
+        },
+        {
+          "name": "wager",
+          "type": "u64"
+        },
+        {
+          "name": "team",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "leave_game",
+      "discriminator": [
+        218,
+        226,
+        6,
+        0,
+        243,
+        34,
+        125,
+        201
+      ],
+      "accounts": [
+        {
+          "name": "game_account",
+          "docs": [
+            "Raw Game account; we’ll parse fields manually."
+          ],
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The mint for this game (native SOL or SPL)."
+          ]
+        },
+        {
+          "name": "player_account",
+          "docs": [
+            "The player who wants to leave (payer + signer)."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "player_ata",
+          "docs": [
+            "Optional player ATA (only for SPL‐token games)."
+          ],
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "player_account"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "game_account_ta",
+          "docs": [
+            "Game’s ATA (only for SPL‐token games)."
+          ],
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "game_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program (for native‐SOL transfers)."
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "associated_token_program",
+          "docs": [
+            "Associated‐Token program (for SPL transfers)."
+          ],
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "SPL‐Token program (for SPL transfers)."
+          ],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "select_winners",
+      "discriminator": [
+        80,
+        100,
+        28,
+        131,
+        83,
+        199,
+        222,
+        80
+      ],
+      "accounts": [
+        {
+          "name": "rng",
+          "docs": [
+            "Authorised RNG bot"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "gamba_state",
+          "docs": [
+            "Global config – only used to enforce `rng` above"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "game_account",
+          "docs": [
+            "Raw Game account; we parse all fields “by hand”"
+          ],
+          "writable": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "GambaState",
+      "discriminator": [
+        142,
+        203,
+        14,
+        224,
+        153,
+        118,
+        52,
+        200
+      ]
+    },
+    {
+      "name": "Game",
+      "discriminator": [
+        27,
+        90,
+        166,
+        125,
+        74,
+        100,
+        121,
+        18
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "GameCreated",
+      "discriminator": [
+        218,
+        25,
+        150,
+        94,
+        177,
+        112,
+        96,
+        2
+      ]
+    },
+    {
+      "name": "GameSettledPartial",
+      "discriminator": [
+        208,
+        36,
+        152,
+        148,
+        220,
+        252,
+        60,
+        89
+      ]
+    },
+    {
+      "name": "PlayerJoined",
+      "discriminator": [
+        39,
+        144,
+        49,
+        106,
+        108,
+        210,
+        183,
+        38
+      ]
+    },
+    {
+      "name": "PlayerLeft",
+      "discriminator": [
+        7,
+        106,
+        62,
+        150,
+        175,
+        170,
+        96,
+        84
+      ]
+    },
+    {
+      "name": "WinnersSelected",
+      "discriminator": [
+        28,
+        151,
+        185,
+        12,
+        70,
+        199,
+        73,
+        58
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "PlayerAlreadyInGame",
+      "msg": "Player is already in the game"
+    },
+    {
+      "code": 6001,
+      "name": "PlayerNotInGame",
+      "msg": "Player is not in the game"
+    },
+    {
+      "code": 6002,
+      "name": "GameInProgress",
+      "msg": "Game is already in progress"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidGameAccount",
+      "msg": "Invalid game account"
+    },
+    {
+      "code": 6004,
+      "name": "CannotSettleYet",
+      "msg": "Cannot settle yet"
+    },
+    {
+      "code": 6005,
+      "name": "AuthorityMismatch",
+      "msg": "Signer / authority mismatch"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidInput",
+      "msg": "Invalid input"
+    },
+    {
+      "code": 6007,
+      "name": "AlreadySettled",
+      "msg": "Game already settled"
+    },
+    {
+      "code": 6008,
+      "name": "NumericalOverflow",
+      "msg": "numerical overflow"
+    },
+    {
+      "code": 6009,
+      "name": "CreatorMismatch",
+      "msg": "Creator Missmatch"
+    },
+    {
+      "code": 6010,
+      "name": "PlayerMismatch",
+      "msg": "player rmismatch"
+    },
+    {
+      "code": 6011,
+      "name": "GameFull",
+      "msg": "Game is Full"
+    }
+  ],
+  "types": [
+    {
+      "name": "CreatorPending",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GambaState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "rng",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "gamba_fee_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "gamba_fee_bps",
+            "type": "u32"
+          },
+          {
+            "name": "initialized",
+            "type": "bool"
+          },
+          {
+            "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Game",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "game_maker",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "game_type",
+            "type": {
+              "defined": {
+                "name": "GameType"
+              }
+            }
+          },
+          {
+            "name": "wager_type",
+            "type": {
+              "defined": {
+                "name": "WagerType"
+              }
+            }
+          },
+          {
+            "name": "payout_type",
+            "type": {
+              "defined": {
+                "name": "PayoutType"
+              }
+            }
+          },
+          {
+            "name": "max_players",
+            "type": "u16"
+          },
+          {
+            "name": "pre_alloc",
+            "type": "u16"
+          },
+          {
+            "name": "num_teams",
+            "type": "u8"
+          },
+          {
+            "name": "winners_target",
+            "type": "u16"
+          },
+          {
+            "name": "wager",
+            "type": "u64"
+          },
+          {
+            "name": "soft_expiration_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "hard_expiration_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "GameState"
+              }
+            }
+          },
+          {
+            "name": "pending_gamba_fee",
+            "type": "u64"
+          },
+          {
+            "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "players",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Player"
+                }
+              }
+            }
+          },
+          {
+            "name": "winner_indexes",
+            "type": {
+              "vec": "u16"
+            }
+          },
+          {
+            "name": "creators_pending",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CreatorPending"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GameCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "game_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "game_maker",
+            "type": "pubkey"
+          },
+          {
+            "name": "max_players",
+            "type": "u16"
+          },
+          {
+            "name": "num_teams",
+            "type": "u8"
+          },
+          {
+            "name": "game_type",
+            "type": "u8"
+          },
+          {
+            "name": "wager_type",
+            "type": "u8"
+          },
+          {
+            "name": "payout_type",
+            "type": "u8"
+          },
+          {
+            "name": "winners_target",
+            "type": "u16"
+          },
+          {
+            "name": "soft_duration_seconds",
+            "type": "i64"
+          },
+          {
+            "name": "hard_duration_seconds",
+            "type": "i64"
+          },
+          {
+            "name": "soft_expiration_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "hard_expiration_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "wager",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GameSettledPartial",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "game_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "creators_left",
+            "type": "u32"
+          },
+          {
+            "name": "winners_left",
+            "type": "u32"
+          },
+          {
+            "name": "paid_creators_this_tx",
+            "type": "u32"
+          },
+          {
+            "name": "paid_winners_this_tx",
+            "type": "u32"
+          },
+          {
+            "name": "amount_paid",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GameState",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Waiting"
+          },
+          {
+            "name": "Playing"
+          },
+          {
+            "name": "Settled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GameType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Individual"
+          },
+          {
+            "name": "Team"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PayoutType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Same"
+          },
+          {
+            "name": "ExponentialDecay"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Player",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator_fee_amount",
+            "type": "u64"
+          },
+          {
+            "name": "gamba_fee_amount",
+            "type": "u64"
+          },
+          {
+            "name": "wager",
+            "type": "u64"
+          },
+          {
+            "name": "pending_payout",
+            "type": "u64"
+          },
+          {
+            "name": "team",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlayerJoined",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "game_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "wager",
+            "type": "u64"
+          },
+          {
+            "name": "creator_fee",
+            "type": "u64"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "game_type",
+            "type": "u8"
+          },
+          {
+            "name": "team",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlayerLeft",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "game_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "player",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WagerType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "SameWager"
+          },
+          {
+            "name": "CustomWager"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinnersSelected",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "game_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "winner_indexes",
+            "type": {
+              "vec": "u16"
+            }
+          },
+          {
+            "name": "payouts",
+            "type": {
+              "vec": "u64"
+            }
+          },
+          {
+            "name": "total_wager",
+            "type": "u64"
+          },
+          {
+            "name": "players_sample",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

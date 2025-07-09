@@ -122,4 +122,16 @@ export const GAMES: GameBundle[] = [
     },
     app: React.lazy(() => import('./BlackJack')),
   },
+  {
+    id: 'jacpot',
+    meta: {
+      background: '#084700',
+      image: '/games/blackjack.png',
+      name: 'JackPot',
+      description: `
+        a simple jackpot multiplyer game
+      `,
+    },
+    app: React.lazy(() => import('./Jackpot')),
+  },
 ]

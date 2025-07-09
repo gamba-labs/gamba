@@ -20,6 +20,7 @@
     "@solana/wallet-adapter-wallets": "^0.19.18",
     "@vercel/kv": "^3.0.0",
     "buffer": "^6.0.3",
+    "@gamba-labs/multiplayer-sdk": "workspace:*",
     "gamba-core-v2": "workspace:*",
     "gamba-react-ui-v2": "workspace:*",
     "gamba-react-v2": "workspace:*",

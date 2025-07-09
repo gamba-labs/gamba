@@ -18,59 +18,87 @@ export default function Jackpot() {
   const { provider: gambaProvider } = useGambaContext();
   const anchorProvider: AnchorProvider | null = gambaProvider?.anchorProvider ?? null;
 
-  const [games, setGames]     = useState<FullGame[]>([]);
+  const [game, setGame]       = useState<FullGame | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const doRefresh = async () => {
+  const loadGame = async () => {
     if (!anchorProvider) return;
     setLoading(true);
     try {
-
-      // 2) Pull only the ones matching your creator + maxPlayers
-      const specific = await fetchSpecificGames(
+      const list = await fetchSpecificGames(
         anchorProvider,
         DESIRED_CREATOR,
         DESIRED_MAX_PLAYERS
       );
-      console.log('🎯 fetchSpecificGames → jackpot games:', specific);
-
-      // Show the filtered list in your UI:
-      setGames(specific);
+      setGame(list[0] ?? null);
     } catch (err) {
       console.error(err);
+      setGame(null);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    doRefresh();
+    loadGame();
   }, [anchorProvider]);
 
-  return (
-    <>
+  if (loading) {
+    return (
       <GambaUi.Portal target="screen">
-        <S.Container>
-          <S.Title>Jackpot Games</S.Title>
-          {loading && <p>Loading games…</p>}
-          {!loading && games.length === 0 && (
-            <p>No Jackpot games found.</p>
-          )}
-          <S.List>
-            {games.map((g) => (
-              <S.Item key={g.publicKey.toBase58()}>
-                🎲 Game #{g.account.gameId.toString()}
-              </S.Item>
-            ))}
-          </S.List>
-        </S.Container>
+        <p style={{ color: '#fff', textAlign: 'center' }}>Loading Jackpot…</p>
       </GambaUi.Portal>
+    );
+  }
 
-      <GambaUi.Portal target="controls">
-        <GambaUi.Button onClick={doRefresh} disabled={loading}>
-          {loading ? 'Refreshing…' : 'Refresh'}
-        </GambaUi.Button>
+  if (!game) {
+    return (
+      <GambaUi.Portal target="screen">
+        <p style={{ color: '#fff', textAlign: 'center' }}>No active Jackpot game found.</p>
       </GambaUi.Portal>
-    </>
+    );
+  }
+
+  const { account } = game;
+  const status: 'waiting' | 'live' | 'settled' =
+    account.state.waiting
+      ? 'waiting'
+      : account.state.settled
+      ? 'settled'
+      : 'live';
+
+  return (
+    <GambaUi.Portal target="screen">
+      <S.Container>
+        <S.Title>Game #{account.gameId.toString()}</S.Title>
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <S.Badge status={status}>
+            {status === 'waiting'
+              ? 'Waiting'
+              : status === 'live'
+              ? 'Live'
+              : 'Settled'}
+          </S.Badge>
+        </div>
+
+        <S.List>
+          <S.Item>
+            <strong>Players:</strong> {account.players.length} / {account.maxPlayers}
+          </S.Item>
+          <S.Item>
+            <strong>Wager:</strong> {account.wager.toString()}
+          </S.Item>
+          <S.Item>
+            <strong>Target Winners:</strong> {account.winnersTarget}
+          </S.Item>
+          <S.Item>
+            <strong>Mint:</strong>{' '}
+            <code title={account.mint.toBase58()}>
+              {account.mint.toBase58().slice(0, 4) + '…' + account.mint.toBase58().slice(-4)}
+            </code>
+          </S.Item>
+        </S.List>
+      </S.Container>
+    </GambaUi.Portal>
   );
 }

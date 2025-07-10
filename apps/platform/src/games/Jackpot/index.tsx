@@ -10,20 +10,14 @@ import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { AnchorProvider, IdlAccounts } from '@coral-xyz/anchor';
 import { GambaUi } from 'gamba-react-ui-v2';
 import { useGambaContext } from 'gamba-react-v2';
-import {
-  fetchSpecificGames,
-  getProgram,
-} from '@gamba-labs/multiplayer-sdk';
+import { fetchSpecificGames, getProgram } from '@gamba-labs/multiplayer-sdk';
 import JoinGame from './instructions/JoinGame';
 import LeaveGame from './instructions/LeaveGame';
-import EditBet from './instructions/EditBet';        // ← your new instruction
+import EditBet from './instructions/EditBet';
 import WinnerReveal from './WinnerReveal';
 import PlayersList from './PlayersList';
 import * as S from './styles';
-import {
-  DESIRED_CREATOR,
-  DESIRED_MAX_PLAYERS,
-} from './config';
+import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config';
 import type { Multiplayer } from '@gamba-labs/multiplayer-sdk';
 
 type FullGame = {
@@ -59,9 +53,6 @@ export default function Jackpot() {
       const top = list[0] ?? null;
       setGame(top);
       setLiveAcct(top?.account ?? null);
-    } catch {
-      setGame(null);
-      setLiveAcct(null);
     } finally {
       setLoading(false);
     }
@@ -81,22 +72,23 @@ export default function Jackpot() {
     const subId = conn.onAccountChange(
       game.publicKey,
       info => {
+        // account closed on-chain → this game is gone
         if (!info || info.data.length === 0) {
-          loadGame();
+          setGame(null);
+          setLiveAcct(null);
           return;
         }
         try {
           const decoded = coder.decode<'game'>('game', info.data);
           setLiveAcct(decoded);
-          if ((decoded.state as any).settled) {
-            setTimeout(loadGame, 2000);
-          }
-        } catch {}
+        } catch {
+          // ignore decode errors
+        }
       },
       'confirmed'
     );
     return () => conn.removeAccountChangeListener(subId);
-  }, [anchorProvider, game, loadGame]);
+  }, [anchorProvider, game]);
 
   /** 3) Have you joined? */
   const youJoined = useMemo(() => {
@@ -125,7 +117,7 @@ export default function Jackpot() {
     return () => window.clearInterval(handle);
   }, [softTs, game?.publicKey.toBase58()]);
 
-  /** 5) Compute win-chance % */
+  /** 5) Compute your win-chance % */
   const yourChance = useMemo(() => {
     if (!youJoined || !walletKey || !liveAcct) return 0;
     const yours = liveAcct.players.find(p => p.user.equals(walletKey))
@@ -144,14 +136,14 @@ export default function Jackpot() {
       maximumFractionDigits: 2,
     });
 
-  /** 6) Poll for new game if none / settled */
+  /** 6) Poll every 5 s *only* when there’s no active game */
   useEffect(() => {
     if (!anchorProvider) return;
-    if (!liveAcct || liveAcct.state.settled) {
+    if (game === null) {
       const id = window.setInterval(loadGame, 5000);
       return () => window.clearInterval(id);
     }
-  }, [anchorProvider, liveAcct, loadGame]);
+  }, [anchorProvider, game, loadGame]);
 
   // total pot in lamports
   const totalPotLamports = liveAcct
@@ -166,8 +158,8 @@ export default function Jackpot() {
       <GambaUi.Portal target="screen">
         <S.Container>
           {loading && <p style={{ textAlign: 'center' }}>Loading…</p>}
-          {!loading && !liveAcct && (
-            <p style={{ textAlign: 'center' }}>No game found.</p>
+          {!loading && game === null && (
+            <p style={{ textAlign: 'center' }}>WAiting for game.</p>
           )}
 
           {liveAcct && game && (
@@ -249,7 +241,6 @@ export default function Jackpot() {
         {!youJoined && liveAcct && game && waiting && (
           <JoinGame pubkey={game.publicKey} account={liveAcct} />
         )}
-
         {youJoined && liveAcct && game && waiting && (
           <>
             <EditBet
@@ -264,7 +255,6 @@ export default function Jackpot() {
             />
           </>
         )}
-
         {youJoined && liveAcct && game && !waiting && (
           <LeaveGame
             pubkey={game.publicKey}

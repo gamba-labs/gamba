@@ -16,7 +16,9 @@ import {
 } from '@gamba-labs/multiplayer-sdk';
 import JoinGame from './instructions/JoinGame';
 import LeaveGame from './instructions/LeaveGame';
+import EditBet from './instructions/EditBet';        // ← your new instruction
 import WinnerReveal from './WinnerReveal';
+import PlayersList from './PlayersList';
 import * as S from './styles';
 import {
   DESIRED_CREATOR,
@@ -38,14 +40,13 @@ export default function Jackpot() {
         : null,
     [gambaProvider]
   );
-
   const walletKey = anchorProvider?.wallet?.publicKey ?? null;
 
   const [game, setGame]         = useState<FullGame | null>(null);
   const [liveAcct, setLiveAcct] = useState<FullGame['account'] | null>(null);
   const [loading, setLoading]   = useState(false);
 
-  /** 1) Fetch the one “active” jackpot game */
+  /** 1) Fetch active jackpot game */
   const loadGame = useCallback(async () => {
     if (!anchorProvider) return;
     setLoading(true);
@@ -58,8 +59,7 @@ export default function Jackpot() {
       const top = list[0] ?? null;
       setGame(top);
       setLiveAcct(top?.account ?? null);
-    } catch (err) {
-      console.error('fetchSpecificGames failed', err);
+    } catch {
       setGame(null);
       setLiveAcct(null);
     } finally {
@@ -81,8 +81,7 @@ export default function Jackpot() {
     const subId = conn.onAccountChange(
       game.publicKey,
       info => {
-        // closed on‐chain → go find the next one immediately
-        if (info === null || info.data.length === 0) {
+        if (!info || info.data.length === 0) {
           loadGame();
           return;
         }
@@ -90,20 +89,16 @@ export default function Jackpot() {
           const decoded = coder.decode<'game'>('game', info.data);
           setLiveAcct(decoded);
           if ((decoded.state as any).settled) {
-            // let distribution hit, then fetch the next game
             setTimeout(loadGame, 2000);
           }
-        } catch {
-          // ignore decode errors
-        }
+        } catch {}
       },
       'confirmed'
     );
-
     return () => conn.removeAccountChangeListener(subId);
   }, [anchorProvider, game, loadGame]);
 
-  /** 3) Have *you* joined? */
+  /** 3) Have you joined? */
   const youJoined = useMemo(() => {
     if (!liveAcct || !walletKey) return false;
     return liveAcct.players.some(p => p.user.equals(walletKey));
@@ -115,28 +110,22 @@ export default function Jackpot() {
   const softTs = liveAcct
     ? Number(liveAcct.softExpirationTimestamp) * 1000
     : 0;
-
   useEffect(() => {
     if (!softTs || !game) return;
     const now     = Date.now();
     const initial = Math.max(softTs - now, 0);
     initialLeftMsRef.current = initial;
     setLeftMs(initial);
-
     let handle: number;
     if (initial > 0) {
       handle = window.setInterval(() => {
         setLeftMs(Math.max(softTs - Date.now(), 0));
       }, 1000);
     }
-    return () => {
-      if (handle) window.clearInterval(handle);
-    };
-    // only when softTs or game key changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => window.clearInterval(handle);
   }, [softTs, game?.publicKey.toBase58()]);
 
-  /** 5) Compute your win‐chance % */
+  /** 5) Compute win-chance % */
   const yourChance = useMemo(() => {
     if (!youJoined || !walletKey || !liveAcct) return 0;
     const yours = liveAcct.players.find(p => p.user.equals(walletKey))
@@ -155,106 +144,135 @@ export default function Jackpot() {
       maximumFractionDigits: 2,
     });
 
-  /** ◉ 6) Poll for a new game every 5s if none is active or last one settled */
+  /** 6) Poll for new game if none / settled */
   useEffect(() => {
     if (!anchorProvider) return;
-    // start polling only when we have no live game or it's in the settled state
     if (!liveAcct || liveAcct.state.settled) {
       const id = window.setInterval(loadGame, 5000);
       return () => window.clearInterval(id);
     }
   }, [anchorProvider, liveAcct, loadGame]);
 
+  // total pot in lamports
+  const totalPotLamports = liveAcct
+    ? liveAcct.players.reduce((sum, p) => sum + p.wager.toNumber(), 0)
+    : 0;
+
+  const waiting = liveAcct?.state.waiting ?? false;
+
   return (
-    <GambaUi.Portal target="screen">
-      <S.Container>
-        {loading && <p style={{ textAlign: 'center' }}>Loading…</p>}
-        {!loading && !liveAcct && (
-          <p style={{ textAlign: 'center' }}>No game found.</p>
+    <>
+      {/* —————— Main “screen” portal —————— */}
+      <GambaUi.Portal target="screen">
+        <S.Container>
+          {loading && <p style={{ textAlign: 'center' }}>Loading…</p>}
+          {!loading && !liveAcct && (
+            <p style={{ textAlign: 'center' }}>No game found.</p>
+          )}
+
+          {liveAcct && game && (
+            <>
+              <S.Header>
+                <S.Title>Game #{liveAcct.gameId.toString()}</S.Title>
+                <S.Badge
+                  status={
+                    waiting
+                      ? 'waiting'
+                      : liveAcct.state.settled
+                      ? 'settled'
+                      : 'live'
+                  }
+                >
+                  {waiting
+                    ? 'Waiting'
+                    : liveAcct.state.settled
+                    ? 'Settled'
+                    : 'Live'}
+                </S.Badge>
+              </S.Header>
+
+              {initialLeftMsRef.current > 0 && (
+                <S.TimerSection>
+                  <S.TimerBar>
+                    <S.TimerProgress
+                      style={{
+                        width: `${
+                          ((initialLeftMsRef.current - leftMs) /
+                            initialLeftMsRef.current) *
+                          100
+                        }%`,
+                      }}
+                    />
+                  </S.TimerBar>
+                  <S.TimerText>
+                    {`${String(Math.floor(leftMs / 60000)).padStart(2,'0')}:${String(
+                      Math.floor((leftMs % 60000)/1000)
+                    ).padStart(2,'0')}`}
+                  </S.TimerText>
+                </S.TimerSection>
+              )}
+
+              {liveAcct.state.settled && (
+                <WinnerReveal
+                  players={liveAcct.players}
+                  winnerIndexes={liveAcct.winnerIndexes.map((w: any) => Number(w))}
+                />
+              )}
+
+              <S.Pot>
+                <span>Total Pot</span>
+                <S.PotValue>
+                  {fmtSOL(totalPotLamports)} SOL
+                </S.PotValue>
+              </S.Pot>
+
+              <S.List>
+                <S.Item>
+                  <strong>Your chance:</strong>{' '}
+                  {youJoined ? `${yourChance.toFixed(1)}%` : '—'}
+                </S.Item>
+              </S.List>
+
+              <PlayersList
+                players={[...liveAcct.players].reverse()}
+                isTeamGame={!!liveAcct.gameType.team}
+                numTeams={liveAcct.numTeams}
+                walletKey={walletKey}
+              />
+            </>
+          )}
+        </S.Container>
+      </GambaUi.Portal>
+
+      {/* —————— Controls portal —————— */}
+      <GambaUi.Portal target="controls">
+        {!youJoined && liveAcct && game && waiting && (
+          <JoinGame pubkey={game.publicKey} account={liveAcct} />
         )}
 
-        {liveAcct && game && (
+        {youJoined && liveAcct && game && waiting && (
           <>
-            <S.Header>
-              <div>
-                <S.Title>Game #{liveAcct.gameId.toString()}</S.Title>
-                {youJoined && <S.YouBadge>YOU</S.YouBadge>}
-              </div>
-              <S.Badge
-                status={
-                  liveAcct.state.waiting
-                    ? 'waiting'
-                    : liveAcct.state.settled
-                    ? 'settled'
-                    : 'live'
-                }
-              >
-                {liveAcct.state.waiting
-                  ? 'Waiting'
-                  : liveAcct.state.settled
-                  ? 'Settled'
-                  : 'Live'}
-              </S.Badge>
-            </S.Header>
-
-            {/* countdown */}
-            {initialLeftMsRef.current > 0 && (
-              <S.TimerSection>
-                <S.TimerBar>
-                  <S.TimerProgress
-                    style={{
-                      width: `${
-                        ((initialLeftMsRef.current - leftMs) /
-                          initialLeftMsRef.current) *
-                        100
-                      }%`,
-                    }}
-                  />
-                </S.TimerBar>
-                <S.TimerText>
-                  {`${Math.floor(leftMs / 60000)
-                    .toString()
-                    .padStart(2, '0')}:${Math
-                    .floor((leftMs % 60000) / 1000)
-                    .toString()
-                    .padStart(2, '0')}`}
-                </S.TimerText>
-              </S.TimerSection>
-            )}
-
-            {/* winner animation */}
-            {liveAcct.state.settled && (
-              <WinnerReveal
-                players={liveAcct.players}
-                winnerIndexes={liveAcct.winnerIndexes.map((w: any) => Number(w))}
-              />
-            )}
-
-            <S.List>
-              <S.Item>
-                <strong>Players:</strong> {liveAcct.players.length}/
-                {liveAcct.maxPlayers}
-              </S.Item>
-              <S.Item>
-                <strong>Wager:</strong> {fmtSOL(liveAcct.wager.toNumber())} SOL
-              </S.Item>
-              {youJoined && (
-                <S.Item>
-                  <strong>Your chance:</strong> {yourChance.toFixed(1)}%
-                </S.Item>
-              )}
-            </S.List>
-
-            <S.Actions>
-              {!youJoined ? (
-                <JoinGame pubkey={game.publicKey} account={liveAcct} />
-              ) : (
-                <LeaveGame pubkey={game.publicKey} account={liveAcct} />
-              )}
-            </S.Actions>
+            <EditBet
+              pubkey={game.publicKey}
+              account={liveAcct}
+              onComplete={loadGame}
+            />
+            <LeaveGame
+              pubkey={game.publicKey}
+              account={liveAcct}
+              onTx={loadGame}
+            />
           </>
         )}
-      </S.Container>
-    </GambaUi.Portal>
+
+        {youJoined && liveAcct && game && !waiting && (
+          <LeaveGame
+            pubkey={game.publicKey}
+            account={liveAcct}
+            onTx={loadGame}
+          />
+        )}
+      </GambaUi.Portal>
+    </>
   );
 }

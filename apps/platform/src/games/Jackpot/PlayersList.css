@@ -1,0 +1,50 @@
+.players-wrapper {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+}
+.players-heading {
+  margin: 0 0 8px;
+  color: #eef2f5;
+  font-weight: normal;
+}
+.player-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.player-card {
+  background: rgba(255,255,255,0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  position: relative;
+  font-family: monospace;
+  color: #fff;
+}
+.you {
+  margin-left: 4px;
+  font-size: 0.75rem;
+  color: #4caf50;
+}
+.team-columns {
+  display: flex;
+  gap: 16px;
+}
+.team-col {
+  flex: 1;
+}
+.team-title {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  color: #ddd;
+}
+.team-empty {
+  background: rgba(255,255,255,0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-style: italic;
+  color: #aaa;
+}

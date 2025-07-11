@@ -117,7 +117,7 @@ export function useSendTransaction() {
       }
       const finalUnits =
         opts.computeUnits ??
-        Math.floor(consumed * (opts.computeUnitLimitMargin ?? 1))
+        Math.floor(consumed * (opts.computeUnitLimitMargin ?? 1.1))
 
       // — 4) Build, sign & send
       const tx = await buildTx(finalUnits, latest.blockhash)

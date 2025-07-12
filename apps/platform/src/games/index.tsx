@@ -134,4 +134,16 @@ export const GAMES: GameBundle[] = [
     },
     app: React.lazy(() => import('./Jackpot')),
   },
+  {
+    id: 'marblerace',
+    meta: {
+      background: '#084700',
+      image: '/games/blackjack.png',
+      name: 'MarbleRace',
+      description: `
+        a simple jackpot multiplyer game
+      `,
+    },
+    app: React.lazy(() => import('./MarbleRace')),
+  },
 ]

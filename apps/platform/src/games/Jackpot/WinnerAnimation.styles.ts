@@ -25,6 +25,7 @@ export const Wrapper = styled(motion.div)`
   background: rgba(26, 26, 46, 0.9);
   backdrop-filter: blur(5px);
   z-index: 100;
+  gap: 20px;
 `;
 
 export const ReelContainer = styled.div`
@@ -49,7 +50,6 @@ export const Pointer = styled.div`
   border-radius: 2px;
 `;
 
-// FIX: This wrapper for the reel ensures it's a horizontal flex container
 export const PlayerReel = styled(motion.div)`
   display: flex;
 `;
@@ -67,8 +67,8 @@ export const PlayerCard = styled.div<{ $isWinner: boolean }>`
   border: 2px solid #4a4a7c;
   margin: 0 5px;
   transition: all 0.3s ease;
+  transform: scale(1); 
 
-  /* FIX: Using "$isWinner" which is a transient prop and not passed to the DOM */
   ${({ $isWinner }) => $isWinner && css`
     border-color: #2ecc71;
     animation: ${winnerGlow} 1.5s ease-in-out infinite;
@@ -90,9 +90,9 @@ export const PlayerAddress = styled.div`
 `;
 
 export const WinnerText = styled(motion.div)`
-  margin-top: 20px;
   font-size: 1.5rem;
   color: #fff;
   font-weight: bold;
   text-shadow: 0 0 10px #2ecc71;
+  height: 2rem; /* Reserve space to prevent layout shift */
 `;

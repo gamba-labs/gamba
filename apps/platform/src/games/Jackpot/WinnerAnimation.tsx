@@ -14,9 +14,11 @@ interface WinnerAnimationProps {
 const createPlayerReel = (players: Player[], winnerIndex: number): Player[] => {
   if (players.length === 0) return [];
   const reel = [];
-  for (let i = 0; i < 10; i++) {
+  // Make the reel long enough for a good spin
+  for (let i = 0; i < 15; i++) {
     reel.push(...players);
   }
+  // Place the winner at a predictable position near the end
   reel.splice(reel.length - Math.floor(players.length / 2) - 1, 1, players[winnerIndex]);
   return reel;
 };
@@ -25,7 +27,8 @@ export const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
   players,
   winnerIndexes,
 }) => {
-  const [isAnimating, setIsAnimating] = useState(true);
+  const [isClosing, setIsClosing] = useState(false);
+  const [reelFinished, setReelFinished] = useState(false);
   const [winner, setWinner] = useState<Player | null>(null);
   const [winnerPosition, setWinnerPosition] = useState(0);
   const reelRef = useRef<HTMLDivElement>(null);
@@ -33,13 +36,10 @@ export const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
   const winnerIndex = winnerIndexes[0];
   const playerReel = useMemo(() => createPlayerReel(players, winnerIndex), [players, winnerIndex]);
 
-  // Use useLayoutEffect to calculate position after DOM is painted
   useLayoutEffect(() => {
     if (!reelRef.current) return;
     const containerWidth = reelRef.current.clientWidth;
     const winnerCardIndex = playerReel.length - Math.floor(players.length / 2) - 1;
-    
-    // Get the winner card element to calculate its exact offset
     const winnerCardElement = reelRef.current.children[winnerCardIndex] as HTMLElement;
     if (!winnerCardElement) return;
 
@@ -49,21 +49,28 @@ export const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
     setWinnerPosition(-(winnerOffset - centerOffset));
   }, [playerReel, players.length]);
 
-
+  // Stage 2: After the reel stops, pause for suspense, then reveal the winner
   useEffect(() => {
-    const winnerTimer = setTimeout(() => {
-      setWinner(players[winnerIndex]);
-    }, 6000); 
+    if (reelFinished) {
+      const suspenseTimer = setTimeout(() => {
+        setWinner(players[winnerIndex]);
+      }, 1500); // 1.5-second suspenseful pause
 
-    const closeTimer = setTimeout(() => {
-      setIsAnimating(false);
-    }, 9000);
+      return () => clearTimeout(suspenseTimer);
+    }
+  }, [reelFinished, players, winnerIndex]);
 
-    return () => {
-      clearTimeout(winnerTimer);
-      clearTimeout(closeTimer);
-    };
-  }, [players, winnerIndex]);
+  // Stage 3: After the winner is revealed, wait a bit then close the whole overlay
+  useEffect(() => {
+    if (winner) {
+      const closeTimer = setTimeout(() => {
+        setIsClosing(true);
+      }, 3000); // Show winner for 3 seconds before closing
+
+      return () => clearTimeout(closeTimer);
+    }
+  }, [winner]);
+
 
   if (!players.length) return null;
 
@@ -71,7 +78,7 @@ export const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
 
   return (
     <AnimatePresence>
-      {isAnimating && (
+      {!isClosing && (
         <S.Wrapper
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -85,14 +92,15 @@ export const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
               animate={{ x: winnerPosition }}
               transition={{
                 duration: 5,
-                ease: [0.1, 0.7, 0.3, 1],
+                ease: [0.22, 1, 0.36, 1], // Smoother ease-out
                 delay: 1,
               }}
+              // Stage 1: When roll is complete, trigger stage 2
+              onAnimationComplete={() => setReelFinished(true)}
             >
               {playerReel.map((player, i) => (
                 <S.PlayerCard
                   key={`${player.user.toBase58()}-${i}`}
-                  // FIX: Changed "isWinner" to "$isWinner" to prevent it from being passed to the DOM
                   $isWinner={winner?.user.equals(player.user) ?? false}
                 >
                   <S.Avatar />
@@ -101,15 +109,18 @@ export const WinnerAnimation: React.FC<WinnerAnimationProps> = ({
               ))}
             </S.PlayerReel>
           </S.ReelContainer>
-          {winner && (
-            <S.WinnerText
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              Winner: {shorten(winner.user.toBase58())}
-            </S.WinnerText>
-          )}
+          
+          <AnimatePresence>
+            {winner && (
+              <S.WinnerText
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                Winner: {shorten(winner.user.toBase58())}
+              </S.WinnerText>
+            )}
+          </AnimatePresence>
         </S.Wrapper>
       )}
     </AnimatePresence>

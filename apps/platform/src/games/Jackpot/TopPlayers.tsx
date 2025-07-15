@@ -1,5 +1,5 @@
 // src/games/Jackpot/TopPlayers.tsx
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import styled, { css } from 'styled-components'
 import type { IdlAccounts } from '@coral-xyz/anchor'
 import type { Multiplayer } from '@gamba-labs/multiplayer-sdk'
@@ -11,6 +11,25 @@ interface TopPlayersProps {
   players: Player[]
   totalPot: number
   $isOverlay?: boolean
+}
+
+// now treating <=900px as “compact” (mobile+tablet)
+const COMPACT_BREAKPOINT = 900
+
+// hook to detect compact layout
+function useIsCompact(): boolean {
+  const [isCompact, setIsCompact] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.innerWidth <= COMPACT_BREAKPOINT
+  )
+  useEffect(() => {
+    const onResize = () =>
+      setIsCompact(window.innerWidth <= COMPACT_BREAKPOINT)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+  return isCompact
 }
 
 const Container = styled.div<{ $isOverlay: boolean }>`
@@ -31,6 +50,15 @@ const Container = styled.div<{ $isOverlay: boolean }>`
         `}
   height: 420px;
   overflow: hidden;
+
+  /* mobile+tablet (≤900px) */
+  @media (max-width: ${COMPACT_BREAKPOINT}px) {
+    background: rgba(35, 35, 59, 0.5);
+    backdrop-filter: blur(5px);
+    border: 1px solid #4a4a7c;
+    padding: 8px;
+    height: auto;
+  }
 `
 
 const Title = styled.h3`
@@ -38,6 +66,11 @@ const Title = styled.h3`
   color: #fff;
   font-size: 1rem;
   text-align: center;
+
+  /* hide on compact */
+  @media (max-width: ${COMPACT_BREAKPOINT}px) {
+    display: none;
+  }
 `
 
 const List = styled.ul`
@@ -56,6 +89,12 @@ const PlayerItem = styled.li`
   padding: 8px;
   border-radius: 8px;
   border: 1px solid #4a4a7c;
+
+  /* compact: smaller padding + radius */
+  @media (max-width: ${COMPACT_BREAKPOINT}px) {
+    padding: 4px;
+    border-radius: 6px;
+  }
 `
 
 const PlayerRank = styled.div`
@@ -65,6 +104,13 @@ const PlayerRank = styled.div`
   margin-right: 10px;
   min-width: 24px;
   text-align: center;
+
+  /* compact */
+  @media (max-width: ${COMPACT_BREAKPOINT}px) {
+    font-size: 0.8rem;
+    margin-right: 6px;
+    min-width: 20px;
+  }
 `
 
 const PlayerInfo = styled.div`
@@ -81,6 +127,11 @@ const PlayerAddress = styled.div`
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+
+  /* compact */
+  @media (max-width: ${COMPACT_BREAKPOINT}px) {
+    font-size: 0.7rem;
+  }
 `
 
 const PlayerWager = styled.div`
@@ -88,9 +139,14 @@ const PlayerWager = styled.div`
   color: #2ecc71;
   font-weight: bold;
   margin-top: 2px;
+
+  /* compact */
+  @media (max-width: ${COMPACT_BREAKPOINT}px) {
+    font-size: 0.7rem;
+    margin-top: 1px;
+  }
 `
 
-/** A subtle bottom fade overlay to hint at overflow */
 const Fade = styled.div`
   content: '';
   position: absolute;
@@ -103,6 +159,11 @@ const Fade = styled.div`
     rgba(35, 35, 59, 0),
     rgba(35, 35, 59, 1)
   );
+
+  /* hide on compact */
+  @media (max-width: ${COMPACT_BREAKPOINT}px) {
+    display: none;
+  }
 `
 
 export function TopPlayers({
@@ -110,27 +171,31 @@ export function TopPlayers({
   totalPot,
   $isOverlay = false,
 }: TopPlayersProps) {
-  // sort by wager descending
-  const sorted = useMemo(
-    () =>
-      [...players]
-        .sort((a, b) => b.wager.toNumber() - a.wager.toNumber())
-        .slice(0, 7),
-    [players]
-  )
+  const isCompact = useIsCompact()
 
-  const shorten = (addr: string) => `${addr.slice(0, 4)}…${addr.slice(-4)}`
+  // sort & limit count based on layout
+  const sorted = useMemo(() => {
+    const all = [...players].sort(
+      (a, b) => b.wager.toNumber() - a.wager.toNumber()
+    )
+    const maxCount = isCompact ? 3 : 7
+    return all.slice(0, maxCount)
+  }, [players, isCompact])
+
+  const shorten = (addr: string) =>
+    `${addr.slice(0, 4)}…${addr.slice(-4)}`
 
   return (
     <Container $isOverlay={$isOverlay}>
       {!$isOverlay && <Title>Top Players</Title>}
+
       <List>
         {sorted.map((p, i) => {
-          const wagerSOL = p.wager.toNumber() / LAMPORTS_PER_SOL
-          const chancePct =
-            totalPot > 0
-              ? (p.wager.toNumber() / totalPot) * 100
-              : 0
+          const sol = p.wager.toNumber() / LAMPORTS_PER_SOL
+          const pct = totalPot
+            ? (p.wager.toNumber() / totalPot) * 100
+            : 0
+
           return (
             <PlayerItem key={p.user.toBase58()}>
               <PlayerRank>#{i + 1}</PlayerRank>
@@ -139,15 +204,15 @@ export function TopPlayers({
                   {shorten(p.user.toBase58())}
                 </PlayerAddress>
                 <PlayerWager>
-                  {wagerSOL.toFixed(2)} SOL •{' '}
-                  {chancePct.toFixed(1)} %
+                  {sol.toFixed(2)} SOL • {pct.toFixed(1)} %
                 </PlayerWager>
               </PlayerInfo>
             </PlayerItem>
           )
         })}
       </List>
-      {players.length > 8 && <Fade />}
+
+      {!isCompact && players.length > 8 && <Fade />}
     </Container>
   )
 }

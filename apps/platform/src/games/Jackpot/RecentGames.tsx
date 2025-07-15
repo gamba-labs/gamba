@@ -49,25 +49,25 @@ const List = styled.ul`
 
 const GameItem = styled(motion.li)`
   display: flex;
-  justify-content: space-between;  /* distribute columns */
+  justify-content: space-between;  
   align-items: center;
   background: #2c2c54;
-  padding: 4px 8px;                /* tighter padding */
+  padding: 4px 8px;               
   border-radius: 8px;
   border: 1px solid #4a4a7c;
-  margin-bottom: 4px;              /* smaller gap */
-  font-size: 0.8rem;               /* slightly smaller text */
-  white-space: nowrap;             /* no wrapping */
+  margin-bottom: 4px;             
+  font-size: 0.8rem;               
+  white-space: nowrap;            
 `;
 
 const GameId = styled.div`
   font-family: monospace;
   color: #a9a9b8;
-  flex: 0 0 auto;                  /* size to content */
+  flex: 0 0 auto;                 
 `;
 
 const PotSize = styled.div`
-  flex: 1 1 auto;                  /* fill remaining, but shrink if needed */
+  flex: 1 1 auto;                  
   text-align: center;
   color: #e0e0e0;
 `;
@@ -77,7 +77,7 @@ const Multiplier = styled.div`
   text-align: right;
   color: #2ecc71;
   font-weight: bold;
-  flex: 0 0 auto;                  /* size to content */
+  flex: 0 0 auto;                 
 `;
 
 const EmptyState = styled.div`

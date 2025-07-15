@@ -222,12 +222,13 @@ export default function Jackpot() {
                         onComplete={() => {}}
                       />
 
-                      {liveAcct.state.settled && (
+                       {liveAcct.state.settled && (
                         <WinnerAnimation
                           players={players}
                           winnerIndexes={liveAcct.winnerIndexes.map(
-                            Number
+                            Number,
                           )}
+                          currentUser={walletKey}
                         />
                       )}
 

@@ -1789,9 +1789,23 @@ export type Multiplayer = {
             "type": "pubkey"
           },
           {
+            "name": "gameMaker",
+            "type": "pubkey"
+          },
+          {
+            "name": "maxPlayers",
+            "type": "u16"
+          },
+          {
             "name": "winnerIndexes",
             "type": {
               "vec": "u16"
+            }
+          },
+          {
+            "name": "winnerWagers",
+            "type": {
+              "vec": "u64"
             }
           },
           {

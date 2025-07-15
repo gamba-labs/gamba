@@ -1,129 +1,207 @@
-// src/games/Jackpot/RecentGames.tsx
-import React, { useMemo } from 'react'
-import styled, { css } from 'styled-components'
-import { LAMPORTS_PER_SOL } from '@solana/web3.js'
+import React, { useEffect, useState, useCallback } from 'react';
+import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import type { AnchorProvider } from '@coral-xyz/anchor';
 
-// --- Types ---
-type RecentGame = {
-  player: string    // shortened address
-  wagerLamports: number
-  payoutLamports: number
-}
+import { useGambaContext } from 'gamba-react-v2';
+import { fetchRecentSpecificWinners, ParsedEvent } from '@gamba-labs/multiplayer-sdk';
+import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config';
 
-// --- Styled Components ---
+/* ─── STYLES ───────────────────────────────────────────────────────────────── */
+
 const Container = styled.div`
-  position: relative;
   background: #23233b;
   border-radius: 15px;
   padding: 15px;
   height: 100%;
-  overflow: hidden;
-`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+`;
 
-const Title = styled.h3`
-  margin: 0 0 10px;
-  color: #fff;
-  font-size: 1rem;
-  text-align: center;
-`
+const Header = styled.header`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #fff;
+  }
+`;
 
 const List = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
+  overflow-y: auto;
+  flex-grow: 1;
 
-const GameItem = styled.li`
+  &::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+`;
+
+const GameItem = styled(motion.li)`
   display: flex;
+  justify-content: space-between;  /* distribute columns */
   align-items: center;
   background: #2c2c54;
-  padding: 8px;
+  padding: 4px 8px;                /* tighter padding */
   border-radius: 8px;
   border: 1px solid #4a4a7c;
-`
+  margin-bottom: 4px;              /* smaller gap */
+  font-size: 0.8rem;               /* slightly smaller text */
+  white-space: nowrap;             /* no wrapping */
+`;
 
-const PlayerName = styled.div`
-  flex: 1;
-  font-size: 0.8rem;
+const GameId = styled.div`
   font-family: monospace;
-  color: #e0e0e0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
+  color: #a9a9b8;
+  flex: 0 0 auto;                  /* size to content */
+`;
 
-const Wager = styled.div`
-  font-size: 0.8rem;
-  color: #f1c40f;
-  font-weight: bold;
-  margin: 0 10px;
-  white-space: nowrap;
-`
+const PotSize = styled.div`
+  flex: 1 1 auto;                  /* fill remaining, but shrink if needed */
+  text-align: center;
+  color: #e0e0e0;
+`;
 
 const Multiplier = styled.div`
-  font-size: 0.8rem;
+  font-family: monospace;
+  text-align: right;
   color: #2ecc71;
   font-weight: bold;
-  white-space: nowrap;
-`
+  flex: 0 0 auto;                  /* size to content */
+`;
 
-/** fade‐out hint when there’s overflow */
+const EmptyState = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #a9a9b8;
+  font-size: 0.9rem;
+`;
+
 const Fade = styled.div`
+  content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30px;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  height: 40px;
   pointer-events: none;
-  background: linear-gradient(
-    rgba(35, 35, 59, 0),
-    rgba(35, 35, 59, 1)
-  );
-`
+  background: linear-gradient(rgba(35, 35, 59, 0), rgba(35, 35, 59, 1));
+`;
 
-// --- Component ---
+/* ─── HELPERS ───────────────────────────────────────────────────────────────── */
+
+/** runtime‑safe conversion for BN / bigint / number */
+const toNum = (x: any): number =>
+  typeof x === 'number'
+    ? x
+    : typeof x === 'bigint'
+      ? Number(x)
+      : x?.toNumber
+        ? x.toNumber()
+        : Number(x);
+
+/** stringify BN / bigint / number */
+const toStr = (x: any): string =>
+  typeof x === 'string'
+    ? x
+    : x?.toString
+      ? x.toString()
+      : String(x);
+
+/** format to two decimals with locale separators */
+const fmt2 = (n: number) =>
+  n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/* ─── COMPONENT ────────────────────────────────────────────────────────────── */
+
 export function RecentGames() {
-  // replace with real data when available
-  const recent: RecentGame[] = useMemo(
-    () => [
-      { player: 'AbcD…1234', wagerLamports: 2.5 * LAMPORTS_PER_SOL, payoutLamports: 4.5 * LAMPORTS_PER_SOL },
-      { player: 'EfGh…5678', wagerLamports: 1.0 * LAMPORTS_PER_SOL, payoutLamports: 0 * LAMPORTS_PER_SOL },
-      { player: 'IjKl…9012', wagerLamports: 3.0 * LAMPORTS_PER_SOL, payoutLamports: 6.0 * LAMPORTS_PER_SOL },
-      { player: 'MnOp…3456', wagerLamports: 0.5 * LAMPORTS_PER_SOL, payoutLamports: 1.0 * LAMPORTS_PER_SOL },
-      { player: 'QrSt…7890', wagerLamports: 4.0 * LAMPORTS_PER_SOL, payoutLamports: 8.0 * LAMPORTS_PER_SOL },
-      { player: 'UvWx…2468', wagerLamports: 1.2 * LAMPORTS_PER_SOL, payoutLamports: 2.4 * LAMPORTS_PER_SOL },
-      { player: 'YzAb…1357', wagerLamports: 2.2 * LAMPORTS_PER_SOL, payoutLamports: 4.4 * LAMPORTS_PER_SOL },
-      { player: 'CdEf…8642', wagerLamports: 0.8 * LAMPORTS_PER_SOL, payoutLamports: 1.6 * LAMPORTS_PER_SOL },
-      // …more
-    ],
-    []
-  )
+  const { provider: gambaProvider } = useGambaContext();
+  const provider = (gambaProvider?.anchorProvider as AnchorProvider) || null;
 
-  const display = recent.slice(0, 8)
+  const [events, setEvents] = useState<ParsedEvent<'winnersSelected'>[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const toSOL = (lamports: number) =>
-    (lamports / LAMPORTS_PER_SOL).toFixed(2)
+  const refresh = useCallback(async () => {
+    if (!provider) return;
+    try {
+      const evs = await fetchRecentSpecificWinners(
+        provider,
+        DESIRED_CREATOR,
+        DESIRED_MAX_PLAYERS,
+        20,
+      );
+      setEvents(evs);
+    } catch (err) {
+      console.error('RecentGames fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [provider]);
+
+  useEffect(() => {
+    refresh();
+    const interval = setInterval(refresh, 30_000);
+    return () => clearInterval(interval);
+  }, [refresh]);
+
+  if (!provider) return null;
 
   return (
     <Container>
-      <Title>Recent Games</Title>
+      <Header>
+        <h3>Recent Games</h3>
+      </Header>
+
       <List>
-        {display.map((g, i) => (
-          <GameItem key={i}>
-            <PlayerName title={g.player}>
-              {g.player}
-            </PlayerName>
-            <Wager>{toSOL(g.wagerLamports)} SOL</Wager>
-            <Multiplier>
-              x{(g.payoutLamports / g.wagerLamports).toFixed(2)}
-            </Multiplier>
-          </GameItem>
-        ))}
+        <AnimatePresence initial={false}>
+          {events.length > 0 ? (
+            events.map(ev => {
+              const { gameId, totalWager, payouts, winnerWagers } = ev.data;
+              const potSOL = toNum(totalWager) / LAMPORTS_PER_SOL;
+
+              let mul = 0;
+              if (winnerWagers?.[0] && payouts?.[0]) {
+                const bet = toNum(winnerWagers[0]) / LAMPORTS_PER_SOL;
+                const pay = toNum(payouts[0])      / LAMPORTS_PER_SOL;
+                mul = bet > 0 ? pay / bet : 0;
+              }
+
+              return (
+                <GameItem
+                  key={ev.signature}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                >
+                  <GameId>#{toStr(gameId)}</GameId>
+                  <PotSize>{fmt2(potSOL)} SOL</PotSize>
+                  <Multiplier>×{fmt2(mul)}</Multiplier>
+                </GameItem>
+              );
+            })
+          ) : (
+            <EmptyState>{loading ? 'Loading...' : 'No recent games'}</EmptyState>
+          )}
+        </AnimatePresence>
       </List>
-      {recent.length > 8 && <Fade />}
+
+      <Fade />
     </Container>
-  )
+  );
 }
+
+export default RecentGames;

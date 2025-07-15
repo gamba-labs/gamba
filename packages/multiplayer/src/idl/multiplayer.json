@@ -1783,9 +1783,23 @@
             "type": "pubkey"
           },
           {
+            "name": "game_maker",
+            "type": "pubkey"
+          },
+          {
+            "name": "max_players",
+            "type": "u16"
+          },
+          {
             "name": "winner_indexes",
             "type": {
               "vec": "u16"
+            }
+          },
+          {
+            "name": "winner_wagers",
+            "type": {
+              "vec": "u64"
             }
           },
           {

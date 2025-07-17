@@ -1,8 +1,8 @@
-// src/games/Jackpot/instructions/EditBet.tsx
 import React, { useState, useCallback } from 'react'
 import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js'
-import { IdlAccounts, BN } from '@coral-xyz/anchor'
-import { useMultiplayer } from 'gamba-react-v2'
+import { IdlAccounts, BN, AnchorProvider } from '@coral-xyz/anchor'
+import { useGambaContext } from 'gamba-react-v2'
+import { useMultiplayer }  from 'gamba-react-v2'
 import type { Multiplayer } from '@gamba-labs/multiplayer-sdk'
 import { GambaUi } from 'gamba-react-ui-v2'
 
@@ -16,27 +16,23 @@ type Props = {
 }
 
 export default function EditBet({ pubkey, account, onComplete }: Props) {
+  const { provider: gambaProvider } = useGambaContext()
+  if (!gambaProvider) return null
+  const anchorProvider = gambaProvider.anchorProvider as AnchorProvider
+
+  const walletPk   = anchorProvider.wallet.publicKey!
   const { editBet } = useMultiplayer()
 
-  // find current user’s wager
-  const me = account.players
-    .find(p => p.user.equals(
-      // @ts-expect-error “useMultiplayer” always has a wallet internally
-      editBet /* trick TS into inferring anchorProvider */ 
-        && false ? new PublicKey('') : p.user
-    ))?.user || null
-  // but since editBet doesn’t expose wallet, we know p.user must match the signer
-  // you’ll actually supply me via context or pass in as prop
-  // for brevity, we’ll just assume first matching:
-  const currentLp = account.players.find(p => p.user.equals(me))?.wager.toNumber() ?? 0
+  const myEntry   = account.players.find(p => p.user.equals(walletPk))
+  const currentLp = myEntry?.wager.toNumber() ?? 0
 
   const [wagerSol, setWagerSol] = useState(
-    (currentLp / LAMPORTS_PER_SOL).toFixed(2)
+    (currentLp / LAMPORTS_PER_SOL).toString()
   )
   const [busy, setBusy] = useState(false)
 
   const inputLp  = Math.floor(parseFloat(wagerSol) * LAMPORTS_PER_SOL) || 0
-  const newLp    = Math.max(inputLp, currentLp)
+  const newLp    = Math.max(inputLp, currentLp)   // never shrink
   const canRaise = newLp > currentLp
 
   const handleUpdate = useCallback(async () => {
@@ -54,7 +50,7 @@ export default function EditBet({ pubkey, account, onComplete }: Props) {
 
       onComplete?.()
     } catch (err) {
-      console.error('EditBet failed', err)
+      console.error(err)
     } finally {
       setBusy(false)
     }
@@ -64,11 +60,12 @@ export default function EditBet({ pubkey, account, onComplete }: Props) {
     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
       <GambaUi.WagerInput
         value={newLp}
-        onChange={lamports =>
+        onChange={(lamports) =>
           setWagerSol((Math.max(lamports, currentLp) / LAMPORTS_PER_SOL).toFixed(2))
         }
         disabled={busy}
       />
+      {/* ← again, plain Button */}
       <GambaUi.Button main disabled={!canRaise || busy} onClick={handleUpdate}>
         {busy ? 'Increasing…' : 'Increase Bet'}
       </GambaUi.Button>

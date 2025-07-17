@@ -1,4 +1,3 @@
-// src/games/Jackpot/JoinGame.tsx
 import React, { useState, useCallback } from 'react'
 import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { IdlAccounts, BN } from '@coral-xyz/anchor'
@@ -55,9 +54,10 @@ export default function JoinGame({ pubkey, account, onTx }: Props) {
         }
         disabled={busy}
       />
-      <GambaUi.PlayButton onClick={handleJoin} disabled={busy}>
+      {/* ← use Button not PlayButton */}
+      <GambaUi.Button main disabled={busy} onClick={handleJoin}>
         {busy ? 'Joining…' : 'Join'}
-      </GambaUi.PlayButton>
+      </GambaUi.Button>
     </div>
   )
 }

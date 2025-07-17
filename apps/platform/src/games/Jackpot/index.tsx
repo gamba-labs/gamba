@@ -1,8 +1,9 @@
 // src/games/Jackpot/index.tsx
 import React, { useEffect, useState, useMemo } from 'react'
-import { LAMPORTS_PER_SOL } from '@solana/web3.js'
-import { GambaUi } from 'gamba-react-ui-v2'
-import { useGambaContext } from 'gamba-react-v2'
+import { LAMPORTS_PER_SOL }           from '@solana/web3.js'
+import { GambaUi }                    from 'gamba-react-ui-v2'
+import { useGambaContext }            from 'gamba-react-v2'
+import { useWallet }                  from '@solana/wallet-adapter-react'
 
 import {
   useSpecificGames,
@@ -11,7 +12,6 @@ import {
 
 import JoinGame            from './instructions/JoinGame'
 import EditBet             from './instructions/EditBet'
-import LeaveGame           from './instructions/LeaveGame'
 import { Countdown }       from './Countdown'
 import { Pot }             from './Pot'
 import { WinnerAnimation } from './WinnerAnimation'
@@ -25,60 +25,59 @@ import { MyStats }         from './MyStats'
 import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config'
 import * as S from './Jackpot.styles'
 
+/** Simple media‐query hook */
 const useMediaQuery = (q: string) => {
-  const [m, set] = React.useState(() => matchMedia(q).matches)
-  React.useEffect(() => {
+  const [matches, setMatches] = useState(() => matchMedia(q).matches)
+  useEffect(() => {
     const mm = matchMedia(q)
-    const h  = () => set(mm.matches)
-    mm.addEventListener('change', h)
-    return () => mm.removeEventListener('change', h)
+    const handler = () => setMatches(mm.matches)
+    mm.addEventListener('change', handler)
+    return () => mm.removeEventListener('change', handler)
   }, [q])
-  return m
+  return matches
 }
 
 export default function Jackpot() {
-  const { provider } = useGambaContext()
-  const walletKey = provider?.anchorProvider.wallet.publicKey ?? null
-  const isSmall   = useMediaQuery('(max-width: 900px)')
+  // 1) Gamba + wallet
+  const { provider }           = useGambaContext()
+  const { publicKey: walletKey } = useWallet()
+  const isSmall                = useMediaQuery('(max-width: 900px)')
 
-  // 1) fetch all matching games, manual refresh
+  // 2) fetch list of matching games (no auto-poll)
   const {
     games,
     loading: gamesLoading,
     refresh: refreshGames,
-  } = useSpecificGames(DESIRED_CREATOR, DESIRED_MAX_PLAYERS, 0)
+  } = useSpecificGames(DESIRED_CREATOR, DESIRED_MAX_PLAYERS, /* pollMs= */ 0)
 
+  // 3) take the “top” game
   const topGame = games[0] ?? null
-  // 2) subscribe live on-chain
+
+  // 4) subscribe live on‐chain to that PDA
   const liveAcct = useGame(topGame?.publicKey ?? null)
 
-  // 3) polling: only while no liveAcct OR (settled AND animationDone)
-  const [animationDone, setAnimationDone] = useState(true)
+  // 5) manual polling: while there’s no liveAcct or it’s already settled
   useEffect(() => { refreshGames() }, [refreshGames])
   useEffect(() => {
-    if (!liveAcct || (liveAcct.state.settled && animationDone)) {
+    if (!liveAcct || liveAcct.state.settled) {
       const id = setInterval(refreshGames, 5000)
       return () => clearInterval(id)
     }
-  }, [liveAcct, animationDone, refreshGames])
+  }, [liveAcct, refreshGames])
 
-  // 4) animationDone resets whenever we enter “settled”
-  useEffect(() => {
-    if (liveAcct?.state.settled) setAnimationDone(false)
-    else setAnimationDone(true)
-  }, [liveAcct?.state.settled])
+  // 6) derive display state
+  const players             = liveAcct?.players ?? []
+  const totalPotLamports    = players.reduce((sum, p) => sum + p.wager.toNumber(), 0)
+  const waitingForPlayers   = !!liveAcct?.state.waiting
+  const settled             = !!liveAcct?.state.settled
 
-  // 5) derive UI state
-  const players           = liveAcct?.players ?? []
-  const totalPotLamports  = players.reduce((s, p) => s + p.wager.toNumber(), 0)
-  const waitingForPlayers = !!liveAcct?.state.waiting
-  const settled           = !!liveAcct?.state.settled
-
-  const youJoined = useMemo(() => (
-    walletKey && liveAcct
-      ? liveAcct.players.some(p => p.user.equals(walletKey))
-      : false
-  ), [walletKey, liveAcct])
+  const youJoined = useMemo(
+    () =>
+      !!walletKey &&
+      !!liveAcct &&
+      liveAcct.players.some(p => p.user.equals(walletKey)),
+    [walletKey, liveAcct]
+  )
 
   const myEntry       = players.find(p => walletKey && p.user.equals(walletKey))
   const myBetLamports = myEntry?.wager.toNumber() ?? 0
@@ -89,16 +88,19 @@ export default function Jackpot() {
 
   return (
     <>
+      {/* ───── MAIN SCREEN ───── */}
       <GambaUi.Portal target="screen">
         <S.ScreenLayout>
           <S.PageLayout>
-            {/* left sidebar always there */}
+
+            {/* left sidebar – always visible */}
             {!isSmall && (
               <S.TopPlayersSidebar>
                 <TopPlayers players={players} totalPot={totalPotLamports} />
               </S.TopPlayersSidebar>
             )}
 
+            {/* center game area */}
             <S.GameContainer>
               {liveAcct && <Coinfalls players={players} />}
 
@@ -121,14 +123,20 @@ export default function Jackpot() {
                   <>
                     <S.Header>
                       <S.Title>Game #{liveAcct.gameId.toString()}</S.Title>
-                      <S.Badge status={
-                        waitingForPlayers
-                          ? 'waiting'
-                          : settled ? 'settled' : 'live'
-                      }>
+                      <S.Badge
+                        status={
+                          waitingForPlayers
+                            ? 'waiting'
+                            : settled
+                              ? 'settled'
+                              : 'live'
+                        }
+                      >
                         {waitingForPlayers
                           ? 'Waiting'
-                          : settled ? 'Settled' : 'Live'}
+                          : settled
+                            ? 'Settled'
+                            : 'Live'}
                       </S.Badge>
                     </S.Header>
 
@@ -143,7 +151,10 @@ export default function Jackpot() {
                           players={players}
                           winnerIndexes={liveAcct.winnerIndexes.map(Number)}
                           currentUser={walletKey}
-                          onClose={() => setAnimationDone(true)}
+                          onClose={() => {
+                            // once the animation finishes, fetch again to pick up the new game
+                            refreshGames()
+                          }}
                         />
                       )}
 
@@ -158,7 +169,7 @@ export default function Jackpot() {
               </S.MainContent>
             </S.GameContainer>
 
-            {/* right sidebar always there */}
+            {/* right sidebar – always visible */}
             {!isSmall && (
               <S.RecentGamesSidebar>
                 <RecentGames />
@@ -166,25 +177,33 @@ export default function Jackpot() {
             )}
           </S.PageLayout>
 
-          {/* bottom strip */}
+          {/* bottom strip – always visible */}
           <S.RecentPlayersContainer>
             <RecentPlayers players={players} />
           </S.RecentPlayersContainer>
         </S.ScreenLayout>
       </GambaUi.Portal>
 
+      {/* ───── CONTROLS ───── */}
       <GambaUi.Portal target="controls">
         {liveAcct && topGame && waitingForPlayers && !youJoined && (
-          <JoinGame pubkey={topGame.publicKey} account={liveAcct} />
-        )}
-        {liveAcct && topGame && waitingForPlayers && youJoined && (
-          <EditBet pubkey={topGame.publicKey} account={liveAcct} />
-        )}
-        {liveAcct && topGame && !waitingForPlayers && youJoined && (
-          <LeaveGame
+          <JoinGame
             pubkey={topGame.publicKey}
             account={liveAcct}
-            onTx={refreshGames}
+            onTx={() => {
+              // after join, refresh list
+              refreshGames()
+            }}
+          />
+        )}
+        {liveAcct && topGame && waitingForPlayers && youJoined && (
+          <EditBet
+            pubkey={topGame.publicKey}
+            account={liveAcct}
+            onComplete={() => {
+              // after edit, refresh
+              refreshGames()
+            }}
           />
         )}
       </GambaUi.Portal>

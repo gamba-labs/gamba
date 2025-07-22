@@ -1,5 +1,5 @@
 // src/components/GameScreen.tsx
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PublicKey }                from '@solana/web3.js';
 import { useWallet }                from '@solana/wallet-adapter-react';
 import { useGame }                  from 'gamba-react-v2';
@@ -19,39 +19,42 @@ export default function GameScreen({
   const chainGame   = useGame(pk);
   const { publicKey } = useWallet();
 
-  // ─── 1) Snapshot settled game for replay ──────────────────────
+  // 1️⃣ Snapshot once the on-chain game settles
   const [snapPlayers, setSnapPlayers] = useState<PublicKey[]|null>(null);
   const [snapWinner,  setSnapWinner]  = useState<number|null>(null);
   const [replayDone,  setReplayDone]  = useState(false);
 
-  useEffect(() => {
-    if (!chainGame || !chainGame.state.settled || snapPlayers) return;
+  useEffect(()=>{
+    if(!chainGame) return;
+    if(!chainGame.state.settled) return;
+    if(snapPlayers) return;
     const w = Number(chainGame.winnerIndexes[0]);
     setSnapPlayers(chainGame.players.map(p => p.user));
     setSnapWinner(w);
     setReplayDone(false);
-  }, [chainGame, snapPlayers]);
+  },[chainGame,snapPlayers]);
 
-  // ─── 2) Countdown state (ms until settlement) ───────────────
+  // 2️⃣ Countdown until settlement (if waiting)
   const [timeLeft, setTimeLeft] = useState(0);
-  useEffect(() => {
-    const ts = chainGame?.softExpirationTimestamp;
-    if (!ts) return;
-    const end = Number(ts) * 1000;
+  useEffect(()=>{
+    if(!chainGame) return;
+    const ts = chainGame.softExpirationTimestamp;
+    if(!ts) return;
+    const end = Number(ts)*1000;
     const tick = () => setTimeLeft(Math.max(end - Date.now(), 0));
     tick();
     const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [chainGame?.softExpirationTimestamp]);
+    return ()=> clearInterval(id);
+  },[chainGame?.softExpirationTimestamp]);
 
-  // ─── 3) Derive which players & winnerIdx to feed into Board ───
-  const waiting       = snapPlayers === null;
-  const boardPlayers  = waiting
+  // 3️⃣ Decide which players/winner go to Board
+  const waiting        = snapPlayers === null;
+  const boardPlayers   = waiting
     ? (chainGame?.players.map(p => p.user) || [])
     : snapPlayers!;
   const boardWinnerIdx = waiting ? null : snapWinner;
 
-  // ─── 4) Format time mm:ss ────────────────────────────────────
+  // 4️⃣ Format mm:ss
   const formatTime = (ms: number) => {
     const tot = Math.ceil(ms/1000);
     const m = Math.floor(tot/60);
@@ -61,14 +64,15 @@ export default function GameScreen({
 
   return (
     <>
-      {/* — Always draw the plinko board — */}
+      {/* ► Always show the Board (so pegs & finish line are visible) */}
       <Board
         players    ={boardPlayers}
         winnerIdx  ={boardWinnerIdx}
-        onFinished={!waiting ? () => setReplayDone(true) : undefined}
+        gamePk     ={pk.toBase58()}
+        onFinished ={!waiting ? () => setReplayDone(true) : undefined}
       />
 
-      {/* — Top-right status + optional countdown — */}
+      {/* ► Top-right status + countdown */}
       <div style={{
         position:'absolute', top:12, right:12, zIndex:200,
         textAlign:'right',
@@ -89,7 +93,7 @@ export default function GameScreen({
         )}
       </div>
 
-      {/* — Gamba controls: join/edit while waiting; back once done — */}
+      {/* ► Gamba controls: Join/Edit while waiting; Back when done */}
       <GambaUi.Portal target="controls">
         {waiting && chainGame?.state.waiting && (
           publicKey && !chainGame.players.some(p => p.user.equals(publicKey)) ? (

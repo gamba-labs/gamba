@@ -1,8 +1,10 @@
+// src/components/DebugGameScreen.tsx
 import React, { useState, useCallback } from 'react';
 import { Keypair, PublicKey }           from '@solana/web3.js';
-import { GambaUi }                       from 'gamba-react-ui-v2';
+import { GambaUi }                      from 'gamba-react-ui-v2';
 import Board                             from './Board';
 
+// purely local – never used on-chain
 function randomPk(): PublicKey {
   return Keypair.generate().publicKey;
 }
@@ -16,19 +18,29 @@ export default function DebugGameScreen({
   const [winner,    setWinner]    = useState(0);
   const [players,   setPlayers]   = useState<PublicKey[]>([]);
   const [winnerIdx, setWinnerIdx] = useState<number | null>(null);
+
+  // new: text field for a user-supplied seed
+  const [seedInput, setSeedInput] = useState<string>('');
+  const [gamePk,    setGamePk]    = useState<string | null>(null);
+
   const [gameOver,  setGameOver]  = useState(false);
 
-  /** spawn fresh dummy players and start */
+  /** spawn dummy players & pick seed */
   const start = useCallback(() => {
     const n = Math.max(1, Math.min(20, count));
     setPlayers(Array.from({ length: n }, randomPk));
     setWinnerIdx(Math.max(0, Math.min(n - 1, winner)));
+
+    // if user typed a seed, use that; otherwise pick a new random one
+    const seed = seedInput.trim() || Keypair.generate().publicKey.toBase58();
+    setGamePk(seed);
+
     setGameOver(false);
-  }, [count, winner]);
+  }, [count, winner, seedInput]);
 
   return (
     <>
-      {/* top‐left controls for launching a debug run */}
+      {/* controls */}
       {!gameOver && (
         <div style={{ padding: 12 }}>
           <h2>🐞 Debug Simulator</h2>
@@ -54,25 +66,37 @@ export default function DebugGameScreen({
               />
             </label>
 
+            <label>
+              Seed:&nbsp;
+              <input
+                type="text"
+                placeholder="optional Base58 seed"
+                value={seedInput}
+                onChange={e => setSeedInput(e.target.value)}
+                style={{ width: 200 }}
+              />
+            </label>
+
             <button onClick={start}>Run race</button>
           </div>
         </div>
       )}
 
-      {/* the canvas & replay */}
-      {players.length > 0 && (
+      {/* once players & seed are set, show the board */}
+      {players.length > 0 && gamePk && (
         <Board
           players    ={players}
           winnerIdx  ={winnerIdx}
+          gamePk     ={gamePk}
           onFinished ={() => setGameOver(true)}
         />
       )}
 
-      {/* now drop Back button into Gamba’s “controls” portal */}
+      {/* back-to-lobby in Gamba controls bar */}
       <GambaUi.Portal target="controls">
         {gameOver && (
           <button
-            onClick={() => onBack()}
+            onClick={onBack}
             style={{
               padding:      '8px 16px',
               marginRight:  12,

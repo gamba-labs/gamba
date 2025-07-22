@@ -2,6 +2,7 @@
 import Matter, { Composite, Bodies, Body } from 'matter-js';
 import { PhysicsWorld, WIDTH, HEIGHT, BALL_RADIUS } from './PhysicsWorld';
 import { PlayerInfo, RecordedRace }               from './types';
+import { makeRng }                                from './deterministic';
 
 const MAX_FRAMES       = 200_000;
 const MAX_ATTEMPTS     = 60;
@@ -14,20 +15,31 @@ export class SimulationEngine {
   /** Static world for pegs (always present) */
   private staticWorld : PhysicsWorld;
 
-  /** Replay world for showing the recorded run */
+  /** Reel-in world for replaying the final run */
   private replayWorld ?: PhysicsWorld;
 
-  constructor(rows: number, players: PlayerInfo[]) {
+  /** Deterministic PRNG (0..1) */
+  private rng         : () => number;
+
+  /**
+   * @param rows     number of plinko rows
+   * @param players  roster with id/color
+   * @param gamePk   the Base-58 game address to seed RNG (optional)
+   */
+  constructor(rows: number, players: PlayerInfo[], gamePk?: string) {
     this.rows    = rows;
     this.players = players;
 
-    // Build and keep around the static peg world immediately
+    // build peg world immediately
     this.staticWorld = new PhysicsWorld(rows);
+
+    // deterministic RNG from gamePk, or fallback to Math.random
+    this.rng = gamePk ? makeRng(gamePk) : () => Math.random();
   }
 
   /**
-   * Brute-force until you get a run where ONLY `winnerIndex`
-   * is first to `targetPoints` (no ties). Returns the RecordedRace.
+   * Keep trying random-offset runs until ONLY `winnerIndex`
+   * is first to reach `targetPoints`. Guaranteed to return a valid race.
    */
   recordRace(
     winnerIndex: number,
@@ -38,31 +50,33 @@ export class SimulationEngine {
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       const rec = this.runSingleAttempt(W, targetPoints);
       if (rec) {
-        console.log(`[SimulationEngine] SUCCESS: Winner ${W} on attempt ${attempt}`);
+        console.log(
+          `[SimulationEngine] SUCCESS: winner ${W} in attempt ${attempt}`
+        );
         return rec;
       }
       console.log(`[SimulationEngine] attempt ${attempt} rejected`);
     }
 
     throw new Error(
-      `SimulationEngine: no valid run for winner ${W} after ${MAX_ATTEMPTS} attempts`
+      `SimulationEngine: no valid run for winner ${W} after ${MAX_ATTEMPTS}`
     );
   }
 
-  /** One continuous simulation, with immediate respawn and scoring. */
+  /** Single continuous sim: spawn, tick, respawn, score until winner reaches target. */
   private runSingleAttempt(
     winIdx: number,
     targetPoints: number
   ): RecordedRace | null {
-    // ── Local world for simming this attempt ───────────
+    // local sim world (so we don’t pollute staticWorld)
     const world     = new PhysicsWorld(this.rows);
     const ballLayer = Composite.create();
     Composite.add(world.world, ballLayer);
 
-    // Fixed spawn X positions
-    const spawnXs = this.players.map(() => WIDTH/2 + Matter.Common.random(-8,8));
+    // deterministic spawn X offsets: -8..+8 px
+    const spawnXs = this.players.map(() => WIDTH/2 + (this.rng()*16 - 8));
 
-    // Spawn dynamic balls
+    // spawn dynamic balls
     const bodies: Body[] = spawnXs.map((x,i) =>
       Bodies.circle(x, -10, BALL_RADIUS, {
         restitution: 0.4,
@@ -73,7 +87,7 @@ export class SimulationEngine {
     );
     Composite.add(ballLayer, bodies);
 
-    // Record paths + crossings + scores
+    // recorders
     const paths     = this.players.map(() => [] as number[]);
     const crossings = this.players.map(() => [] as number[]);
     const scores    = Array(this.players.length).fill(0);
@@ -89,17 +103,15 @@ export class SimulationEngine {
           scores[i] += POINTS_PER_CROSS;
           crossings[i].push(frame);
           justScored.push(i);
-
           // immediate respawn
           Body.setPosition(b, { x: spawnXs[i], y: -10 });
-          Body.setVelocity(b, { x:0, y:0 });
+          Body.setVelocity(b, { x: 0, y: 0 });
         }
       });
 
-      // if anyone hit target this frame…
+      // did anyone hit the target this frame?
       const winners = justScored.filter(i => scores[i] >= targetPoints);
       if (winners.length > 0) {
-        // accept only if exactly one AND it's our chosen winner
         if (winners.length === 1 && winners[0] === winIdx) {
           winnerThisRun = winIdx;
         }
@@ -120,18 +132,19 @@ export class SimulationEngine {
   }
 
   /**
-   * Builds a _new_ PhysicsWorld for the replay, spawns _static_ balls
-   * and then warps them along the recorded paths.
+   * Rebuild a fresh world (pegs + static balls) and warp them along
+   * the recorded Float32Array `paths`.
    */
   replayRace(race: RecordedRace) {
-    // tear down any prior replay world
+    // clean up any prior replay
     if (this.replayWorld) this.replayWorld.cleanup();
 
-    // new world containing just pegs (again) + static "balls"
+    // new world for replay
     const world = new PhysicsWorld(this.rows);
     this.replayWorld = world;
 
-    const staticBalls = race.paths.map((_, i) => {
+    // static bodies for balls at their spawn X
+    const staticBalls = race.paths.map((_,i) => {
       const x = race.offsets[i] ?? WIDTH/2;
       return Bodies.circle(x, -10, BALL_RADIUS, {
         isStatic: true,
@@ -141,36 +154,31 @@ export class SimulationEngine {
     });
     Composite.add(world.world, staticBalls);
 
-    const total = race.paths[0].length / 2;
-    let frame   = 0;
-    const step  = () => {
-      staticBalls.forEach((b, i) => {
-        const path = race.paths[i];
-        const idx  = Math.min(frame, path.length/2 - 1);
-        Body.setPosition(b, {
-          x: path[idx*2],
-          y: path[idx*2+1],
-        });
+    const totalFrames = race.paths[0].length / 2;
+    let frame = 0;
+    const step = () => {
+      staticBalls.forEach((b,i) => {
+        const arr = race.paths[i];
+        const idx = Math.min(frame, arr.length/2 - 1);
+        Body.setPosition(b, { x: arr[idx*2], y: arr[idx*2+1] });
       });
       frame++;
-      if (frame < total) requestAnimationFrame(step);
+      if (frame < totalFrames) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
   }
 
   /**
-   * Expose both the static pegs _and_ any replay bodies together,
-   * so your Canvas draw always shows the map + balls.
+   * Merge the **static** peg world with any **replay** bodies,
+   * so your Canvas’s `engine.getBodies()` always shows both.
    */
   getBodies() {
-    // pegs from the staticWorld
-    const pegs = this.staticWorld.getBodies();
-    // balls (and nothing else) from the replayWorld, if any
+    const pegs  = this.staticWorld.getBodies();
     const balls = this.replayWorld ? this.replayWorld.getBodies() : [];
     return [...pegs, ...balls];
   }
 
-  /** tear down both worlds */
+  /** tear down everything */
   cleanup() {
     this.staticWorld.cleanup();
     if (this.replayWorld) this.replayWorld.cleanup();

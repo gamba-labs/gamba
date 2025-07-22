@@ -1,21 +1,29 @@
+// src/hooks/useMultiPlinko.ts
 import { useEffect, useState, useCallback } from 'react';
-import { SimulationEngine, RecordedRace }   from '../engine';
+import { SimulationEngine, RecordedRace }   from '../engine/SimulationEngine';
 import { PlayerInfo }                       from '../engine/types';
+import { makeRng }                          from '../engine/deterministic';
 
+/**
+ * Hook to create & tear down a SimulationEngine.
+ * @param rows     number of peg rows
+ * @param players  PlayerInfo[] roster
+ * @param gamePk   Base58 game address for deterministic RNG
+ */
 export function useMultiPlinko(
   rows: number,
-  players: PlayerInfo[]
+  players: PlayerInfo[],
+  gamePk?: string
 ) {
   const [engine, setEngine] = useState<SimulationEngine|null>(null);
 
-  // Re-create engine only when `rows` or the list of player IDs changes
   useEffect(() => {
-    const sim = new SimulationEngine(rows, players);
+    // pass gamePk so SimulationEngine seeds its RNG deterministically
+    const sim = new SimulationEngine(rows, players, gamePk);
     setEngine(sim);
     return () => sim.cleanup();
-  }, [rows, players.map(p => p.id).join(',')]);
+  }, [rows, players.map(p=>p.id).join(','), gamePk]);
 
-  // Wrap these so their identity only changes when `engine` does
   const recordRace = useCallback(
     (idx: number): RecordedRace => {
       if (!engine) throw new Error('Engine not ready');

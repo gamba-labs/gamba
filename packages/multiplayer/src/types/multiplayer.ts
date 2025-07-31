@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/multiplayer.json`.
  */
 export type Multiplayer = {
-  "address": "gambaMhWCfgqqBrc1KiEB4iBJnFG1RhQu2oFX6LV5xq",
+  "address": "GambaMyTW8C1NSeFrv2c3KfmX1MSDBF6YbxDeb7dBPxM",
   "metadata": {
     "name": "multiplayer",
     "version": "0.1.0",
@@ -28,6 +28,9 @@ export type Multiplayer = {
       "accounts": [
         {
           "name": "gameAccount",
+          "docs": [
+            "The on‐chain Game account, PDA = [b\"GAME\", game_seed]."
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -41,9 +44,36 @@ export type Multiplayer = {
                 ]
               },
               {
+                "kind": "arg",
+                "path": "gameSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadataAccount",
+          "docs": [
+            "Always-present metadata PDA, PDA = [b\"METADATA\", game_account.key()]"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
                 "kind": "account",
-                "path": "gamba_state.game_id",
-                "account": "gambaState"
+                "path": "gameAccount"
               }
             ]
           }
@@ -56,11 +86,17 @@ export type Multiplayer = {
         },
         {
           "name": "gameMaker",
+          "docs": [
+            "creator of the game, pays rent on init"
+          ],
           "writable": true,
           "signer": true
         },
         {
           "name": "gambaState",
+          "docs": [
+            "global config PDA"
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -124,6 +160,18 @@ export type Multiplayer = {
         {
           "name": "hardDuration",
           "type": "i64"
+        },
+        {
+          "name": "gameSeed",
+          "type": "u64"
+        },
+        {
+          "name": "minBet",
+          "type": "u64"
+        },
+        {
+          "name": "maxBet",
+          "type": "u64"
         }
       ]
     },
@@ -142,6 +190,9 @@ export type Multiplayer = {
       "accounts": [
         {
           "name": "gameAccount",
+          "docs": [
+            "The on-chain Game account, PDA = [b\"GAME\", game_seed]."
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -155,9 +206,36 @@ export type Multiplayer = {
                 ]
               },
               {
+                "kind": "arg",
+                "path": "gameSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadataAccount",
+          "docs": [
+            "Always-present metadata PDA, PDA = [b\"METADATA\", game_account.key()]"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
                 "kind": "account",
-                "path": "gamba_state.game_id",
-                "account": "gambaState"
+                "path": "gameAccount"
               }
             ]
           }
@@ -170,6 +248,9 @@ export type Multiplayer = {
         },
         {
           "name": "gameAccountTaAccount",
+          "docs": [
+            "escrow token account for this game"
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -258,6 +339,18 @@ export type Multiplayer = {
         {
           "name": "hardDuration",
           "type": "i64"
+        },
+        {
+          "name": "gameSeed",
+          "type": "u64"
+        },
+        {
+          "name": "minBet",
+          "type": "u64"
+        },
+        {
+          "name": "maxBet",
+          "type": "u64"
         }
       ]
     },
@@ -277,14 +370,14 @@ export type Multiplayer = {
         {
           "name": "payer",
           "docs": [
-            "The signer who calls this (doesn’t actually pay anything unless closing)."
+            "Tx signer (fees & optional PDA‑close refund go here)"
           ],
           "signer": true
         },
         {
           "name": "gambaState",
           "docs": [
-            "Global configuration account (V1). Used to check `gamba_fee_address`."
+            "Global configuration – for fee vault + RNG auth"
           ],
           "pda": {
             "seeds": [
@@ -310,29 +403,54 @@ export type Multiplayer = {
         {
           "name": "gameAccount",
           "docs": [
-            "Raw Game account; we will parse all fields “by hand” to avoid heap blowup."
+            "Game account (large PDA, parsed manually)"
           ],
           "writable": true
         },
         {
           "name": "gameMaker",
           "docs": [
-            "This is the “game maker” address. If we close the PDA, any leftover lamports go here."
+            "Game‑maker – receives any closing lamports"
           ],
           "writable": true
         },
         {
           "name": "gambaFeeAddress",
           "docs": [
-            "Protocol vault: collects “pending_gamba_fee” and any “dust” from closed accounts."
+            "Protocol fee vault"
           ],
           "writable": true
         },
         {
-          "name": "systemProgram",
+          "name": "metadataAccount",
           "docs": [
-            "Standard System program."
+            "Metadata PDA – to be closed at settlement"
           ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "gameAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
@@ -381,10 +499,44 @@ export type Multiplayer = {
         },
         {
           "name": "gameAccount",
+          "docs": [
+            "Raw Game PDA (parsed by offsets)"
+          ],
           "writable": true
         },
         {
+          "name": "metadataAccount",
+          "docs": [
+            "Always-present metadata PDA (to be closed on final settlement)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "gameAccount"
+              }
+            ]
+          }
+        },
+        {
           "name": "gameAccountTa",
+          "docs": [
+            "Game escrow ATA (PDA = [game_account])"
+          ],
           "writable": true
         },
         {
@@ -392,6 +544,9 @@ export type Multiplayer = {
         },
         {
           "name": "gambaFeeAta",
+          "docs": [
+            "Protocol fee vault ATA for this mint"
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -482,10 +637,16 @@ export type Multiplayer = {
         },
         {
           "name": "gambaFeeAddress",
+          "docs": [
+            "Protocol fee vault (owner of `gamba_fee_ata`)"
+          ],
           "writable": true
         },
         {
           "name": "gameMaker",
+          "docs": [
+            "Game‑maker (receives escrow close lamports)"
+          ],
           "writable": true
         },
         {
@@ -685,15 +846,12 @@ export type Multiplayer = {
         {
           "name": "gameAccount",
           "docs": [
-            "The on‐chain Game account as raw bytes (no automatic deserialization)."
+            "Game account as raw bytes"
           ],
           "writable": true
         },
         {
           "name": "gambaState",
-          "docs": [
-            "Global config; used for fee BPS."
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -719,7 +877,7 @@ export type Multiplayer = {
         {
           "name": "gameAccountTa",
           "docs": [
-            "Optional escrow token account PDA."
+            "Optional escrow token account (only for SPL games)"
           ],
           "writable": true,
           "optional": true,
@@ -735,13 +893,13 @@ export type Multiplayer = {
         {
           "name": "mint",
           "docs": [
-            "The mint for this game (native SOL or SPL)."
+            "Mint used for wagers (native SOL or SPL)"
           ]
         },
         {
           "name": "playerAccount",
           "docs": [
-            "The player joining (payer + signer)."
+            "Player joining (payer + signer)"
           ],
           "writable": true,
           "signer": true
@@ -749,7 +907,7 @@ export type Multiplayer = {
         {
           "name": "playerAta",
           "docs": [
-            "Optional player ATA for SPL wagers."
+            "Optional player ATA if SPL wager"
           ],
           "writable": true,
           "optional": true,
@@ -843,13 +1001,13 @@ export type Multiplayer = {
         {
           "name": "creatorAddress",
           "docs": [
-            "Creator/referrer address that collects a fee."
+            "Creator/referrer collecting a fee"
           ]
         },
         {
           "name": "creatorAta",
           "docs": [
-            "Creator’s ATA (we init if needed)."
+            "Creator’s ATA (created lazily)"
           ],
           "writable": true,
           "pda": {
@@ -940,6 +1098,34 @@ export type Multiplayer = {
           }
         },
         {
+          "name": "metadataAccount",
+          "docs": [
+            "Always-present metadata PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "gameAccount"
+              }
+            ]
+          }
+        },
+        {
           "name": "systemProgram",
           "docs": [
             "Programs"
@@ -967,6 +1153,15 @@ export type Multiplayer = {
         {
           "name": "team",
           "type": "u8"
+        },
+        {
+          "name": "playerMeta",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -986,29 +1181,20 @@ export type Multiplayer = {
         {
           "name": "gameAccount",
           "docs": [
-            "Raw Game account; we’ll parse fields manually."
+            "Game PDA – parsed manually"
           ],
           "writable": true
         },
         {
-          "name": "mint",
-          "docs": [
-            "The mint for this game (native SOL or SPL)."
-          ]
+          "name": "mint"
         },
         {
           "name": "playerAccount",
-          "docs": [
-            "The player who wants to leave (payer + signer)."
-          ],
           "writable": true,
           "signer": true
         },
         {
           "name": "playerAta",
-          "docs": [
-            "Optional player ATA (only for SPL‐token games)."
-          ],
           "writable": true,
           "optional": true,
           "pda": {
@@ -1100,9 +1286,6 @@ export type Multiplayer = {
         },
         {
           "name": "gameAccountTa",
-          "docs": [
-            "Game’s ATA (only for SPL‐token games)."
-          ],
           "writable": true,
           "optional": true,
           "pda": {
@@ -1115,24 +1298,43 @@ export type Multiplayer = {
           }
         },
         {
-          "name": "systemProgram",
+          "name": "metadataAccount",
           "docs": [
-            "System program (for native‐SOL transfers)."
+            "Always-present metadata PDA"
           ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "gameAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         },
         {
           "name": "associatedTokenProgram",
-          "docs": [
-            "Associated‐Token program (for SPL transfers)."
-          ],
           "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         },
         {
           "name": "tokenProgram",
-          "docs": [
-            "SPL‐Token program (for SPL transfers)."
-          ],
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
@@ -1162,7 +1364,7 @@ export type Multiplayer = {
         {
           "name": "gambaState",
           "docs": [
-            "Global config – only used to enforce `rng` above"
+            "Global config – only used to enforce `rng`"
           ],
           "pda": {
             "seeds": [
@@ -1188,7 +1390,7 @@ export type Multiplayer = {
         {
           "name": "gameAccount",
           "docs": [
-            "Raw Game account; we parse all fields “by hand”"
+            "Raw Game account; we parse fields by hand"
           ],
           "writable": true
         }
@@ -1221,6 +1423,19 @@ export type Multiplayer = {
         100,
         121,
         18
+      ]
+    },
+    {
+      "name": "playerMetadataAccount",
+      "discriminator": [
+        204,
+        224,
+        199,
+        121,
+        70,
+        159,
+        53,
+        55
       ]
     }
   ],
@@ -1472,6 +1687,13 @@ export type Multiplayer = {
             "type": "i64"
           },
           {
+            "name": "creationTimestamp",
+            "docs": [
+              "New field: when the game was created (unix timestamp)"
+            ],
+            "type": "i64"
+          },
+          {
             "name": "state",
             "type": {
               "defined": {
@@ -1485,6 +1707,21 @@ export type Multiplayer = {
           },
           {
             "name": "gameId",
+            "type": "u64"
+          },
+          {
+            "name": "gameSeed",
+            "docs": [
+              "Seeds randomness for select_winners"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "minBet",
+            "type": "u64"
+          },
+          {
+            "name": "maxBet",
             "type": "u64"
           },
           {
@@ -1580,6 +1817,22 @@ export type Multiplayer = {
           {
             "name": "wager",
             "type": "u64"
+          },
+          {
+            "name": "creationTimestamp",
+            "type": "i64"
+          },
+          {
+            "name": "gameSeed",
+            "type": "u64"
+          },
+          {
+            "name": "minBet",
+            "type": "u64"
+          },
+          {
+            "name": "maxBet",
+            "type": "u64"
           }
         ]
       }
@@ -1622,6 +1875,9 @@ export type Multiplayer = {
     },
     {
       "name": "gameState",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1639,6 +1895,9 @@ export type Multiplayer = {
     },
     {
       "name": "gameType",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1652,7 +1911,31 @@ export type Multiplayer = {
       }
     },
     {
+      "name": "metadataEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "meta",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "payoutType",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1762,7 +2045,49 @@ export type Multiplayer = {
       }
     },
     {
+      "name": "playerMetadataAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "docs": [
+              "bump is injected by Anchor (no need to store it yourself)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "maxEntries",
+            "docs": [
+              "static cap + capacity pointer"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "preAlloc",
+            "type": "u16"
+          },
+          {
+            "name": "entries",
+            "docs": [
+              "dynamic, streamed just like your players Vec"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "metadataEntry"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "wagerType",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1771,6 +2096,9 @@ export type Multiplayer = {
           },
           {
             "name": "customWager"
+          },
+          {
+            "name": "betRange"
           }
         ]
       }

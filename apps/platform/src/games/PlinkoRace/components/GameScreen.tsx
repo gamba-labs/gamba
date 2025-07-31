@@ -1,75 +1,78 @@
 // src/components/GameScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { PublicKey }                from '@solana/web3.js';
-import { useWallet }                from '@solana/wallet-adapter-react';
-import { useGame }                  from 'gamba-react-v2';
-import { GambaUi }                  from 'gamba-react-ui-v2';
+import React, { useEffect, useState } from 'react'
+import { PublicKey }            from '@solana/web3.js'
+import { useWallet }            from '@solana/wallet-adapter-react'
+import { useGame }              from 'gamba-react-v2'
+import { GambaUi }              from 'gamba-react-ui-v2'
 
-import JoinGame                     from '../../Jackpot/instructions/JoinGame';
-import EditBet                      from '../../Jackpot/instructions/EditBet';
-import Board                        from './Board';
+import JoinGame                 from '../../Jackpot/instructions/JoinGame'
+import EditBet                  from '../../Jackpot/instructions/EditBet'
+import Board                    from './Board'
 
 export default function GameScreen({
   pk,
   onBack,
 }: {
-  pk: PublicKey;
-  onBack: () => void;
+  pk: PublicKey
+  onBack: () => void
 }) {
-  const chainGame   = useGame(pk);
-  const { publicKey } = useWallet();
+  // useGame now returns { game, metadata? }
+  const { game: chainGame } = useGame(pk)
+  const { publicKey }       = useWallet()
 
   // 1️⃣ Snapshot once the on-chain game settles
-  const [snapPlayers, setSnapPlayers] = useState<PublicKey[]|null>(null);
-  const [snapWinner,  setSnapWinner]  = useState<number|null>(null);
-  const [replayDone,  setReplayDone]  = useState(false);
+  const [snapPlayers, setSnapPlayers] = useState<PublicKey[] | null>(null)
+  const [snapWinner, setSnapWinner]   = useState<number | null>(null)
+  const [replayDone, setReplayDone]   = useState(false)
 
-  useEffect(()=>{
-    if(!chainGame) return;
-    if(!chainGame.state.settled) return;
-    if(snapPlayers) return;
-    const w = Number(chainGame.winnerIndexes[0]);
-    setSnapPlayers(chainGame.players.map(p => p.user));
-    setSnapWinner(w);
-    setReplayDone(false);
-  },[chainGame,snapPlayers]);
+  useEffect(() => {
+    if (!chainGame) return
+    if (!chainGame.state.settled) return
+    if (snapPlayers) return
+
+    const w = Number(chainGame.winnerIndexes[0])
+    setSnapPlayers(chainGame.players.map(p => p.user))
+    setSnapWinner(w)
+    setReplayDone(false)
+  }, [chainGame, snapPlayers])
 
   // 2️⃣ Countdown until settlement (if waiting)
-  const [timeLeft, setTimeLeft] = useState(0);
-  useEffect(()=>{
-    if(!chainGame) return;
-    const ts = chainGame.softExpirationTimestamp;
-    if(!ts) return;
-    const end = Number(ts)*1000;
-    const tick = () => setTimeLeft(Math.max(end - Date.now(), 0));
-    tick();
-    const id = setInterval(tick, 1000);
-    return ()=> clearInterval(id);
-  },[chainGame?.softExpirationTimestamp]);
+  const [timeLeft, setTimeLeft] = useState(0)
+  useEffect(() => {
+    if (!chainGame) return
+    const ts = chainGame.softExpirationTimestamp
+    if (!ts) return
+
+    const end = Number(ts) * 1000
+    const tick = () => setTimeLeft(Math.max(end - Date.now(), 0))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [chainGame?.softExpirationTimestamp])
 
   // 3️⃣ Decide which players/winner go to Board
-  const waiting        = snapPlayers === null;
-  const boardPlayers   = waiting
+  const waiting      = snapPlayers === null
+  const boardPlayers = waiting
     ? (chainGame?.players.map(p => p.user) || [])
-    : snapPlayers!;
-  const boardWinnerIdx = waiting ? null : snapWinner;
+    : snapPlayers!
+  const boardWinnerIdx = waiting ? null : snapWinner
 
   // 4️⃣ Format mm:ss
   const formatTime = (ms: number) => {
-    const tot = Math.ceil(ms/1000);
-    const m = Math.floor(tot/60);
-    const s = tot % 60;
-    return `${m}:${s.toString().padStart(2,'0')}`;
-  };
+    const tot = Math.ceil(ms / 1000)
+    const m   = Math.floor(tot / 60)
+    const s   = tot % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
 
   return (
     <>
       {/* ► Always show the Board (so pegs & finish line are visible) */}
       <Board
-        players    ={boardPlayers}
-        winnerIdx  ={boardWinnerIdx}
-        gamePk     ={pk.toBase58()}
-        onFinished ={!waiting ? () => setReplayDone(true) : undefined}
+        players   ={boardPlayers}
+        winnerIdx ={boardWinnerIdx}
+        gamePk    ={pk.toBase58()}
+        onFinished={!waiting ? () => setReplayDone(true) : undefined}
       />
 
       {/* ► Top-right status + countdown */}
@@ -96,12 +99,11 @@ export default function GameScreen({
       {/* ► Gamba controls: Join/Edit while waiting; Back when done */}
       <GambaUi.Portal target="controls">
         {waiting && chainGame?.state.waiting && (
-          publicKey && !chainGame.players.some(p => p.user.equals(publicKey)) ? (
-            <JoinGame pubkey={pk} account={chainGame} onTx={()=>{}}/>
-          ) : (
-            <EditBet pubkey={pk} account={chainGame} onComplete={()=>{}}/>
-          )
+          publicKey && !chainGame.players.some(p => p.user.equals(publicKey))
+            ? <JoinGame pubkey={pk} account={chainGame} onTx={() => {}}/>
+            : <EditBet  pubkey={pk} account={chainGame} onComplete={() => {}}/>
         )}
+
         {!waiting && replayDone && (
           <button
             onClick={onBack}
@@ -117,5 +119,5 @@ export default function GameScreen({
         )}
       </GambaUi.Portal>
     </>
-  );
+  )
 }

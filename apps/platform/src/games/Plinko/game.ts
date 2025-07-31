@@ -1,10 +1,7 @@
-// game.ts — optimised & correct path-recording July 2025
-
 import Matter from "matter-js";
 
 const WIDTH = 700;
 const HEIGHT = 700;
-// Halved from 100 → 50 simulations
 const SIMULATIONS = 50;
 
 export const PLINKO_RAIUS = 9;

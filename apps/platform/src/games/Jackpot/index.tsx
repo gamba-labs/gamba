@@ -39,9 +39,9 @@ const useMediaQuery = (q: string) => {
 
 export default function Jackpot() {
   // 1) Gamba + wallet
-  const { provider }           = useGambaContext()
+  const { provider }             = useGambaContext()
   const { publicKey: walletKey } = useWallet()
-  const isSmall                = useMediaQuery('(max-width: 900px)')
+  const isSmall                  = useMediaQuery('(max-width: 900px)')
 
   // 2) fetch list of matching games (no auto-poll)
   const {
@@ -54,29 +54,30 @@ export default function Jackpot() {
   const topGame = games[0] ?? null
 
   // 4) subscribe live on‐chain to that PDA
-  const liveAcct = useGame(topGame?.publicKey ?? null)
+  // useGame now returns { game, metadata? }, so grab .game
+  const liveGame = useGame(topGame?.publicKey ?? null).game
 
-  // 5) manual polling: while there’s no liveAcct or it’s already settled
+  // 5) manual polling: while there’s no liveGame or it’s already settled
   useEffect(() => { refreshGames() }, [refreshGames])
   useEffect(() => {
-    if (!liveAcct || liveAcct.state.settled) {
+    if (!liveGame || liveGame.state.settled) {
       const id = setInterval(refreshGames, 5000)
       return () => clearInterval(id)
     }
-  }, [liveAcct, refreshGames])
+  }, [liveGame, refreshGames])
 
   // 6) derive display state
-  const players             = liveAcct?.players ?? []
-  const totalPotLamports    = players.reduce((sum, p) => sum + p.wager.toNumber(), 0)
-  const waitingForPlayers   = !!liveAcct?.state.waiting
-  const settled             = !!liveAcct?.state.settled
+  const players           = liveGame?.players ?? []
+  const totalPotLamports  = players.reduce((sum, p) => sum + p.wager.toNumber(), 0)
+  const waitingForPlayers = !!liveGame?.state.waiting
+  const settled           = !!liveGame?.state.settled
 
   const youJoined = useMemo(
     () =>
       !!walletKey &&
-      !!liveAcct &&
-      liveAcct.players.some(p => p.user.equals(walletKey)),
-    [walletKey, liveAcct]
+      !!liveGame &&
+      liveGame.players.some(p => p.user.equals(walletKey)),
+    [walletKey, liveGame]
   )
 
   const myEntry       = players.find(p => walletKey && p.user.equals(walletKey))
@@ -85,6 +86,16 @@ export default function Jackpot() {
   const myChancePct   = totalPotLamports
     ? (myBetLamports / totalPotLamports) * 100
     : 0
+
+  // 7) compute timestamps for countdown bar
+  // creationTimestamp and softExpirationTimestamp are in seconds
+  const creationMs = liveGame
+    ? Number(liveGame.creationTimestamp) * 1000
+    : 0
+  const softMs = liveGame
+    ? Number(liveGame.softExpirationTimestamp) * 1000
+    : 0
+  const totalDur = Math.max(softMs - creationMs, 0)
 
   return (
     <>
@@ -102,9 +113,9 @@ export default function Jackpot() {
 
             {/* center game area */}
             <S.GameContainer>
-              {liveAcct && <Coinfalls players={players} />}
+              {liveGame && <Coinfalls players={players} />}
 
-              {isSmall && liveAcct && players.length > 0 && (
+              {isSmall && liveGame && players.length > 0 && (
                 <S.TopPlayersOverlay>
                   <TopPlayers
                     players={players}
@@ -115,14 +126,14 @@ export default function Jackpot() {
               )}
 
               <S.MainContent>
-                {!liveAcct ? (
+                {!liveGame ? (
                   <S.CenterBlock layout>
                     <Waiting loading={gamesLoading} />
                   </S.CenterBlock>
                 ) : (
                   <>
                     <S.Header>
-                      <S.Title>Game #{liveAcct.gameId.toString()}</S.Title>
+                      <S.Title>Game #{liveGame.gameId.toString()}</S.Title>
                       <S.Badge
                         status={
                           waitingForPlayers
@@ -140,16 +151,20 @@ export default function Jackpot() {
                       </S.Badge>
                     </S.Header>
 
-                    <S.CenterBlock layout>
+                    {/* countdown bar uses creation→soft span */}
+                    {totalDur > 0 && (
                       <Countdown
-                        softExpiration={Number(liveAcct.softExpirationTimestamp) * 1000}
+                        creationTimestamp={creationMs}
+                        softExpiration={softMs}
                         onComplete={() => {}}
                       />
+                    )}
 
+                    <S.CenterBlock layout>
                       {settled && (
                         <WinnerAnimation
                           players={players}
-                          winnerIndexes={liveAcct.winnerIndexes.map(Number)}
+                          winnerIndexes={liveGame.winnerIndexes.map(Number)}
                           currentUser={walletKey}
                           onClose={() => {
                             // once the animation finishes, fetch again to pick up the new game
@@ -186,24 +201,18 @@ export default function Jackpot() {
 
       {/* ───── CONTROLS ───── */}
       <GambaUi.Portal target="controls">
-        {liveAcct && topGame && waitingForPlayers && !youJoined && (
+        {liveGame && topGame && waitingForPlayers && !youJoined && (
           <JoinGame
             pubkey={topGame.publicKey}
-            account={liveAcct}
-            onTx={() => {
-              // after join, refresh list
-              refreshGames()
-            }}
+            account={liveGame}
+            onTx={() => refreshGames()}
           />
         )}
-        {liveAcct && topGame && waitingForPlayers && youJoined && (
+        {liveGame && topGame && waitingForPlayers && youJoined && (
           <EditBet
             pubkey={topGame.publicKey}
-            account={liveAcct}
-            onComplete={() => {
-              // after edit, refresh
-              refreshGames()
-            }}
+            account={liveGame}
+            onComplete={() => refreshGames()}
           />
         )}
       </GambaUi.Portal>

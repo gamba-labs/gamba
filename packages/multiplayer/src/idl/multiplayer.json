@@ -1,5 +1,5 @@
 {
-  "address": "gambaMhWCfgqqBrc1KiEB4iBJnFG1RhQu2oFX6LV5xq",
+  "address": "GambaMyTW8C1NSeFrv2c3KfmX1MSDBF6YbxDeb7dBPxM",
   "metadata": {
     "name": "multiplayer",
     "version": "0.1.0",
@@ -22,6 +22,9 @@
       "accounts": [
         {
           "name": "game_account",
+          "docs": [
+            "The on‐chain Game account, PDA = [b\"GAME\", game_seed]."
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -35,9 +38,36 @@
                 ]
               },
               {
+                "kind": "arg",
+                "path": "game_seed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadata_account",
+          "docs": [
+            "Always-present metadata PDA, PDA = [b\"METADATA\", game_account.key()]"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
                 "kind": "account",
-                "path": "gamba_state.game_id",
-                "account": "GambaState"
+                "path": "game_account"
               }
             ]
           }
@@ -50,11 +80,17 @@
         },
         {
           "name": "game_maker",
+          "docs": [
+            "creator of the game, pays rent on init"
+          ],
           "writable": true,
           "signer": true
         },
         {
           "name": "gamba_state",
+          "docs": [
+            "global config PDA"
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -118,6 +154,18 @@
         {
           "name": "hard_duration",
           "type": "i64"
+        },
+        {
+          "name": "game_seed",
+          "type": "u64"
+        },
+        {
+          "name": "min_bet",
+          "type": "u64"
+        },
+        {
+          "name": "max_bet",
+          "type": "u64"
         }
       ]
     },
@@ -136,6 +184,9 @@
       "accounts": [
         {
           "name": "game_account",
+          "docs": [
+            "The on-chain Game account, PDA = [b\"GAME\", game_seed]."
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -149,9 +200,36 @@
                 ]
               },
               {
+                "kind": "arg",
+                "path": "game_seed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadata_account",
+          "docs": [
+            "Always-present metadata PDA, PDA = [b\"METADATA\", game_account.key()]"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
                 "kind": "account",
-                "path": "gamba_state.game_id",
-                "account": "GambaState"
+                "path": "game_account"
               }
             ]
           }
@@ -164,6 +242,9 @@
         },
         {
           "name": "game_account_ta_account",
+          "docs": [
+            "escrow token account for this game"
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -252,6 +333,18 @@
         {
           "name": "hard_duration",
           "type": "i64"
+        },
+        {
+          "name": "game_seed",
+          "type": "u64"
+        },
+        {
+          "name": "min_bet",
+          "type": "u64"
+        },
+        {
+          "name": "max_bet",
+          "type": "u64"
         }
       ]
     },
@@ -271,14 +364,14 @@
         {
           "name": "payer",
           "docs": [
-            "The signer who calls this (doesn’t actually pay anything unless closing)."
+            "Tx signer (fees & optional PDA‑close refund go here)"
           ],
           "signer": true
         },
         {
           "name": "gamba_state",
           "docs": [
-            "Global configuration account (V1). Used to check `gamba_fee_address`."
+            "Global configuration – for fee vault + RNG auth"
           ],
           "pda": {
             "seeds": [
@@ -304,29 +397,54 @@
         {
           "name": "game_account",
           "docs": [
-            "Raw Game account; we will parse all fields “by hand” to avoid heap blowup."
+            "Game account (large PDA, parsed manually)"
           ],
           "writable": true
         },
         {
           "name": "game_maker",
           "docs": [
-            "This is the “game maker” address. If we close the PDA, any leftover lamports go here."
+            "Game‑maker – receives any closing lamports"
           ],
           "writable": true
         },
         {
           "name": "gamba_fee_address",
           "docs": [
-            "Protocol vault: collects “pending_gamba_fee” and any “dust” from closed accounts."
+            "Protocol fee vault"
           ],
           "writable": true
         },
         {
-          "name": "system_program",
+          "name": "metadata_account",
           "docs": [
-            "Standard System program."
+            "Metadata PDA – to be closed at settlement"
           ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "game_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
       ],
@@ -375,10 +493,44 @@
         },
         {
           "name": "game_account",
+          "docs": [
+            "Raw Game PDA (parsed by offsets)"
+          ],
           "writable": true
         },
         {
+          "name": "metadata_account",
+          "docs": [
+            "Always-present metadata PDA (to be closed on final settlement)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "game_account"
+              }
+            ]
+          }
+        },
+        {
           "name": "game_account_ta",
+          "docs": [
+            "Game escrow ATA (PDA = [game_account])"
+          ],
           "writable": true
         },
         {
@@ -386,6 +538,9 @@
         },
         {
           "name": "gamba_fee_ata",
+          "docs": [
+            "Protocol fee vault ATA for this mint"
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -476,10 +631,16 @@
         },
         {
           "name": "gamba_fee_address",
+          "docs": [
+            "Protocol fee vault (owner of `gamba_fee_ata`)"
+          ],
           "writable": true
         },
         {
           "name": "game_maker",
+          "docs": [
+            "Game‑maker (receives escrow close lamports)"
+          ],
           "writable": true
         },
         {
@@ -679,15 +840,12 @@
         {
           "name": "game_account",
           "docs": [
-            "The on‐chain Game account as raw bytes (no automatic deserialization)."
+            "Game account as raw bytes"
           ],
           "writable": true
         },
         {
           "name": "gamba_state",
-          "docs": [
-            "Global config; used for fee BPS."
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -713,7 +871,7 @@
         {
           "name": "game_account_ta",
           "docs": [
-            "Optional escrow token account PDA."
+            "Optional escrow token account (only for SPL games)"
           ],
           "writable": true,
           "optional": true,
@@ -729,13 +887,13 @@
         {
           "name": "mint",
           "docs": [
-            "The mint for this game (native SOL or SPL)."
+            "Mint used for wagers (native SOL or SPL)"
           ]
         },
         {
           "name": "player_account",
           "docs": [
-            "The player joining (payer + signer)."
+            "Player joining (payer + signer)"
           ],
           "writable": true,
           "signer": true
@@ -743,7 +901,7 @@
         {
           "name": "player_ata",
           "docs": [
-            "Optional player ATA for SPL wagers."
+            "Optional player ATA if SPL wager"
           ],
           "writable": true,
           "optional": true,
@@ -837,13 +995,13 @@
         {
           "name": "creator_address",
           "docs": [
-            "Creator/referrer address that collects a fee."
+            "Creator/referrer collecting a fee"
           ]
         },
         {
           "name": "creator_ata",
           "docs": [
-            "Creator’s ATA (we init if needed)."
+            "Creator’s ATA (created lazily)"
           ],
           "writable": true,
           "pda": {
@@ -934,6 +1092,34 @@
           }
         },
         {
+          "name": "metadata_account",
+          "docs": [
+            "Always-present metadata PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "game_account"
+              }
+            ]
+          }
+        },
+        {
           "name": "system_program",
           "docs": [
             "Programs"
@@ -961,6 +1147,15 @@
         {
           "name": "team",
           "type": "u8"
+        },
+        {
+          "name": "player_meta",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -980,29 +1175,20 @@
         {
           "name": "game_account",
           "docs": [
-            "Raw Game account; we’ll parse fields manually."
+            "Game PDA – parsed manually"
           ],
           "writable": true
         },
         {
-          "name": "mint",
-          "docs": [
-            "The mint for this game (native SOL or SPL)."
-          ]
+          "name": "mint"
         },
         {
           "name": "player_account",
-          "docs": [
-            "The player who wants to leave (payer + signer)."
-          ],
           "writable": true,
           "signer": true
         },
         {
           "name": "player_ata",
-          "docs": [
-            "Optional player ATA (only for SPL‐token games)."
-          ],
           "writable": true,
           "optional": true,
           "pda": {
@@ -1094,9 +1280,6 @@
         },
         {
           "name": "game_account_ta",
-          "docs": [
-            "Game’s ATA (only for SPL‐token games)."
-          ],
           "writable": true,
           "optional": true,
           "pda": {
@@ -1109,24 +1292,43 @@
           }
         },
         {
-          "name": "system_program",
+          "name": "metadata_account",
           "docs": [
-            "System program (for native‐SOL transfers)."
+            "Always-present metadata PDA"
           ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  77,
+                  69,
+                  84,
+                  65,
+                  68,
+                  65,
+                  84,
+                  65
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "game_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
         {
           "name": "associated_token_program",
-          "docs": [
-            "Associated‐Token program (for SPL transfers)."
-          ],
           "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         },
         {
           "name": "token_program",
-          "docs": [
-            "SPL‐Token program (for SPL transfers)."
-          ],
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
@@ -1156,7 +1358,7 @@
         {
           "name": "gamba_state",
           "docs": [
-            "Global config – only used to enforce `rng` above"
+            "Global config – only used to enforce `rng`"
           ],
           "pda": {
             "seeds": [
@@ -1182,7 +1384,7 @@
         {
           "name": "game_account",
           "docs": [
-            "Raw Game account; we parse all fields “by hand”"
+            "Raw Game account; we parse fields by hand"
           ],
           "writable": true
         }
@@ -1215,6 +1417,19 @@
         100,
         121,
         18
+      ]
+    },
+    {
+      "name": "PlayerMetadataAccount",
+      "discriminator": [
+        204,
+        224,
+        199,
+        121,
+        70,
+        159,
+        53,
+        55
       ]
     }
   ],
@@ -1466,6 +1681,13 @@
             "type": "i64"
           },
           {
+            "name": "creation_timestamp",
+            "docs": [
+              "New field: when the game was created (unix timestamp)"
+            ],
+            "type": "i64"
+          },
+          {
             "name": "state",
             "type": {
               "defined": {
@@ -1479,6 +1701,21 @@
           },
           {
             "name": "game_id",
+            "type": "u64"
+          },
+          {
+            "name": "game_seed",
+            "docs": [
+              "Seeds randomness for select_winners"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "min_bet",
+            "type": "u64"
+          },
+          {
+            "name": "max_bet",
             "type": "u64"
           },
           {
@@ -1574,6 +1811,22 @@
           {
             "name": "wager",
             "type": "u64"
+          },
+          {
+            "name": "creation_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "game_seed",
+            "type": "u64"
+          },
+          {
+            "name": "min_bet",
+            "type": "u64"
+          },
+          {
+            "name": "max_bet",
+            "type": "u64"
           }
         ]
       }
@@ -1616,6 +1869,9 @@
     },
     {
       "name": "GameState",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1633,6 +1889,9 @@
     },
     {
       "name": "GameType",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1646,7 +1905,31 @@
       }
     },
     {
+      "name": "MetadataEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "meta",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "PayoutType",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1756,7 +2039,49 @@
       }
     },
     {
+      "name": "PlayerMetadataAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "docs": [
+              "bump is injected by Anchor (no need to store it yourself)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "max_entries",
+            "docs": [
+              "static cap + capacity pointer"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "pre_alloc",
+            "type": "u16"
+          },
+          {
+            "name": "entries",
+            "docs": [
+              "dynamic, streamed just like your players Vec"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "MetadataEntry"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "WagerType",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
         "kind": "enum",
         "variants": [
@@ -1765,6 +2090,9 @@
           },
           {
             "name": "CustomWager"
+          },
+          {
+            "name": "BetRange"
           }
         ]
       }

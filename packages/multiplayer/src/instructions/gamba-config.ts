@@ -1,6 +1,6 @@
 import { AnchorProvider, web3 } from "@coral-xyz/anchor";
 import { getProgram } from "../constants.js";
-import { dumpIx } from "../utils/ix-debug.js";
+
 
 export interface GambaConfigParams {
   gambaFeeAddress : web3.PublicKey;
@@ -20,7 +20,6 @@ export const gambaConfigIx = async (
     .accounts({ authority: p.authoritySigner })
     .instruction();
 
-  dumpIx(ix, "gambaConfigIx");
   return ix;
 };
 

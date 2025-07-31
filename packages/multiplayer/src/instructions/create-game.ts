@@ -1,58 +1,52 @@
+// src/sdk/createGame.ts
+
 import {
-  AnchorProvider, BN, Program, utils as anchorUtils, web3,
+  AnchorProvider,
+  BN,
+  web3,
 } from "@coral-xyz/anchor";
 import {
-  WRAPPED_SOL_MINT, PROGRAM_ID, getProgram,
+  WRAPPED_SOL_MINT,
+  getProgram,
 } from "../constants.js";
-import { dumpIx } from "../utils/ix-debug.js";
-import type { Multiplayer } from "../types/multiplayer.js";
+import {
+  deriveGambaState,
+  deriveGamePdaFromSeed,
+  deriveMetadataPda,
+  deriveEscrowPda, 
+} from "../utils/pda.js";
 
-/* ------------------------------------------------------------ *
- * Shared params & PDA helper                                   *
- * ------------------------------------------------------------ */
+
+// Shared params & PDA helper
 export interface CreateGameParams {
-  preAllocPlayers : number;
-  maxPlayers      : number;
-  numTeams        : number;
-  winnersTarget   : number;
-  wagerType       : number;
-  payoutType      : number;
-  wager           : BN | number;
-  softDuration    : BN | number;
-  hardDuration    : BN | number;
+  preAllocPlayers: number;
+  maxPlayers:      number;
+  numTeams:        number;
+  winnersTarget:   number;
+  wagerType:       number;
+  payoutType:      number;
+  wager:           BN | number;
+  softDuration:    BN | number;
+  hardDuration:    BN | number;
+  gameSeed:        BN | number;
+  minBet:          BN | number;
+  maxBet:          BN | number;
 
-  accounts : {
-    gameMaker       : web3.PublicKey;
-    mint            : web3.PublicKey;
+  accounts: {
+    gameMaker: web3.PublicKey;
+    mint:      web3.PublicKey;
   };
 }
 
-async function deriveStateAndNextGame(
-  program: Program<Multiplayer>,
-): Promise<{ gambaState: web3.PublicKey; gamePda: web3.PublicKey }> {
-  const [gambaState] = web3.PublicKey.findProgramAddressSync(
-    [anchorUtils.bytes.utf8.encode("GAMBA_STATE")],
-    PROGRAM_ID,
-  );
-
-  const state  = await program.account.gambaState.fetch(gambaState);
-  const [gamePda] = web3.PublicKey.findProgramAddressSync(
-    [anchorUtils.bytes.utf8.encode("GAME"), state.gameId.toArrayLike(Buffer, "le", 8)],
-    PROGRAM_ID,
-  );
-
-  return { gambaState, gamePda };
-}
-
-/* ------------------------------------------------------------ *
- * create_game_native  (SOL)                                    *
- * ------------------------------------------------------------ */
+// native game WSOL address
 export const createGameNativeIx = async (
   provider: AnchorProvider,
   p: CreateGameParams,
 ) => {
-  const program        = getProgram(provider);
-  const { gambaState } = await deriveStateAndNextGame(program);
+  const program    = getProgram(provider);
+  const gambaState = await deriveGambaState();
+  const gamePda = deriveGamePdaFromSeed(p.gameSeed);
+  const metaPda   = deriveMetadataPda(gamePda);
 
   const ix = await program.methods
     .createGameNative(
@@ -65,32 +59,32 @@ export const createGameNativeIx = async (
       new BN(p.wager),
       new BN(p.softDuration),
       new BN(p.hardDuration),
+      new BN(p.gameSeed),
+      new BN(p.minBet),
+      new BN(p.maxBet),
     )
     .accounts({
-      mint            : p.accounts.mint,  // WSOL
-      gameMaker       : p.accounts.gameMaker,
+      gameAccount: gamePda,
+      metadataACcount:    metaPda,
+      mint:        p.accounts.mint,
+      gameMaker:   p.accounts.gameMaker,
       gambaState,
     } as any)
     .instruction();
 
-  dumpIx(ix, "createGameNativeIx");
   return ix;
 };
 
-/* ------------------------------------------------------------ *
- * create_game_spl  (token games)                               *
- * ------------------------------------------------------------ */
+// SPL game any other mint address
 export const createGameSplIx = async (
   provider: AnchorProvider,
   p: CreateGameParams,
 ) => {
-  const program                 = getProgram(provider);
-  const { gambaState, gamePda } = await deriveStateAndNextGame(program);
-
-  const [escrowPda] = web3.PublicKey.findProgramAddressSync(
-    [gamePda.toBuffer()],
-    PROGRAM_ID,
-  );
+  const program                = getProgram(provider);
+  const gambaState = await deriveGambaState();
+  const gamePda = deriveGamePdaFromSeed(p.gameSeed);
+  const metaPda   = deriveMetadataPda(gamePda);
+  const escrowPda = deriveEscrowPda(gamePda);
 
   const ix = await program.methods
     .createGameSpl(
@@ -103,17 +97,20 @@ export const createGameSplIx = async (
       new BN(p.wager),
       new BN(p.softDuration),
       new BN(p.hardDuration),
+      new BN(p.gameSeed),
+      new BN(p.minBet),
+      new BN(p.maxBet),
     )
     .accounts({
-      gameAccount          : gamePda,
-      mint                 : p.accounts.mint,
-      gameAccountTaAccount : escrowPda,
-      gameMaker            : p.accounts.gameMaker,
+      gameAccount:          gamePda,
+      metadataACcount:    metaPda,
+      mint:                 p.accounts.mint,
+      gameAccountTaAccount: escrowPda,
+      gameMaker:            p.accounts.gameMaker,
       gambaState,
     } as any)
     .instruction();
 
-  dumpIx(ix, "createGameSplIx");
   return ix;
 };
 

@@ -1,43 +1,39 @@
-// src/hooks/useMultiPlinko.ts
 import { useEffect, useState, useCallback } from 'react';
 import { SimulationEngine, RecordedRace }   from '../engine/SimulationEngine';
 import { PlayerInfo }                       from '../engine/types';
-import { makeRng }                          from '../engine/deterministic';
 
 /**
- * Hook to create & tear down a SimulationEngine.
- * @param rows     number of peg rows
- * @param players  PlayerInfo[] roster
- * @param gamePk   Base58 game address for deterministic RNG
+ *  Fast deterministic Plinko simulation hook
+ *  – no `rows` argument any more (rows are fixed at ROWS in PhysicsWorld)
  */
 export function useMultiPlinko(
-  rows: number,
   players: PlayerInfo[],
-  gamePk?: string
+  seed?: string,
 ) {
-  const [engine, setEngine] = useState<SimulationEngine|null>(null);
+  const [engine, setEngine] = useState<SimulationEngine | null>(null);
 
+  /* create / dispose */
   useEffect(() => {
-    // pass gamePk so SimulationEngine seeds its RNG deterministically
-    const sim = new SimulationEngine(rows, players, gamePk);
+    const sim = new SimulationEngine(players, seed);
     setEngine(sim);
     return () => sim.cleanup();
-  }, [rows, players.map(p=>p.id).join(','), gamePk]);
+  }, [players.map(p => p.id).join(','), seed]);
 
+  /* stable wrappers */
   const recordRace = useCallback(
-    (idx: number): RecordedRace => {
+    (winnerIdx: number, target?: number): RecordedRace => {
       if (!engine) throw new Error('Engine not ready');
-      return engine.recordRace(idx);
+      return engine.recordRace(winnerIdx, target);
     },
-    [engine]
+    [engine],
   );
 
   const replayRace = useCallback(
-    (rec: RecordedRace) => {
+    (rec: RecordedRace, onFrame?: (f: number) => void) => {
       if (!engine) throw new Error('Engine not ready');
-      engine.replayRace(rec);
+      engine.replayRace(rec, onFrame);
     },
-    [engine]
+    [engine],
   );
 
   return { engine, recordRace, replayRace };

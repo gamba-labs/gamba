@@ -5,7 +5,8 @@ export {
   joinGameIx,
   leaveGameIx,
   createGameIx,
-  distributeIx,
+  distributeNativeIx,
+  distributeSplIx,
   selectWinnersIx,
   gambaConfigIx,
 } from '@gamba-labs/multiplayer-sdk'

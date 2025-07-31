@@ -1,6 +1,5 @@
 import { AnchorProvider, web3 } from "@coral-xyz/anchor";
 import { getProgram } from "../constants.js";
-import { dumpIx } from "../utils/ix-debug.js";
 
 export interface SelectWinnersParams {
   accounts: {
@@ -22,6 +21,5 @@ export const selectWinnersIx = async (
     })
     .instruction();
 
-  dumpIx(ix, "selectWinnersIx");
   return ix;
 };

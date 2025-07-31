@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react'
+// src/games/Jackpot/Countdown.tsx
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 const Wrapper = styled.div`
@@ -18,9 +19,9 @@ const Time = styled.div`
 `
 
 const ProgressBar = styled.div`
-  width: 100%;          /* full width */
-  max-width: 500px;     /* cap so it doesn’t get ridiculous on ultra‑wide */
-  height: 10px;         /* a bit taller */
+  width: 100%;
+  max-width: 500px;
+  height: 10px;
   background: #2c2c54;
   border-radius: 5px;
   margin-top: 6px;
@@ -35,52 +36,62 @@ const Progress = styled.div`
 `
 
 interface CountdownProps {
+  /** ms when game was created */
+  creationTimestamp: number
+  /** ms when soft expiration occurs */
   softExpiration: number
   onComplete: () => void
 }
 
 export const Countdown: React.FC<CountdownProps> = ({
+  creationTimestamp,
   softExpiration,
   onComplete,
 }) => {
-  const initialDurationRef = useRef(softExpiration - Date.now())
-  const [timeLeft, setTimeLeft] = useState(initialDurationRef.current)
+  // total window
+  const totalWindowRef = useRef(Math.max(softExpiration - creationTimestamp, 0))
+  // time left until soft
+  const [timeLeft, setTimeLeft] = useState(Math.max(softExpiration - Date.now(), 0))
 
-  /* reset on new expiration */
+  // reset when timestamps change
   useEffect(() => {
-    initialDurationRef.current = softExpiration - Date.now()
-    setTimeLeft(initialDurationRef.current)
-  }, [softExpiration])
+    totalWindowRef.current = Math.max(softExpiration - creationTimestamp, 0)
+    setTimeLeft(Math.max(softExpiration - Date.now(), 0))
+  }, [creationTimestamp, softExpiration])
 
-  /* tick */
+  // ticking
+  const firedRef = useRef(false)
   useEffect(() => {
     if (timeLeft <= 0) {
-      onComplete()
+      if (!firedRef.current) {
+        firedRef.current = true
+        onComplete()
+      }
       return
     }
     const id = setInterval(() => {
-      setTimeLeft(Math.max(softExpiration - Date.now(), 0))
-    }, 1000)
+      const rem = Math.max(softExpiration - Date.now(), 0)
+      setTimeLeft(rem)
+    }, 500)
     return () => clearInterval(id)
   }, [softExpiration, timeLeft, onComplete])
 
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.max(Math.floor(ms / 1000), 0)
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
+  // formatting
+  const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
+  const totalSec = Math.ceil(timeLeft / 1000)
+  const m = Math.floor(totalSec / 60)
+  const s = totalSec % 60
 
-  const progress = Math.min(
-    ((initialDurationRef.current - timeLeft) / initialDurationRef.current) * 100,
-    100,
-  )
+  // progress %
+  const pct = totalWindowRef.current > 0
+    ? Math.min(100, ((totalWindowRef.current - timeLeft) / totalWindowRef.current) * 100)
+    : 0
 
   return (
     <Wrapper>
-      <Time>{formatTime(timeLeft)}</Time>
+      <Time>{`${m}:${pad(s)}`}</Time>
       <ProgressBar>
-        <Progress style={{ width: `${progress}%` }} />
+        <Progress style={{ width: `${pct}%` }} />
       </ProgressBar>
     </Wrapper>
   )

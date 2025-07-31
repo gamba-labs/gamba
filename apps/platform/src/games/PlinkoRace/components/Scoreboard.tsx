@@ -1,67 +1,72 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayerInfo }               from '../engine/types';
-
-const POINTS_PER_CROSS = 50;
+import { PlayerInfo } from '../engine/types';
 
 interface Props {
   roster      : PlayerInfo[];
   scores      : number[];
-  crossings   : number[][];
+  mults       : number[];
   targetPoints: number;
 }
 
 export default function Scoreboard({
-  roster, scores, crossings, targetPoints,
+  roster, scores, mults, targetPoints,
 }: Props) {
+  /* order by score desc for a nice dynamic leaderboard */
+  const rows = roster
+    .map((p,i)=>({ p, s:scores[i]??0, m:mults[i]??1 }))
+    .sort((a,b)=>b.s-a.s);
+
   return (
     <div style={{
-      position:'absolute', top:10, left:10, zIndex:100,
-      background:'rgba(0,0,0,.5)', padding:'8px 12px', borderRadius:8,
-      color:'#fff', fontSize:14,
+      position:'absolute', top:10, left:10, zIndex:200,
+      background:'rgba(0,0,0,0.55)', padding:'8px 12px',
+      borderRadius:8, color:'#fff', fontSize:14,
     }}>
       <AnimatePresence>
-        {roster.map((p,i)=>{
-          const score   = scores[i]    ?? 0;
-          const recent  = crossings[i] ?? [];
-          const shake   = recent.length>0 && score%POINTS_PER_CROSS===0;
-          return (
-            <motion.div
-              key={p.id}
-              layout
-              initial={{opacity:0,y:-10}}
-              animate={{opacity:1,y:0}}
-              exit   ={{opacity:0,y:10}}
-              style={{display:'flex',alignItems:'center',marginBottom:6}}
-            >
+        {rows.map(({p,s,m})=>(
+          <motion.div
+            key={p.id}
+            layout
+            initial={{opacity:0,y:-10}}
+            animate={{opacity:1,y:0}}
+            exit={{opacity:0,y:10}}
+            style={{display:'flex',alignItems:'center',marginBottom:6}}
+          >
+            <div style={{
+              width:12,height:12,
+              background:p.color,borderRadius:4,marginRight:8,
+            }}/>
+            <div style={{flex:1,whiteSpace:'nowrap',overflow:'hidden'}}>
+              {p.id.slice(0,4)}…{p.id.slice(-4)}
+            </div>
+
+            {/* score */}
+            <div style={{
+              fontFamily:'monospace',
+              width:60,textAlign:'right',
+            }}>
+              {s.toString().padStart(
+                targetPoints.toString().length,' '
+              )}
+            </div>
+
+            {/* multiplier badge (hide when ×1) */}
+            {m>1 && (
               <div style={{
-                width:12,height:12,background:p.color,borderRadius:4,
-                marginRight:8,
-              }}/>
-              <div style={{flex:1,whiteSpace:'nowrap',overflow:'hidden'}}>
-                {p.id.slice(0,4)}…{p.id.slice(-4)}
-              </div>
-              <div style={{
-                width:50,textAlign:'right',fontFamily:'monospace',
-                marginRight:8,
+                marginLeft:8,
+                padding:'2px 6px',
+                background:'#222',
+                borderRadius:4,
+                fontFamily:'monospace',
+                color:p.color,
+                fontSize:12,
               }}>
-                {score.toString().padStart(
-                  targetPoints.toString().length,' '
-                )}
+                ×{m}
               </div>
-              <motion.div
-                animate={shake ? {scale:[1,1.2,0.9,1.1,1]} : {scale:1}}
-                transition={{duration:0.5}}
-                style={{
-                  padding:'2px 6px',background:'#222',
-                  color:p.color,borderRadius:4,fontFamily:'monospace',
-                }}
-              >
-                /{targetPoints}
-              </motion.div>
-            </motion.div>
-          );
-        })}
+            )}
+          </motion.div>
+        ))}
       </AnimatePresence>
     </div>
   );

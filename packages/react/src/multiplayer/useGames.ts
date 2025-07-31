@@ -1,9 +1,8 @@
+// packages/react/src/multiplayer/useGames.ts
 import { useEffect, useState, useCallback } from 'react'
 import { useGambaContext } from '../GambaProvider'
 import { fetchGames, type GameAccountFull } from './fetch'
 import { PROGRAM_ID } from '@gamba-labs/multiplayer-sdk'
-
-const DATA_SIZE = 1864 // bytes of a Game account
 
 export function useGames() {
   const { provider } = useGambaContext()
@@ -35,7 +34,7 @@ export function useGames() {
       PROGRAM_ID,
       () => { void refresh() },
       'confirmed',
-      [{ dataSize: DATA_SIZE }],
+      // ← removed [{ dataSize: … }]
     )
     return () => {
       conn.removeProgramAccountChangeListener(subId)

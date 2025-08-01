@@ -9,21 +9,21 @@ export const BALL_RADIUS = 13;
 const GRAVITY     = 0.9;
 const RESTITUTION = 0.6;
 
-/** bucket layout used by the Board renderer & Simulation **/
+/** bucket layout shared with the Board renderer & Simulation **/
 export const BUCKET_DEFS   = [3, -10, 2, -7, 1.5, -5, 0, -5, 1.5, -7, 2, -10, 3];
 export const BUCKET_HEIGHT = 60;
 export const ROWS          = 14;               
 
 export class PhysicsWorld {
-  public engine: Matter.Engine;
-  public world : Matter.World;
+  public engine : Matter.Engine;
+  public world  : Matter.World;
   private runner: Matter.Runner;
 
   constructor() {
     /* ── engine ─────────────────────────────────────────── */
     this.engine = Matter.Engine.create({
       gravity: { y: GRAVITY },
-      timing : { timeScale: 4 },        // ← 4× faster than real‑time
+      timing : { timeScale: 4 },          // 4× faster than real‑time
     });
     this.runner = Matter.Runner.create({ isFixed: true });
     this.world  = this.engine.world;
@@ -31,7 +31,7 @@ export class PhysicsWorld {
     /* ── static geometry (pegs + barriers) ─────────────── */
     Composite.add(this.world, [
       ...this.buildPegs(),
-      ...this.buildBarriers(),          // purely for bounce – no sensors
+      ...this.buildBarriers(),            // purely for bounce – no sensors
     ]);
   }
 
@@ -51,7 +51,8 @@ export class PhysicsWorld {
 
   /* pegs laid out in an equilateral triangular grid */
   private buildPegs() {
-    const rowH = HEIGHT / (ROWS + 2);
+    const rowH  = HEIGHT / (ROWS + 2);
+    let   pegIx = 0;                                    // <── NEW
     return Array.from({ length: ROWS }).flatMap((_, r, all) => {
       const cols = r + 1;
       const rowW = (WIDTH * r) / (all.length - 1);
@@ -66,10 +67,11 @@ export class PhysicsWorld {
             isStatic    : true,
             restitution : RESTITUTION,
             label       : 'Peg',
+            plugin      : { pegIndex: pegIx++ },         // <── NEW
           },
         )
       );
-    }).slice(3);
+    }).slice(3);                                        // trim top three rows
   }
 
   /* barriers between buckets so balls bounce realistically */

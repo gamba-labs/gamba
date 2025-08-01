@@ -47,6 +47,17 @@ export class SimulationEngine {
 
   /** Brute-force at 4× speed until only `winnerIdx` reaches TARGET_POINTS first. */
   recordRace(winnerIdx: number, target = TARGET_POINTS): RecordedRace {
+     /* ── edge‑case: game settled but nobody joined ─────────── */
+    if (this.players.length === 0) {
+      console.log('[SimulationEngine] game settled with 0 players – skipping simulation');
+      return {
+        winnerIndex : -1,
+        paths       : [],
+        offsets     : [],
+        events      : [],
+        totalFrames : 0,
+      };
+    }
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       console.log(`[SimulationEngine] attempt ${attempt}/${MAX_ATTEMPTS}…`);
       const rec = this.runSingleAttempt(winnerIdx, target);

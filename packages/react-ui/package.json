@@ -7,8 +7,8 @@
   "types": "dist/index.d.ts",
   "files": ["dist/**"],
   "scripts": {
-    "dev":   "tsup src/index.ts --watch --format cjs,esm --dts --external react --external react-dom --external @solana/spl-token --external gamba-react-v2 --external gamba-core-v2",
-    "build": "tsup src/index.ts --format cjs,esm --dts --external react --external react-dom --external @solana/spl-token --external gamba-react-v2 --external gamba-core-v2",
+    "dev":   "tsup src/index.ts --watch --format cjs,esm --dts --external react --external react-dom --external @solana/spl-token --external gamba-react-v2 --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
+    "build": "tsup src/index.ts --format cjs,esm --dts --external react --external react-dom --external @solana/spl-token --external gamba-react-v2 --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
     "lint":  "tsc",
     "clean": "rm -rf .turbo node_modules dist"
   },
@@ -29,6 +29,7 @@
     "@solana/spl-token":            "^0.4.13",
     "gamba-core-v2":                "*",
     "gamba-react-v2":               "*",
+    "@gamba-labs/multiplayer-sdk":  "*",
     "styled-components":            "^6.0.8"
   },
   "peerDependenciesMeta": {
@@ -41,7 +42,8 @@
     "@types/react-dom":"^18.0.11",
     "assert":          "^2.0.0",
     "tsup":            "^8.5.0",
-    "typescript":      "^5.2.2"
+    "typescript":      "^5.2.2",
+    "@gamba-labs/multiplayer-sdk": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

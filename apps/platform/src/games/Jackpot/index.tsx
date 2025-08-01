@@ -10,8 +10,6 @@ import {
   useGame,
 } from 'gamba-react-v2'
 
-import JoinGame            from './instructions/JoinGame'
-import EditBet             from './instructions/EditBet'
 import { Countdown }       from './Countdown'
 import { Pot }             from './Pot'
 import { WinnerAnimation } from './WinnerAnimation'
@@ -24,6 +22,12 @@ import { MyStats }         from './MyStats'
 
 import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config'
 import * as S from './Jackpot.styles'
+
+// ← NEW: shared multiplayer widgets from your UI library
+import { Multiplayer }                      from 'gamba-react-ui-v2'
+import { PLATFORM_CREATOR_ADDRESS,
+         MULTIPLAYER_FEE }                 from './../../constants'
+import { BPS_PER_WHOLE }                   from 'gamba-core-v2'
 
 /** Simple media‐query hook */
 const useMediaQuery = (q: string) => {
@@ -202,16 +206,20 @@ export default function Jackpot() {
       {/* ───── CONTROLS ───── */}
       <GambaUi.Portal target="controls">
         {liveGame && topGame && waitingForPlayers && !youJoined && (
-          <JoinGame
+          <Multiplayer.JoinGame
             pubkey={topGame.publicKey}
             account={liveGame}
+            creatorAddress={PLATFORM_CREATOR_ADDRESS}
+            creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
             onTx={() => refreshGames()}
           />
         )}
         {liveGame && topGame && waitingForPlayers && youJoined && (
-          <EditBet
+          <Multiplayer.EditBet
             pubkey={topGame.publicKey}
             account={liveGame}
+            creatorAddress={PLATFORM_CREATOR_ADDRESS}
+            creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
             onComplete={() => refreshGames()}
           />
         )}

@@ -15,6 +15,8 @@ export * from './hooks'
 export * from './makeHeliusTokenFetcher'
 export * from './referral/ReferralContext'
 export * from './referral/useReferral'
+export * as Multiplayer from './multiplayer'
+
 
 export interface GameBundle<T = any> {
   id: string

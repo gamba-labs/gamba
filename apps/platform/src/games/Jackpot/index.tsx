@@ -1,10 +1,9 @@
 // src/games/Jackpot/index.tsx
 import React, { useEffect, useState, useMemo } from 'react'
 import { LAMPORTS_PER_SOL }           from '@solana/web3.js'
-import { GambaUi }                    from 'gamba-react-ui-v2'
+import { GambaUi, Multiplayer }       from 'gamba-react-ui-v2'
 import { useGambaContext }            from 'gamba-react-v2'
 import { useWallet }                  from '@solana/wallet-adapter-react'
-
 import {
   useSpecificGames,
   useGame,
@@ -22,14 +21,13 @@ import { MyStats }         from './MyStats'
 
 import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config'
 import * as S from './Jackpot.styles'
+import {
+  PLATFORM_CREATOR_ADDRESS,
+  MULTIPLAYER_FEE,
+} from './../../constants'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
-// ← NEW: shared multiplayer widgets from your UI library
-import { Multiplayer }                      from 'gamba-react-ui-v2'
-import { PLATFORM_CREATOR_ADDRESS,
-         MULTIPLAYER_FEE }                 from './../../constants'
-import { BPS_PER_WHOLE }                   from 'gamba-core-v2'
-
-/** Simple media‐query hook */
+/* ── tiny media‑query hook ───────────────────────────────────────────── */
 const useMediaQuery = (q: string) => {
   const [matches, setMatches] = useState(() => matchMedia(q).matches)
   useEffect(() => {
@@ -42,37 +40,50 @@ const useMediaQuery = (q: string) => {
 }
 
 export default function Jackpot() {
-  // 1) Gamba + wallet
+  /* 1. context & helpers ------------------------------------------------ */
   const { provider }             = useGambaContext()
   const { publicKey: walletKey } = useWallet()
   const isSmall                  = useMediaQuery('(max-width: 900px)')
 
-  // 2) fetch list of matching games (no auto-poll)
+  /* 2. fetch list of matching games (NO auto‑poll) ---------------------- */
   const {
     games,
     loading: gamesLoading,
     refresh: refreshGames,
-  } = useSpecificGames(DESIRED_CREATOR, DESIRED_MAX_PLAYERS, /* pollMs= */ 0)
+  } = useSpecificGames(DESIRED_CREATOR, DESIRED_MAX_PLAYERS, 0)
 
-  // 3) take the “top” game
-  const topGame = games[0] ?? null
+  /* 3. take the “top” game --------------------------------------------- */
+  const topGame  = games[0] ?? null
 
-  // 4) subscribe live on‐chain to that PDA
-  // useGame now returns { game, metadata? }, so grab .game
+  /* 4. live subscription ------------------------------------------------ */
   const liveGame = useGame(topGame?.publicKey ?? null).game
 
-  // 5) manual polling: while there’s no liveGame or it’s already settled
-  useEffect(() => { refreshGames() }, [refreshGames])
-  useEffect(() => {
-    if (!liveGame || liveGame.state.settled) {
-      const id = setInterval(refreshGames, 5000)
-      return () => clearInterval(id)
-    }
-  }, [liveGame, refreshGames])
+  /* 5.  poll logic with animation gate --------------------------------- */
+  const [animationDone, setAnimationDone] = useState(false)
 
-  // 6) derive display state
+  /* reset the flag whenever we switch to a NEW game id */
+  useEffect(() => {
+    setAnimationDone(false)
+  }, [liveGame?.gameId?.toString()])
+
+  /* kick‑off polling only when
+       (a) there is no game        OR
+       (b) current game is settled AND animation is finished            */
+  useEffect(() => {
+    const shouldPoll =
+      !liveGame ||
+      (liveGame.state.settled && animationDone)
+
+    if (!shouldPoll) return
+
+    refreshGames()                       // run once immediately
+    const id = setInterval(refreshGames, 5_000)
+    return () => clearInterval(id)
+  }, [liveGame, animationDone, refreshGames])
+
+  /* 6. derived UI state ------------------------------------------------- */
   const players           = liveGame?.players ?? []
-  const totalPotLamports  = players.reduce((sum, p) => sum + p.wager.toNumber(), 0)
+  const totalPotLamports  = players.reduce((s, p) => s + p.wager.toNumber(), 0)
   const waitingForPlayers = !!liveGame?.state.waiting
   const settled           = !!liveGame?.state.settled
 
@@ -81,7 +92,7 @@ export default function Jackpot() {
       !!walletKey &&
       !!liveGame &&
       liveGame.players.some(p => p.user.equals(walletKey)),
-    [walletKey, liveGame]
+    [walletKey, liveGame],
   )
 
   const myEntry       = players.find(p => walletKey && p.user.equals(walletKey))
@@ -91,15 +102,12 @@ export default function Jackpot() {
     ? (myBetLamports / totalPotLamports) * 100
     : 0
 
-  // 7) compute timestamps for countdown bar
-  // creationTimestamp and softExpirationTimestamp are in seconds
-  const creationMs = liveGame
-    ? Number(liveGame.creationTimestamp) * 1000
-    : 0
-  const softMs = liveGame
-    ? Number(liveGame.softExpirationTimestamp) * 1000
-    : 0
-  const totalDur = Math.max(softMs - creationMs, 0)
+  /* timestamps for countdown bar --------------------------------------- */
+  const creationMs = liveGame ? Number(liveGame.creationTimestamp)     * 1000 : 0
+  const softMs     = liveGame ? Number(liveGame.softExpirationTimestamp) * 1000 : 0
+  const totalDur   = Math.max(softMs - creationMs, 0)
+
+  /* ───────────────────────────────────────────────────────────────────── */
 
   return (
     <>
@@ -108,14 +116,14 @@ export default function Jackpot() {
         <S.ScreenLayout>
           <S.PageLayout>
 
-            {/* left sidebar – always visible */}
+            {/* left sidebar */}
             {!isSmall && (
               <S.TopPlayersSidebar>
                 <TopPlayers players={players} totalPot={totalPotLamports} />
               </S.TopPlayersSidebar>
             )}
 
-            {/* center game area */}
+            {/* centre game area */}
             <S.GameContainer>
               {liveGame && <Coinfalls players={players} />}
 
@@ -155,7 +163,7 @@ export default function Jackpot() {
                       </S.Badge>
                     </S.Header>
 
-                    {/* countdown bar uses creation→soft span */}
+                    {/* countdown */}
                     {totalDur > 0 && (
                       <Countdown
                         creationTimestamp={creationMs}
@@ -171,8 +179,7 @@ export default function Jackpot() {
                           winnerIndexes={liveGame.winnerIndexes.map(Number)}
                           currentUser={walletKey}
                           onClose={() => {
-                            // once the animation finishes, fetch again to pick up the new game
-                            refreshGames()
+                            setAnimationDone(true)   // ◄── gate opens here
                           }}
                         />
                       )}
@@ -188,7 +195,7 @@ export default function Jackpot() {
               </S.MainContent>
             </S.GameContainer>
 
-            {/* right sidebar – always visible */}
+            {/* right sidebar */}
             {!isSmall && (
               <S.RecentGamesSidebar>
                 <RecentGames />
@@ -196,7 +203,7 @@ export default function Jackpot() {
             )}
           </S.PageLayout>
 
-          {/* bottom strip – always visible */}
+          {/* bottom strip */}
           <S.RecentPlayersContainer>
             <RecentPlayers players={players} />
           </S.RecentPlayersContainer>

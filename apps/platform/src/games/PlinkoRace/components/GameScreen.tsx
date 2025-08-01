@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { PublicKey }                   from '@solana/web3.js';
 import { useWallet }                   from '@solana/wallet-adapter-react';
 import { useGame }                     from 'gamba-react-v2';
-import { GambaUi, Multiplayer }        from 'gamba-react-ui-v2';  // ← import namespace
+import { GambaUi, Multiplayer }        from 'gamba-react-ui-v2';
+import { PLATFORM_CREATOR_ADDRESS,
+         MULTIPLAYER_FEE }                 from '../../../constants';
+import { BPS_PER_WHOLE }                   from 'gamba-core-v2';
 
 import Board                           from './Board';
 
@@ -108,6 +111,9 @@ export default function GameScreen({
               <Multiplayer.JoinGame
                 pubkey={pk}
                 account={chainGame}
+                creatorAddress={PLATFORM_CREATOR_ADDRESS}
+                creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+                enableMetadata
                 onTx={() => {}}
               />
             )
@@ -115,6 +121,8 @@ export default function GameScreen({
               <Multiplayer.EditBet
                 pubkey={pk}
                 account={chainGame}
+                creatorAddress={PLATFORM_CREATOR_ADDRESS}
+                creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
                 onComplete={() => {}}
               />
             )

@@ -1,13 +1,11 @@
 // src/games/Jackpot/index.tsx
-import React, { useEffect, useState, useMemo } from 'react'
-import { LAMPORTS_PER_SOL }           from '@solana/web3.js'
-import { GambaUi, Multiplayer }       from 'gamba-react-ui-v2'
-import { useGambaContext }            from 'gamba-react-v2'
-import { useWallet }                  from '@solana/wallet-adapter-react'
-import {
-  useSpecificGames,
-  useGame,
-} from 'gamba-react-v2'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { LAMPORTS_PER_SOL }            from '@solana/web3.js'
+import { GambaUi, Multiplayer }        from 'gamba-react-ui-v2'
+import { useGambaContext, useGame,
+         useSpecificGames }            from 'gamba-react-v2'
+import { useWallet }                   from '@solana/wallet-adapter-react'
+import { BPS_PER_WHOLE }               from 'gamba-core-v2'
 
 import { Countdown }       from './Countdown'
 import { Pot }             from './Pot'
@@ -20,98 +18,101 @@ import { Waiting }         from './Waiting'
 import { MyStats }         from './MyStats'
 
 import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config'
+import { PLATFORM_CREATOR_ADDRESS, MULTIPLAYER_FEE } from '../../constants'
 import * as S from './Jackpot.styles'
-import {
-  PLATFORM_CREATOR_ADDRESS,
-  MULTIPLAYER_FEE,
-} from './../../constants'
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
-/* ── tiny media‑query hook ───────────────────────────────────────────── */
+/* ────────────────────────────────────────────────────────── */
+/* Responsive helper                                          */
+/* ────────────────────────────────────────────────────────── */
 const useMediaQuery = (q: string) => {
-  const [matches, setMatches] = useState(() => matchMedia(q).matches)
+  const [m, setM] = useState(matchMedia(q).matches)
   useEffect(() => {
     const mm = matchMedia(q)
-    const handler = () => setMatches(mm.matches)
-    mm.addEventListener('change', handler)
-    return () => mm.removeEventListener('change', handler)
+    const h = () => setM(mm.matches)
+    mm.addEventListener('change', h)
+    return () => mm.removeEventListener('change', h)
   }, [q])
-  return matches
+  return m
 }
 
+/* ────────────────────────────────────────────────────────── */
+/* Component                                                  */
+/* ────────────────────────────────────────────────────────── */
 export default function Jackpot() {
-  /* 1. context & helpers ------------------------------------------------ */
-  const { provider }             = useGambaContext()
-  const { publicKey: walletKey } = useWallet()
   const isSmall                  = useMediaQuery('(max-width: 900px)')
+  const { publicKey: walletKey } = useWallet()
 
-  /* 2. fetch list of matching games (NO auto‑poll) ---------------------- */
+  /* 1) game discovery (no auto polling) */
   const {
-    games,
-    loading: gamesLoading,
-    refresh: refreshGames,
+    games, loading: gamesLoading, refresh: refreshGames,
   } = useSpecificGames(DESIRED_CREATOR, DESIRED_MAX_PLAYERS, 0)
 
-  /* 3. take the “top” game --------------------------------------------- */
-  const topGame  = games[0] ?? null
+  /* 2) track the last game we **already** consumed */
+  const lastGameIdRef = useRef<number | null>(null)
 
-  /* 4. live subscription ------------------------------------------------ */
+  /* 3) pick the first *fresh* game (skip the previous winner) */
+  const freshGames = games.filter(
+    g => g.account.gameId.toNumber() !== lastGameIdRef.current,
+  )
+  const topGame = freshGames[0] ?? null
+
+  /* 4) live subscription */
   const liveGame = useGame(topGame?.publicKey ?? null).game
 
-  /* 5.  poll logic with animation gate --------------------------------- */
-  const [animationDone, setAnimationDone] = useState(false)
+  /* 5) phase handling ------------------------------------------------------ */
+  type Phase = 'playing' | 'animation' | 'waiting'
+  const   [phase, setPhase] = useState<Phase>('waiting')
 
-  /* reset the flag whenever we switch to a NEW game id */
+  /** enter “playing” once we have an active waiting/playing game */
   useEffect(() => {
-    setAnimationDone(false)
-  }, [liveGame?.gameId?.toString()])
+    if (liveGame && liveGame.state.waiting)   setPhase('playing')
+    if (liveGame && liveGame.state.playing)   setPhase('playing')
+    if (liveGame && liveGame.state.settled)   setPhase('animation')
+  }, [liveGame])
 
-  /* kick‑off polling only when
-       (a) there is no game        OR
-       (b) current game is settled AND animation is finished            */
+  /** polling while we are in "waiting" ONLY */
   useEffect(() => {
-    const shouldPoll =
-      !liveGame ||
-      (liveGame.state.settled && animationDone)
-
-    if (!shouldPoll) return
-
-    refreshGames()                       // run once immediately
-    const id = setInterval(refreshGames, 5_000)
+    if (phase !== 'waiting') return
+    refreshGames()                                    // kick off immediately
+    const id = setInterval(refreshGames, 5000)
     return () => clearInterval(id)
-  }, [liveGame, animationDone, refreshGames])
+  }, [phase, refreshGames])
 
-  /* 6. derived UI state ------------------------------------------------- */
-  const players           = liveGame?.players ?? []
-  const totalPotLamports  = players.reduce((s, p) => s + p.wager.toNumber(), 0)
-  const waitingForPlayers = !!liveGame?.state.waiting
-  const settled           = !!liveGame?.state.settled
+  /** after the animation finishes, mark that game as consumed */
+  const handleAnimationDone = () => {
+    if (liveGame) lastGameIdRef.current = liveGame.gameId.toNumber()
+    setPhase('waiting')
+  }
+
+  /* ----------------------------------------------------------------------- */
+  /* Derived helpers (unchanged apart from null‑checks)                      */
+  /* ----------------------------------------------------------------------- */
+  const players          = liveGame?.players ?? []
+  const totalPotLamports = players.reduce((s, p) => s + p.wager.toNumber(), 0)
+  const waitingForPlayers= !!liveGame?.state.waiting
+  const settled          = !!liveGame?.state.settled
 
   const youJoined = useMemo(
-    () =>
-      !!walletKey &&
-      !!liveGame &&
-      liveGame.players.some(p => p.user.equals(walletKey)),
-    [walletKey, liveGame],
+    () => !!walletKey && players.some(p => p.user.equals(walletKey)),
+    [walletKey, players],
   )
-
   const myEntry       = players.find(p => walletKey && p.user.equals(walletKey))
   const myBetLamports = myEntry?.wager.toNumber() ?? 0
-  const myBetSOL      = myBetLamports / LAMPORTS_PER_SOL
   const myChancePct   = totalPotLamports
     ? (myBetLamports / totalPotLamports) * 100
     : 0
 
-  /* timestamps for countdown bar --------------------------------------- */
-  const creationMs = liveGame ? Number(liveGame.creationTimestamp)     * 1000 : 0
-  const softMs     = liveGame ? Number(liveGame.softExpirationTimestamp) * 1000 : 0
+  /* timestamps for the progress bar */
+  const creationMs = liveGame ? Number(liveGame.creationTimestamp) * 1e3 : 0
+  const softMs     = liveGame ? Number(liveGame.softExpirationTimestamp) * 1e3 : 0
   const totalDur   = Math.max(softMs - creationMs, 0)
 
-  /* ───────────────────────────────────────────────────────────────────── */
-
+  /* ----------------------------------------------------------------------- */
+  /* Render                                                                  */
+  /* ----------------------------------------------------------------------- */
   return (
     <>
-      {/* ───── MAIN SCREEN ───── */}
+      {/* ───── SCREEN ───── */}
       <GambaUi.Portal target="screen">
         <S.ScreenLayout>
           <S.PageLayout>
@@ -123,47 +124,43 @@ export default function Jackpot() {
               </S.TopPlayersSidebar>
             )}
 
-            {/* centre game area */}
+            {/* game area */}
             <S.GameContainer>
+
               {liveGame && <Coinfalls players={players} />}
 
-              {isSmall && liveGame && players.length > 0 && (
+              {isSmall && players.length > 0 && (
                 <S.TopPlayersOverlay>
-                  <TopPlayers
-                    players={players}
-                    totalPot={totalPotLamports}
-                    $isOverlay
-                  />
+                  <TopPlayers players={players} totalPot={totalPotLamports} $isOverlay />
                 </S.TopPlayersOverlay>
               )}
 
               <S.MainContent>
-                {!liveGame ? (
+                {/* --- 1. NO GAME YET ------------------------------------------------ */}
+                {!liveGame && (
                   <S.CenterBlock layout>
-                    <Waiting loading={gamesLoading} />
+                    <Waiting />
                   </S.CenterBlock>
-                ) : (
+                )}
+
+                {/* --- 2. ACTIVE GAME ----------------------------------------------- */}
+                {liveGame && (
                   <>
                     <S.Header>
                       <S.Title>Game #{liveGame.gameId.toString()}</S.Title>
                       <S.Badge
                         status={
-                          waitingForPlayers
-                            ? 'waiting'
-                            : settled
-                              ? 'settled'
-                              : 'live'
+                          waitingForPlayers ? 'waiting'
+                          : settled         ? 'settled'
+                                            : 'live'
                         }
                       >
-                        {waitingForPlayers
-                          ? 'Waiting'
-                          : settled
-                            ? 'Settled'
-                            : 'Live'}
+                        {waitingForPlayers ? 'Waiting'
+                        : settled          ? 'Settled'
+                                           : 'Live'}
                       </S.Badge>
                     </S.Header>
 
-                    {/* countdown */}
                     {totalDur > 0 && (
                       <Countdown
                         creationTimestamp={creationMs}
@@ -173,21 +170,24 @@ export default function Jackpot() {
                     )}
 
                     <S.CenterBlock layout>
-                      {settled && (
+
+                      {/* show WINNER while phase === animation */}
+                      {phase === 'animation' && (
                         <WinnerAnimation
                           players={players}
                           winnerIndexes={liveGame.winnerIndexes.map(Number)}
                           currentUser={walletKey}
-                          onClose={() => {
-                            setAnimationDone(true)   // ◄── gate opens here
-                          }}
+                          onClose={handleAnimationDone}
                         />
                       )}
 
                       <Pot totalPot={totalPotLamports / LAMPORTS_PER_SOL} />
 
                       {myEntry && (
-                        <MyStats betSOL={myBetSOL} chancePct={myChancePct} />
+                        <MyStats
+                          betSOL={myBetLamports / LAMPORTS_PER_SOL}
+                          chancePct={myChancePct}
+                        />
                       )}
                     </S.CenterBlock>
                   </>
@@ -212,22 +212,22 @@ export default function Jackpot() {
 
       {/* ───── CONTROLS ───── */}
       <GambaUi.Portal target="controls">
-        {liveGame && topGame && waitingForPlayers && !youJoined && (
+        {phase === 'playing' && waitingForPlayers && !youJoined && topGame && (
           <Multiplayer.JoinGame
             pubkey={topGame.publicKey}
-            account={liveGame}
+            account={liveGame!}
             creatorAddress={PLATFORM_CREATOR_ADDRESS}
             creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
-            onTx={() => refreshGames()}
+            onTx={refreshGames}
           />
         )}
-        {liveGame && topGame && waitingForPlayers && youJoined && (
+        {phase === 'playing' && waitingForPlayers && youJoined && topGame && (
           <Multiplayer.EditBet
             pubkey={topGame.publicKey}
-            account={liveGame}
+            account={liveGame!}
             creatorAddress={PLATFORM_CREATOR_ADDRESS}
             creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
-            onComplete={() => refreshGames()}
+            onComplete={refreshGames}
           />
         )}
       </GambaUi.Portal>

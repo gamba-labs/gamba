@@ -1,32 +1,20 @@
 // src/engine/SimulationEngine.ts
 import Matter, { Composite, Bodies, Body } from 'matter-js';
+import { PhysicsWorld } from './PhysicsWorld';
 import {
-  PhysicsWorld,
   WIDTH,
   HEIGHT,
   BALL_RADIUS,
   BUCKET_DEFS,
   BUCKET_HEIGHT,
-} from './PhysicsWorld';
+} from './constants';
 import { makeRng }    from './deterministic';
 import { PlayerInfo } from './types';
 
-export interface RecordedRaceEvent {
-  frame : number;
-  player: number;
-  kind  : 'score' | 'mult';
-  value : number;
-}
-export interface RecordedRace {
-  winnerIndex : number;
-  paths       : Float32Array[];
-  offsets     : number[];
-  events      : RecordedRaceEvent[];
-  totalFrames : number;
-}
+import { RecordedRaceEvent, RecordedRace } from './types';
 
 const MAX_FRAMES    = 200_000;
-const MAX_ATTEMPTS  = 60;
+const MAX_ATTEMPTS  = 100;
 const TARGET_POINTS = 50;
 
 // how many sim-steps we pack into one UI frame
@@ -109,34 +97,45 @@ export class SimulationEngine {
     };
 
     let totalFrames = 0;
-    outer: for (let frame = 0; frame < MAX_FRAMES; frame++) {
-      // one 4×-sped tick
-      sim.tick();
+outer: for (let frame = 0; frame < MAX_FRAMES; frame++) {
+  // one 4×-sped tick
+  sim.tick();
 
-      for (let i = 0; i < balls.length; i++) {
-        const b = balls[i];
-        // record path
-        paths[i].push(b.position.x, b.position.y);
+  for (let i = 0; i < balls.length; i++) {
+    const b = balls[i];
+    // record path
+    paths[i].push(b.position.x, b.position.y);
 
-        // bucket region only
-        if (b.position.y >= HEIGHT - BUCKET_HEIGHT) {
-          const bw  = WIDTH / BUCKET_DEFS.length;
-          const idx = Math.max(
-            0,
-            Math.min(BUCKET_DEFS.length - 1, Math.floor(b.position.x / bw))
-          );
-          const def = BUCKET_DEFS[idx];
-          if (def > 1) {
-            mults[i] = Math.min(mults[i] * def, 64);
-            events.push({ frame, player: i, kind: 'mult', value: def });
-          } else if (def < 0) {
-            const pts = -def * mults[i];
-            scores[i] += pts;
-            events.push({ frame, player: i, kind: 'score', value: pts });
-            mults[i] = 1;
-          }
-          respawn(b, i);
-        }
+    // ──────── out-of-bounds detection ────────
+    if (
+      b.position.x < 0 ||
+      b.position.x > WIDTH ||
+      b.position.y > HEIGHT
+    ) {
+      // no score, no multiplier change—just respawn
+      respawn(b, i);
+      continue;
+    }
+
+    // ─────── bucket region only ───────
+    if (b.position.y >= HEIGHT - BUCKET_HEIGHT) {
+      const bw  = WIDTH / BUCKET_DEFS.length;
+      // now x is guaranteed in-bounds, so simple floor()
+      const idx = Math.floor(b.position.x / bw);
+      const def = BUCKET_DEFS[idx];
+
+      if (def > 1) {
+        mults[i] = Math.min(mults[i] * def, 64);
+        events.push({ frame, player: i, kind: 'mult', value: def });
+      } else if (def < 0) {
+        const pts = -def * mults[i];
+        scores[i] += pts;
+        events.push({ frame, player: i, kind: 'score', value: pts });
+        // reset multiplier after scoring
+        mults[i] = 1;
+      }
+      respawn(b, i);
+    }
 
         // reject if anybody else wins first
         if (i !== winIdx && scores[i] >= target) {

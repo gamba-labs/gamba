@@ -140,6 +140,7 @@ export default function Scoreboard({
                   exit   ={{ scale: 0.8, opacity: 0 }}
                   style={{
                     marginRight : 8,
+                    marginLeft : 10,
                     padding     : '2px 6px',
                     background  : '#222',
                     borderRadius: 4,
@@ -154,7 +155,7 @@ export default function Scoreboard({
 
               {/* score */}
               <div style={{
-                width       : 60,
+                width       : final ? 60 : 15,
                 textAlign   : 'right',
                 fontFamily  : 'monospace',
               }}>

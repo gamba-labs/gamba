@@ -1,18 +1,16 @@
 import Matter, { Composite } from 'matter-js';
-
-export const WIDTH  = 700;
-export const HEIGHT = 700;
-
-export const PEG_RADIUS  = 5;
-export const BALL_RADIUS = 13;
-
-const GRAVITY     = 0.9;
-const RESTITUTION = 0.6;
-
-/** bucket layout shared with the Board renderer & Simulation **/
-export const BUCKET_DEFS   = [3, -10, 2, -7, 1.5, -5, 0, -5, 1.5, -7, 2, -10, 3];
-export const BUCKET_HEIGHT = 60;
-export const ROWS          = 14;               
+import {
+  WIDTH,
+  HEIGHT,
+  PEG_RADIUS,
+  BALL_RADIUS,
+  GRAVITY,
+  RESTITUTION,
+  ROWS,
+  TIME_SCALE,
+  BUCKET_DEFS,
+  BUCKET_HEIGHT,
+} from './constants';          
 
 export class PhysicsWorld {
   public engine : Matter.Engine;
@@ -23,7 +21,7 @@ export class PhysicsWorld {
     /* ── engine ─────────────────────────────────────────── */
     this.engine = Matter.Engine.create({
       gravity: { y: GRAVITY },
-      timing : { timeScale: 4 },          // 4× faster than real‑time
+      timing : { timeScale: TIME_SCALE  },          // 4× faster than real‑time
     });
     this.runner = Matter.Runner.create({ isFixed: true });
     this.world  = this.engine.world;

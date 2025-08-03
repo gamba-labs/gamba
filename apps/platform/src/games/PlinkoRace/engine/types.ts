@@ -18,6 +18,6 @@ export interface RecordedRace {
   winnerIndex: number;
   paths      : Float32Array[];       // [x0,y0,x1,y1...]
   offsets    : number[];             // per‐ball spawn X
-  crossings  : number[][];           // legacy: finish‐line crossings
   events     : RecordedRaceEvent[];  // <— newly added
+  totalFrames: number;
 }

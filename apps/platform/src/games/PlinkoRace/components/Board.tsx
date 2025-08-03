@@ -4,21 +4,22 @@ import { GambaUi } from 'gamba-react-ui-v2';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
-
 import { useMultiPlinko } from '../hooks/useMultiPlinko';
 import {
-  WIDTH, HEIGHT,
-  BUCKET_DEFS, BUCKET_HEIGHT,
+  WIDTH,
+  HEIGHT,
+  BUCKET_DEFS,
+  BUCKET_HEIGHT,
   PEG_RADIUS,
-} from '../engine/PhysicsWorld';
+  BALL_RADIUS,
+} from '../engine/constants';
 import { PlayerInfo, RecordedRace } from '../engine/types';
 import Scoreboard from './Scoreboard';
 
 /* ── visuals ─────────────────────────────────────────── */
 const COLORS = ['#ff9aa2', '#ffb7b2', '#ffdac1', '#e2f0cb', '#b5ead7', '#c7ceea'];
 const SPEED_FACTOR    = 4;
-const BALL_VIS_RADIUS = 13;
-const HIT_DIST_SQ     = (BALL_VIS_RADIUS + PEG_RADIUS) ** 2;
+const HIT_DIST_SQ     = (BALL_RADIUS + PEG_RADIUS) ** 2;
 
 /* arrow size (screen pixels, before canvas scale) */
 const ARROW_W = 12;
@@ -274,7 +275,7 @@ export default function Board({
 
               if (m > 1) {
                 ctx.globalCompositeOperation = 'lighter';
-                const radius = BALL_VIS_RADIUS * 2;
+                const radius = BALL_RADIUS * 2;
                 const glow = ctx.createRadialGradient(x,y,0,x,y,radius);
                 glow.addColorStop(0, 'rgba(255,255,200,0.5)');
                 glow.addColorStop(1, 'rgba(255,255,200,0)');
@@ -284,7 +285,7 @@ export default function Board({
               }
 
               if (m >= 5) {
-                const base  = BALL_VIS_RADIUS * 1.2;
+                const base  = BALL_RADIUS * 1.2;
                 const flick = 0.8 + Math.random() * 0.4;
                 ctx.globalCompositeOperation = 'lighter';
 
@@ -316,11 +317,11 @@ export default function Board({
               }
 
               ctx.fillStyle = roster[idx].color;
-              ctx.beginPath(); ctx.arc(x,y,BALL_VIS_RADIUS,0,2*Math.PI); ctx.fill();
+              ctx.beginPath(); ctx.arc(x,y,BALL_RADIUS,0,2*Math.PI); ctx.fill();
 
               if (idx === youIndex) {
                 const screenX = offsetX + x * scale - ARROW_W / 2;
-                const screenY = offsetY + (y - BALL_VIS_RADIUS - 2) * scale - ARROW_H;
+                const screenY = offsetY + (y - BALL_RADIUS - 2) * scale - ARROW_H;
                 targetX.set(screenX);
                 targetY.set(screenY);
               }

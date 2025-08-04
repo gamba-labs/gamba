@@ -122,13 +122,14 @@ export default function Scoreboard({
 
               {/* name or truncated address */}
               <div style={{
-                marginLeft    : final ? 8 : 8,
+                marginLeft    : 8,
+                marginRight   : 8,
                 flex          : 1,
                 overflow      : 'hidden',
                 textOverflow  : 'ellipsis',
                 whiteSpace    : 'nowrap',
               }}>
-                {name || `${p.id.slice(0,4)}…${p.id.slice(-4)}`}
+                {name || `${p.id.slice(0,4)}…`}
               </div>
 
               {/* multiplier only in compact mode */}

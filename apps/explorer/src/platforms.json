@@ -210,5 +210,11 @@
     "name": "banabets",
     "url": "https://www.banabets.com/",
     "image": "/logos/banabets.png"
+  },
+  {
+    "address": "cobw9YgxENUhGCLZ3TsEpXCtyJCBKNWFV72b8K973zx",
+    "name": "bonkbet",
+    "url": "https://www.bonkbet.live",
+    "image": "/logos/bonkbet.png"
   }
 ]

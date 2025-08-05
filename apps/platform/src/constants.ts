@@ -21,7 +21,7 @@ export const PLATFORM_CREATOR_FEE = 0.01 // 1% !!max 7%!!
 export const MULTIPLAYER_FEE = 0.01 // 1% 
 
 // Jackpot fee (in %)
-export const PLATFORM_JACKPOT_FEE = 0.001 // 0.1% // not jackpot game specific, but platform wide
+export const PLATFORM_JACKPOT_FEE = 0.001 // 0.1%,  not jackpot game specific, but platform wide
 
 // Referral fee (in %)
 export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%

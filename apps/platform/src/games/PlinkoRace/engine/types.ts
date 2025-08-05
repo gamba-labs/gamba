@@ -1,23 +1,22 @@
 // src/engine/types.ts
+import { BucketType } from './constants';
 
-export interface PlayerInfo {
-  id: string;
-  color: string;
-}
+export interface PlayerInfo { id: string; color: string; }
 
-/** One discrete bucket/multiplier event in the recording */
+/** Events emitted during simulation – extend freely. */
 export interface RecordedRaceEvent {
-  frame  : number;            // which tick/frame it occurred on
-  player : number;            // which ball/player
-  kind   : 'score' | 'mult';  // bucket‐score vs multiplier
-  value  : number;            // points gained or multiplier applied
+  frame  : number;
+  player : number;              // -1 ⇒ global / no player
+  kind   : 'score' | 'mult' | 'extraBall' | 'ballKill' | 'bucketMode';
+  value? : number;              // points, multiplier, next bucketMode index…
+  bucket?: number;
 }
 
-/** Full recorded run, including every per‐frame path + bucket events */
 export interface RecordedRace {
   winnerIndex: number;
-  paths      : Float32Array[];       // [x0,y0,x1,y1...]
-  offsets    : number[];             // per‐ball spawn X
-  events     : RecordedRaceEvent[];  // <— newly added
+  paths      : Float32Array[];
+  offsets    : number[]; 
+  pathOwners : number[];
+  events     : RecordedRaceEvent[];
   totalFrames: number;
 }

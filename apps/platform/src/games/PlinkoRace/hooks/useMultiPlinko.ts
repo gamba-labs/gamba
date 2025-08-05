@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { SimulationEngine, RecordedRace }   from '../engine/SimulationEngine';
+import { SimulationEngine }   from '../engine/SimulationEngine';
+import { RecordedRace } from '../engine/types';
 import { PlayerInfo }                       from '../engine/types';
 
 /**

@@ -2,25 +2,22 @@
 import Matter, { Composite, Bodies, Body } from 'matter-js';
 import { PhysicsWorld } from './PhysicsWorld';
 import {
-  WIDTH,
-  HEIGHT,
-  BALL_RADIUS,
-  BUCKET_DEFS,
-  BUCKET_HEIGHT,
+  WIDTH, HEIGHT, BALL_RADIUS, BUCKET_HEIGHT,
+  BUCKET_DEFS, BucketType,
+  DYNAMIC_SEQUENCE, DYNAMIC_EXTRA_MULT, CENTER_BUCKET,
 } from './constants';
-import { makeRng }    from './deterministic';
-import { PlayerInfo } from './types';
-
-import { RecordedRaceEvent, RecordedRace } from './types';
+import { makeRng } from './deterministic';
+import {
+  PlayerInfo,
+  RecordedRace,
+  RecordedRaceEvent,
+} from './types';
 
 const MAX_FRAMES    = 200_000;
 const MAX_ATTEMPTS  = 100;
 const TARGET_POINTS = 50;
-
-// how many sim-steps we pack into one UI frame
-const SPEED_FACTOR = 4;
-// any upward jump larger than this is treated as a teleport (respawn)
-const TELEPORT_DY = HEIGHT * 0.5;
+const SPEED_FACTOR  = 4;              // sim‑steps per UI frame
+const TELEPORT_DY   = HEIGHT * 0.5;
 
 export class SimulationEngine {
   private players     : PlayerInfo[];
@@ -33,184 +30,282 @@ export class SimulationEngine {
     this.rng     = seed ? makeRng(seed) : Math.random;
   }
 
-  /** Brute-force at 4× speed until only `winnerIdx` reaches TARGET_POINTS first. */
-  recordRace(winnerIdx: number, target = TARGET_POINTS): RecordedRace {
-     /* ── edge‑case: game settled but nobody joined ─────────── */
+  /*─────────────────────────────────────────────*/
+  /*  RUN UNTIL winIdx is sole first to target   */
+  /*─────────────────────────────────────────────*/
+  recordRace(winnerIdx:number, target=TARGET_POINTS): RecordedRace {
     if (this.players.length === 0) {
-      console.log('[SimulationEngine] game settled with 0 players – skipping simulation');
       return {
-        winnerIndex : -1,
-        paths       : [],
-        offsets     : [],
-        events      : [],
-        totalFrames : 0,
+        winnerIndex:-1, paths:[], offsets:[], pathOwners:[],
+        events:[], totalFrames:0,
       };
     }
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-      console.log(`[SimulationEngine] attempt ${attempt}/${MAX_ATTEMPTS}…`);
+
+    for (let n=1; n<=MAX_ATTEMPTS; n++) {
       const rec = this.runSingleAttempt(winnerIdx, target);
-      if (rec) {
-        console.log(
-          `[SimulationEngine] SUCCESS after ${attempt} attempt${attempt>1?'s':''}` +
-          ` (winner=${winnerIdx}, frames=${rec.totalFrames})`
-        );
-        return rec;
-      }
-      console.log(`[SimulationEngine] …rejected`);
+      if (rec) return rec;                         // success
     }
-    throw new Error(
-      `SimulationEngine: no valid run for winner ${winnerIdx}`
-    );
+    throw new Error('No valid run found');
   }
 
-  /** One 4×-sped sim run; null if someone else hits target first. */
-  private runSingleAttempt(winIdx: number, target: number): RecordedRace | null {
-    const sim = new PhysicsWorld();
-    const ballLayer = Composite.create();
-    Composite.add(sim.world, ballLayer);
+  /*──────────────── SINGLE ATTEMPT ─────────────*/
+  private runSingleAttempt(win:number, target:number): RecordedRace|null {
+    const sim   = new PhysicsWorld();
+    const layer = Composite.create();             // balls only
+    Composite.add(sim.world, layer);
 
-    // deterministic spawn X offsets ±8px
-    const spawnXs = this.players.map(() =>
-      WIDTH/2 + (this.rng()*16 - 8)
-    );
+    const randSpawn = () => WIDTH/2 + (this.rng()*16 - 8);
 
-    // dynamic balls
-    const balls: Body[] = spawnXs.map((x,i) =>
-      Bodies.circle(x, -10, BALL_RADIUS, {
-        restitution: 0.4,
-        collisionFilter: { group: -1 },
-        label: 'Ball',
-        plugin: { playerIndex: i },
-      })
-    );
-    Composite.add(ballLayer, balls);
+    /* dynamic, because ExtraBall can push more */
+    const offsets    : number[]   = [];
+    const pathOwners : number[]   = [];
+    const paths      : number[][] = [];
+    const balls      : Body[]     = [];
 
-    // recorders
-    const paths  = this.players.map(() => [] as number[]);
     const scores = new Uint32Array(this.players.length);
-    const mults  = new Uint8Array(this.players.length).fill(1);
+    const mults  = new Uint8Array (this.players.length).fill(1);
     const events : RecordedRaceEvent[] = [];
 
-    const respawn = (b: Body, i: number) => {
-      Body.setPosition(b, { x: spawnXs[i], y: -10 });
-      Body.setVelocity(b, { x: 0, y: 0 });
+    /* initial balls */
+    this.players.forEach((_,i) => {
+      offsets   [i] = randSpawn();
+      pathOwners[i] = i;
+      paths     [i] = [];
+      const b = Bodies.circle(offsets[i], -10, BALL_RADIUS, {
+        restitution:0.4, collisionFilter:{group:-1},
+        label:'Ball', plugin:{ playerIndex:i },
+      });
+      balls[i] = b;
+      Composite.add(layer, b);
+    });
+
+    /* dynamic‑bucket cycle index */
+    let dynModeIdx = 0;
+
+    const respawn = (b:Body, idx:number) => {
+      Matter.Body.setPosition(b, {x:offsets[idx], y:-10});
+      Matter.Body.setVelocity(b, {x:0, y:0});
     };
 
     let totalFrames = 0;
-outer: for (let frame = 0; frame < MAX_FRAMES; frame++) {
-  // one 4×-sped tick
-  sim.tick();
+outer:
+    for (let frame=0; frame<MAX_FRAMES; frame++) {
+      sim.tick();
 
-  for (let i = 0; i < balls.length; i++) {
-    const b = balls[i];
-    // record path
-    paths[i].push(b.position.x, b.position.y);
+      for (let bi=0; bi<balls.length; bi++) {
+        const body   = balls[bi];
+        const player = pathOwners[bi];
 
-    // ──────── out-of-bounds detection ────────
-    if (
-      b.position.x < 0 ||
-      b.position.x > WIDTH ||
-      b.position.y > HEIGHT
-    ) {
-      // no score, no multiplier change—just respawn
-      respawn(b, i);
-      continue;
-    }
+        /* record path sample */
+        paths[bi].push(body.position.x, body.position.y);
 
-    // ─────── bucket region only ───────
-    if (b.position.y >= HEIGHT - BUCKET_HEIGHT) {
-      const bw  = WIDTH / BUCKET_DEFS.length;
-      // now x is guaranteed in-bounds, so simple floor()
-      const idx = Math.floor(b.position.x / bw);
-      const def = BUCKET_DEFS[idx];
-
-      if (def > 1) {
-        mults[i] = Math.min(mults[i] * def, 64);
-        events.push({ frame, player: i, kind: 'mult', value: def });
-      } else if (def < 0) {
-        const pts = -def * mults[i];
-        scores[i] += pts;
-        events.push({ frame, player: i, kind: 'score', value: pts });
-        // reset multiplier after scoring
-        mults[i] = 1;
-      }
-      respawn(b, i);
-    }
-
-        // reject if anybody else wins first
-        if (i !== winIdx && scores[i] >= target) {
-          sim.cleanup();
-          return null;
+        /* OOB guard */
+        if (body.position.x<0 || body.position.x>WIDTH || body.position.y>HEIGHT){
+          respawn(body, bi);
+          continue;
         }
-        // accept if our winner wins and all others below
-        if (
-          i === winIdx &&
-          scores[i] >= target &&
-          Array.from(scores).every((s,j)=> j===winIdx || s<target)
-        ) {
-          totalFrames = frame + 1;  // include this frame
+
+        /* bucket? */
+        if (body.position.y >= HEIGHT - BUCKET_HEIGHT) {
+          const bucketW = WIDTH / BUCKET_DEFS.length;
+          const idx     = Math.floor(body.position.x / bucketW);
+
+          this.handleBucketHit({
+            bucket      : BUCKET_DEFS[idx],
+            bucketIndex : idx,
+            dynModeIdx,
+            ballBody    : body,
+            ballPathIx  : bi,
+            playerIx    : player,
+            frame,
+            events, balls, paths, offsets, pathOwners, mults, scores, layer,
+          });
+
+          /* dynamic bucket cycles */
+          if (idx === CENTER_BUCKET) {
+            dynModeIdx = (dynModeIdx+1) % DYNAMIC_SEQUENCE.length;
+            events.push({
+              frame, player:-1, kind:'bucketMode', value:dynModeIdx,
+            });
+          }
+          respawn(body, bi);
+        }
+
+        /* win / reject checks */
+        if (player!==win && scores[player]>=target) {
+          sim.cleanup(); return null;             // someone else wins
+        }
+        if (player===win && scores[player]>=target &&
+            Array.from(scores).every((s,j)=> j===win || s<target)) {
+          totalFrames = frame+1;
           break outer;
         }
       }
     }
 
     sim.cleanup();
-    if (totalFrames === 0) return null;
+    if (!totalFrames) return null;
 
-    // trim paths to actual length
-    paths.forEach(a => { a.length = totalFrames * 2; });
-    // stretch out every event/frame for UI
-    events.forEach(e => e.frame *= SPEED_FACTOR);
+    /* trim & stretch */
+    paths .forEach(p => { p.length = totalFrames*2; });
+    events.forEach(e =>  e.frame *= SPEED_FACTOR);
 
     return {
-      winnerIndex: winIdx,
-      paths:       paths.map(a => new Float32Array(a)),
-      offsets:     spawnXs,
+      winnerIndex : win,
+      paths       : paths.map(p=>new Float32Array(p)),
+      offsets,
+      pathOwners,
       events,
-      totalFrames: totalFrames * SPEED_FACTOR,
+      totalFrames : totalFrames * SPEED_FACTOR,
     };
   }
 
-  /** Normal-speed replay with teleport-skip interpolation */
-  replayRace(rec: RecordedRace, onFrame?: (f:number)=>void) {
+  /*──────────────── BUCKET‑HIT HANDLER ─────────*/
+  private handleBucketHit(opts:{
+    bucket     : {type:BucketType,value?:number};
+    bucketIndex: number;
+    dynModeIdx : number;
+    ballBody   : Body;
+    ballPathIx : number;
+    playerIx   : number;
+    frame      : number;
+
+    events     : RecordedRaceEvent[];
+    balls      : Body[];
+    paths      : number[][];
+    offsets    : number[];
+    pathOwners : number[];
+    mults      : Uint8Array;
+    scores     : Uint32Array;
+    layer      : Composite;
+  }) {
+    const {
+      bucket, bucketIndex, dynModeIdx,
+      ballBody, ballPathIx, playerIx, frame,
+      events, balls, paths, offsets, pathOwners, mults, scores, layer,
+    } = opts;
+
+    /* resolve dynamic placeholder */
+    const def = bucket.type === BucketType.Dynamic
+      ? {
+          type : DYNAMIC_SEQUENCE[dynModeIdx],
+          value: DYNAMIC_SEQUENCE[dynModeIdx]===BucketType.Multiplier
+                   ? DYNAMIC_EXTRA_MULT : bucket.value,
+        }
+      : bucket;
+
+    switch (def.type) {
+
+      /* ─── no‑op ───────────────────────────── */
+      case BucketType.Blank:
+        break;
+
+      /* ─── score bucket ────────────────────── */
+      case BucketType.Score: {
+        const pts = (def.value ?? 0) * mults[playerIx];
+        scores[playerIx] += pts;
+        events.push({
+          frame, player:playerIx, kind:'score',
+          value:pts, bucket:bucketIndex,
+        });
+        mults[playerIx] = 1;
+      } break;
+
+      /* ─── multiplier bucket ───────────────── */
+      case BucketType.Multiplier: {
+        const m = def.value ?? 1;
+        mults[playerIx] = Math.min(mults[playerIx]*m, 64);
+        events.push({
+          frame, player:playerIx, kind:'mult',
+          value:m, bucket:bucketIndex,
+        });
+      } break;
+
+      /* ─── extra‑ball bucket ───────────────── */
+      case BucketType.ExtraBall: {
+        events.push({
+          frame, player:playerIx, kind:'extraBall',
+          bucket:bucketIndex,
+        });
+
+        /* spawn extra ball immediately */
+        const spawnX = Math.min(Math.max(
+          offsets[ballPathIx] + (this.rng()*30 - 15),
+          BALL_RADIUS), WIDTH - BALL_RADIUS);
+
+        const extra = Bodies.circle(spawnX, -10, BALL_RADIUS, {
+          restitution:0.4, collisionFilter:{group:-1},
+          label:'Ball', plugin:{ playerIndex:playerIx },
+        });
+        balls.push(extra);
+        Composite.add(layer, extra);
+
+        offsets   .push(spawnX);
+        pathOwners.push(playerIx);
+
+        /* pre‑fill its path up to current frame */
+        const samples = frame + 1;
+        const p: number[] = [];
+        for (let f=0; f<samples; f++) p.push(spawnX, -10);
+        paths.push(p);
+      } break;
+
+      /* ─── kill bucket ─────────────────────── */
+      case BucketType.Kill: {
+        events.push({
+          frame, player:playerIx, kind:'ballKill',
+          bucket:bucketIndex,
+        });
+        Composite.remove(layer, ballBody);
+        balls[ballPathIx] = Bodies.circle(-999,-999,1,{isStatic:true});
+      } break;
+    }
+  }
+
+  /*──────────────── REPLAY (unchanged) ─────────*/
+  replayRace(rec:RecordedRace,onFrame?:(f:number)=>void) {
     this.replayWorld?.cleanup();
     const world = new PhysicsWorld();
     this.replayWorld = world;
 
-    const balls = rec.paths.map((_,i) =>
-      Bodies.circle(rec.offsets[i], -10, BALL_RADIUS, {
-        isStatic:true,
-        label:'Ball',
-        plugin:{ playerIndex:i },
-      })
-    );
-    Composite.add(world.world, balls);
+    const bodies: Body[] = [];
+    const spawnBody = (pathIdx:number) => {
+      const owner = rec.pathOwners[pathIdx];
+      const body  = Bodies.circle(rec.offsets[pathIdx], -10, BALL_RADIUS,{
+        isStatic:true, label:'Ball', plugin:{ playerIndex:owner },
+      });
+      bodies[pathIdx] = body;
+      Composite.add(world.world, body);
+    };
 
-    let f = 0;
-    const N = rec.totalFrames;
+    /* initial bodies = one per player */
+    this.players.forEach((_,i)=> spawnBody(i));
+
+    let f = 0, N = rec.totalFrames;
     const step = () => {
+      /* spawn extra balls at their UI frame */
+      rec.events.forEach(e => {
+        if (e.kind==='extraBall' && e.frame===f)
+          spawnBody(bodies.length);
+      });
+
       const coarse = Math.floor(f / SPEED_FACTOR);
       const alpha  = (f % SPEED_FACTOR) / SPEED_FACTOR;
 
-      balls.forEach((b,i) => {
+      bodies.forEach((b,i) => {
         const arr = rec.paths[i];
+        if (arr.length < 2) return;
         const len = arr.length/2 - 1;
         const i0  = Math.min(coarse, len);
         const i1  = Math.min(i0+1, len);
-        const x0 = arr[i0*2],   y0 = arr[i0*2+1];
-        const x1 = arr[i1*2],   y1 = arr[i1*2+1];
+        const x0 = arr[i0*2], y0 = arr[i0*2+1];
+        const x1 = arr[i1*2], y1 = arr[i1*2+1];
 
-        let x,y;
-        if (y0 - y1 > TELEPORT_DY) {
-          // teleport—no tween
-          if (alpha === 0) { x = x0; y = y0; }
-          else             { x = x1; y = y1; }
-        } else {
-          // smooth tween
-          x = x0*(1-alpha) + x1*alpha;
-          y = y0*(1-alpha) + y1*alpha;
-        }
-        Body.setPosition(b, { x, y });
+        const [x,y] = (y0 - y1 > TELEPORT_DY)
+          ? (alpha===0 ? [x0,y0] : [x1,y1])
+          : [x0*(1-alpha)+x1*alpha, y0*(1-alpha)+y1*alpha];
+
+        Matter.Body.setPosition(b, {x,y});
       });
 
       onFrame?.(f);
@@ -219,13 +314,13 @@ outer: for (let frame = 0; frame < MAX_FRAMES; frame++) {
     requestAnimationFrame(step);
   }
 
+  /* utils */
   getBodies() {
     return [
       ...this.staticWorld.getBodies(),
       ...(this.replayWorld ? this.replayWorld.getBodies() : []),
     ];
   }
-
   cleanup() {
     this.staticWorld.cleanup();
     this.replayWorld?.cleanup();

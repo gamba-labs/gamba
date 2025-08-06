@@ -1,3 +1,8 @@
 {
-  "nodeVersion": "22.x"
+  "nodeVersion": "22.x",
+  "functions": {
+    "**/*": {
+      "runtime": "nodejs22.x"
+    }
+  }
 }

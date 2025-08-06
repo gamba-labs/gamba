@@ -57,6 +57,7 @@ export function App() {
   const { data: status = {syncing: false} } = useApi<StatusResponse>("/status")
   const [sidebar, setSidebar] = React.useState(false)
   const md = useMediaQuery("md")
+  const rpcEndpoint = import.meta.env.VITE_RPC_ENDPOINT
 
   useTransactionError(err => {
     toast({
@@ -106,6 +107,14 @@ export function App() {
                         <ExitIcon />
                       </Button>
                     )}
+                    +                    {/* 🎯 New button to log your VITE RPC endpoint */}
+                    <Button
+                      size="3"
+                     variant="soft"
+                      onClick={() => console.log("Using RPC endpoint:", rpcEndpoint)}
+                   >
+                     Log RPC Endpoint
+                   </Button>
                   </Flex>
                 </>
               )}

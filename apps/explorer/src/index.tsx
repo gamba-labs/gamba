@@ -24,7 +24,7 @@ function Root() {
     [],
   )
   
-  console.log("Using RPC endpoint:", import.meta.env.VITE_RPC_ENDPOINT)
+  
   return (
     <Theme accentColor="iris" radius="large" panelBackground="translucent">
       <BrowserRouter>

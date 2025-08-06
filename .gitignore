@@ -5,5 +5,5 @@ dev-dist/
 .vscode
 trash.*
 .turbo
-.env
+# .env
 .next/

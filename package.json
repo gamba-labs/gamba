@@ -1,5 +1,8 @@
 {
   "private": true,
+   "engines": {
+   "node": ">=22 <23"
+ },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --filter=!gamba-api --no-cache --continue",

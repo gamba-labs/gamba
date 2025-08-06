@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { GambaUi }            from 'gamba-react-ui-v2';
-import Board                  from './Board';
+import Board                  from '../board/Board';
 
 // purely local – never used on-chain
 function randomPk(): PublicKey {

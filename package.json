@@ -14,5 +14,10 @@
     "turbo": "^1.13.3",
     "typescript": "^5.2.2"
   },
-  "packageManager": "pnpm@8.6.10"
+  "packageManager": "pnpm@10.12.4",
+  "pnpm": {
+    "overrides": {
+      "@solana/wallet-adapter-react": "^0.15.39"
+    }
+  }
 }

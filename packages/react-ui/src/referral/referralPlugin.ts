@@ -1,39 +1,31 @@
-// src/referral/referralPlugin.ts
-
 import * as anchor from '@coral-xyz/anchor'
-import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
+import { PublicKey, SystemProgram, TransactionInstruction, Commitment } from '@solana/web3.js'
 import * as SplToken from '@solana/spl-token'
 import { GambaPlugin } from 'gamba-react-v2'
 import { REFERRAL_IDL, ReferralIdl } from './idl'
 
-// —————————————————————————
-// 1) Pull your on-chain program ID from the IDL metadata (for PDAs only)
-// —————————————————————————
+// Only needed for PDA derivation
 const PROGRAM_ID = new PublicKey(REFERRAL_IDL.address)
 
-/** Derive the referAccount PDA from [creator, authority] */
-function getReferrerPda(
-  creator: PublicKey,
-  authority: PublicKey,
-): PublicKey {
+// Anchor 0.31 constructor: Program(idl, provider)
+function programFor(provider: anchor.AnchorProvider) {
+  return new anchor.Program<ReferralIdl>(REFERRAL_IDL as any, provider)
+}
+
+function getReferrerPda(creator: PublicKey, authority: PublicKey): PublicKey {
   return PublicKey.findProgramAddressSync(
     [creator.toBytes(), authority.toBytes()],
     PROGRAM_ID,
   )[0]
 }
 
-/** Build the `configReferAccount` instruction via the Anchor builder */
-function buildConfigReferIx(
+async function buildConfigReferIx(
   provider: anchor.AnchorProvider,
   creator: PublicKey,
   referrer: PublicKey,
-): TransactionInstruction {
-  const program = new anchor.Program<ReferralIdl>(
-    REFERRAL_IDL,
-    provider, // ← only provider, no PROGRAM_ID here
-  )
+): Promise<TransactionInstruction> {
+  const program = programFor(provider)
   const pda = getReferrerPda(creator, provider.wallet.publicKey!)
-
   return program.methods
     .configReferAccount(referrer)
     .accountsPartial({
@@ -45,17 +37,12 @@ function buildConfigReferIx(
     .instruction()
 }
 
-/** Build the `closeReferAccount` instruction via the Anchor builder */
-function buildCloseReferIx(
+async function buildCloseReferIx(
   provider: anchor.AnchorProvider,
   creator: PublicKey,
-): TransactionInstruction {
-  const program = new anchor.Program<ReferralIdl>(
-    REFERRAL_IDL,
-    provider,
-  )
+): Promise<TransactionInstruction> {
+  const program = programFor(provider)
   const pda = getReferrerPda(creator, provider.wallet.publicKey!)
-
   return program.methods
     .closeReferAccount()
     .accountsPartial({
@@ -67,42 +54,53 @@ function buildCloseReferIx(
     .instruction()
 }
 
-/**
- * 5) GambaPlugin factory: runs on each play
- */
 export function makeReferralPlugin(
   recipient: PublicKey,
   upsert: boolean,
-  referralFee = 0.01,
+  referralFee = 0.0025, // 0.25%
   creatorFeeDeduction = 1,
 ): GambaPlugin {
-  return async (input, context) => {
-    const provider = context.provider.anchorProvider!
+  return async (input, ctx) => {
+    // Accept both shapes
+    const anchorProvider: anchor.AnchorProvider =
+      (ctx as any).provider?.anchorProvider ?? (ctx as any).provider
+    if (!anchorProvider) throw new Error('AnchorProvider missing in referral plugin context')
+
+    const connection = anchorProvider.connection
     const ixs: TransactionInstruction[] = []
 
-    // a) optionally upsert the referAccount on-chain
+    // a) Upsert referAccount if requested
     if (upsert) {
-      ixs.push(buildConfigReferIx(provider, input.creator, recipient))
+      ixs.push(await buildConfigReferIx(anchorProvider, input.creator, recipient))
     }
 
-    // b) send the referral fee (SOL or SPL)
-    const amount = BigInt(Math.floor(input.wager * referralFee))
+    // b) Pay referral
+    const wagerLamports =
+      typeof (input as any).wager === 'bigint'
+        ? Number((input as any).wager)
+        : (input as any).wager as number
+
+    const amountLamports = Math.floor(wagerLamports * referralFee)
+    const amountBigint   = BigInt(amountLamports)
+
     if (input.token.equals(SplToken.NATIVE_MINT)) {
-      ixs.push(
-        SystemProgram.transfer({
-          fromPubkey: input.wallet,
-          toPubkey: recipient,
-          lamports: amount,
-        }),
-      )
+      if (amountLamports > 0) {
+        ixs.push(
+          SystemProgram.transfer({
+            fromPubkey: input.wallet,
+            toPubkey: recipient,
+            lamports: amountLamports, // number
+          }),
+        )
+      }
     } else {
       const fromAta = SplToken.getAssociatedTokenAddressSync(input.token, input.wallet)
       const toAta   = SplToken.getAssociatedTokenAddressSync(input.token, recipient)
 
-      // ensure the recipient ATA exists
+      // Ensure recipient ATA exists
       let exists = true
       try {
-        await SplToken.getAccount(context.connection, toAta, 'confirmed')
+        await SplToken.getAccount(connection, toAta, 'confirmed' as Commitment)
       } catch (err: any) {
         if (
           err instanceof SplToken.TokenAccountNotFoundError ||
@@ -124,48 +122,47 @@ export function makeReferralPlugin(
         )
       }
 
-      ixs.push(
-        SplToken.createTransferInstruction(
-          fromAta,
-          toAta,
-          input.wallet,
-          amount,
-        ),
-      )
+      if (amountBigint > 0n) {
+        ixs.push(
+          SplToken.createTransferInstruction(
+            fromAta,
+            toAta,
+            input.wallet,
+            amountBigint, // bigint
+          ),
+        )
+      }
     }
 
-    // c) adjust the creator fee so the user isn’t over-charged
-    context.creatorFee = Math.max(
-      0,
-      context.creatorFee - referralFee * creatorFeeDeduction,
-    )
+    // c) Adjust creator fee (single-player path uses this)
+    if (typeof (ctx as any).creatorFee === 'number') {
+      ;(ctx as any).creatorFee = Math.max(
+        0,
+        (ctx as any).creatorFee - referralFee * creatorFeeDeduction,
+      )
+    }
 
     return ixs
   }
 }
 
-/** Helper for “Remove invite” in your UI */
-export function buildRemoveReferralIx(
+export async function buildRemoveReferralIx(
   provider: anchor.AnchorProvider,
   creator: PublicKey,
-): TransactionInstruction {
+): Promise<TransactionInstruction> {
   return buildCloseReferIx(provider, creator)
 }
 
-/** Fetch the on-chain referAccount state (returns the referrer or null) */
 export async function fetchReferral(
   provider: anchor.AnchorProvider,
   referAccountPda: PublicKey,
 ): Promise<PublicKey | null> {
-  const program = new anchor.Program<ReferralIdl>(
-    REFERRAL_IDL,
-    provider,
-  )
+  const program = programFor(provider)
   try {
     const acct = await program.account.referAccount.fetch(referAccountPda)
-    return acct.referrer
+    return (acct as any).referrer as PublicKey
   } catch (err: any) {
-    if (err.toString().includes('AccountNotFound')) return null
+    if (String(err).includes('AccountNotFound')) return null
     throw err
   }
 }

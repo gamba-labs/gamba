@@ -2,8 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { LAMPORTS_PER_SOL }            from '@solana/web3.js'
 import { GambaUi, Multiplayer }        from 'gamba-react-ui-v2'
-import { useGambaContext, useGame,
-         useSpecificGames }            from 'gamba-react-v2'
+import { useGame, useSpecificGames }   from 'gamba-react-v2'
 import { useWallet }                   from '@solana/wallet-adapter-react'
 import { BPS_PER_WHOLE }               from 'gamba-core-v2'
 
@@ -18,7 +17,11 @@ import { Waiting }         from './Waiting'
 import { MyStats }         from './MyStats'
 
 import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config'
-import { PLATFORM_CREATOR_ADDRESS, MULTIPLAYER_FEE } from '../../constants'
+import {
+  PLATFORM_CREATOR_ADDRESS,
+  MULTIPLAYER_FEE,
+  PLATFORM_REFERRAL_FEE,            // ← import referral %
+} from '../../constants'
 import * as S from './Jackpot.styles'
 
 /* ────────────────────────────────────────────────────────── */
@@ -85,7 +88,7 @@ export default function Jackpot() {
   }
 
   /* ----------------------------------------------------------------------- */
-  /* Derived helpers (unchanged apart from null‑checks)                      */
+  /* Derived helpers (unchanged apart from null-checks)                      */
   /* ----------------------------------------------------------------------- */
   const players          = liveGame?.players ?? []
   const totalPotLamports = players.reduce((s, p) => s + p.wager.toNumber(), 0)
@@ -218,6 +221,7 @@ export default function Jackpot() {
             account={liveGame!}
             creatorAddress={PLATFORM_CREATOR_ADDRESS}
             creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+            referralFee={PLATFORM_REFERRAL_FEE}         
             onTx={refreshGames}
           />
         )}

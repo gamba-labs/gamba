@@ -73,6 +73,7 @@ export default function LobbyBackground() {
         inset: 0,
         zIndex: 0,
         pointerEvents: 'none',
+        background: 'transparent',   // ensure the canvas itself is transparent
       }}
       render={({ ctx, size }) => {
         const w = worldRef.current
@@ -88,9 +89,7 @@ export default function LobbyBackground() {
         )
         ctx.scale(scale, scale)
 
-        // background
-        ctx.fillStyle = '#0b0b13'
-        ctx.fillRect(0, 0, WIDTH, HEIGHT)
+        // **transparent background**: no fillRect here
 
         // draw pegs
         const bodies = w.getBodies()

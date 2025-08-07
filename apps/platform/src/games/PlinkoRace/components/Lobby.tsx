@@ -7,6 +7,11 @@ import { useSound } from 'gamba-react-ui-v2'
 import CreateGameModal from './CreateGameModal'
 import lobbymusicSnd from '../sounds/lobby.mp3'
 import LobbyBackground from './LobbyBackground'
+import {
+  musicManager,
+  attachMusic,
+  stopAndDispose,
+} from '../musicManager'  // ← updated imports
 
 /* ──────────────────── helpers ──────────────────── */
 const sol = (lamports: number) => lamports / LAMPORTS_PER_SOL
@@ -69,39 +74,47 @@ export default function Lobby({
 }) {
   const { games, loading, refresh } = useGames()
 
-  // play & retain lobby music
+  // play & retain lobby music without auto-dispose
   const { play, sounds } = useSound(
     { lobby: lobbymusicSnd },
     { disposeOnUnmount: false }
   )
 
+  // claim/release the musicManager on mount/unmount
   useEffect(() => {
-    const sound = sounds.lobby
-    sound.player.loop = true
+    const snd = sounds.lobby
 
-    // start when loaded
-    const tryPlay = () => {
-      if (sound.ready) {
-        play('lobby')
-        // increment mount count
-        ;(window as any).__musicRefCount = ((window as any).__musicRefCount || 0) + 1
-      } else {
-        setTimeout(tryPlay, 100)
+    // cancel any pending stop
+    clearTimeout(musicManager.timer)
+
+    // bump claim count
+    musicManager.count += 1
+
+    // if first claimant, start loop and attach to mute store
+    if (!musicManager.sound) {
+      snd.player.loop = true
+      const startWhenReady = () => {
+        if (snd.ready) {
+          play('lobby')
+          attachMusic(snd)
+        } else {
+          setTimeout(startWhenReady, 100)
+        }
       }
+      startWhenReady()
     }
-    tryPlay()
 
     return () => {
-      // decrement and stop if none left
-      const cnt = ((window as any).__musicRefCount || 0) - 1
-      window.__musicRefCount = cnt
-      if (cnt <= 0) {
-        try { sound.player.stop() } catch {}
-        window.__musicRefCount = 0
+      // release claim
+      musicManager.count -= 1
+      if (musicManager.count === 0) {
+        // after a brief grace window, stop & dispose
+        musicManager.timer = setTimeout(stopAndDispose, 200)
       }
     }
   }, [play, sounds])
 
+  // local UI state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
@@ -112,60 +125,98 @@ export default function Lobby({
   return (
     <div style={{ position:'relative', width:'100%', height:'100%' }}>
       <LobbyBackground />
+
       <Wrapper style={{ position:'relative', zIndex:1 }}>
         <Header>
-          <Button onClick={() => setIsModalOpen(true)}>＋ Create Game</Button>
-          <Button onClick={refresh}>{loading ? 'Loading…' : 'Refresh'}</Button>
+          <Button onClick={() => setIsModalOpen(true)}>
+            ＋ Create Game
+          </Button>
+          <Button onClick={refresh}>
+            {loading ? 'Loading…' : 'Refresh'}
+          </Button>
         </Header>
+
         <Table>
           <thead>
             <tr>
-              <TH>ID</TH><TH>Maker</TH><TH>Players</TH><TH>Bet</TH><TH>Starts In</TH>
+              <TH>ID</TH>
+              <TH>Maker</TH>
+              <TH>Players</TH>
+              <TH>Bet</TH>
+              <TH>Starts In</TH>
             </tr>
           </thead>
           <tbody>
             {games.map(g => {
               const {
-                gameId, gameMaker, players, maxPlayers,
-                wagerType, wager, minBet, maxBet,
-                softExpirationTimestamp, state,
+                gameId,
+                gameMaker,
+                players,
+                maxPlayers,
+                wagerType,
+                wager,
+                minBet,
+                maxBet,
+                softExpirationTimestamp,
+                state,
               } = g.account as any
+
               let betLabel: string
               if ('sameWager' in wagerType) {
                 betLabel = `${sol(wager.toNumber()).toFixed(2)} SOL`
               } else if ('customWager' in wagerType) {
                 betLabel = 'Unlimited'
               } else {
-                betLabel = `${sol(minBet.toNumber()).toFixed(2)} – ${sol(maxBet.toNumber()).toFixed(2)} SOL`
+                betLabel = `${sol(minBet.toNumber()).toFixed(2)} – ${sol(
+                  maxBet.toNumber()
+                ).toFixed(2)} SOL`
               }
-              const startMs = Number(softExpirationTimestamp)*1000
-              const msLeft  = startMs - now
+
+              const startMs = Number(softExpirationTimestamp) * 1000
+              const msLeft = startMs - now
               const startsIn = state.waiting
-                ? (msLeft>0?formatDuration(msLeft):'Ready to start')
+                ? msLeft > 0
+                  ? formatDuration(msLeft)
+                  : 'Ready to start'
                 : 'Started'
+
               return (
-                <TR key={g.publicKey.toBase58()} $clickable onClick={() => onSelect(g.publicKey)}>
+                <TR
+                  key={g.publicKey.toBase58()}
+                  $clickable
+                  onClick={() => onSelect(g.publicKey)}
+                >
                   <TD>#{gameId.toString()}</TD>
                   <TD>{shorten(gameMaker)}</TD>
-                  <TD>{players.length} / {maxPlayers}</TD>
+                  <TD>
+                    {players.length} / {maxPlayers}
+                  </TD>
                   <TD>{betLabel}</TD>
                   <TD>{startsIn}</TD>
                 </TR>
               )
             })}
+
             <TR $clickable onClick={onDebug}>
               <TD colSpan={5} style={{ textAlign:'center', fontStyle:'italic' }}>
                 🐞 Debug Simulator
               </TD>
             </TR>
-            {!loading && games.length===0 && (
-              <TR><TD colSpan={5} style={{ textAlign:'center', opacity:0.8 }}>
-                No live games – create one!
-              </TD></TR>
+
+            {!loading && games.length === 0 && (
+              <TR>
+                <TD colSpan={5} style={{ textAlign:'center', opacity:0.8 }}>
+                  No live games – create one!
+                </TD>
+              </TR>
             )}
           </tbody>
         </Table>
-        <CreateGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}/>
+
+        <CreateGameModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       </Wrapper>
     </div>
   )

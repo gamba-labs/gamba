@@ -1,61 +1,110 @@
-// packages/react/src/multiplayer/JoinGame.tsx
+// packages/react-ui/src/multiplayer/JoinGame.tsx
 import React, { useState, useCallback } from "react";
-import { PublicKey, LAMPORTS_PER_SOL }  from "@solana/web3.js";
-import { IdlAccounts }                  from "@coral-xyz/anchor";
-import { useMultiplayer }               from "gamba-react-v2";
-import type { Multiplayer }             from "@gamba-labs/multiplayer-sdk";
+import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { IdlAccounts } from "@coral-xyz/anchor";
+import { useMultiplayer, useGambaProvider } from "gamba-react-v2";
+import { useConnection } from "@solana/wallet-adapter-react";
+import type { Multiplayer } from "@gamba-labs/multiplayer-sdk";
 
-import { Button }     from "../components/Button";
+import { Button } from "../components/Button";
 import { WagerInput } from "../components/WagerInput";
-import { TextInput }  from "../components/TextInput";
+import { TextInput } from "../components/TextInput";
+
+import { useReferral } from "../referral/useReferral";
+import { makeReferralPlugin } from "../referral/referralPlugin";
+import { useGambaPlatformContext } from "../hooks";
 
 export interface JoinGameProps {
   /** the on‐chain game account PDA */
-  pubkey          : PublicKey;
+  pubkey: PublicKey;
   /** decoded Anchor account for that PDA */
-  account         : IdlAccounts<Multiplayer>["game"];
+  account: IdlAccounts<Multiplayer>["game"];
   /** optional referrer address */
-  creatorAddress? : PublicKey;
+  creatorAddress?: PublicKey;
   /** override the fee in basis points (defaults to 0 ⇒ no fee) */
-  creatorFeeBps?  : number;
+  creatorFeeBps?: number;
+  /** referral cut in % (e.g. 0.0025 = 0.25%). If omitted, plugin default is used */
+  referralFee?: number;
   /** show the “Name (opt.)” field */
-  enableMetadata? : boolean;
+  enableMetadata?: boolean;
   /** callback after a successful TX */
-  onTx?           : () => void;
+  onTx?: () => void;
 }
 
 export default function JoinGame({
   pubkey,
   account,
   creatorAddress,
-  creatorFeeBps  = 0,
+  creatorFeeBps = 0,
+  referralFee,                  // ← NEW
   enableMetadata = false,
   onTx,
 }: JoinGameProps) {
   const { join } = useMultiplayer();
+  const platform = useGambaPlatformContext();
+  const { referrerAddress, isOnChain } = useReferral(); // ← no referralPct here
+  const { anchorProvider } = useGambaProvider();
+  const { connection } = useConnection();
 
-  // 👇 store lamports directly
-  const [lamports,   setLamports]   = useState<number>(account.wager.toNumber());
-  const [metadata,   setMetadata]   = useState<string>("");
-  const [busy,       setBusy]       = useState<boolean>(false);
+  const [lamports, setLamports] = useState(account.wager.toNumber());
+  const [metadata, setMetadata] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  // base platform rake (bps)
+  const baseCreatorFeeBps =
+    creatorFeeBps > 0
+      ? creatorFeeBps
+      : Math.round(platform.defaultCreatorFee * 10_000);
+
+  // subtract referral cut only if provided; otherwise no deduction
+  const refPct = referralFee ?? 0;
+  const effectiveCreatorFeeBps = Math.max(
+    0,
+    baseCreatorFeeBps - Math.round(refPct * 10_000),
+  );
 
   const handle = useCallback(async () => {
     setBusy(true);
     try {
-      if (lamports <= 0) {
-        throw new Error("Please enter a wager above 0");
+      if (lamports <= 0) throw new Error("Please enter a wager above 0");
+
+      // Build referral Ixs ONLY for the first join
+      let extraIxs: TransactionInstruction[] = [];
+      if (referrerAddress) {
+        const plugin =
+          referralFee == null
+            ? makeReferralPlugin(referrerAddress, !isOnChain)
+            : makeReferralPlugin(referrerAddress, !isOnChain, referralFee);
+
+        // minimal plugin args; we cast to keep TS chill
+        extraIxs = await plugin(
+          {
+            creator: creatorAddress ?? platform.platform.creator,
+            wallet: anchorProvider.wallet.publicKey!,
+            token: account.mint,
+            wager: lamports,
+          } as any,
+          {
+            provider: anchorProvider,
+            connection,
+            creatorFee: effectiveCreatorFeeBps / 10_000,
+          } as any,
+        );
       }
 
-      await join({
-        gameAccount   : pubkey,
-        mint          : account.mint,
-        wager         : lamports,           // pass a JS number of lamports
-        creatorAddress,
-        creatorFeeBps,
-        ...(enableMetadata && metadata.trim()
-          ? { metadata: metadata.trim() }
-          : {}),
-      });
+      await join(
+        {
+          gameAccount: pubkey,
+          mint: account.mint,
+          wager: lamports,
+          creatorAddress: creatorAddress ?? platform.platform.creator,
+          creatorFeeBps: effectiveCreatorFeeBps,
+          ...(enableMetadata && metadata.trim()
+            ? { metadata: metadata.trim() }
+            : {}),
+        },
+        extraIxs, // prepend referral transfer(s)
+      );
 
       onTx?.();
     } catch (err) {
@@ -71,18 +120,20 @@ export default function JoinGame({
     metadata,
     enableMetadata,
     creatorAddress,
-    creatorFeeBps,
+    platform.platform.creator,
+    baseCreatorFeeBps,
+    referralFee,
+    referrerAddress,
+    isOnChain,
+    effectiveCreatorFeeBps,
+    anchorProvider,
+    connection,
     onTx,
   ]);
 
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-      <WagerInput
-        value={lamports}
-        onChange={setLamports}
-        disabled={busy}
-      />
-
+      <WagerInput value={lamports} onChange={setLamports} disabled={busy} />
       {enableMetadata && (
         <TextInput
           placeholder="Name (opt.)"
@@ -93,7 +144,6 @@ export default function JoinGame({
           style={{ width: 100 }}
         />
       )}
-
       <Button main disabled={busy} onClick={handle}>
         {busy ? "Joining…" : "Join"}
       </Button>

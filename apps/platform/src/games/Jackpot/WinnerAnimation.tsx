@@ -10,6 +10,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import type { IdlAccounts } from '@coral-xyz/anchor'
 import type { Multiplayer }  from '@gamba-labs/multiplayer-sdk'
 import type { PublicKey }    from '@solana/web3.js'
+import { useSound } from 'gamba-react-ui-v2'
+import tickSnd from './sounds/tick.mp3'
+import winSnd  from './sounds/win.mp3'
 
 /* ──────────────────────────────────────────────────────────────
    1.  Styles
@@ -129,12 +132,30 @@ export const WinnerAnimation:React.FC<{
   const [winner,setWinner]=useState<Player|null>(null)
   const [offset,setOffset]=useState(0)
   const reelEl=useRef<HTMLDivElement>(null)
+  const centersRef = useRef<number[]>([])
+  const lastTickIndexRef = useRef<number | null>(null)
 
   useLayoutEffect(()=>{
     const el=reelEl.current
     if(!el) return
     const card = el.children[TARGET] as HTMLElement|undefined
     if(card) setOffset(-(card.offsetLeft+card.offsetWidth/2 - el.clientWidth/2))
+
+    // precompute card center positions for ticking
+    const centers: number[] = []
+    for (let i = 0; i < el.children.length; i++) {
+      const c = el.children[i] as HTMLElement
+      centers.push(c.offsetLeft + c.offsetWidth / 2)
+    }
+    centersRef.current = centers
+    // initialize last tick index at starting position
+    const pointerX = el.clientWidth / 2
+    let nearest = 0, best = Infinity
+    centers.forEach((cx, idx) => {
+      const d = Math.abs(cx - pointerX)
+      if (d < best) { best = d; nearest = idx }
+    })
+    lastTickIndexRef.current = nearest
   },[])
 
   useEffect(()=>{
@@ -149,10 +170,23 @@ export const WinnerAnimation:React.FC<{
     return()=>clearTimeout(t)
   },[winner])
 
+  // tick & win sounds
+  const { play: playSfx, sounds: sfx } = useSound({ tick: tickSnd, win: winSnd })
+
+  // play win SFX if the connected wallet is the winner
+  useEffect(()=>{
+    if (!winner || !currentUser) return
+    if (winner.user.equals(currentUser)) {
+      try { if (sfx.win?.ready) playSfx('win') } catch {}
+    }
+  },[winner, currentUser, sfx, playSfx])
+
   useEffect(()=>{if(closing) onClose?.()},[closing,onClose])
 
   const winnerPk=winner?.user.toBase58()??''
   const mePk    =currentUser?.toBase58()??''
+
+  // tick sound handled via onUpdate
 
   return(
     <AnimatePresence>
@@ -169,6 +203,22 @@ export const WinnerAnimation:React.FC<{
               initial={{x:0}}
               animate={{x:offset}}
               transition={{duration:6,ease:[0.22,1,0.36,1],delay:1}}
+              onUpdate={({ x }) => {
+                const el = reelEl.current
+                if (!el || typeof x !== 'number') return
+                const pointerX = -x + el.clientWidth / 2
+                const centers = centersRef.current
+                if (!centers.length) return
+                let nearest = 0, best = Infinity
+                for (let i = 0; i < centers.length; i++) {
+                  const d = Math.abs(centers[i] - pointerX)
+                  if (d < best) { best = d; nearest = i }
+                }
+                if (nearest !== lastTickIndexRef.current) {
+                  lastTickIndexRef.current = nearest
+                  if (sfx.tick?.ready) playSfx('tick')
+                }
+              }}
               onAnimationComplete={()=>setSpinDone(true)}
             >
               {reel.map((p,i)=>{

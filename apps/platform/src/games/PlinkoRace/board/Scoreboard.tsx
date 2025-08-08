@@ -64,6 +64,37 @@ export default function Scoreboard({
           zIndex     : 400,
         }}
       >
+        {/* Target/Goal indicator – minimal text */}
+        <div style={{ marginBottom: final ? 12 : 8, textAlign: 'center' }}>
+          <div style={{ fontWeight: 700, letterSpacing: 0.3 }}>
+            Race to {targetPoints}
+          </div>
+
+          {/* Leader progress bar */}
+          {(() => {
+            const leader = rows[0]?.s ?? 0
+            const pct    = Math.max(0, Math.min(1, leader / targetPoints)) * 100
+            return (
+              <div style={{
+                marginTop: 6,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                maxWidth: final ? 280 : 220,
+                height: final ? 8 : 6,
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.05)',
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  width: `${pct}%`, height:'100%',
+                  background: '#22c55e',
+                  boxShadow: '0 0 8px rgba(34,197,94,0.35)'
+                }}/>
+              </div>
+            )
+          })()}
+        </div>
+
         {final && (
           <motion.div
             layout="position"

@@ -19,6 +19,7 @@ import readyGoSnd   from '../sounds/readygo.mp3'
 import fallSnd      from '../sounds/fall.mp3'
 import bigComboSnd  from '../sounds/bigcombo.mp3'
 import finishSnd    from '../sounds/finsh.mp3'
+import ouchSnd      from '../sounds/ouch.mp3'
 
 type Particle  = { x:number; y:number; size:number; opacity:number; life:number; vx:number; vy:number }
 type LerpState = { px:number; py:number }
@@ -83,6 +84,7 @@ export default function Board({
     fall : fallSnd,
     finish: finishSnd,
     bigcombo: bigComboSnd,
+    ouch: ouchSnd,
   })
 
   // throttle frequent SFX like fall
@@ -202,6 +204,7 @@ export default function Board({
 
         if (e.kind === 'deduct') {
           showHud('DEDUCTION')
+          if (sounds.ouch?.ready) play('ouch')
           setScores(s => {
             const c = [...s];
             c[e.player] = Math.max(0, (c[e.player] ?? 0) - (e.value || 0));

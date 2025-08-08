@@ -1,6 +1,7 @@
 // src/components/BoardRenderer.tsx
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { GambaUi } from 'gamba-react-ui-v2'
+import { toggleMuted, musicManager } from '../musicManager'
 import {
   WIDTH, HEIGHT, PEG_RADIUS, BALL_RADIUS,
   BUCKET_DEFS, BUCKET_HEIGHT,
@@ -121,9 +122,31 @@ export default function BoardRenderer(props: BoardRendererProps) {
   }
   const CYCLE_MS = (DYNAMIC_CYCLE_FRAMES * SPEED_FACTOR / 60) * 1000
 
+  const canvasElRef = useRef<HTMLCanvasElement|null>(null)
+  const btnRectRef  = useRef<{x:number;y:number;w:number;h:number}>({x:0,y:0,w:0,h:0})
+
+  useEffect(() => {
+    const onClick = (ev: MouseEvent) => {
+      const canvas = canvasElRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      const x = ev.clientX - rect.left
+      const y = ev.clientY - rect.top
+      const { x:bx, y:by, w:btnW, h:btnH } = btnRectRef.current
+      if (x>=bx && x<=bx+btnW && y>=by && y<=by+btnH) {
+        toggleMuted()
+        ev.stopPropagation()
+        ev.preventDefault()
+      }
+    }
+    window.addEventListener('click', onClick)
+    return () => window.removeEventListener('click', onClick)
+  }, [])
+
   return (
-    <GambaUi.Canvas render={({ ctx, size }) => {
+    <GambaUi.Canvas render={({ ctx, size, canvas }) => {
       if (!engine) return
+      canvasElRef.current = canvas as HTMLCanvasElement
 
       /* ─── clear & scale canvas ─── */
       ctx.clearRect(0,0,size.width,size.height)
@@ -354,6 +377,28 @@ export default function BoardRenderer(props: BoardRendererProps) {
       labelPos.forEach((_,id) => { if (!ids.has(id)) labelPos.delete(id) })
 
       ctx.restore()
+
+      // draw music mute button bottom-right inside canvas
+      const btnPad = 8
+      const btnW = 130, btnH = 34
+      const bx = size.width - btnW - btnPad
+      const by = size.height - btnH - btnPad
+      btnRectRef.current = { x: bx, y: by, w: btnW, h: btnH }
+      // background
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.roundRect(bx, by, btnW, btnH, 8 as any)
+      ctx.fill(); ctx.stroke()
+      // label
+      ctx.font = '600 13px system-ui, sans-serif'
+      ctx.fillStyle = '#fff'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(musicManager.muted ? 'Unmute Music' : 'Mute Music', bx + btnW/2, by + btnH/2)
+
+      // interaction handled by a single global listener; nothing to attach per-frame here
     }}/>
   )
 }

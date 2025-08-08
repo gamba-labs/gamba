@@ -11,7 +11,8 @@ import {
   musicManager,
   attachMusic,
   stopAndDispose,
-} from '../musicManager'  // ← updated imports
+  toggleMuted,
+} from '../musicManager'
 
 /* ──────────────────── helpers ──────────────────── */
 const sol = (lamports: number) => lamports / LAMPORTS_PER_SOL
@@ -218,6 +219,20 @@ export default function Lobby({
           onClose={() => setIsModalOpen(false)}
         />
       </Wrapper>
+
+      {/* Bottom-right Music Mute Button (music only, not SFX) */}
+      <button
+        onClick={toggleMuted}
+        style={{
+          position:'absolute', right:12, bottom:12, zIndex:999,
+          padding:'8px 12px', fontWeight:600,
+          background: musicManager.muted ? '#444' : '#222', color:'#fff',
+          border:'none', borderRadius:6, cursor:'pointer', opacity:0.9,
+        }}
+        title={musicManager.muted ? 'Unmute music' : 'Mute music'}
+      >
+        {musicManager.muted ? 'Unmute Music' : 'Mute Music'}
+      </button>
     </div>
   )
 }

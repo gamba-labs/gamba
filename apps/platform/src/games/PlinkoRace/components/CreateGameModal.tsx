@@ -6,11 +6,12 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useMultiplayer } from 'gamba-react-v2';
 import { NATIVE_MINT } from '@solana/spl-token';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { GambaUi } from 'gamba-react-ui-v2';
 
 /* ─── STYLES (Matching Lobby Aesthetic) ────────────────────────────────────── */
 
 const Backdrop = styled(motion.div)`
-  position: fixed;
+  position: absolute;  /* inside canvas */
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(5px);
@@ -24,16 +25,17 @@ const Modal = styled(motion.div)`
   background: #1c1c1c;
   padding: 24px;
   border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
+  width: 92%;
+  max-width: 420px;
   color: #fff;
   border: 1px solid #333;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.5);
 `;
 
 const Title = styled.h2`
-  margin: 0 0 24px;
-  font-size: 1.5rem;
-  font-weight: 600;
+  margin: 0 0 16px;
+  font-size: 1.4rem;
+  font-weight: 700;
 `;
 
 const Field = styled.div`
@@ -125,7 +127,7 @@ const ButtonRow = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 24px;
+  margin-top: 18px;
 `;
 
 const Button = styled.button<{ variant?: 'primary' }>`
@@ -227,20 +229,21 @@ export default function CreateGameModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <Backdrop
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <Modal
+    <GambaUi.Portal target="screen">
+      <AnimatePresence>
+        {isOpen && (
+          <Backdrop
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
+            <Modal
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+            >
             <Title>Create Plinko Race</Title>
 
             <Field>
@@ -355,9 +358,10 @@ export default function CreateGameModal({
                 {submitting ? 'Creating…' : 'Create'}
               </Button>
             </ButtonRow>
-          </Modal>
-        </Backdrop>
-      )}
-    </AnimatePresence>
+            </Modal>
+          </Backdrop>
+        )}
+      </AnimatePresence>
+    </GambaUi.Portal>
   );
 }

@@ -108,6 +108,8 @@ export default function GameScreen({
           if (snd.ready) {
             playAction('action')
             attachMusic(snd)
+            // re-apply mute state after attaching
+            try { snd.gain.set({ gain: musicManager.muted ? 0 : snd.gain.get().gain }) } catch {}
           } else {
             setTimeout(startWhenReady, 100)
           }

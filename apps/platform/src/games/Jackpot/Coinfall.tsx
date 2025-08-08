@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import * as Matter from 'matter-js';
 import { IdlAccounts, web3 } from '@coral-xyz/anchor';
 import type { Multiplayer } from '@gamba-labs/multiplayer-sdk';
+import { useSound } from 'gamba-react-ui-v2';
+import joinSnd from './sounds/join.mp3';
 
 // full-screen, pointer-events:none container
 const Container = styled.div`
@@ -49,6 +51,7 @@ export function Coinfalls({ players }: CoinfallsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef    = useRef<Matter.Engine>();
   const prevPlayers  = usePrevious(players) ?? [];
+  const { play: playJoin, sounds } = useSound({ join: joinSnd });
 
   // SETUP: engine, renderer, ground, background-spawner
   useEffect(() => {
@@ -167,6 +170,9 @@ export function Coinfalls({ players }: CoinfallsProps) {
           render:      { fillStyle: '#FFD700' },
         });
         Matter.World.add(engine.world, coin);
+
+        // play join sound per new player (gated by readiness)
+        if (sounds.join?.ready) playJoin('join');
       });
     }
   }, [players, prevPlayers]);

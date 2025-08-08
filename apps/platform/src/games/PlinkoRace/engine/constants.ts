@@ -33,17 +33,17 @@ export interface BucketDef {
 export const BUCKET_DEFS: BucketDef[] = [
   { type: BucketType.Dynamic },                    // left dynamic (index 0)
   { type: BucketType.Score,      value: 10 },
-  { type: BucketType.Multiplier, value: 3  },
-  { type: BucketType.Score,      value: 5 },
-  { type: BucketType.Multiplier, value: 2  },
-  { type: BucketType.Score,      value: 2  },
+  { type: BucketType.Multiplier, value: 2.5  },
+  { type: BucketType.Score,      value: 6 },
+  { type: BucketType.Multiplier, value: 1.5  },
+  { type: BucketType.Score,      value: 3  },
 
   { type: BucketType.Dynamic },                    // center dynamic
 
-  { type: BucketType.Score,      value: 2  },
-  { type: BucketType.Multiplier, value: 2  },
-  { type: BucketType.Score,      value: 5 },
-  { type: BucketType.Multiplier, value: 3  },
+  { type: BucketType.Score,      value: 3  },
+  { type: BucketType.Multiplier, value: 1.5  },
+  { type: BucketType.Score,      value: 6 },
+  { type: BucketType.Multiplier, value: 2.5  },
   { type: BucketType.Score,      value: 10  },
   { type: BucketType.Dynamic },                    // right dynamic (last)
 ];

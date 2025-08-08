@@ -15,7 +15,7 @@ import {
 } from './types';
 
 const MAX_FRAMES    = 200_000;
-const MAX_ATTEMPTS  = 100;
+const MAX_ATTEMPTS  = 150;
 const TARGET_POINTS = 100;
 const SPEED_FACTOR  = 4;              // sim‑steps per UI frame
 const TELEPORT_DY   = HEIGHT * 0.5;
@@ -261,11 +261,12 @@ outer:
 
       /* ─── deduction bucket ────────────────── */
       case BucketType.Deduct: {
-        const pts = def.value ?? 0;
-        scores[playerIx] = Math.max(0, scores[playerIx] - pts);
+        const base = def.value ?? 0;
+        const applied = base * mults[playerIx];
+        scores[playerIx] = Math.max(0, scores[playerIx] - applied);
         events.push({
           frame, player:playerIx, kind:'deduct',
-          value:pts, bucket:bucketIndex,
+          value:applied, bucket:bucketIndex,
         });
       } break;
 

@@ -1,8 +1,15 @@
 // src/components/DebugGameScreen.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Keypair, PublicKey } from '@solana/web3.js';
-import { GambaUi }            from 'gamba-react-ui-v2';
+import { GambaUi, useSound }  from 'gamba-react-ui-v2';
 import Board                  from '../board/Board';
+import lobbymusicSnd          from '../sounds/lobby.mp3';
+import actionSnd              from '../sounds/action.mp3';
+import {
+  musicManager,
+  attachMusic,
+  stopAndDispose,
+} from '../musicManager';
 
 // purely local – never used on-chain
 function randomPk(): PublicKey {
@@ -24,6 +31,70 @@ export default function DebugGameScreen({
   const [gamePk,    setGamePk]    = useState<string | null>(null);
 
   const [gameOver, setGameOver] = useState(false);
+
+  // treat "waiting" like GameScreen: before a race has started
+  const waiting = players.length === 0;
+
+  // claim & release the lobby music while this screen is active
+  useEffect(() => {
+    // cancel any pending stop
+    clearTimeout(musicManager.timer);
+    // bump claim count
+    musicManager.count += 1;
+    return () => {
+      musicManager.count -= 1;
+      if (musicManager.count === 0) {
+        musicManager.timer = setTimeout(stopAndDispose, 200);
+      }
+    };
+  }, []);
+
+  // ensure lobby music is playing when entering debug screen (if not already)
+  const { play: playLobby, sounds: lobbySounds } = useSound(
+    { lobby: lobbymusicSnd },
+    { disposeOnUnmount: false },
+  );
+  useEffect(() => {
+    if (!musicManager.sound) {
+      const snd = lobbySounds.lobby;
+      if (snd) {
+        snd.player.loop = true;
+        const startWhenReady = () => {
+          if (snd.ready) {
+            playLobby('lobby');
+            attachMusic(snd);
+          } else {
+            setTimeout(startWhenReady, 100);
+          }
+        };
+        startWhenReady();
+      }
+    }
+  }, [lobbySounds, playLobby]);
+
+  // when game starts (not waiting), stop lobby and play action music loop
+  const { play: playAction, sounds: actionSounds } = useSound(
+    { action: actionSnd },
+    { disposeOnUnmount: false },
+  );
+  useEffect(() => {
+    if (!waiting) {
+      try { musicManager.sound?.player.stop(); } catch {}
+      const snd = actionSounds.action;
+      if (snd) {
+        snd.player.loop = true;
+        const startWhenReady = () => {
+          if (snd.ready) {
+            playAction('action');
+            attachMusic(snd);
+          } else {
+            setTimeout(startWhenReady, 100);
+          }
+        };
+        startWhenReady();
+      }
+    }
+  }, [waiting, actionSounds, playAction]);
 
   /** spawn dummy players & pick seed */
   const start = useCallback(() => {

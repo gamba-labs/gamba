@@ -7,7 +7,7 @@ export interface PlayerInfo { id: string; color: string; }
 export interface RecordedRaceEvent {
   frame  : number;
   player : number;              // -1 ⇒ global / no player
-  kind   : 'score' | 'mult' | 'extraBall' | 'ballKill' | 'bucketMode';
+  kind   : 'score' | 'deduct' | 'mult' | 'extraBall' | 'ballKill' | 'bucketMode' | 'bucketPattern';
   value? : number;              // points, multiplier, next bucketMode index…
   bucket?: number;
 }

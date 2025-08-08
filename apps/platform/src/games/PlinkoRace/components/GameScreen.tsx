@@ -11,7 +11,9 @@ import {
 } from '../../../constants'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import Board from '../board/Board'
-import { musicManager, stopAndDispose } from '../musicManager'
+import { musicManager, stopAndDispose, attachMusic } from '../musicManager'
+import actionSnd from '../sounds/action.mp3'
+import { useSound } from 'gamba-react-ui-v2'
 
 export default function GameScreen({
   pk,
@@ -88,6 +90,32 @@ export default function GameScreen({
       }
     }
   }, [])
+
+  // 8️⃣ when game starts playing (not waiting), stop lobby and play action music
+  const { play: playAction, sounds: actionSounds } = useSound(
+    { action: actionSnd },
+    { disposeOnUnmount: false }
+  )
+  useEffect(() => {
+    if (!waiting) {
+      // stop lobby immediately
+      try { musicManager.sound?.player.stop() } catch {}
+      // start action loop and attach for volume control
+      const snd = actionSounds.action
+      if (snd) {
+        snd.player.loop = true
+        const startWhenReady = () => {
+          if (snd.ready) {
+            playAction('action')
+            attachMusic(snd)
+          } else {
+            setTimeout(startWhenReady, 100)
+          }
+        }
+        startWhenReady()
+      }
+    }
+  }, [waiting, playAction, actionSounds])
 
   return (
     <>

@@ -12,9 +12,13 @@ import { PlayerInfo } from '../engine/types'
 import BoardHUD, { HudMessage, HudPayload } from './BoardHUD'
 import BoardRenderer from './BoardRenderer'
 import Scoreboard from './Scoreboard'
+import { makeRng } from '../engine/deterministic'
 
 import extraBallSnd from '../sounds/extraball.mp3'
 import readyGoSnd   from '../sounds/readygo.mp3'
+import fallSnd      from '../sounds/fall.mp3'
+import bigComboSnd  from '../sounds/bigcombo.mp3'
+import finishSnd    from '../sounds/finsh.mp3'
 
 type Particle  = { x:number; y:number; size:number; opacity:number; life:number; vx:number; vy:number }
 type LerpState = { px:number; py:number }
@@ -25,7 +29,7 @@ export default function Board({
   metadata = {},
   youIndexOverride,
   gamePk,
-  targetPoints = 50,
+  targetPoints = 100,
   payouts,
   onFinished,
 }: {
@@ -56,7 +60,9 @@ export default function Board({
   const { engine, recordRace, replayRace } = useMultiPlinko(roster, gamePk)
   const [scores, setScores]     = useState<number[]>([])
   const [mults,  setMults]      = useState<number[]>([])
-  const [dynMode, setDynMode]   = useState(0)
+  const [dynModes, setDynModes] = useState<number[]>([])
+  const [started, setStarted]   = useState(false)
+  const [patternOffsets, setPatternOffsets] = useState<number[]>([])
   const [finished, setFinished] = useState(false)
   const [hud, setHud]           = useState<HudPayload|null>(null)
 
@@ -71,16 +77,23 @@ export default function Board({
   const arrowPos   = useRef<Map<number,LerpState>>(new Map()).current
   const labelPos   = useRef<Map<number,LerpState>>(new Map()).current
 
-  const sounds = GambaUi.useSound({
+  const { play, sounds } = GambaUi.useSound({
     ready: readyGoSnd,
     extra: extraBallSnd,
+    fall : fallSnd,
+    finish: finishSnd,
+    bigcombo: bigComboSnd,
   })
+
+  // throttle frequent SFX like fall
+  const lastFallMsRef = useRef(0)
 
   // reset on roster change
   useEffect(() => {
     setScores(Array(roster.length).fill(0))
     setMults (Array(roster.length).fill(1))
-    setDynMode(0)
+    setDynModes([])
+    setStarted(false)
     setFinished(false)
     Object.keys(bucketAnim).forEach(k => bucketAnim[+k] = 0)
     Object.keys(pegAnim   ).forEach(k => pegAnim[+k] = 0)
@@ -99,7 +112,8 @@ export default function Board({
     if (!engine || winnerIdx == null) return
 
     showHud('GO')
-    sounds.play('ready')
+    if (sounds.ready?.ready) play('ready')
+    setStarted(true)
 
     const rec = recordRace(winnerIdx, targetPoints)
     const ev  = [...rec.events]
@@ -110,30 +124,88 @@ export default function Board({
         const e = ev.shift()!
 
         if (e.kind === 'bucketMode') {
-          setDynMode(e.value ?? 0)
-          bucketAnim[CENTER_BUCKET] = 1
+          // record per-bucket dyn mode
+          setDynModes(m => {
+            const next = [...(m.length ? m : Array(BUCKET_DEFS.length).fill(0))]
+            if (e.bucket !== undefined) next[e.bucket] = e.value ?? 0
+            else BUCKET_DEFS.forEach((b,i)=>{ if(b.type===BucketType.Dynamic) next[i]=e.value??0 })
+            return next
+          })
+
+          // animate the affected dynamic bucket(s)
+          if (e.bucket !== undefined) {
+            bucketAnim[e.bucket] = 1
+          } else {
+            BUCKET_DEFS.forEach((b, i) => {
+              if (b.type === BucketType.Dynamic) bucketAnim[i] = 1
+            })
+          }
+          continue
+        }
+
+        // receive deterministic per-bucket pattern offset
+        if (e.kind === 'bucketPattern' && e.bucket !== undefined) {
+          setPatternOffsets(arr => {
+            const dynIdxs = BUCKET_DEFS
+              .map((b,i)=> b.type===BucketType.Dynamic ? i : -1)
+              .filter(i=>i>=0)
+            const mapIndex = dynIdxs.indexOf(e.bucket!)
+            const next = [...(arr.length ? arr : Array(dynIdxs.length).fill(0))]
+            if (mapIndex >= 0) next[mapIndex] = e.value ?? 0
+            return next
+          })
           continue
         }
 
         if (e.bucket !== undefined) {
           const idx = e.bucket
           bucketAnim[idx] = 1
+          const now = performance.now()
+          if (sounds.fall?.ready && now - lastFallMsRef.current > 60) {
+            lastFallMsRef.current = now
+            play('fall')
+          }
+
+          // handle explicit extraBall event without relying on dynMode closure
+          if (e.kind === 'extraBall') {
+            showHud('EXTRA BALL')
+            if (sounds.extra?.ready) play('extra')
+          }
 
           const def = BUCKET_DEFS[idx]
+          const mode = dynModes[idx] ?? 0
           const actual = def.type === BucketType.Dynamic
-            ? DYNAMIC_SEQUENCE[dynMode]
+            ? DYNAMIC_SEQUENCE[mode]
             : def.type
 
-          if (actual === BucketType.ExtraBall) {
+          // keep legacy path for static ExtraBall buckets
+          if (actual === BucketType.ExtraBall && e.kind !== 'extraBall') {
             showHud('EXTRA BALL')
-            sounds.play('extra')
+            if (sounds.extra?.ready) play('extra')
           }
         }
 
         if (e.kind === 'mult') {
-          runMults[e.player] = Math.min(runMults[e.player] * (e.value || 1), 64)
+          const inc = e.value || 1
+          const curr = runMults[e.player]
+          runMults[e.player] = Math.min((curr === 1 ? 0 : curr) + inc, 64)
           setMults(m => {
             const c = [...m]; c[e.player] = runMults[e.player]; return c
+          })
+
+          // BIG COMBO trigger when multiplier reaches 5x or more
+          if (runMults[e.player] >= 5) {
+            showHud('BIG COMBO')
+            if (sounds.bigcombo?.ready) play('bigcombo')
+          }
+        }
+
+        if (e.kind === 'deduct') {
+          showHud('DEDUCTION')
+          setScores(s => {
+            const c = [...s];
+            c[e.player] = Math.max(0, (c[e.player] ?? 0) - (e.value || 0));
+            return c
           })
         }
 
@@ -153,6 +225,7 @@ export default function Board({
       }
 
       if (frame === rec.totalFrames - 1) {
+        if (sounds.finish?.ready) play('finish')
         setFinished(true)
       }
     })
@@ -174,7 +247,9 @@ export default function Board({
     <div style={{ position:'relative', width:'100%', height:'100%' }}>
       <BoardRenderer
         engine={engine}
-        dynMode={dynMode}
+        dynModes={dynModes}
+        patternOffsets={patternOffsets}
+        started={started}
         bucketAnim={bucketAnim}
         pegAnim={pegAnim}
         particles={particles}

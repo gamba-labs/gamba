@@ -1,10 +1,11 @@
 // src/components/BoardRenderer.tsx
-import React from 'react'
+import React, { useRef } from 'react'
 import { GambaUi } from 'gamba-react-ui-v2'
 import {
   WIDTH, HEIGHT, PEG_RADIUS, BALL_RADIUS,
   BUCKET_DEFS, BUCKET_HEIGHT,
-  BucketType, DYNAMIC_SEQUENCE, DYNAMIC_EXTRA_MULT,
+  BucketType, DYNAMIC_SEQUENCE, DYNAMIC_EXTRA_MULT, DYNAMIC_DEDUCT_POINTS,
+  DYNAMIC_CYCLE_FRAMES, SPEED_FACTOR,
 } from '../engine/constants'
 import { useMultiPlinko } from '../hooks/useMultiPlinko'
 
@@ -19,7 +20,9 @@ type LerpState  = { px:number; py:number }
 /* ─── props coming from Board.tsx ─── */
 export interface BoardRendererProps {
   engine: ReturnType<typeof useMultiPlinko>['engine'] | null
-  dynMode: number
+  dynModes: number[]
+  patternOffsets: number[]
+  started: boolean
   bucketAnim: Record<number, number>
   pegAnim: Record<number, number>
   particles: Particle[]
@@ -32,29 +35,91 @@ export interface BoardRendererProps {
 }
 
 /* ─── helper for bucket colour / label ─── */
-function bucketVisual(def:(typeof BUCKET_DEFS)[number], dynMode:number) {
+function bucketVisual(
+  def:(typeof BUCKET_DEFS)[number],
+  dynMode:number,
+): { hue:number; label:string } {
   const r = def.type === BucketType.Dynamic
     ? {
         type : DYNAMIC_SEQUENCE[dynMode],
         value: DYNAMIC_SEQUENCE[dynMode] === BucketType.Multiplier
                  ? DYNAMIC_EXTRA_MULT
-                 : def.value,
+                 : (DYNAMIC_SEQUENCE[dynMode] === BucketType.Deduct
+                    ? DYNAMIC_DEDUCT_POINTS
+                    : def.value),
       }
     : def
   switch (r.type) {
-    case BucketType.Score     : return { hue:220, label:`${r.value} ▼` }
+    case BucketType.Score     : return { hue:220, label:`${r.value} ▲` }
     case BucketType.Multiplier: return { hue:120, label:`${r.value}×` }
+    case BucketType.Deduct    : return { hue: 10, label:`-${r.value} ▼` }
     case BucketType.ExtraBall : return { hue: 60, label:'+1' }
     case BucketType.Kill      : return { hue:  0, label:'☠' }
     case BucketType.Blank     : return { hue: 30, label:'–' }
+    default: return { hue: 30, label: '–' }
+  }
+}
+
+/* ─── helper for NEXT bucket visual ─── */
+function bucketNextVisual(
+  def:(typeof BUCKET_DEFS)[number],
+  dynMode:number,
+  offset:number,
+): { hue:number; label:string } | null {
+  if (def.type !== BucketType.Dynamic) return null
+  const blankIdx = DYNAMIC_SEQUENCE.findIndex(t => t === BucketType.Blank)
+  const nonBlankIdxs = DYNAMIC_SEQUENCE.map((_,i)=>i).filter(i => i !== blankIdx)
+  const nextIdx = (dynMode === blankIdx)
+    ? nonBlankIdxs[(offset) % nonBlankIdxs.length]
+    : nonBlankIdxs[((nonBlankIdxs.indexOf(dynMode) + 1) % nonBlankIdxs.length)]
+  const nextType = DYNAMIC_SEQUENCE[nextIdx]
+  const r = {
+    type : nextType,
+    value: nextType === BucketType.Multiplier
+            ? DYNAMIC_EXTRA_MULT
+            : (nextType === BucketType.Deduct ? DYNAMIC_DEDUCT_POINTS : def.value),
+  }
+  switch (r.type) {
+    case BucketType.Score     : return { hue:220, label:`${r.value} ▼` }
+    case BucketType.Multiplier: return { hue:120, label:`${r.value}×` }
+    case BucketType.Deduct    : return { hue: 10, label:`-${r.value}` }
+    case BucketType.ExtraBall : return { hue: 60, label:'+1' }
+    case BucketType.Kill      : return { hue:  0, label:'☠' }
+    case BucketType.Blank     : return { hue: 30, label:'–' }
+    default: return { hue: 30, label: '–' }
   }
 }
 
 export default function BoardRenderer(props: BoardRendererProps) {
   const {
-    engine, dynMode, bucketAnim, pegAnim, particles,
+    engine, dynModes, patternOffsets, started, bucketAnim, pegAnim, particles,
     arrowPos, labelPos, mults, roster, metadata, youIdx,
   } = props
+
+  // timing for dynamic cycle ring (UI-only approximation)
+  // independent timers per dynamic bucket: store last-change per index
+  const lastChangeMsRef  = useRef<Record<number, number>>({})
+  const prevDynModesRef  = useRef<number[]>(dynModes)
+  if (prevDynModesRef.current !== dynModes) {
+    // detect per-bucket changes
+    BUCKET_DEFS.forEach((b,i) => {
+      if (b.type !== BucketType.Dynamic) return
+      const prev = prevDynModesRef.current[i] ?? 0
+      const curr = dynModes[i] ?? 0
+      if (prev !== curr) lastChangeMsRef.current[i] = performance.now()
+    })
+    prevDynModesRef.current = dynModes
+  }
+
+  // ensure initial timestamps exist only once game has started
+  if (started) {
+    BUCKET_DEFS.forEach((b,i) => {
+      if (b.type === BucketType.Dynamic && lastChangeMsRef.current[i] == null) {
+        lastChangeMsRef.current[i] = performance.now()
+      }
+    })
+  }
+  const CYCLE_MS = (DYNAMIC_CYCLE_FRAMES * SPEED_FACTOR / 60) * 1000
 
   return (
     <GambaUi.Canvas render={({ ctx, size }) => {
@@ -112,7 +177,11 @@ export default function BoardRenderer(props: BoardRendererProps) {
         const top = HEIGHT - BUCKET_HEIGHT
         const cx = x0 + bw/2
         const ly = top + BUCKET_HEIGHT/2
-        const { hue, label } = bucketVisual(def, dynMode)
+        const mode = dynModes[i] ?? 0
+        const { hue, label } = bucketVisual(def, mode)
+        // patternOffsets array maps to dynamic buckets in order of appearance
+        const dynOrderIndex = BUCKET_DEFS.slice(0, i + 1).filter(b => b.type === BucketType.Dynamic).length - 1
+        const nextVis = bucketNextVisual(def, mode, patternOffsets[dynOrderIndex] ?? 0)
 
         if (a > 0.02) {
           const h = BUCKET_HEIGHT * 3 * a
@@ -134,6 +203,31 @@ export default function BoardRenderer(props: BoardRendererProps) {
         ctx.strokeText(label, cx, ly)
         ctx.fillStyle = `hsla(${hue},80%,75%,1)`
         ctx.fillText(label, cx, ly)
+
+        // show NEXT icon/label preview for dynamic buckets
+        if (nextVis) {
+          ctx.font = '12px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'top'
+          ctx.fillStyle = `hsla(${nextVis.hue},80%,75%,0.9)`
+          ctx.fillText(nextVis.label, cx, top + 4)
+
+          // countdown ring around current label
+          const last = lastChangeMsRef.current[i] ?? performance.now()
+          const elapsed = performance.now() - last
+          const progress = Math.min(Math.max(elapsed / CYCLE_MS, 0), 1)
+          const remain = 1 - progress
+          const R = Math.min(bw, BUCKET_HEIGHT) * 0.45
+          ctx.save()
+          ctx.translate(cx, ly)
+          ctx.beginPath()
+          ctx.lineWidth = 3
+          ctx.strokeStyle = `hsla(${hue},80%,70%,0.9)`
+          const start = -Math.PI/2
+          ctx.arc(0, 0, R, start, start + Math.PI*2*remain)
+          ctx.stroke()
+          ctx.restore()
+        }
       })
 
       /* ─── BARRIERS & PEGS ─── */

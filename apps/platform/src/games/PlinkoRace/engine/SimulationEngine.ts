@@ -4,7 +4,8 @@ import { PhysicsWorld } from './PhysicsWorld';
 import {
   WIDTH, HEIGHT, BALL_RADIUS, BUCKET_HEIGHT,
   BUCKET_DEFS, BucketType,
-  DYNAMIC_SEQUENCE, DYNAMIC_EXTRA_MULT, CENTER_BUCKET,
+  DYNAMIC_SEQUENCE, DYNAMIC_EXTRA_MULT,
+  DYNAMIC_CYCLE_FRAMES, DYNAMIC_DEDUCT_POINTS,
 } from './constants';
 import { makeRng } from './deterministic';
 import {
@@ -15,7 +16,7 @@ import {
 
 const MAX_FRAMES    = 200_000;
 const MAX_ATTEMPTS  = 100;
-const TARGET_POINTS = 50;
+const TARGET_POINTS = 100;
 const SPEED_FACTOR  = 4;              // sim‑steps per UI frame
 const TELEPORT_DY   = HEIGHT * 0.5;
 
@@ -43,8 +44,22 @@ export class SimulationEngine {
 
     for (let n=1; n<=MAX_ATTEMPTS; n++) {
       const rec = this.runSingleAttempt(winnerIdx, target);
-      if (rec) return rec;                         // success
+      if (rec) {
+        try {
+          // eslint-disable-next-line no-console
+          console.log(
+            `[PlinkoRace] recordRace: success on attempt ${n}/${MAX_ATTEMPTS} (players=${this.players.length}, winnerIdx=${winnerIdx}, frames=${rec.totalFrames})`
+          );
+        } catch {}
+        return rec;                         // success
+      }
     }
+    try {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[PlinkoRace] recordRace: failed to find a valid run after ${MAX_ATTEMPTS} attempts (players=${this.players.length}, winnerIdx=${winnerIdx})`
+      );
+    } catch {}
     throw new Error('No valid run found');
   }
 
@@ -79,8 +94,21 @@ export class SimulationEngine {
       Composite.add(layer, b);
     });
 
-    /* dynamic‑bucket cycle index */
-    let dynModeIdx = 0;
+    /* dynamic buckets: shared timer, per-bucket patterns (deterministic) */
+    const dynamicBucketIndexes = BUCKET_DEFS
+      .map((b,i) => b.type === BucketType.Dynamic ? i : -1)
+      .filter(i => i >= 0);
+    const blankIdx = DYNAMIC_SEQUENCE.findIndex(t => t === BucketType.Blank);
+    const nonBlankIdxs = DYNAMIC_SEQUENCE.map((_,i)=>i).filter(i => i !== blankIdx);
+    const patternOffsets = dynamicBucketIndexes.map(() =>
+      Math.floor(this.rng() * nonBlankIdxs.length)
+    );
+    // emit deterministic pattern offsets so UI can mirror exactly from frame 0
+    dynamicBucketIndexes.forEach((bucketIndex, di) => {
+      events.push({ frame: 0, player: -1, kind: 'bucketPattern', value: patternOffsets[di], bucket: bucketIndex })
+    })
+    const currentModeIdx = new Array<number>(BUCKET_DEFS.length).fill(blankIdx);
+    let dynTick = 0; // 0 => Blank; 1.. => non-blank modes
 
     const respawn = (b:Body, idx:number) => {
       Matter.Body.setPosition(b, {x:offsets[idx], y:-10});
@@ -90,6 +118,18 @@ export class SimulationEngine {
     let totalFrames = 0;
 outer:
     for (let frame=0; frame<MAX_FRAMES; frame++) {
+      // time-based dynamic cycling: shared tick for all dynamic buckets
+      if (dynamicBucketIndexes.length && frame>0 && frame % DYNAMIC_CYCLE_FRAMES === 0) {
+        dynTick++;
+        for (let di = 0; di < dynamicBucketIndexes.length; di++) {
+          const bucketIndex = dynamicBucketIndexes[di];
+          const seqIdx = dynTick === 0
+            ? blankIdx
+            : nonBlankIdxs[(dynTick - 1 + patternOffsets[di]) % nonBlankIdxs.length];
+          currentModeIdx[bucketIndex] = seqIdx;
+          events.push({ frame, player:-1, kind:'bucketMode', value:seqIdx, bucket: bucketIndex });
+        }
+      }
       sim.tick();
 
       for (let bi=0; bi<balls.length; bi++) {
@@ -113,7 +153,7 @@ outer:
           this.handleBucketHit({
             bucket      : BUCKET_DEFS[idx],
             bucketIndex : idx,
-            dynModeIdx,
+            dynModeIdx  : currentModeIdx[idx] ?? blankIdx,
             ballBody    : body,
             ballPathIx  : bi,
             playerIx    : player,
@@ -121,13 +161,7 @@ outer:
             events, balls, paths, offsets, pathOwners, mults, scores, layer,
           });
 
-          /* dynamic bucket cycles */
-          if (idx === CENTER_BUCKET) {
-            dynModeIdx = (dynModeIdx+1) % DYNAMIC_SEQUENCE.length;
-            events.push({
-              frame, player:-1, kind:'bucketMode', value:dynModeIdx,
-            });
-          }
+          /* (removed) hit-based dynamic cycles – now time-based only */
           respawn(body, bi);
         }
 
@@ -186,11 +220,13 @@ outer:
     } = opts;
 
     /* resolve dynamic placeholder */
+    const t = DYNAMIC_SEQUENCE[dynModeIdx]
     const def = bucket.type === BucketType.Dynamic
       ? {
-          type : DYNAMIC_SEQUENCE[dynModeIdx],
-          value: DYNAMIC_SEQUENCE[dynModeIdx]===BucketType.Multiplier
-                   ? DYNAMIC_EXTRA_MULT : bucket.value,
+          type : t,
+          value: t===BucketType.Multiplier
+                   ? DYNAMIC_EXTRA_MULT
+                   : (t===BucketType.Deduct ? DYNAMIC_DEDUCT_POINTS : bucket.value),
         }
       : bucket;
 
@@ -214,10 +250,22 @@ outer:
       /* ─── multiplier bucket ───────────────── */
       case BucketType.Multiplier: {
         const m = def.value ?? 1;
-        mults[playerIx] = Math.min(mults[playerIx]*m, 64);
+        const current = mults[playerIx];
+        const next    = Math.min((current === 1 ? 0 : current) + m, 64);
+        mults[playerIx] = next;
         events.push({
           frame, player:playerIx, kind:'mult',
           value:m, bucket:bucketIndex,
+        });
+      } break;
+
+      /* ─── deduction bucket ────────────────── */
+      case BucketType.Deduct: {
+        const pts = def.value ?? 0;
+        scores[playerIx] = Math.max(0, scores[playerIx] - pts);
+        events.push({
+          frame, player:playerIx, kind:'deduct',
+          value:pts, bucket:bucketIndex,
         });
       } break;
 

@@ -311,7 +311,7 @@ outer:
     }
   }
 
-  /*──────────────── REPLAY (unchanged) ─────────*/
+  /*──────────────── REPLAY (vsync‑independent) ─────────*/
   replayRace(rec:RecordedRace,onFrame?:(f:number)=>void) {
     this.replayWorld?.cleanup();
     const world = new PhysicsWorld();
@@ -330,12 +330,17 @@ outer:
     /* initial bodies = one per player */
     this.players.forEach((_,i)=> spawnBody(i));
 
-    let f = 0, N = rec.totalFrames;
-    const step = () => {
-      /* spawn extra balls at their UI frame */
+    let f = 0;
+    const N = rec.totalFrames;
+    const targetFps = 60;                   // UI playback rate
+    const frameMs   = 1000 / targetFps;
+    let lastTs = performance.now();
+    let accMs  = 0;
+
+    const advanceOneFrame = () => {
+      // spawn extra balls at their UI frame
       rec.events.forEach(e => {
-        if (e.kind==='extraBall' && e.frame===f)
-          spawnBody(bodies.length);
+        if (e.kind==='extraBall' && e.frame===f) spawnBody(bodies.length);
       });
 
       const coarse = Math.floor(f / SPEED_FACTOR);
@@ -358,7 +363,17 @@ outer:
       });
 
       onFrame?.(f);
-      if (++f < N) requestAnimationFrame(step);
+      f++;
+    };
+
+    const step = (now:number) => {
+      accMs += now - lastTs;
+      lastTs = now;
+      while (accMs >= frameMs && f < N) {
+        advanceOneFrame();
+        accMs -= frameMs;
+      }
+      if (f < N) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
   }

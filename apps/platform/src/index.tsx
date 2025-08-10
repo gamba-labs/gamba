@@ -18,8 +18,6 @@ import App from './App'
 import { DEFAULT_POOL, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
 import './styles.css'
 
-const DELETE_ME = "https://devnet.helius-rpc.com/?api-key=7b05747c-b100-4159-ba5f-c85e8c8d3997"
-
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 
 function Root() {
@@ -34,7 +32,7 @@ function Root() {
   return (
     <BrowserRouter>
       <ConnectionProvider
-        endpoint={DELETE_ME}
+        endpoint={RPC_ENDPOINT}
         config={{ commitment: 'processed' }}
       >
         <WalletProvider autoConnect wallets={wallets}>

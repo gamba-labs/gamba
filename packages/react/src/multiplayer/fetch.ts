@@ -23,16 +23,42 @@ export const fetchGames      = _fetchGames
 export const fetchGambaState = _fetchGambaState
 
 // ─── FILTERED GAME FETCHER ──────────────────────────────────────
+export type SpecificGameFilters = {
+  creator?: PublicKey
+  maxPlayers?: number
+  wagerType?: number
+  payoutType?: number
+  winnersTarget?: number
+}
+
+export function fetchSpecificGames(
+  provider: AnchorProvider,
+  filters: SpecificGameFilters,
+): Promise<GameAccountFull[]>
 export function fetchSpecificGames(
   provider: AnchorProvider,
   creator: PublicKey,
   maxPlayers: number,
+): Promise<GameAccountFull[]>
+export function fetchSpecificGames(
+  provider: AnchorProvider,
+  arg1: SpecificGameFilters | PublicKey,
+  arg2?: number,
 ): Promise<GameAccountFull[]> {
+  const filters: SpecificGameFilters = arg1 instanceof PublicKey
+    ? { creator: arg1, maxPlayers: arg2 }
+    : (arg1 ?? {})
+
   return fetchGames(provider).then(games =>
-    games.filter(g =>
-      g.account.gameMaker.equals(creator) &&
-      g.account.maxPlayers === maxPlayers
-    )
+    games.filter(g => {
+      const a = g.account as any
+      if (filters.creator && !a.gameMaker.equals(filters.creator)) return false
+      if (filters.maxPlayers     != null && a.maxPlayers     !== filters.maxPlayers)     return false
+      if (filters.wagerType      != null && Number(a.wagerType)   !== Number(filters.wagerType))   return false
+      if (filters.payoutType     != null && Number(a.payoutType)  !== Number(filters.payoutType))  return false
+      if (filters.winnersTarget  != null && Number(a.winnersTarget)!== Number(filters.winnersTarget)) return false
+      return true
+    })
   )
 }
 

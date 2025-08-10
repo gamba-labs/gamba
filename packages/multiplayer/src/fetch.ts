@@ -31,19 +31,47 @@ export const fetchGames = async (
   return filter ? games.filter(filter) : games;
 };
 
+/** Optional filters for narrowing the Multiplayer games list */
+export type SpecificGameFilters = {
+  creator?: PublicKey;
+  maxPlayers?: number;
+  wagerType?: number;       // enum repr as u8
+  payoutType?: number;      // enum repr as u8
+  winnersTarget?: number;
+};
+
 /**
- * Fetch games by creator & maxPlayers.
+ * Fetch games by optional filters. Backwards compatible with the old
+ * (provider, creator, maxPlayers) signature.
  */
-export const fetchSpecificGames = async (
+export function fetchSpecificGames(
+  provider: AnchorProvider,
+  filters: SpecificGameFilters,
+): Promise<GameAccountFull[]>;
+export function fetchSpecificGames(
   provider: AnchorProvider,
   creator: PublicKey,
   maxPlayers: number,
-): Promise<GameAccountFull[]> => {
-  return fetchGames(provider, g =>
-    g.account.gameMaker.equals(creator) &&
-    g.account.maxPlayers === maxPlayers
-  );
-};
+): Promise<GameAccountFull[]>;
+export async function fetchSpecificGames(
+  provider: AnchorProvider,
+  arg1: SpecificGameFilters | PublicKey,
+  arg2?: number,
+): Promise<GameAccountFull[]> {
+  const filters: SpecificGameFilters = arg1 instanceof PublicKey
+    ? { creator: arg1, maxPlayers: arg2 }
+    : (arg1 ?? {});
+
+  return fetchGames(provider, (g) => {
+    const a = g.account as IdlAccounts<Multiplayer>["game"] & Record<string, any>;
+    if (filters.creator && !a.gameMaker.equals(filters.creator)) return false;
+    if (filters.maxPlayers != null && a.maxPlayers !== filters.maxPlayers) return false;
+    if (filters.wagerType   != null && Number(a.wagerType)   !== Number(filters.wagerType)) return false;
+    if (filters.payoutType  != null && Number(a.payoutType)  !== Number(filters.payoutType)) return false;
+    if (filters.winnersTarget != null && Number(a.winnersTarget) !== Number(filters.winnersTarget)) return false;
+    return true;
+  });
+}
 
 /** Shape of the GambaState PDA */
 export type GambaStateFull = {

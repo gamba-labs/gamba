@@ -33,6 +33,7 @@ export interface BoardRendererProps {
   roster: { id:string; color:string }[]
   metadata: Record<string,string>
   youIdx: number
+  popups: { bucketIndex: number; value: number; life: number; y: number }[]
 }
 
 /* ─── helper for bucket colour / label ─── */
@@ -94,7 +95,7 @@ function bucketNextVisual(
 export default function BoardRenderer(props: BoardRendererProps) {
   const {
     engine, dynModes, patternOffsets, started, bucketAnim, pegAnim, particles,
-    arrowPos, labelPos, mults, roster, metadata, youIdx,
+    arrowPos, labelPos, mults, roster, metadata, youIdx, popups,
   } = props
 
   // timing for dynamic cycle ring (UI-only approximation)
@@ -226,6 +227,29 @@ export default function BoardRenderer(props: BoardRendererProps) {
         ctx.strokeText(label, cx, ly)
         ctx.fillStyle = `hsla(${hue},80%,75%,1)`
         ctx.fillText(label, cx, ly)
+
+        // floating score/deduct popups over this bucket
+        for (let k = 0; k < popups.length; k++) {
+          const pp = popups[k]
+          if (pp.bucketIndex !== i) continue
+          // update per-frame
+          pp.life -= 1
+          pp.y += 0.8
+          const alpha = Math.max(0, Math.min(1, pp.life / 30))
+          const positive = pp.value >= 0
+          const text = `${positive ? '+' : ''}${Math.abs(pp.value).toFixed(1).replace(/\.0$/, '')}`
+          const ty = top - 8 - pp.y
+          ctx.font = 'bold 16px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.lineWidth = 4
+          ctx.strokeStyle = `rgba(0,0,0,${0.5*alpha})`
+          ctx.strokeText(text, cx, ty)
+          ctx.fillStyle = positive
+            ? `rgba(34,197,94,${alpha})`
+            : `rgba(239,68,68,${alpha})`
+          ctx.fillText(text, cx, ty)
+        }
 
         // show NEXT icon/label preview for dynamic buckets
         if (nextVis) {

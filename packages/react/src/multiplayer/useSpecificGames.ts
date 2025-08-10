@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { PublicKey } from '@solana/web3.js'
 import { useGambaContext } from '../GambaProvider'
 import { fetchSpecificGames, type GameAccountFull, type SpecificGameFilters } from './fetch'
+import { PROGRAM_ID } from '@gamba-labs/multiplayer-sdk'
 
 export function useSpecificGames(
   creator: PublicKey,
@@ -46,11 +47,23 @@ export function useSpecificGames(
   })])
 
   useEffect(() => { refresh() }, [refresh])
+  // Optional polling (can be disabled by passing 0)
   useEffect(() => {
     if (!pollMs) return
     const id = window.setInterval(refresh, pollMs)
     return () => window.clearInterval(id)
   }, [refresh, pollMs])
+  // Subscribe to program account changes to automatically refresh
+  useEffect(() => {
+    if (!provider) return
+    const conn  = provider.anchorProvider.connection
+    const subId = conn.onProgramAccountChange(
+      PROGRAM_ID,
+      () => { void refresh() },
+      'confirmed',
+    )
+    return () => { conn.removeProgramAccountChangeListener(subId) }
+  }, [provider, refresh])
 
   return { games, loading, refresh }
 }

@@ -89,11 +89,11 @@ const fmt2 = (n: number) =>
 
 /* ─── COMPONENT ────────────────────────────────────────────────────────────── */
 export function RecentGames() {
-  // fetch the last 20 winnersSelected events, polling every 30s
+  // Fetch the last 20 winnersSelected events. Live updates come via logs; no polling.
   const { events, loading } = useRecentMultiplayerEvents(
     'winnersSelected',
     20,
-    30_000,
+    0,
   )
 
   // filter to only your creator & maxPlayers

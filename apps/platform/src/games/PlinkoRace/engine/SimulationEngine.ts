@@ -77,8 +77,9 @@ export class SimulationEngine {
     const paths      : number[][] = [];
     const balls      : Body[]     = [];
 
-    const scores = new Uint32Array(this.players.length);
-    const mults  = new Uint8Array (this.players.length).fill(1);
+    const scores = new Float32Array(this.players.length);
+    // Use float multipliers to preserve fractional values like 1.5×
+    const mults  = new Float32Array(this.players.length).fill(1);
     const events : RecordedRaceEvent[] = [];
 
     /* initial balls */
@@ -209,8 +210,8 @@ outer:
     paths      : number[][];
     offsets    : number[];
     pathOwners : number[];
-    mults      : Uint8Array;
-    scores     : Uint32Array;
+    mults      : Float32Array;
+    scores     : Float32Array;
     layer      : Composite;
   }) {
     const {
@@ -251,7 +252,8 @@ outer:
       case BucketType.Multiplier: {
         const m = def.value ?? 1;
         const current = mults[playerIx];
-        const next    = Math.min((current === 1 ? 0 : current) + m, 64);
+        // Additive stacking with baseline 1 preserved
+        const next = Math.min((current === 1 ? 0 : current) + m, 64);
         mults[playerIx] = next;
         events.push({
           frame, player:playerIx, kind:'mult',
@@ -268,6 +270,8 @@ outer:
           frame, player:playerIx, kind:'deduct',
           value:applied, bucket:bucketIndex,
         });
+        // Consume multiplier on deduction
+        mults[playerIx] = 1;
       } break;
 
       /* ─── extra‑ball bucket ───────────────── */

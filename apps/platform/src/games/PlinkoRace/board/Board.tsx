@@ -44,13 +44,34 @@ export default function Board({
   onFinished?: () => void
 }) {
   // roster & “you”
-  const roster: PlayerInfo[] = useMemo(
-    () => players.map((p,i) => ({
+  const roster: PlayerInfo[] = useMemo(() => {
+    const DISTINCT_COLORS = [
+      '#e6194B', // red
+      '#3cb44b', // green
+      '#ffe119', // yellow
+      '#4363d8', // blue
+      '#f58231', // orange
+      '#911eb4', // purple
+      '#46f0f0', // cyan
+      '#f032e6', // magenta
+      '#bcf60c', // lime
+      '#fabebe', // pink
+      '#008080', // teal
+      '#e6beff', // lavender
+      '#9a6324', // brown
+      '#fffac8', // beige
+      '#800000', // maroon
+      '#aaffc3', // mint
+      '#808000', // olive
+      '#ffd8b1', // apricot
+      '#000075', // navy
+      '#a9a9a9', // gray
+    ] as const
+    return players.map((p, i) => ({
       id: p.toBase58(),
-      color: ['#ff9aa2','#ffb7b2','#ffdac1','#e2f0cb','#b5ead7','#c7ceea'][i%6],
-    })),
-    [players]
-  )
+      color: DISTINCT_COLORS[i % DISTINCT_COLORS.length],
+    }))
+  }, [players])
   const { publicKey } = useWallet()
   const youIdx = useMemo(
     () => youIndexOverride ?? roster.findIndex(r => r.id === publicKey?.toBase58()),
@@ -66,6 +87,7 @@ export default function Board({
   const [patternOffsets, setPatternOffsets] = useState<number[]>([])
   const [finished, setFinished] = useState(false)
   const [hud, setHud]           = useState<HudPayload|null>(null)
+  const [popups, setPopups]     = useState<{ bucketIndex:number; value:number; life:number; y:number }[]>([])
 
   // always create a fresh payload so HUD animates each time
   const showHud = (text: HudMessage) => {
@@ -210,6 +232,9 @@ export default function Board({
             c[e.player] = Math.max(0, (c[e.player] ?? 0) - (e.value || 0));
             return c
           })
+          if (e.bucket !== undefined) {
+            setPopups(arr => [{ bucketIndex: e.bucket!, value: -(e.value || 0), life: 30, y: 0 }, ...arr])
+          }
         }
 
         if (e.kind === 'score') {
@@ -220,6 +245,9 @@ export default function Board({
           setMults(m => {
             const c = [...m]; c[e.player] = 1; return c
           })
+          if (e.bucket !== undefined) {
+            setPopups(arr => [{ bucketIndex: e.bucket!, value: (e.value || 0), life: 30, y: 0 }, ...arr])
+          }
         }
 
         if (e.kind === 'ballKill') {
@@ -262,6 +290,7 @@ export default function Board({
         roster={roster}
         metadata={metadata}
         youIdx={youIdx}
+        popups={popups}
       />
 
       <Scoreboard

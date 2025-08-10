@@ -191,7 +191,9 @@ export default function Scoreboard({
                 textAlign   : 'right',
                 fontFamily  : 'monospace',
               }}>
-                {s.toString().padStart(targetPoints.toString().length,' ')}
+                {Number.isInteger(s)
+                  ? s.toString().padStart(targetPoints.toString().length,' ')
+                  : s.toFixed(1)}
               </div>
 
               {/* payout (only final) */}

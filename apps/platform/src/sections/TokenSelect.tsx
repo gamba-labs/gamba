@@ -134,7 +134,8 @@ export default function TokenSelect() {
           )}
         </GambaUi.Button>
         <Dropdown visible={visible}>
-          {POOLS.map((pool, i) => (
+          {/* Mount balances for list items only when dropdown is visible to avoid unnecessary watchers */}
+          {visible && POOLS.map((pool, i) => (
             <StyledTokenButton onClick={() => selectPool(pool)} key={i}>
               <TokenSelectItem mint={pool.token} />
             </StyledTokenButton>

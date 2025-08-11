@@ -1,5 +1,3 @@
-// packages/react/src/multiplayer/useRecentMultiplayerEvents.ts
-
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useGambaContext } from '../GambaProvider'
 import {
@@ -34,7 +32,6 @@ export function useRecentMultiplayerEvents<N extends EventName>(
         name,
         howMany,
       )
-      // seed the seen-set and state with newest-first unique events
       const next = [] as ParsedEvent<N>[]
       const local = new Set<string>()
       for (const ev of evs) {
@@ -51,17 +48,14 @@ export function useRecentMultiplayerEvents<N extends EventName>(
     }
   }, [provider, name, howMany])
 
-  // initial fetch
   useEffect(() => { refresh() }, [refresh])
 
-  // optional polling
   useEffect(() => {
     if (!pollMs) return
     const id = window.setInterval(refresh, pollMs)
     return () => window.clearInterval(id)
   }, [refresh, pollMs])
 
-  // live logs subscription (append matching events)
   useEffect(() => {
     if (!provider) return
     const conn = provider.anchorProvider.connection as any
@@ -69,9 +63,7 @@ export function useRecentMultiplayerEvents<N extends EventName>(
       conn,
       PROGRAM_ID,
       (evt) => {
-        // filter by event name
         if (evt.name !== (name as any)) return
-        // avoid duplicates
         if (seen.current.has(evt.signature)) return
         seen.current.add(evt.signature)
         setEvents((prev) => {
@@ -81,7 +73,6 @@ export function useRecentMultiplayerEvents<N extends EventName>(
             slot: 0,
             blockTime: Math.floor(evt.time / 1000),
           } as ParsedEvent<N>, ...prev]
-          // cap to howMany
           return next.slice(0, howMany)
         })
       },

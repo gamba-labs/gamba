@@ -1,4 +1,3 @@
-// src/index.tsx
 import React, { useState, useCallback } from 'react';
 import { GambaUi }                       from 'gamba-react-ui-v2';
 import type { PublicKey }                from '@solana/web3.js';
@@ -11,7 +10,6 @@ export default function PlinkoRace() {
   const [selectedGame, setSelectedGame] = useState<PublicKey | null>(null);
   const [debugMode,    setDebugMode]    = useState(false);
 
-  // back → unselect & exit debug if needed
   const handleBack = useCallback(() => {
     setSelectedGame(null);
     setDebugMode(false);

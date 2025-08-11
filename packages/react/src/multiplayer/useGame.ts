@@ -1,4 +1,3 @@
-// src/multiplayer/useGame.ts
 import { useEffect, useState } from "react";
 import type { AnchorProvider, IdlAccounts } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
@@ -29,7 +28,6 @@ export function useGame(
   );
   const [metadata, setMetadata] = useState<Record<string, string>>({});
 
-  // 1) load & subscribe to the game account
   useEffect(() => {
     if (!provider || !pk) {
       setGame(null);
@@ -42,7 +40,6 @@ export function useGame(
     const program = getProgram(anchorProv);
     const coder = program.coder.accounts;
 
-    // initial load
     conn
       .getAccountInfo(pk, "confirmed")
       .then((info) => {
@@ -54,7 +51,6 @@ export function useGame(
       })
       .catch(() => setGame(null));
 
-    // live subscribe
     const subId = conn.onAccountChange(
       pk,
       (info) => {
@@ -64,20 +60,17 @@ export function useGame(
           try {
             setGame(coder.decode("game", info.data) as any);
           } catch {
-            // ignore decode errors
           }
         }
       },
       "confirmed"
     );
 
-    // cleanup (sync): swallow any errors
     return () => {
       conn.removeAccountChangeListener(subId).catch(console.error);
     };
   }, [provider, pk]);
 
-  // 2) if requested, load & subscribe to the metadata PDA
   useEffect(() => {
     if (!opts.fetchMetadata || !provider || !game || !pk) {
       setMetadata({});
@@ -89,12 +82,10 @@ export function useGame(
     const gameSeed = game.gameSeed;
     const metaPda = deriveMetadataPda(pk);
 
-    // initial fetch
     fetchPlayerMetadata(anchorProv, gameSeed)
       .then(setMetadata)
       .catch(console.error);
 
-    // live subscribe
     const msub = conn.onAccountChange(
       metaPda,
       (info) => {
@@ -107,7 +98,6 @@ export function useGame(
       "confirmed"
     );
 
-    // cleanup (sync): swallow any errors
     return () => {
       conn.removeAccountChangeListener(msub).catch(console.error);
     };

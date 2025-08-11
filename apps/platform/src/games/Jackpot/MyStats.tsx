@@ -1,9 +1,7 @@
-// src/games/Jackpot/MyStats.tsx
 import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { motion, AnimatePresence, animate } from 'framer-motion'
 
-/** A reusable component to animate numbers counting up */
 function AnimatedNumber({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null)
 
@@ -11,7 +9,6 @@ function AnimatedNumber({ value }: { value: number }) {
     const node = ref.current
     if (!node) return
 
-    // Animate from current text (or 0) up to `value`
     const controls = animate(
       Number(node.textContent) || 0,
       value,
@@ -29,7 +26,6 @@ function AnimatedNumber({ value }: { value: number }) {
   return <span ref={ref} />
 }
 
-/** Styled motion container */
 const Wrap = styled(motion.div)`
   display: flex;
   gap: 20px;
@@ -40,7 +36,6 @@ const Wrap = styled(motion.div)`
   text-align: center;
 `
 
-/** Styled motion item */
 const Stat = styled(motion.div)`
   background: #23233b;
   padding: 10px 14px;
@@ -60,7 +55,6 @@ const Stat = styled(motion.div)`
   }
 `
 
-/** Animation variants for container & items */
 const containerVariants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: {

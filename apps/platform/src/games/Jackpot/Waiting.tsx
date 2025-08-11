@@ -1,11 +1,7 @@
-// src/games/Jackpot/Waiting.tsx
 import React from 'react'
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
 
-/* ────────────────────────────────────────────────────────── */
-/* Full‑canvas overlay: sticks dead‑centre in GameContainer  */
-/* ────────────────────────────────────────────────────────── */
 const Overlay = styled.div`
   position: absolute;
   inset: 0;                         /* stretch to all edges */

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js'
-import { useGames } from 'gamba-react-v2'
+import { useSpecificGames } from 'gamba-react-v2'
 import { useSound } from 'gamba-react-ui-v2'
 import CreateGameModal from './CreateGameModal'
 import lobbymusicSnd from '../sounds/lobby.mp3'
@@ -14,7 +14,6 @@ import {
   toggleMuted,
 } from '../musicManager'
 
-/* ──────────────────── helpers ──────────────────── */
 const sol = (lamports: number) => lamports / LAMPORTS_PER_SOL
 const shorten = (pk: PublicKey) =>
   pk.toBase58().slice(0, 4) + '...'
@@ -25,7 +24,6 @@ const formatDuration = (ms: number) => {
   return `${m}:${s.toString().padStart(2,'0')}`
 }
 
-/* ───────────────── styled components ──────────── */
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -73,25 +71,20 @@ export default function Lobby({
   onSelect(pk: PublicKey): void
   onDebug(): void
 }) {
-  const { games, loading, refresh } = useGames()
+  const { games, loading, refresh } = useSpecificGames({ winnersTarget: 1 }, 0)
 
-  // play & retain lobby music without auto-dispose
   const { play, sounds } = useSound(
     { lobby: lobbymusicSnd },
     { disposeOnUnmount: false }
   )
 
-  // claim/release the musicManager on mount/unmount
   useEffect(() => {
     const snd = sounds.lobby
 
-    // cancel any pending stop
     clearTimeout(musicManager.timer)
 
-    // bump claim count
     musicManager.count += 1
 
-    // if first claimant, start loop and attach to mute store
     if (!musicManager.sound) {
       snd.player.loop = true
       const startWhenReady = () => {
@@ -106,16 +99,13 @@ export default function Lobby({
     }
 
     return () => {
-      // release claim
       musicManager.count -= 1
       if (musicManager.count === 0) {
-        // after a brief grace window, stop & dispose
         musicManager.timer = setTimeout(stopAndDispose, 200)
       }
     }
   }, [play, sounds])
 
-  // local UI state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [now, setNow] = useState(Date.now())
   useEffect(() => {

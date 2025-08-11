@@ -1,5 +1,3 @@
-// instructions/distribute-native.ts
-
 import { AnchorProvider, web3 } from "@coral-xyz/anchor";
 import { getProgram }           from "../constants.js";
 import { deriveGambaState, deriveMetadataPda } from "../utils/pda.js";
@@ -10,7 +8,7 @@ export interface DistributeNativeParams {
     gameAccount:     web3.PublicKey;
     gambaFeeAddress: web3.PublicKey;
   };
-  remaining: web3.PublicKey[]; // raw creator/winner accounts (system lamport receivers)
+  remaining: web3.PublicKey[];
 }
 
 export const distributeNativeIx = async (
@@ -21,12 +19,9 @@ export const distributeNativeIx = async (
   const gambaStatePda   = deriveGambaState();
   const metadataAccount = deriveMetadataPda(p.accounts.gameAccount);
 
-  // fetch the gameMaker from on‑chain state
   const rawGame = await program.account.game.fetch(p.accounts.gameAccount);
   const gameMaker = (rawGame as any).gameMaker as web3.PublicKey;
 
-  // remainingAccounts must be provided in the exact order:
-  // [ creator1_pk, creator2_pk, …, winner1_pk, winner2_pk, … ]
   const rem = p.remaining.map((pk) => ({
     pubkey:     pk,
     isWritable: true,

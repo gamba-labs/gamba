@@ -81,6 +81,11 @@ export default function EditBet({
     anchorProvider,
   ]);
 
+  const isFixedWager = 'sameWager' in (account as any).wagerType;
+  const isRangeWager = 'betRange' in (account as any).wagerType;
+  const minBet = isRangeWager ? (account as any).minBet?.toNumber?.() ?? 0 : undefined;
+  const maxBet = isRangeWager ? (account as any).maxBet?.toNumber?.() ?? undefined : undefined;
+
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
       <WagerInput
@@ -90,6 +95,9 @@ export default function EditBet({
             (Math.max(lp, currentLp) / LAMPORTS_PER_SOL).toFixed(2)
           )
         }
+        lockedValue={isFixedWager ? account.wager.toNumber() : undefined}
+        minValue={isRangeWager ? minBet : undefined}
+        maxValue={isRangeWager ? maxBet : undefined}
         disabled={busy || !anchorProvider}
       />
       <Button

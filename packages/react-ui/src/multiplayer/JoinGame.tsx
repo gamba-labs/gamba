@@ -47,6 +47,10 @@ export default function JoinGame({
   const { connection } = useConnection();
 
   const [lamports, setLamports] = useState(account.wager.toNumber());
+  const isFixedWager = 'sameWager' in (account as any).wagerType;
+  const isRangeWager = 'betRange' in (account as any).wagerType;
+  const minBet = isRangeWager ? (account as any).minBet?.toNumber?.() ?? 0 : undefined;
+  const maxBet = isRangeWager ? (account as any).maxBet?.toNumber?.() ?? undefined : undefined;
   const [metadata, setMetadata] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -133,7 +137,14 @@ export default function JoinGame({
 
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-      <WagerInput value={lamports} onChange={setLamports} disabled={busy} />
+      <WagerInput
+        value={lamports}
+        onChange={setLamports}
+        lockedValue={isFixedWager ? account.wager.toNumber() : undefined}
+        minValue={isRangeWager ? minBet : undefined}
+        maxValue={isRangeWager ? maxBet : undefined}
+        disabled={busy}
+      />
       {enableMetadata && (
         <TextInput
           placeholder="Name (opt.)"

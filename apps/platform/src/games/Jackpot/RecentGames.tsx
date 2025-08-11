@@ -1,4 +1,3 @@
-// src/games/Jackpot/RecentGames.tsx
 import React from 'react'
 import styled from 'styled-components'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -7,7 +6,6 @@ import { useRecentMultiplayerEvents } from 'gamba-react-v2'
 import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config'
 import { ParsedEvent } from '@gamba-labs/multiplayer-sdk'
 
-/* ─── STYLES ───────────────────────────────────────────────────────────────── */
 const Container = styled.div`
   background: #23233b;
   border-radius: 15px;
@@ -64,7 +62,6 @@ const Fade = styled.div`
   background: linear-gradient(rgba(35,35,59,0), rgba(35,35,59,1));
 `
 
-/* ─── HELPERS ──────────────────────────────────────────────────────────────── */
 const toNum = (x: any): number =>
   typeof x === 'number'
     ? x
@@ -87,16 +84,13 @@ const fmt2 = (n: number) =>
     maximumFractionDigits: 2,
   })
 
-/* ─── COMPONENT ────────────────────────────────────────────────────────────── */
 export function RecentGames() {
-  // Fetch the last 20 winnersSelected events. Live updates come via logs; no polling.
   const { events, loading } = useRecentMultiplayerEvents(
     'winnersSelected',
     20,
     0,
   )
 
-  // filter to only your creator & maxPlayers
   const filtered = React.useMemo<
     ParsedEvent<'winnersSelected'>[]
   >(() => {

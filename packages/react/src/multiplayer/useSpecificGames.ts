@@ -1,5 +1,3 @@
-// packages/react/src/multiplayer/useSpecificGames.ts
-
 import { useEffect, useState, useCallback } from 'react'
 import { PublicKey } from '@solana/web3.js'
 import { useGambaContext } from '../GambaProvider'
@@ -37,23 +35,21 @@ export function useSpecificGames(
     } finally {
       setLoading(false)
     }
-  // stringify filters for stable deps
   }, [provider, JSON.stringify({
     c: filters.creator?.toBase58?.() ?? String(filters.creator ?? ''),
     m: filters.maxPlayers,
     w: filters.wagerType,
     p: filters.payoutType,
     t: filters.winnersTarget,
+    x: filters.mint?.toBase58?.() ?? String(filters.mint ?? ''),
   })])
 
   useEffect(() => { refresh() }, [refresh])
-  // Optional polling (can be disabled by passing 0)
   useEffect(() => {
     if (!pollMs) return
     const id = window.setInterval(refresh, pollMs)
     return () => window.clearInterval(id)
   }, [refresh, pollMs])
-  // Subscribe to program account changes to automatically refresh
   useEffect(() => {
     if (!provider) return
     const conn  = provider.anchorProvider.connection

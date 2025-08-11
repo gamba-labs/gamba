@@ -12,26 +12,21 @@ import {
   BUCKET_DEFS,
 } from '../engine/constants'
 
-/** How often to spawn a new preview ball (ms) */
 const SPAWN_INTERVAL = 300
-/** Palette for the balls */
 const BALL_COLORS = ['#ff9aa2','#ffb7b2','#ffdac1','#e2f0cb','#b5ead7','#c7ceea']
 
 export default function LobbyBackground() {
   const worldRef      = useRef<PhysicsWorld>()
   const ballsRef      = useRef<Body[]>([])
   const lastSpawn     = useRef(0)
-  // timestamp of last hit per bucket index
   const bucketHitsRef = useRef<Record<number, number>>({})
 
-  // create physics world
   useEffect(() => {
     const w = new PhysicsWorld()
     worldRef.current = w
     return () => w.cleanup()
   }, [])
 
-  // spawn balls & step simulation
   useEffect(() => {
     let raf: number
     const step = (time: number) => {
@@ -65,7 +60,6 @@ export default function LobbyBackground() {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  // render loop
   return (
     <GambaUi.Canvas
       style={{
@@ -79,7 +73,6 @@ export default function LobbyBackground() {
         const w = worldRef.current
         if (!w) return
 
-        // clear & scale
         const scale = Math.min(size.width / WIDTH, size.height / HEIGHT)
         ctx.clearRect(0, 0, size.width, size.height)
         ctx.save()
@@ -89,8 +82,7 @@ export default function LobbyBackground() {
         )
         ctx.scale(scale, scale)
 
-        // **transparent background**: no fillRect here
-
+        // transparent background
         // draw pegs
         const bodies = w.getBodies()
         const pegs   = bodies.filter(b => b.label === 'Peg')

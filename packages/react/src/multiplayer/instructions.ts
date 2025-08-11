@@ -1,6 +1,3 @@
-// packages/react/src/multiplayer/instructions.ts
-
-// Re-export ALL raw instruction builders + their types
 export {
   joinGameIx,
   leaveGameIx,

@@ -8,8 +8,6 @@ import { NATIVE_MINT } from '@solana/spl-token';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { GambaUi } from 'gamba-react-ui-v2';
 
-/* ─── STYLES (Matching Lobby Aesthetic) ────────────────────────────────────── */
-
 const Backdrop = styled(motion.div)`
   position: absolute;  /* inside canvas */
   inset: 0;
@@ -154,8 +152,6 @@ const ErrorMessage = styled.p`
   text-align: center;
   font-size: 0.9rem;
 `;
-
-/* ─── COMPONENT ────────────────────────────────────────────────────────────── */
 
 export default function CreateGameModal({
   isOpen,

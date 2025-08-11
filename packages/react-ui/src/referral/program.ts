@@ -4,7 +4,6 @@ import { REFERRAL_IDL, ReferralIdl } from './idl'
 
 const PROGRAM_PUBKEY = new PublicKey(REFERRAL_IDL.address)
 
-// Anchor 0.31: Program(idl, provider)
 function programFor(provider: anchor.AnchorProvider) {
   return new anchor.Program<ReferralIdl>(REFERRAL_IDL as any, provider)
 }

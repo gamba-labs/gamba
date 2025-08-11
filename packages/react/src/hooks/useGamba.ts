@@ -1,4 +1,3 @@
-// packages/react/src/hooks/useGamba.ts
 import { useConnection } from '@solana/wallet-adapter-react'
 import { decodeGame, getGameAddress, getNextResult } from 'gamba-core-v2'
 import { useAccount }     from './useAccount'

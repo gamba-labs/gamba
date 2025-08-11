@@ -6,7 +6,6 @@ import type { Multiplayer } from '@gamba-labs/multiplayer-sdk';
 import { useSound } from 'gamba-react-ui-v2';
 import joinSnd from './sounds/join.mp3';
 
-// full-screen, pointer-events:none container
 const Container = styled.div`
   position: absolute;
   top: 0;
@@ -24,7 +23,6 @@ interface CoinfallsProps {
   players: Player[];
 }
 
-// simple hook to track previous props
 function usePrevious<T>(value: T) {
   const ref = useRef<T>();
   useEffect(() => {
@@ -33,7 +31,6 @@ function usePrevious<T>(value: T) {
   return ref.current;
 }
 
-// your linear wager→radius mapping (you can swap in gamma/log if desired)
 const getRadiusForWager = (wagerLamports: number) => {
   const minWager = 0.01 * web3.LAMPORTS_PER_SOL;
   const maxWager = 5    * web3.LAMPORTS_PER_SOL;

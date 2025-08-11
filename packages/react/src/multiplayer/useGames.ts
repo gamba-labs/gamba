@@ -1,4 +1,3 @@
-// packages/react/src/multiplayer/useGames.ts
 import { useEffect, useState, useCallback } from 'react'
 import { useGambaContext } from '../GambaProvider'
 import { fetchGames, type GameAccountFull } from './fetch'
@@ -21,12 +20,10 @@ export function useGames() {
     }
   }, [provider])
 
-  // initial load
   useEffect(() => {
     void refresh()
   }, [refresh])
 
-  // re-fetch whenever any game account changes on-chain
   useEffect(() => {
     if (!provider) return
     const conn  = provider.anchorProvider.connection
@@ -34,7 +31,6 @@ export function useGames() {
       PROGRAM_ID,
       () => { void refresh() },
       'confirmed',
-      // ← removed [{ dataSize: … }]
     )
     return () => {
       conn.removeProgramAccountChangeListener(subId)

@@ -1,5 +1,3 @@
-// instructions/distribute-spl.ts
-
 import { AnchorProvider, web3 } from "@coral-xyz/anchor";
 import { getAssociatedTokenAddressSync as getAta } from "@solana/spl-token";
 import { getProgram }                from "../constants.js";

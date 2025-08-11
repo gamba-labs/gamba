@@ -3,7 +3,6 @@ import { BucketType } from './constants';
 
 export interface PlayerInfo { id: string; color: string; }
 
-/** Events emitted during simulation – extend freely. */
 export interface RecordedRaceEvent {
   frame  : number;
   player : number;              // -1 ⇒ global / no player

@@ -18,18 +18,16 @@ export class PhysicsWorld {
   private runner: Matter.Runner;
 
   constructor() {
-    /* ── engine ─────────────────────────────────────────── */
     this.engine = Matter.Engine.create({
       gravity: { y: GRAVITY },
-      timing : { timeScale: TIME_SCALE  },          // 4× faster than real‑time
+      timing : { timeScale: TIME_SCALE  },
     });
     this.runner = Matter.Runner.create({ isFixed: true });
     this.world  = this.engine.world;
 
-    /* ── static geometry (pegs + barriers) ─────────────── */
     Composite.add(this.world, [
       ...this.buildPegs(),
-      ...this.buildBarriers(),            // purely for bounce – no sensors
+      ...this.buildBarriers(),
     ]);
   }
 
@@ -47,10 +45,9 @@ export class PhysicsWorld {
     Matter.Engine.clear(this.engine);
   }
 
-  /* pegs laid out in an equilateral triangular grid */
   private buildPegs() {
     const rowH  = HEIGHT / (ROWS + 2);
-    let   pegIx = 0;                                    // <── NEW
+    let   pegIx = 0;
     return Array.from({ length: ROWS }).flatMap((_, r, all) => {
       const cols = r + 1;
       const rowW = (WIDTH * r) / (all.length - 1);
@@ -65,14 +62,13 @@ export class PhysicsWorld {
             isStatic    : true,
             restitution : RESTITUTION,
             label       : 'Peg',
-            plugin      : { pegIndex: pegIx++ },         // <── NEW
+            plugin      : { pegIndex: pegIx++ },
           },
         )
       );
     }).slice(3);                                        // trim top three rows
   }
 
-  /* barriers between buckets so balls bounce realistically */
   private buildBarriers() {
     const bw = WIDTH / BUCKET_DEFS.length;
     return [0, ...BUCKET_DEFS.map((_, i) => bw * (i + 1))].map(x =>

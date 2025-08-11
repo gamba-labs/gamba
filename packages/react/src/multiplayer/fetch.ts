@@ -1,4 +1,3 @@
-// packages/react/src/multiplayer/fetch.ts
 import {
   AnchorProvider,
   EventParser,
@@ -18,17 +17,16 @@ import {
 export type GameAccountFull = _GameAccountFull
 export type GambaStateFull = { publicKey: PublicKey; account: IdlAccounts<Multiplayer>['gambaState'] }
 
-// ─── RAW ACCOUNT FETCHERS ───────────────────────────────────────
 export const fetchGames      = _fetchGames
 export const fetchGambaState = _fetchGambaState
 
-// ─── FILTERED GAME FETCHER ──────────────────────────────────────
 export type SpecificGameFilters = {
   creator?: PublicKey
   maxPlayers?: number
   wagerType?: number
   payoutType?: number
   winnersTarget?: number
+  mint?: PublicKey
 }
 
 export function fetchSpecificGames(
@@ -57,12 +55,12 @@ export function fetchSpecificGames(
       if (filters.wagerType      != null && Number(a.wagerType)   !== Number(filters.wagerType))   return false
       if (filters.payoutType     != null && Number(a.payoutType)  !== Number(filters.payoutType))  return false
       if (filters.winnersTarget  != null && Number(a.winnersTarget)!== Number(filters.winnersTarget)) return false
+      if (filters.mint           != null && !a.mint.equals(filters.mint)) return false
       return true
     })
   )
 }
 
-// ─── EVENT TYPES ─────────────────────────────────────────────────
 export type EventName = keyof IdlEvents<Multiplayer>
 export type ParsedEvent<N extends EventName = EventName> = {
   data      : IdlEvents<Multiplayer>[N]
@@ -71,7 +69,6 @@ export type ParsedEvent<N extends EventName = EventName> = {
   blockTime : number | null
 }
 
-// ─── GENERIC RECENT EVENT FETCHER ────────────────────────────────
 export async function fetchRecentEvents<N extends EventName>(
   provider: AnchorProvider,
   name: N,
@@ -82,18 +79,15 @@ export async function fetchRecentEvents<N extends EventName>(
   const parser  = new EventParser(PROGRAM_ID, program.coder)
   const FINALITY: Finality = 'confirmed'
 
-  // 1) signatures (overshoot 2×)
   const sigs = await conn.getSignaturesForAddress(
     PROGRAM_ID,
     { limit: howMany * 2 },
     FINALITY,
   )
-  // 2) batch transactions
   const txs = await conn.getTransactions(
     sigs.map(s => s.signature),
     { maxSupportedTransactionVersion: 0, commitment: FINALITY }
   )
-  // 3) parse logs
   const out: ParsedEvent<N>[] = []
   for (let i = 0; i < txs.length; i++) {
     const logs = txs[i]?.meta?.logMessages
@@ -109,20 +103,16 @@ export async function fetchRecentEvents<N extends EventName>(
       }
     }
   }
-  // newest first, capped
   return out.sort((a, b) => b.slot - a.slot).slice(0, howMany)
 }
 
-// ─── RECENT WINNERS FOR SPECIFIC CREATOR/MAX-PLAYERS ─────────────
 export async function fetchRecentSpecificWinners(
   provider: AnchorProvider,
   creator: PublicKey,
   maxPlayers: number,
   howMany = 10,
 ): Promise<ParsedEvent<'winnersSelected'>[]> {
-  // fetch raw winnersSelected events
   const events = await fetchRecentEvents(provider, 'winnersSelected', howMany)
-  // fetch on-chain games
   const games  = await fetchSpecificGames(provider, creator, maxPlayers)
   const okSet  = new Set(
     games.map(g =>
@@ -131,7 +121,6 @@ export async function fetchRecentSpecificWinners(
         : g.publicKey.toBase58()
     )
   )
-  // filter event.data.gameAccount against that set
   return events.filter(ev => {
     const acct = ev.data.gameAccount
     const key  = typeof acct === 'string' ? acct : acct.toBase58()

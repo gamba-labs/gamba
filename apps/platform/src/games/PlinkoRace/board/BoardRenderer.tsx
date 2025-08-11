@@ -10,15 +10,12 @@ import {
 } from '../engine/constants'
 import { useMultiPlinko } from '../hooks/useMultiPlinko'
 
-/* ─── local constants identical to Board.tsx ─── */
 const ARROW_W = 12, ARROW_H = 10
 const HIT_DIST_SQ = (BALL_RADIUS + PEG_RADIUS) ** 2
 
-/* ─── shared helper types ─── */
 type Particle   = { x:number; y:number; size:number; opacity:number; life:number; vx:number; vy:number }
 type LerpState  = { px:number; py:number }
 
-/* ─── props coming from Board.tsx ─── */
 export interface BoardRendererProps {
   engine: ReturnType<typeof useMultiPlinko>['engine'] | null
   dynModes: number[]
@@ -36,7 +33,6 @@ export interface BoardRendererProps {
   popups: { bucketIndex: number; value: number; life: number; y: number }[]
 }
 
-/* ─── helper for bucket colour / label ─── */
 function bucketVisual(
   def:(typeof BUCKET_DEFS)[number],
   dynMode:number,
@@ -62,7 +58,6 @@ function bucketVisual(
   }
 }
 
-/* ─── helper for NEXT bucket visual ─── */
 function bucketNextVisual(
   def:(typeof BUCKET_DEFS)[number],
   dynMode:number,
@@ -98,12 +93,9 @@ export default function BoardRenderer(props: BoardRendererProps) {
     arrowPos, labelPos, mults, roster, metadata, youIdx, popups,
   } = props
 
-  // timing for dynamic cycle ring (UI-only approximation)
-  // independent timers per dynamic bucket: store last-change per index
   const lastChangeMsRef  = useRef<Record<number, number>>({})
   const prevDynModesRef  = useRef<number[]>(dynModes)
   if (prevDynModesRef.current !== dynModes) {
-    // detect per-bucket changes
     BUCKET_DEFS.forEach((b,i) => {
       if (b.type !== BucketType.Dynamic) return
       const prev = prevDynModesRef.current[i] ?? 0
@@ -113,7 +105,6 @@ export default function BoardRenderer(props: BoardRendererProps) {
     prevDynModesRef.current = dynModes
   }
 
-  // ensure initial timestamps exist only once game has started
   if (started) {
     BUCKET_DEFS.forEach((b,i) => {
       if (b.type === BucketType.Dynamic && lastChangeMsRef.current[i] == null) {

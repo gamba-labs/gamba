@@ -1,4 +1,3 @@
-// packages/react/src/multiplayer/useRecentWinners.ts
 import { useState, useEffect, useCallback } from 'react'
 import { PublicKey } from '@solana/web3.js'
 import { useGambaContext } from '../GambaProvider'
@@ -12,7 +11,7 @@ export function useRecentWinners(
   creator: PublicKey,
   maxPlayers: number,
   howMany = 10,
-  pollMs?: number,           // if omitted or 0, no polling
+  pollMs?: 5000,
 ) {
   const { provider } = useGambaContext()
   const [events, setEvents]   = useState<ParsedEvent<'winnersSelected'>[]>([])
@@ -35,9 +34,7 @@ export function useRecentWinners(
     }
   }, [provider, creator, maxPlayers, howMany])
 
-  // initial load
   useEffect(() => { refresh() }, [refresh])
-  // optional polling
   useEffect(() => {
     if (!pollMs) return
     const id = window.setInterval(refresh, pollMs)

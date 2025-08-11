@@ -22,11 +22,9 @@ export default function GameScreen({
   pk: PublicKey
   onBack: () => void
 }) {
-  // 1️⃣ subscribe to on-chain game & metadata
   const { game: chainGame, metadata } = useGame(pk, { fetchMetadata: true })
   const { publicKey } = useWallet()
 
-  // 2️⃣ snapshot once settled
   const [snapPlayers, setSnapPlayers] = useState<PublicKey[] | null>(null)
   const [snapWinner, setSnapWinner]   = useState<number | null>(null)
   const [snapPayouts, setSnapPayouts] = useState<number[] | null>(null)
@@ -44,14 +42,12 @@ export default function GameScreen({
     )
   }, [chainGame, snapPlayers])
 
-  // 3️⃣ if settled with zero players, skip replay immediately
   useEffect(() => {
     if (snapPlayers && snapPlayers.length === 0) {
       setReplayDone(true)
     }
   }, [snapPlayers])
 
-  // 4️⃣ countdown before settlement
   const [timeLeft, setTimeLeft] = useState(0)
   useEffect(() => {
     if (!chainGame?.softExpirationTimestamp) return
@@ -62,7 +58,6 @@ export default function GameScreen({
     return () => clearInterval(id)
   }, [chainGame?.softExpirationTimestamp])
 
-  // 5️⃣ derive waiting vs settled
   const waiting        = snapPlayers === null
   const boardPlayers   = waiting
     ? (chainGame?.players.map(p => p.user) || [])
@@ -70,7 +65,6 @@ export default function GameScreen({
   const boardWinnerIdx = waiting ? null : snapWinner
   const boardPayouts   = waiting ? undefined : snapPayouts!
 
-  // 6️⃣ format mm:ss
   const formatTime = (ms: number) => {
     const tot = Math.ceil(ms / 1000)
     const m   = Math.floor(tot / 60)
@@ -78,7 +72,6 @@ export default function GameScreen({
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
-  // 7️⃣ claim & release the lobby music
   useEffect(() => {
     clearTimeout(musicManager.timer)
     musicManager.count += 1
@@ -91,7 +84,6 @@ export default function GameScreen({
     }
   }, [])
 
-  // 8️⃣ when game starts playing (not waiting), stop lobby and play action music
   const { play: playAction, sounds: actionSounds } = useSound(
     { action: actionSnd },
     { disposeOnUnmount: false }

@@ -38,6 +38,7 @@ export type SpecificGameFilters = {
   wagerType?: number;       // enum repr as u8
   payoutType?: number;      // enum repr as u8
   winnersTarget?: number;
+  mint?: PublicKey;
 };
 
 /**
@@ -69,6 +70,7 @@ export async function fetchSpecificGames(
     if (filters.wagerType   != null && Number(a.wagerType)   !== Number(filters.wagerType)) return false;
     if (filters.payoutType  != null && Number(a.payoutType)  !== Number(filters.payoutType)) return false;
     if (filters.winnersTarget != null && Number(a.winnersTarget) !== Number(filters.winnersTarget)) return false;
+    if (filters.mint != null && !a.mint.equals(filters.mint)) return false;
     return true;
   });
 }

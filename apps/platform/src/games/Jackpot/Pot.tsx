@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { animate } from 'framer-motion'
 
-/** Animate from the previous to new value */
 function AnimatedNumber({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null)
 
@@ -27,7 +26,6 @@ function AnimatedNumber({ value }: { value: number }) {
   return <span ref={ref} />
 }
 
-// styled components
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

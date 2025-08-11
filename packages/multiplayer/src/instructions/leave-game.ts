@@ -1,5 +1,3 @@
-// src/sdk/leaveGame.ts
-
 import {
   AnchorProvider,
   utils as anchorUtils,
@@ -31,18 +29,15 @@ export const leaveGameIx = async (
   const program  = getProgram(provider);
   const isNative = p.accounts.mint.equals(WRAPPED_SOL_MINT);
 
-  // Derive PDAs
   const metaPda  = deriveMetadataPda(p.accounts.gameAccount);
   const gameTa   = isNative
     ? null
     : deriveEscrowPda(p.accounts.gameAccount);
 
-  // Player's ATA (skip for native)
   const playerAta = isNative
     ? null
     : ata(p.accounts.mint, p.accounts.playerAccount, false);
 
-  // Build instruction
   const ix = await program.methods
     .leaveGame()
     .accountsPartial({

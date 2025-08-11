@@ -1,4 +1,3 @@
-// src/games/Jackpot/index.tsx
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { LAMPORTS_PER_SOL }            from '@solana/web3.js'
 import { GambaUi, Multiplayer }        from 'gamba-react-ui-v2'
@@ -16,17 +15,15 @@ import { RecentGames }     from './RecentGames'
 import { Waiting }         from './Waiting'
 import { MyStats }         from './MyStats'
 
-import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS } from './config'
+import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS, DESIRED_WINNERS_TARGET, DESIRED_MINT } from './config'
 import {
   PLATFORM_CREATOR_ADDRESS,
   MULTIPLAYER_FEE,
-  PLATFORM_REFERRAL_FEE,            // ← import referral %
+  PLATFORM_REFERRAL_FEE,            // referral %
 } from '../../constants'
 import * as S from './Jackpot.styles'
 
-/* ────────────────────────────────────────────────────────── */
-/* Responsive helper                                          */
-/* ────────────────────────────────────────────────────────── */
+// Responsive media query hook
 const useMediaQuery = (q: string) => {
   const [m, setM] = useState(matchMedia(q).matches)
   useEffect(() => {
@@ -38,42 +35,45 @@ const useMediaQuery = (q: string) => {
   return m
 }
 
-/* ────────────────────────────────────────────────────────── */
-/* Component                                                  */
-/* ────────────────────────────────────────────────────────── */
+// Component
 export default function Jackpot() {
   const isSmall                  = useMediaQuery('(max-width: 900px)')
   const { publicKey: walletKey } = useWallet()
 
-  /* 1) game discovery (no auto polling) */
+  // Discover games (no auto polling)
   const {
     games, loading: gamesLoading, refresh: refreshGames,
-  } = useSpecificGames(DESIRED_CREATOR, DESIRED_MAX_PLAYERS, 0)
+  } = useSpecificGames({
+    creator: DESIRED_CREATOR,
+    maxPlayers: DESIRED_MAX_PLAYERS,
+    winnersTarget: DESIRED_WINNERS_TARGET,
+    mint: DESIRED_MINT,
+  } as any, 0)
 
-  /* 2) track the last game we **already** consumed */
+  // Track last consumed gameId
   const lastGameIdRef = useRef<number | null>(null)
 
-  /* 3) pick the first *fresh* game (skip the previous winner) */
+  // Use first fresh game (skip previously consumed)
   const freshGames = games.filter(
     g => g.account.gameId.toNumber() !== lastGameIdRef.current,
   )
   const topGame = freshGames[0] ?? null
 
-  /* 4) live subscription */
+  // Live subscription
   const liveGame = useGame(topGame?.publicKey ?? null).game
 
-  /* 5) phase handling ------------------------------------------------------ */
+  // Phase handling
   type Phase = 'playing' | 'animation' | 'waiting'
   const   [phase, setPhase] = useState<Phase>('waiting')
 
-  /** enter “playing” once we have an active waiting/playing game */
+  // Set phase based on on-chain state
   useEffect(() => {
     if (liveGame && liveGame.state.waiting)   setPhase('playing')
     if (liveGame && liveGame.state.playing)   setPhase('playing')
     if (liveGame && liveGame.state.settled)   setPhase('animation')
   }, [liveGame])
 
-  /** polling while we are in "waiting" ONLY */
+  // Poll while waiting only
   useEffect(() => {
     if (phase !== 'waiting') return
     refreshGames()                                    // kick off immediately
@@ -81,15 +81,13 @@ export default function Jackpot() {
     return () => clearInterval(id)
   }, [phase, refreshGames])
 
-  /** after the animation finishes, mark that game as consumed */
+  // After animation, mark game as consumed
   const handleAnimationDone = () => {
     if (liveGame) lastGameIdRef.current = liveGame.gameId.toNumber()
     setPhase('waiting')
   }
 
-  /* ----------------------------------------------------------------------- */
-  /* Derived helpers (unchanged apart from null-checks)                      */
-  /* ----------------------------------------------------------------------- */
+  // Derived helpers
   const players          = liveGame?.players ?? []
   const totalPotLamports = players.reduce((s, p) => s + p.wager.toNumber(), 0)
   const waitingForPlayers= !!liveGame?.state.waiting
@@ -105,29 +103,24 @@ export default function Jackpot() {
     ? (myBetLamports / totalPotLamports) * 100
     : 0
 
-  /* timestamps for the progress bar */
+  // Timestamps for progress bar
   const creationMs = liveGame ? Number(liveGame.creationTimestamp) * 1e3 : 0
   const softMs     = liveGame ? Number(liveGame.softExpirationTimestamp) * 1e3 : 0
   const totalDur   = Math.max(softMs - creationMs, 0)
 
-  /* ----------------------------------------------------------------------- */
-  /* Render                                                                  */
-  /* ----------------------------------------------------------------------- */
+  // Render
   return (
     <>
-      {/* ───── SCREEN ───── */}
       <GambaUi.Portal target="screen">
         <S.ScreenLayout>
           <S.PageLayout>
 
-            {/* left sidebar */}
             {!isSmall && (
               <S.TopPlayersSidebar>
                 <TopPlayers players={players} totalPot={totalPotLamports} />
               </S.TopPlayersSidebar>
             )}
 
-            {/* game area */}
             <S.GameContainer>
 
               {liveGame && <Coinfalls players={players} />}
@@ -139,14 +132,12 @@ export default function Jackpot() {
               )}
 
               <S.MainContent>
-                {/* --- 1. NO GAME YET ------------------------------------------------ */}
                 {!liveGame && (
                   <S.CenterBlock layout>
                     <Waiting />
                   </S.CenterBlock>
                 )}
 
-                {/* --- 2. ACTIVE GAME ----------------------------------------------- */}
                 {liveGame && (
                   <>
                     <S.Header>
@@ -174,7 +165,6 @@ export default function Jackpot() {
 
                     <S.CenterBlock layout>
 
-                      {/* show WINNER while phase === animation */}
                       {phase === 'animation' && (
                         <WinnerAnimation
                           players={players}
@@ -198,7 +188,6 @@ export default function Jackpot() {
               </S.MainContent>
             </S.GameContainer>
 
-            {/* right sidebar */}
             {!isSmall && (
               <S.RecentGamesSidebar>
                 <RecentGames />
@@ -206,14 +195,12 @@ export default function Jackpot() {
             )}
           </S.PageLayout>
 
-          {/* bottom strip */}
           <S.RecentPlayersContainer>
             <RecentPlayers players={players} />
           </S.RecentPlayersContainer>
         </S.ScreenLayout>
       </GambaUi.Portal>
 
-      {/* ───── CONTROLS ───── */}
       <GambaUi.Portal target="controls">
         {phase === 'playing' && waitingForPlayers && !youJoined && topGame && (
           <Multiplayer.JoinGame

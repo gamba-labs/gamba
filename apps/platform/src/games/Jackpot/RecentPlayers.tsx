@@ -1,4 +1,3 @@
-// src/games/Jackpot/RecentPlayers.tsx
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -11,7 +10,6 @@ const Container = styled.div`
   border-radius: 15px;
   padding: 15px;
 
-  /* ensure fixed card height so it won’t resize when players arrive */
   min-height: 120px;
 `
 

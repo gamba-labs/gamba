@@ -1,11 +1,8 @@
-// packages/react/src/multiplayer/useMultiplayer.ts
-
 import { useCallback } from "react";
 import { BN, AnchorProvider } from "@coral-xyz/anchor";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 
 import {
-  // core SDK fns + types
   joinGameIx,      type JoinGameParams,
   leaveGameIx,     type LeaveGameParams,
   createGameIx,    type CreateGameParams,
@@ -70,7 +67,6 @@ export function useMultiplayer() {
       const prov   = getProvider();
       const wallet = prov.wallet.publicKey!;
 
-      // build a 32‐byte playerMeta array (UTF-8, zero‐padded)
       const buf = new Uint8Array(32);
       if (opts.metadata) {
         const enc = new TextEncoder().encode(opts.metadata);
@@ -93,7 +89,6 @@ export function useMultiplayer() {
         } satisfies JoinGameParams
       );
 
-      // prepend any extra instructions (referral, PDAs, etc.)
       return sendTx(
         [...extraIxs, ix],
         { label: "join-game" }
@@ -115,7 +110,6 @@ export function useMultiplayer() {
   }, [sendTx]);
 
   const editBet = useCallback(async (opts: JoinOptions) => {
-    // just leave then re-join with new wager/meta
     const prov   = getProvider();
     const wallet = prov.wallet.publicKey!;
 
@@ -127,7 +121,6 @@ export function useMultiplayer() {
       },
     } satisfies LeaveGameParams);
 
-    // same metadata logic as `join`
     const buf = new Uint8Array(32);
     if (opts.metadata) {
       const enc = new TextEncoder().encode(opts.metadata);

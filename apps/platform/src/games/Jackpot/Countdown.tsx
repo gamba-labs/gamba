@@ -1,4 +1,3 @@
-// src/games/Jackpot/Countdown.tsx
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -36,9 +35,7 @@ const Progress = styled.div`
 `
 
 interface CountdownProps {
-  /** ms when game was created */
   creationTimestamp: number
-  /** ms when soft expiration occurs */
   softExpiration: number
   onComplete: () => void
 }

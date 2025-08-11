@@ -1,4 +1,3 @@
-// src/games/Jackpot/WinnerAnimation.tsx
 import React, {
   useState,
   useEffect,
@@ -14,9 +13,6 @@ import { useSound } from 'gamba-react-ui-v2'
 import tickSnd from './sounds/tick.mp3'
 import winSnd  from './sounds/win.mp3'
 
-/* ──────────────────────────────────────────────────────────────
-   1.  Styles
-   ──────────────────────────────────────────────────────────── */
 const winnerGlow = keyframes`
   0%,100%{box-shadow:0 0 15px 5px rgba(46,204,113,.7);transform:scale(1.1)}
   50%    {box-shadow:0 0 30px 10px rgba(46,204,113,1);transform:scale(1.15)}
@@ -28,7 +24,6 @@ const Wrapper = styled(motion.div)`
   background:rgba(26,26,46,.9);backdrop-filter:blur(5px);z-index:100;
 `
 
-/* — key fix: allow vertical overflow so glow isn’t clipped — */
 const ReelContainer = styled.div`
   position:relative;
   width:100%;
@@ -76,9 +71,6 @@ const PlayerAddress = styled.div`font-size:.8rem;color:#e0e0e0;font-family:monos
 const BottomBar     = styled.div`height:3rem;display:flex;align-items:center;justify-content:center;`
 const WinnerText    = styled(motion.div)`font-size:1.5rem;color:#fff;font-weight:bold;text-shadow:0 0 10px #2ecc71;`
 
-/* ──────────────────────────────────────────────────────────────
-   2.  Helpers
-   ──────────────────────────────────────────────────────────── */
 type Player = IdlAccounts<Multiplayer>['game']['players'][number]
 
 const TARGET = 100
@@ -106,9 +98,6 @@ function buildReel(players:Player[], winnerIdx:number):Player[]{
   return reel
 }
 
-/* ──────────────────────────────────────────────────────────────
-   3.  Component
-   ──────────────────────────────────────────────────────────── */
 export const WinnerAnimation:React.FC<{
   players:Player[];winnerIndexes:number[];
   currentUser?:PublicKey|null;

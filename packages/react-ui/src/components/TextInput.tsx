@@ -35,11 +35,14 @@ export interface TextInputProps<T extends number | string>
   onClick?: () => void
   /** disable input */
   disabled?: boolean
+  /** if true, prevent editing and show value */
+  locked?: boolean
 }
 
 export function TextInput<T extends number | string>({
   value,
   onChange,
+  locked,
   ...props
 }: TextInputProps<T>) {
   // cast away the styled-components overload complexity
@@ -50,12 +53,13 @@ export function TextInput<T extends number | string>({
       {...props}
       type="text"
       value={value as any}
-      onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+      onChange={locked ? undefined : (evt: React.ChangeEvent<HTMLInputElement>) =>
         onChange?.(evt.target.value)
       }
       onFocus={(evt: React.FocusEvent<HTMLInputElement>) =>
         evt.target.select()
       }
+      disabled={props.disabled || locked}
     />
   )
 }

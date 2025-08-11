@@ -12,14 +12,10 @@ import {
   stopAndDispose,
 } from '../musicManager';
 
-// purely local – never used on-chain
 function randomPk(): PublicKey {
   return Keypair.generate().publicKey;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Styled UI
-// ─────────────────────────────────────────────────────────────────────────────
 const Page = styled.div`
   width: 100%;
   max-width: 960px;
@@ -107,10 +103,8 @@ export default function DebugGameScreen({
 
   const [gameOver, setGameOver] = useState(false);
 
-  // treat "waiting" like GameScreen: before a race has started
   const waiting = players.length === 0;
 
-  // claim & release the lobby music while this screen is active
   useEffect(() => {
     // cancel any pending stop
     clearTimeout(musicManager.timer);
@@ -124,7 +118,6 @@ export default function DebugGameScreen({
     };
   }, []);
 
-  // ensure lobby music is playing when entering debug screen (if not already)
   const { play: playLobby, sounds: lobbySounds } = useSound(
     { lobby: lobbymusicSnd },
     { disposeOnUnmount: false },
@@ -147,7 +140,6 @@ export default function DebugGameScreen({
     }
   }, [lobbySounds, playLobby]);
 
-  // when game starts (not waiting), stop lobby and play action music loop
   const { play: playAction, sounds: actionSounds } = useSound(
     { action: actionSnd },
     { disposeOnUnmount: false },
@@ -171,7 +163,6 @@ export default function DebugGameScreen({
     }
   }, [waiting, actionSounds, playAction]);
 
-  /** spawn dummy players & pick seed */
   const start = useCallback(() => {
     const n = Math.max(1, Math.min(20, count));
     const youClamped = Math.max(0, Math.min(n - 1, you));
@@ -188,7 +179,6 @@ export default function DebugGameScreen({
 
   return (
     <>
-      {/* only show these inputs when NOT in a race */}
       {players.length === 0 && (
         <Page>
         <Panel>
@@ -256,7 +246,6 @@ export default function DebugGameScreen({
         </Page>
       )}
 
-      {/* once players & seed are set, show the board */}
       {players.length > 0 && gamePk && (
         <Board
           players          ={players}
@@ -267,7 +256,6 @@ export default function DebugGameScreen({
         />
       )}
 
-      {/* back-to-lobby in Gamba controls bar */}
       <GambaUi.Portal target="controls">
         {players.length > 0 && gameOver && (
           <GambaUi.Button onClick={onBack}>

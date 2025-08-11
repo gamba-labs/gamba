@@ -1,4 +1,3 @@
-// src/games/Jackpot/TopPlayers.tsx
 import React, { useMemo, useState, useEffect } from 'react'
 import styled, { css } from 'styled-components'
 import type { IdlAccounts } from '@coral-xyz/anchor'
@@ -13,10 +12,8 @@ interface TopPlayersProps {
   $isOverlay?: boolean
 }
 
-// now treating <=900px as “compact” (mobile+tablet)
 const COMPACT_BREAKPOINT = 900
 
-// hook to detect compact layout
 function useIsCompact(): boolean {
   const [isCompact, setIsCompact] = useState(
     () =>
@@ -51,7 +48,6 @@ const Container = styled.div<{ $isOverlay: boolean }>`
   height: 420px;
   overflow: hidden;
 
-  /* mobile+tablet (≤900px) */
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     background: rgba(35, 35, 59, 0.5);
     backdrop-filter: blur(5px);
@@ -67,7 +63,6 @@ const Title = styled.h3`
   font-size: 1rem;
   text-align: center;
 
-  /* hide on compact */
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     display: none;
   }
@@ -90,7 +85,6 @@ const PlayerItem = styled.li`
   border-radius: 8px;
   border: 1px solid #4a4a7c;
 
-  /* compact: smaller padding + radius */
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     padding: 4px;
     border-radius: 6px;
@@ -105,7 +99,6 @@ const PlayerRank = styled.div`
   min-width: 24px;
   text-align: center;
 
-  /* compact */
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     font-size: 0.8rem;
     margin-right: 6px;
@@ -128,7 +121,6 @@ const PlayerAddress = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
 
-  /* compact */
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     font-size: 0.7rem;
   }

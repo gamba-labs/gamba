@@ -10,10 +10,6 @@ export const ROWS         = 14;
 export const TIME_SCALE   = 4;   // 4× realtime
 export const SPEED_FACTOR = 4;   // sim‑steps per UI frame (for replay timing)
 
-/*───────────────────────────*/
-/*  BUCKET SYSTEM RE‑DESIGN  */
-/*───────────────────────────*/
-
 export enum BucketType {
   Blank       = 'blank',       // does nothing, ball just respawns
   Score       = 'score',       // awards fixed points   (value = points)
@@ -29,7 +25,6 @@ export interface BucketDef {
   value?: number;      // used by Score / Multiplier
 }
 
-/** Static row, left → right. */
 export const BUCKET_DEFS: BucketDef[] = [
   { type: BucketType.Dynamic },                    // left dynamic (index 0)
   { type: BucketType.Score,      value: 10 },
@@ -60,6 +55,4 @@ export const DYNAMIC_DEDUCT_POINTS = 5;    // points to deduct in Deduct mode
 export const BUCKET_HEIGHT = 60;
 export const CENTER_BUCKET = BUCKET_DEFS.findIndex(b => b.type === BucketType.Dynamic);
 
-// Time-based dynamic cycle interval (simulation frames)
-// At ~60fps, 180 frames ≈ 3 seconds
 export const DYNAMIC_CYCLE_FRAMES = 180;

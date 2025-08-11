@@ -1,5 +1,3 @@
-// react/src/hooks/useGambaEvents.ts
-
 import { useConnection } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import React from 'react'

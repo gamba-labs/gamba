@@ -1,5 +1,3 @@
-// src/hooks/useSendTransaction.ts
-
 import { AnchorError } from '@coral-xyz/anchor'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import {

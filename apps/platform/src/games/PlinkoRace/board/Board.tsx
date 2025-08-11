@@ -1,4 +1,3 @@
-// src/components/Board.tsx
 import React, { useMemo, useEffect, useState, useRef } from 'react'
 import { GambaUi } from 'gamba-react-ui-v2'
 import { useWallet } from '@solana/wallet-adapter-react'
@@ -43,7 +42,6 @@ export default function Board({
   payouts?: number[]
   onFinished?: () => void
 }) {
-  // roster & “you”
   const roster: PlayerInfo[] = useMemo(() => {
     const DISTINCT_COLORS = [
       '#e6194B', // red
@@ -78,7 +76,6 @@ export default function Board({
     [roster, publicKey, youIndexOverride]
   )
 
-  // hooks & state
   const { engine, recordRace, replayRace } = useMultiPlinko(roster, gamePk)
   const [scores, setScores]     = useState<number[]>([])
   const [mults,  setMults]      = useState<number[]>([])
@@ -89,7 +86,6 @@ export default function Board({
   const [hud, setHud]           = useState<HudPayload|null>(null)
   const [popups, setPopups]     = useState<{ bucketIndex:number; value:number; life:number; y:number }[]>([])
 
-  // always create a fresh payload so HUD animates each time
   const showHud = (text: HudMessage) => {
     setHud({ text, key: Date.now() })
   }
@@ -109,10 +105,8 @@ export default function Board({
     ouch: ouchSnd,
   })
 
-  // throttle frequent SFX like fall
   const lastFallMsRef = useRef(0)
 
-  // reset on roster change
   useEffect(() => {
     setScores(Array(roster.length).fill(0))
     setMults (Array(roster.length).fill(1))
@@ -126,12 +120,10 @@ export default function Board({
     labelPos.clear()
   }, [roster])
 
-  // finished callback
   useEffect(() => {
     if (finished) onFinished?.()
   }, [finished, onFinished])
 
-  // record + replay + HUD
   useEffect(() => {
     if (!engine || winnerIdx == null) return
 
@@ -148,7 +140,6 @@ export default function Board({
         const e = ev.shift()!
 
         if (e.kind === 'bucketMode') {
-          // record per-bucket dyn mode
           setDynModes(m => {
             const next = [...(m.length ? m : Array(BUCKET_DEFS.length).fill(0))]
             if (e.bucket !== undefined) next[e.bucket] = e.value ?? 0
@@ -156,7 +147,6 @@ export default function Board({
             return next
           })
 
-          // animate the affected dynamic bucket(s)
           if (e.bucket !== undefined) {
             bucketAnim[e.bucket] = 1
           } else {
@@ -167,7 +157,6 @@ export default function Board({
           continue
         }
 
-        // receive deterministic per-bucket pattern offset
         if (e.kind === 'bucketPattern' && e.bucket !== undefined) {
           setPatternOffsets(arr => {
             const dynIdxs = BUCKET_DEFS
@@ -190,7 +179,6 @@ export default function Board({
             play('fall')
           }
 
-          // handle explicit extraBall event without relying on dynMode closure
           if (e.kind === 'extraBall') {
             showHud('EXTRA BALL')
             if (sounds.extra?.ready) play('extra')
@@ -202,7 +190,6 @@ export default function Board({
             ? DYNAMIC_SEQUENCE[mode]
             : def.type
 
-          // keep legacy path for static ExtraBall buckets
           if (actual === BucketType.ExtraBall && e.kind !== 'extraBall') {
             showHud('EXTRA BALL')
             if (sounds.extra?.ready) play('extra')
@@ -217,7 +204,6 @@ export default function Board({
             const c = [...m]; c[e.player] = runMults[e.player]; return c
           })
 
-          // BIG COMBO trigger when multiplier reaches 5x or more
           if (runMults[e.player] >= 5) {
             showHud('BIG COMBO')
             if (sounds.bigcombo?.ready) play('bigcombo')
@@ -262,7 +248,6 @@ export default function Board({
     })
   }, [engine, winnerIdx, recordRace, replayRace, targetPoints, roster.length])
 
-  // no players case
   if (roster.length === 0 && winnerIdx !== null) {
     return (
       <div style={{

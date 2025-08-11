@@ -1,4 +1,3 @@
-// src/components/BoardHUD.tsx
 import React, { useEffect, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 
@@ -22,7 +21,6 @@ const Banner = styled.div`
   animation: ${pop} 1.5s cubic-bezier(.2,1.2,.6,1) forwards;
 `
 
-// ← add "FINISH!" and new messages here
 export type HudMessage = 'GO' | 'EXTRA BALL' | 'PLAYER OUT' | 'FINISH!' | 'DEDUCTION' | 'BIG COMBO'
 
 export interface HudPayload {

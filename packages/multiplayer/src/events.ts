@@ -1,6 +1,3 @@
-// src/events.ts – log helpers for *all* Multiplayer events
-// Anchor 0.31.x   •   Solana web3.js v1.98.x
-
 import {
   AnchorProvider,
   EventParser,
@@ -10,10 +7,8 @@ import {
 import type { IdlAccounts } from "@coral-xyz/anchor";
 import { PublicKey, Finality } from "@solana/web3.js";
 
-import { Multiplayer }            from "./types/multiplayer.js";
+import { Multiplayer } from "./types/multiplayer.js";
 import { PROGRAM_ID, getProgram } from "./index.js";
-
-/* ───────────── 1. Types ───────────── */
 
 type AllEvents = IdlEvents<Multiplayer>;   // union of all event names
 export type EventName     = keyof AllEvents;
@@ -26,11 +21,7 @@ export interface ParsedEvent<N extends EventName = EventName> {
   blockTime : number | null;
 }
 
-/* ───────────── common finality ───────────── */
-
 const FINALITY: Finality = "confirmed";
-
-/* ───────────── 2. Generic fetcher ───────────── */
 
 export async function fetchRecentEvents<N extends EventName>(
   provider: AnchorProvider,
@@ -40,14 +31,12 @@ export async function fetchRecentEvents<N extends EventName>(
   const { connection } = provider;
   const program = getProgram(provider);
 
-  // 1️⃣ get recent signatures
   const sigs = await connection.getSignaturesForAddress(
     PROGRAM_ID,
     { limit: howMany * 10 },
     FINALITY,
   );
 
-  // 2️⃣ fetch the transactions
   const txs = await connection.getTransactions(
     sigs.map(s => s.signature),
     {
@@ -56,7 +45,6 @@ export async function fetchRecentEvents<N extends EventName>(
     },
   );
 
-  // 3️⃣ decode logs
   const parser = new EventParser(PROGRAM_ID, program.coder);
   const out: ParsedEvent<N>[] = [];
 
@@ -74,17 +62,13 @@ export async function fetchRecentEvents<N extends EventName>(
           });
         }
       }
-    } catch {
-      // ignore any malformed / legacy logs
-    }
+    } catch {}
   });
 
   return out
     .sort((a, b) => b.slot - a.slot)   // newest first
     .slice(0, howMany);
 }
-
-/* ───────────── 3. Convenience wrappers ───────────── */
 
 export const fetchRecentGameCreated        = (p: AnchorProvider, n = 5) =>
   fetchRecentEvents(p, "gameCreated",        n);
@@ -101,23 +85,15 @@ export const fetchRecentGameSettledPartial = (p: AnchorProvider, n = 5) =>
 export const fetchRecentWinnersSelected    = (p: AnchorProvider, n = 5) =>
   fetchRecentEvents(p, "winnersSelected",    n);
 
-/* ───────────── 4. fetchRecentSpecificWinners ───────────── */
-
-/**
- * Fetch the most recent "WinnersSelected" events for games
- * created by `creator` with `maxPlayers`. Returns up to `howMany`.
- */
 export async function fetchRecentSpecificWinners(
   provider   : AnchorProvider,
   creator    : PublicKey,
   maxPlayers : number,
   howMany    = 8,
 ): Promise<ParsedEvent<"winnersSelected">[]> {
-  // pull raw events (overshoot ×5)
   const raw = await fetchRecentEvents(provider, "winnersSelected", howMany * 5);
   if (!raw.length) return [];
 
-  // filter in‐memory by the two new event fields
   return raw
     .filter(ev =>
       ev.data.gameMaker.equals(creator) &&
@@ -125,8 +101,6 @@ export async function fetchRecentSpecificWinners(
     )
     .slice(0, howMany);
 }
-
-/* ───────────── 5. Discriminator helper ───────────── */
 
 export function getEventDiscriminator<N extends EventName>(name: N): Uint8Array {
   const hex = anchorUtils.sha256.hash(`event:${name}`);

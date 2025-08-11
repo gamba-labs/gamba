@@ -1,5 +1,3 @@
-// packages/react/src/multiplayer/index.ts
-
 export * from './fetch'
 export * from './instructions'
 export * from './useGame'

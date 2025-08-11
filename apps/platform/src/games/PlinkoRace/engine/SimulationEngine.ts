@@ -17,7 +17,7 @@ import {
 const MAX_FRAMES    = 200_000;
 const MAX_ATTEMPTS  = 150;
 const TARGET_POINTS = 100;
-const SPEED_FACTOR  = 4;              // sim‑steps per UI frame
+const SPEED_FACTOR  = 4;
 const TELEPORT_DY   = HEIGHT * 0.5;
 
 export class SimulationEngine {
@@ -31,9 +31,6 @@ export class SimulationEngine {
     this.rng     = seed ? makeRng(seed) : Math.random;
   }
 
-  /*─────────────────────────────────────────────*/
-  /*  RUN UNTIL winIdx is sole first to target   */
-  /*─────────────────────────────────────────────*/
   recordRace(winnerIdx:number, target=TARGET_POINTS): RecordedRace {
     if (this.players.length === 0) {
       return {
@@ -46,7 +43,6 @@ export class SimulationEngine {
       const rec = this.runSingleAttempt(winnerIdx, target);
       if (rec) {
         try {
-          // eslint-disable-next-line no-console
           console.log(
             `[PlinkoRace] recordRace: success on attempt ${n}/${MAX_ATTEMPTS} (players=${this.players.length}, winnerIdx=${winnerIdx}, frames=${rec.totalFrames})`
           );
@@ -55,7 +51,6 @@ export class SimulationEngine {
       }
     }
     try {
-      // eslint-disable-next-line no-console
       console.warn(
         `[PlinkoRace] recordRace: failed to find a valid run after ${MAX_ATTEMPTS} attempts (players=${this.players.length}, winnerIdx=${winnerIdx})`
       );

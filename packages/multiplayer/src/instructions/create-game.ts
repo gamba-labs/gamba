@@ -1,5 +1,3 @@
-// src/sdk/createGame.ts
-
 import {
   AnchorProvider,
   BN,
@@ -16,8 +14,6 @@ import {
   deriveEscrowPda, 
 } from "../utils/pda.js";
 
-
-// Shared params & PDA helper
 export interface CreateGameParams {
   preAllocPlayers: number;
   maxPlayers:      number;
@@ -38,7 +34,6 @@ export interface CreateGameParams {
   };
 }
 
-// native game WSOL address
 export const createGameNativeIx = async (
   provider: AnchorProvider,
   p: CreateGameParams,
@@ -75,7 +70,6 @@ export const createGameNativeIx = async (
   return ix;
 };
 
-// SPL game any other mint address
 export const createGameSplIx = async (
   provider: AnchorProvider,
   p: CreateGameParams,
@@ -113,8 +107,6 @@ export const createGameSplIx = async (
 
   return ix;
 };
-
-/* Smart dispatcher (public surface) */
 export const createGameIx = (
   provider: AnchorProvider,
   p: CreateGameParams,

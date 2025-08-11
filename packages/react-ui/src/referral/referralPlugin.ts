@@ -4,10 +4,9 @@ import * as SplToken from '@solana/spl-token'
 import { GambaPlugin } from 'gamba-react-v2'
 import { REFERRAL_IDL, ReferralIdl } from './idl'
 
-// Only needed for PDA derivation
+
 const PROGRAM_ID = new PublicKey(REFERRAL_IDL.address)
 
-// Anchor 0.31 constructor: Program(idl, provider)
 function programFor(provider: anchor.AnchorProvider) {
   return new anchor.Program<ReferralIdl>(REFERRAL_IDL as any, provider)
 }
@@ -69,12 +68,10 @@ export function makeReferralPlugin(
     const connection = anchorProvider.connection
     const ixs: TransactionInstruction[] = []
 
-    // a) Upsert referAccount if requested
     if (upsert) {
       ixs.push(await buildConfigReferIx(anchorProvider, input.creator, recipient))
     }
 
-    // b) Pay referral
     const wagerLamports =
       typeof (input as any).wager === 'bigint'
         ? Number((input as any).wager)
@@ -134,7 +131,6 @@ export function makeReferralPlugin(
       }
     }
 
-    // c) Adjust creator fee (single-player path uses this)
     if (typeof (ctx as any).creatorFee === 'number') {
       ;(ctx as any).creatorFee = Math.max(
         0,

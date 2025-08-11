@@ -1,16 +1,13 @@
 {
   "name": "gamba-react-v2",
-  "private": false,
   "version": "1.2.1",
+  "private": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist/**"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
   "dev":   "tsup src/index.ts --watch --format cjs,esm --dts --external react --external @solana/web3.js --external @solana/spl-token --external @coral-xyz/anchor --external @solana/wallet-adapter-react --external @preact/signals-react --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
   "build": "tsup src/index.ts --format cjs,esm --dts --external react --external @solana/web3.js --external @solana/spl-token --external @coral-xyz/anchor --external @solana/wallet-adapter-react --external @preact/signals-react --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
@@ -18,33 +15,39 @@
   "clean": "rm -rf .turbo node_modules dist"
 },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
+    "@coral-xyz/anchor": "^0.31.1",
     "@preact/signals-react": "^1.3.8",
-    "@solana/spl-token": "^0.3.8",
-    "@solana/web3.js": "^1.93.0",
+    "@solana/web3.js": "^1.98.2",
     "gamba-core-v2": "workspace:*",
-    "react": "^18.3.1",
     "swr": "^2.2.4",
     "zustand": "^4.4.3"
   },
-  "devDependencies": {
-    "@changesets/cli": "^2.26.2",
-    "@types/react": "^18.2.13",
-    "@solana/wallet-adapter-react": "^0.15.35",
-    "assert": "^2.0.0",
-    "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
-  },
   "peerDependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
-    "@solana/wallet-adapter-react": "^0.15.35",
-    "@solana/web3.js": "^1.93.0",
+    "react": "^18.3.1",
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/wallet-adapter-react": "^0.15.39",
+    "@solana/web3.js": "^1.98.2",
+    "@solana/spl-token": "^0.4.13",
     "gamba-core-v2": "*",
-    "react": "^18.3.1"
+    "@gamba-labs/multiplayer-sdk": "*"
   },
   "peerDependenciesMeta": {
     "@solana/wallet-adapter-react": {
       "optional": true
     }
-  }
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "@gamba-labs/multiplayer-sdk": "workspace:*",
+    "@solana/wallet-adapter-react": "^0.15.39",
+    "@types/node": "^24.0.10",
+    "@types/react": "^18.2.13",
+    "assert": "^2.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.2.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
 }

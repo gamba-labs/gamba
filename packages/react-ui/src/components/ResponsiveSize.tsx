@@ -1,6 +1,12 @@
-import React from 'react'
+import React, {
+  useRef,
+  useLayoutEffect,
+  PropsWithChildren,
+  HTMLAttributes,
+} from 'react'
 import styled from 'styled-components'
 
+// styled wrapper
 const Responsive = styled.div`
   justify-content: center;
   align-items: center;
@@ -13,38 +19,60 @@ const Responsive = styled.div`
   top: 0;
 `
 
-interface Props extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {
+// Omit 'contentEditable' to avoid the type mismatch
+type DivProps = Omit<HTMLAttributes<HTMLDivElement>, 'contentEditable'>
+
+interface Props extends PropsWithChildren<DivProps> {
   maxScale?: number
   overlay?: boolean
 }
 
-export default function ResponsiveSize({ children, maxScale = 1, overlay, ...props }: Props) {
-  const wrapper = React.useRef<HTMLDivElement>(null!)
-  const inner = React.useRef<HTMLDivElement>(null!)
-  const content = React.useRef<HTMLDivElement>(null!)
+export default function ResponsiveSize({
+  children,
+  maxScale = 1,
+  overlay, // kept for future use
+  ...props
+}: Props) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     let timeout: NodeJS.Timeout
 
     const resize = () => {
-      const ww = wrapper.current.clientWidth / (content.current.scrollWidth + 40)
-      const hh = wrapper.current.clientHeight / (content.current.clientHeight + 80)
+      if (
+        !wrapperRef.current ||
+        !innerRef.current ||
+        !contentRef.current
+      ) {
+        return
+      }
+      const ww =
+        wrapperRef.current.clientWidth /
+        (contentRef.current.scrollWidth + 40)
+      const hh =
+        wrapperRef.current.clientHeight /
+        (contentRef.current.clientHeight + 80)
       const zoom = Math.min(maxScale, ww, hh)
-      inner.current.style.transform = 'scale(' + zoom + ')'
+      innerRef.current.style.transform = `scale(${zoom})`
     }
 
+    // observe size changes on the wrapper
     const ro = new ResizeObserver(resize)
+    if (wrapperRef.current) {
+      ro.observe(wrapperRef.current)
+    }
 
-    ro.observe(wrapper.current)
-
+    // also debounce window resizes
     const resizeHandler = () => {
       clearTimeout(timeout)
-      timeout = setTimeout(() => {
-        resize()
-      }, 250)
+      timeout = setTimeout(resize, 250)
     }
-
     window.addEventListener('resize', resizeHandler)
+
+    // initial scale
+    resize()
 
     return () => {
       window.removeEventListener('resize', resizeHandler)
@@ -54,11 +82,9 @@ export default function ResponsiveSize({ children, maxScale = 1, overlay, ...pro
   }, [maxScale])
 
   return (
-    <Responsive {...props} ref={wrapper}>
-      <div ref={inner}>
-        <div ref={content}>
-          {children}
-        </div>
+    <Responsive ref={wrapperRef} {...props}>
+      <div ref={innerRef}>
+        <div ref={contentRef}>{children}</div>
       </div>
     </Responsive>
   )

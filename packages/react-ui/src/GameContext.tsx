@@ -1,4 +1,3 @@
-import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { GameBundle, useGame } from '.'
 import { EffectTest } from './EffectTest'
@@ -23,13 +22,15 @@ interface GameProps extends React.PropsWithChildren {
   errorFallback?: React.ReactNode
 }
 
-export const GameContext = React.createContext<GameContext>({ game: { id: 'unknown', app: null! } })
+export const GameContext = React.createContext<GameContext>({
+  game: { id: 'unknown', app: null! },
+})
 
 function Game({ game, children, errorFallback }: GameProps) {
   return (
     <GameContext.Provider key={game.id} value={{ game }}>
       <ErrorBoundary fallback={errorFallback}>
-        <React.Suspense fallback={<React.Fragment />}>
+        <React.Suspense fallback={null}>
           <game.app {...game.props} />
         </React.Suspense>
       </ErrorBoundary>
@@ -38,15 +39,14 @@ function Game({ game, children, errorFallback }: GameProps) {
   )
 }
 
+/**
+ * PlayButton no longer looks at gamba.isPlaying;
+ * it only disables if you pass `disabled={true}` yourself.
+ */
 export function PlayButton(props: ButtonProps) {
-  const gamba = useGamba()
   return (
     <Portal target="play">
-      <Button
-        disabled={gamba.isPlaying || props.disabled}
-        onClick={props.onClick}
-        main
-      >
+      <Button {...props} main>
         {props.children}
       </Button>
     </Portal>
@@ -57,19 +57,16 @@ export const GambaUi = {
   useGame,
   useSound,
   Portal,
-  PortalTarget: PortalTarget,
+  PortalTarget,
   Effect: EffectTest,
   Button,
   Game,
   Responsive: ResponsiveSize,
   Canvas: GambaCanvas,
-  WagerInput: WagerInput,
-  /**
-   * @deprecated Use WagerInput with "options" prop
-   */
-  WagerSelect: WagerSelect,
-  Switch: Switch,
+  WagerInput,
+  WagerSelect,
+  Switch,
   PlayButton,
-  Select: Select,
-  TextInput: TextInput,
+  Select,
+  TextInput,
 }

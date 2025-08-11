@@ -1,55 +1,101 @@
 export type Gamba = {
-  'version': '0.1.0',
-  'name': 'gamba',
+  'address': 'Gamba2hK6KV3quKq854B3sQG1WMdq3zgQLPKqyK4qS18',
+  'metadata': {
+    'name': 'gamba',
+    'version': '0.1.0',
+    'spec': '0.1.0'
+  },
   'instructions': [
     {
       'name': 'gambaInitialize',
+      'discriminator': [
+        255,
+        140,
+        190,
+        102,
+        152,
+        30,
+        179,
+        112
+      ],
       'accounts': [
         {
           'name': 'initializer',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         }
       ],
       'args': []
     },
     {
       'name': 'gambaSetAuthority',
+      'discriminator': [
+        60,
+        11,
+        159,
+        59,
+        150,
+        12,
+        106,
+        78
+      ],
       'accounts': [
         {
           'name': 'authority',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           },
@@ -61,28 +107,50 @@ export type Gamba = {
       'args': [
         {
           'name': 'authority',
-          'type': 'publicKey'
+          'type': 'pubkey'
         }
       ]
     },
     {
       'name': 'gambaSetConfig',
+      'discriminator': [
+        205,
+        11,
+        209,
+        24,
+        204,
+        47,
+        25,
+        186
+      ],
       'accounts': [
         {
           'name': 'authority',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           },
@@ -94,7 +162,7 @@ export type Gamba = {
       'args': [
         {
           'name': 'rngAddress',
-          'type': 'publicKey'
+          'type': 'pubkey'
         },
         {
           'name': 'gambaFee',
@@ -166,57 +234,80 @@ export type Gamba = {
         },
         {
           'name': 'distributionRecipient',
-          'type': 'publicKey'
+          'type': 'pubkey'
         }
       ]
     },
     {
       'name': 'poolInitialize',
+      'discriminator': [
+        37,
+        10,
+        195,
+        69,
+        4,
+        213,
+        88,
+        173
+      ],
       'accounts': [
         {
           'name': 'initializer',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'pool',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Mint',
-                'path': 'underlying_token_mint'
+                'path': 'underlying_token_mint',
+                'account': 'Mint'
               },
               {
                 'kind': 'arg',
-                'type': 'publicKey',
                 'path': 'pool_authority'
               }
             ]
@@ -224,252 +315,340 @@ export type Gamba = {
         },
         {
           'name': 'poolUnderlyingTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_ATA'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'poolBonusUnderlyingTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_BONUS_UNDERLYING_TA'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  85,
+                  78,
+                  68,
+                  69,
+                  82,
+                  76,
+                  89,
+                  73,
+                  78,
+                  71,
+                  95,
+                  84,
+                  65,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'poolJackpotTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_JACKPOT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'gambaStateAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'lpMint',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_LP_MINT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  76,
+                  80,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'lpMintMetadata',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'bonusMint',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_BONUS_MINT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'bonusMintMetadata',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         },
         {
-          'name': 'rent',
-          'isMut': false,
-          'isSigner': false
+          'name': 'rent'
         },
         {
-          'name': 'tokenMetadataProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenMetadataProgram'
         }
       ],
       'args': [
         {
           'name': 'poolAuthority',
-          'type': 'publicKey'
+          'type': 'pubkey'
         },
         {
           'name': 'lookupAddress',
-          'type': 'publicKey'
+          'type': 'pubkey'
         }
       ]
     },
     {
       'name': 'poolDeposit',
+      'discriminator': [
+        26,
+        109,
+        164,
+        79,
+        207,
+        145,
+        204,
+        217
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': false,
-          'isSigner': false,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
           'name': 'pool',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'poolUnderlyingTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_ATA'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'lpMint',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_LP_MINT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  76,
+                  80,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'userUnderlyingAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'userLpAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         }
       ],
       'args': [
@@ -481,100 +660,130 @@ export type Gamba = {
     },
     {
       'name': 'poolWithdraw',
+      'discriminator': [
+        50,
+        1,
+        23,
+        25,
+        135,
+        221,
+        159,
+        182
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'pool',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'poolUnderlyingTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_ATA'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'lpMint',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_LP_MINT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  76,
+                  80,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'userUnderlyingAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'userLpAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'gambaState',
-          'isMut': false,
-          'isSigner': false,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         }
       ],
       'args': [
@@ -586,120 +795,180 @@ export type Gamba = {
     },
     {
       'name': 'poolMintBonusTokens',
+      'discriminator': [
+        105,
+        130,
+        72,
+        25,
+        88,
+        185,
+        100,
+        55
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
-          'name': 'pool',
-          'isMut': false,
-          'isSigner': false
+          'name': 'pool'
         },
         {
           'name': 'gambaState',
-          'isMut': false,
-          'isSigner': false,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'poolBonusUnderlyingTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_BONUS_UNDERLYING_TA'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  85,
+                  78,
+                  68,
+                  69,
+                  82,
+                  76,
+                  89,
+                  73,
+                  78,
+                  71,
+                  95,
+                  84,
+                  65,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'bonusMint',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_BONUS_MINT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'poolJackpotTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_JACKPOT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'userUnderlyingAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'userBonusAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         }
       ],
       'args': [
@@ -711,30 +980,50 @@ export type Gamba = {
     },
     {
       'name': 'poolAuthorityConfig',
+      'discriminator': [
+        58,
+        12,
+        184,
+        118,
+        14,
+        99,
+        110,
+        17
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': false,
-          'isSigner': false,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
           'name': 'pool',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         }
       ],
       'args': [
@@ -772,36 +1061,56 @@ export type Gamba = {
         },
         {
           'name': 'depositWhitelistAddress',
-          'type': 'publicKey'
+          'type': 'pubkey'
         }
       ]
     },
     {
       'name': 'poolGambaConfig',
+      'discriminator': [
+        197,
+        177,
+        234,
+        111,
+        246,
+        248,
+        20,
+        155
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': false,
-          'isSigner': false,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
           'name': 'pool',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         }
       ],
       'args': [
@@ -821,21 +1130,37 @@ export type Gamba = {
     },
     {
       'name': 'playerInitialize',
+      'discriminator': [
+        213,
+        160,
+        145,
+        88,
+        197,
+        68,
+        63,
+        150
+      ],
       'accounts': [
         {
           'name': 'player',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'PLAYER'
+                'value': [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -843,18 +1168,22 @@ export type Gamba = {
         },
         {
           'name': 'game',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAME'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -862,39 +1191,53 @@ export type Gamba = {
         },
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         }
       ],
       'args': []
     },
     {
       'name': 'playGame',
+      'discriminator': [
+        37,
+        88,
+        207,
+        85,
+        42,
+        144,
+        122,
+        197
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'player',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'PLAYER'
+                'value': [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -902,18 +1245,22 @@ export type Gamba = {
         },
         {
           'name': 'game',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAME'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -921,114 +1268,136 @@ export type Gamba = {
         },
         {
           'name': 'pool',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'bonusTokenMint',
-          'isMut': false,
-          'isSigner': false,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_BONUS_MINT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'userUnderlyingAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'creator',
-          'isMut': false,
-          'isSigner': false
+          'name': 'creator'
         },
         {
           'name': 'creatorAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'playerAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'playerBonusAta',
-          'isMut': true,
-          'isSigner': false,
-          'isOptional': true
+          'writable': true,
+          'optional': true
         },
         {
           'name': 'userBonusAta',
-          'isMut': true,
-          'isSigner': false,
-          'isOptional': true
+          'writable': true,
+          'optional': true
         },
         {
           'name': 'gambaState',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
           'name': 'poolJackpotTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_JACKPOT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         }
       ],
       'args': [
@@ -1062,26 +1431,42 @@ export type Gamba = {
     },
     {
       'name': 'playerClose',
+      'discriminator': [
+        26,
+        155,
+        61,
+        179,
+        53,
+        157,
+        80,
+        30
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'player',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'PLAYER'
+                'value': [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -1089,18 +1474,22 @@ export type Gamba = {
         },
         {
           'name': 'game',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAME'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -1111,31 +1500,45 @@ export type Gamba = {
     },
     {
       'name': 'playerClaim',
+      'discriminator': [
+        188,
+        220,
+        237,
+        31,
+        181,
+        18,
+        85,
+        45
+      ],
       'accounts': [
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'player',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'PLAYER'
+                'value': [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -1143,18 +1546,22 @@ export type Gamba = {
         },
         {
           'name': 'game',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAME'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -1162,59 +1569,66 @@ export type Gamba = {
         },
         {
           'name': 'playerAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'userUnderlyingAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         }
       ],
       'args': []
     },
     {
       'name': 'rngSettle',
+      'discriminator': [
+        23,
+        35,
+        236,
+        185,
+        14,
+        171,
+        26,
+        222
+      ],
       'accounts': [
         {
           'name': 'rng',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'user',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'player',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'PLAYER'
+                'value': [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -1222,18 +1636,22 @@ export type Gamba = {
         },
         {
           'name': 'game',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAME'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
                 'path': 'user'
               }
             ]
@@ -1241,178 +1659,236 @@ export type Gamba = {
         },
         {
           'name': 'pool',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'poolUnderlyingTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_ATA'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'poolBonusUnderlyingTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_BONUS_UNDERLYING_TA'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  85,
+                  78,
+                  68,
+                  69,
+                  82,
+                  76,
+                  89,
+                  73,
+                  78,
+                  71,
+                  95,
+                  84,
+                  65,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'playerAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'userUnderlyingAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'gambaState',
-          'isMut': false,
-          'isSigner': false,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
           'name': 'gambaStateAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'creator',
-          'isMut': false,
-          'isSigner': false
+          'name': 'creator'
         },
         {
           'name': 'creatorAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'bonusTokenMint',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_BONUS_MINT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'playerBonusAta',
-          'isMut': true,
-          'isSigner': false,
-          'isOptional': true
+          'writable': true,
+          'optional': true
         },
         {
           'name': 'poolJackpotTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'POOL_JACKPOT'
+                'value': [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Pool',
-                'path': 'pool'
+                'path': 'pool',
+                'account': 'Pool'
               }
             ]
           }
         },
         {
           'name': 'escrowTokenAccount',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'ESCROW'
+                'value': [
+                  34,
+                  69,
+                  83,
+                  67,
+                  82,
+                  79,
+                  87,
+                  34
+                ]
               },
               {
                 'kind': 'account',
-                'type': 'publicKey',
-                'account': 'Player',
-                'path': 'player'
+                'path': 'player',
+                'account': 'Player'
               }
             ]
           }
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         },
         {
-          'name': 'rent',
-          'isMut': false,
-          'isSigner': false
+          'name': 'rent'
         }
       ],
       'args': [
@@ -1428,27 +1904,48 @@ export type Gamba = {
     },
     {
       'name': 'rngProvideHashedSeed',
+      'discriminator': [
+        238,
+        154,
+        25,
+        143,
+        191,
+        19,
+        25,
+        224
+      ],
       'accounts': [
         {
           'name': 'game',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'rng',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
           'name': 'gambaState',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
@@ -1463,60 +1960,71 @@ export type Gamba = {
     },
     {
       'name': 'distributeFees',
+      'discriminator': [
+        120,
+        56,
+        27,
+        7,
+        53,
+        176,
+        113,
+        186
+      ],
       'accounts': [
         {
           'name': 'signer',
-          'isMut': true,
-          'isSigner': true
+          'writable': true,
+          'signer': true
         },
         {
-          'name': 'underlyingTokenMint',
-          'isMut': false,
-          'isSigner': false
+          'name': 'underlyingTokenMint'
         },
         {
           'name': 'gambaState',
-          'isMut': true,
-          'isSigner': false,
+          'writable': true,
           'pda': {
             'seeds': [
               {
                 'kind': 'const',
-                'type': 'string',
-                'value': 'GAMBA_STATE'
+                'value': [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34
+                ]
               }
             ]
           }
         },
         {
           'name': 'gambaStateAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'distributionRecipient',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
           'name': 'distributionRecipientAta',
-          'isMut': true,
-          'isSigner': false
+          'writable': true
         },
         {
-          'name': 'associatedTokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'associatedTokenProgram'
         },
         {
-          'name': 'tokenProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'tokenProgram'
         },
         {
-          'name': 'systemProgram',
-          'isMut': false,
-          'isSigner': false
+          'name': 'systemProgram'
         }
       ],
       'args': [
@@ -1529,362 +2037,119 @@ export type Gamba = {
   ],
   'accounts': [
     {
-      'name': 'game',
-      'type': {
-        'kind': 'struct',
-        'fields': [
-          {
-            'name': 'bump',
-            'type': {
-              'array': [
-                'u8',
-                1
-              ]
-            }
-          },
-          {
-            'name': 'nonce',
-            'type': 'u64'
-          },
-          {
-            'name': 'user',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'tokenMint',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'pool',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'status',
-            'type': {
-              'defined': 'GameStatus'
-            }
-          },
-          {
-            'name': 'nextRngSeedHashed',
-            'docs': [
-              'SHA256 of coming rng_seed. Available at start of the game'
-            ],
-            'type': 'string'
-          },
-          {
-            'name': 'rngSeed',
-            'docs': [
-              'Is revealed by the RNG after a play'
-            ],
-            'type': 'string'
-          },
-          {
-            'name': 'timestamp',
-            'type': 'i64'
-          },
-          {
-            'name': 'creator',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'creatorMeta',
-            'type': 'string'
-          },
-          {
-            'name': 'wager',
-            'type': 'u64'
-          },
-          {
-            'name': 'underlyingUsed',
-            'type': 'u64'
-          },
-          {
-            'name': 'bonusUsed',
-            'type': 'u64'
-          },
-          {
-            'name': 'creatorFee',
-            'type': 'u64'
-          },
-          {
-            'name': 'gambaFee',
-            'type': 'u64'
-          },
-          {
-            'name': 'poolFee',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotFee',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotResult',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotProbabilityUbps',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotPayout',
-            'type': 'u64'
-          },
-          {
-            'name': 'clientSeed',
-            'type': 'string'
-          },
-          {
-            'name': 'bet',
-            'type': {
-              'vec': 'u32'
-            }
-          },
-          {
-            'name': 'result',
-            'type': 'u64'
-          },
-          {
-            'name': 'points',
-            'type': 'bool'
-          },
-          {
-            'name': 'pointsAuthority',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'metadata',
-            'type': 'string'
-          }
-        ]
-      }
+      'name': 'Game',
+      'discriminator': [
+        27,
+        90,
+        166,
+        125,
+        74,
+        100,
+        121,
+        18
+      ]
     },
     {
-      'name': 'player',
-      'type': {
-        'kind': 'struct',
-        'fields': [
-          {
-            'name': 'bump',
-            'type': {
-              'array': [
-                'u8',
-                1
-              ]
-            }
-          },
-          {
-            'name': 'user',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'nonce',
-            'type': 'u64'
-          }
-        ]
-      }
+      'name': 'Player',
+      'discriminator': [
+        205,
+        222,
+        112,
+        7,
+        165,
+        155,
+        206,
+        218
+      ]
     },
     {
-      'name': 'pool',
-      'type': {
-        'kind': 'struct',
-        'fields': [
-          {
-            'name': 'bump',
-            'type': {
-              'array': [
-                'u8',
-                1
-              ]
-            }
-          },
-          {
-            'name': 'lookupAddress',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'poolAuthority',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'underlyingTokenMint',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'antiSpamFeeExempt',
-            'type': 'bool'
-          },
-          {
-            'name': 'minWager',
-            'type': 'u64'
-          },
-          {
-            'name': 'plays',
-            'type': 'u64'
-          },
-          {
-            'name': 'liquidityCheckpoint',
-            'type': 'u64'
-          },
-          {
-            'name': 'depositLimit',
-            'type': 'bool'
-          },
-          {
-            'name': 'depositLimitAmount',
-            'type': 'u64'
-          },
-          {
-            'name': 'customPoolFee',
-            'type': 'bool'
-          },
-          {
-            'name': 'customPoolFeeBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'customGambaFee',
-            'type': 'bool'
-          },
-          {
-            'name': 'customGambaFeeBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'customMaxPayout',
-            'type': 'bool'
-          },
-          {
-            'name': 'customMaxPayoutBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'customBonusTokenMint',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'customBonusToken',
-            'type': 'bool'
-          },
-          {
-            'name': 'customMaxCreatorFee',
-            'type': 'bool'
-          },
-          {
-            'name': 'customMaxCreatorFeeBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'depositWhitelistRequired',
-            'type': 'bool'
-          },
-          {
-            'name': 'depositWhitelistAddress',
-            'type': 'publicKey'
-          }
-        ]
-      }
+      'name': 'Pool',
+      'discriminator': [
+        241,
+        154,
+        109,
+        4,
+        17,
+        177,
+        109,
+        188
+      ]
     },
     {
-      'name': 'gambaState',
-      'type': {
-        'kind': 'struct',
-        'fields': [
-          {
-            'name': 'authority',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'rngAddress',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'rngAddress2',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'antiSpamFee',
-            'type': 'u64'
-          },
-          {
-            'name': 'gambaFeeBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'poolCreationFee',
-            'type': 'u64'
-          },
-          {
-            'name': 'defaultPoolFee',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotPayoutToUserBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotPayoutToCreatorBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotPayoutToPoolBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'jackpotPayoutToGambaBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'bonusToJackpotRatioBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'maxHouseEdgeBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'maxCreatorFeeBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'maxPayoutBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'poolWithdrawFeeBps',
-            'type': 'u64'
-          },
-          {
-            'name': 'poolCreationAllowed',
-            'type': 'bool'
-          },
-          {
-            'name': 'poolDepositAllowed',
-            'type': 'bool'
-          },
-          {
-            'name': 'poolWithdrawAllowed',
-            'type': 'bool'
-          },
-          {
-            'name': 'playingAllowed',
-            'type': 'bool'
-          },
-          {
-            'name': 'distributionRecipient',
-            'type': 'publicKey'
-          },
-          {
-            'name': 'bump',
-            'type': {
-              'array': [
-                'u8',
-                1
-              ]
-            }
-          }
-        ]
-      }
+      'name': 'GambaState',
+      'discriminator': [
+        142,
+        203,
+        14,
+        224,
+        153,
+        118,
+        52,
+        200
+      ]
+    }
+  ],
+  'events': [
+    {
+      'name': 'GameSettled',
+      'discriminator': [
+        63,
+        109,
+        128,
+        85,
+        229,
+        63,
+        167,
+        176
+      ]
+    },
+    {
+      'name': 'PoolChange',
+      'discriminator': [
+        241,
+        7,
+        155,
+        154,
+        56,
+        57,
+        0,
+        101
+      ]
+    },
+    {
+      'name': 'PoolCreated',
+      'discriminator': [
+        202,
+        44,
+        41,
+        88,
+        104,
+        220,
+        157,
+        82
+      ]
+    }
+  ],
+  'errors': [
+    {
+      'code': 6000,
+      'name': 'GenericError',
+      'msg': 'Something went wrong'
+    },
+    {
+      'code': 6001,
+      'name': 'Unauthorized',
+      'msg': 'Unauthorized'
+    },
+    {
+      'code': 6002,
+      'name': 'CustomPoolFeeExceedsLimit',
+      'msg': 'Custom pool fee cannot exceed 100%'
+    },
+    {
+      'code': 6003,
+      'name': 'CustomMaxPayoutExceedsLimit',
+      'msg': 'Custom max payout cannot exceed 50%'
     }
   ],
   'types': [
@@ -1999,255 +2264,644 @@ export type Gamba = {
           }
         ]
       }
-    }
-  ],
-  'events': [
+    },
+    {
+      'name': 'Game',
+      'type': {
+        'kind': 'struct',
+        'fields': [
+          {
+            'name': 'bump',
+            'type': {
+              'array': [
+                'u8',
+                1
+              ]
+            }
+          },
+          {
+            'name': 'nonce',
+            'type': 'u64'
+          },
+          {
+            'name': 'user',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'tokenMint',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'pool',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'status',
+            'type': {
+              'defined': {
+                'name': 'GameStatus'
+              }
+            }
+          },
+          {
+            'name': 'nextRngSeedHashed',
+            'docs': [
+              'SHA256 of coming rng_seed. Available at start of the game'
+            ],
+            'type': 'string'
+          },
+          {
+            'name': 'rngSeed',
+            'docs': [
+              'Is revealed by the RNG after a play'
+            ],
+            'type': 'string'
+          },
+          {
+            'name': 'timestamp',
+            'type': 'i64'
+          },
+          {
+            'name': 'creator',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'creatorMeta',
+            'type': 'string'
+          },
+          {
+            'name': 'wager',
+            'type': 'u64'
+          },
+          {
+            'name': 'underlyingUsed',
+            'type': 'u64'
+          },
+          {
+            'name': 'bonusUsed',
+            'type': 'u64'
+          },
+          {
+            'name': 'creatorFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'gambaFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'poolFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotResult',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotProbabilityUbps',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotPayout',
+            'type': 'u64'
+          },
+          {
+            'name': 'clientSeed',
+            'type': 'string'
+          },
+          {
+            'name': 'bet',
+            'type': {
+              'vec': 'u32'
+            }
+          },
+          {
+            'name': 'result',
+            'type': 'u64'
+          },
+          {
+            'name': 'points',
+            'type': 'bool'
+          },
+          {
+            'name': 'pointsAuthority',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'metadata',
+            'type': 'string'
+          }
+        ]
+      }
+    },
+    {
+      'name': 'Player',
+      'type': {
+        'kind': 'struct',
+        'fields': [
+          {
+            'name': 'bump',
+            'type': {
+              'array': [
+                'u8',
+                1
+              ]
+            }
+          },
+          {
+            'name': 'user',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'nonce',
+            'type': 'u64'
+          }
+        ]
+      }
+    },
+    {
+      'name': 'Pool',
+      'type': {
+        'kind': 'struct',
+        'fields': [
+          {
+            'name': 'bump',
+            'type': {
+              'array': [
+                'u8',
+                1
+              ]
+            }
+          },
+          {
+            'name': 'lookupAddress',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'poolAuthority',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'underlyingTokenMint',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'antiSpamFeeExempt',
+            'type': 'bool'
+          },
+          {
+            'name': 'minWager',
+            'type': 'u64'
+          },
+          {
+            'name': 'plays',
+            'type': 'u64'
+          },
+          {
+            'name': 'liquidityCheckpoint',
+            'type': 'u64'
+          },
+          {
+            'name': 'depositLimit',
+            'type': 'bool'
+          },
+          {
+            'name': 'depositLimitAmount',
+            'type': 'u64'
+          },
+          {
+            'name': 'customPoolFee',
+            'type': 'bool'
+          },
+          {
+            'name': 'customPoolFeeBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'customGambaFee',
+            'type': 'bool'
+          },
+          {
+            'name': 'customGambaFeeBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'customMaxPayout',
+            'type': 'bool'
+          },
+          {
+            'name': 'customMaxPayoutBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'customBonusTokenMint',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'customBonusToken',
+            'type': 'bool'
+          },
+          {
+            'name': 'customMaxCreatorFee',
+            'type': 'bool'
+          },
+          {
+            'name': 'customMaxCreatorFeeBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'depositWhitelistRequired',
+            'type': 'bool'
+          },
+          {
+            'name': 'depositWhitelistAddress',
+            'type': 'pubkey'
+          }
+        ]
+      }
+    },
+    {
+      'name': 'GambaState',
+      'type': {
+        'kind': 'struct',
+        'fields': [
+          {
+            'name': 'authority',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'rngAddress',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'rngAddress2',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'antiSpamFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'gambaFeeBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'poolCreationFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'defaultPoolFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotPayoutToUserBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotPayoutToCreatorBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotPayoutToPoolBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotPayoutToGambaBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'bonusToJackpotRatioBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'maxHouseEdgeBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'maxCreatorFeeBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'maxPayoutBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'poolWithdrawFeeBps',
+            'type': 'u64'
+          },
+          {
+            'name': 'poolCreationAllowed',
+            'type': 'bool'
+          },
+          {
+            'name': 'poolDepositAllowed',
+            'type': 'bool'
+          },
+          {
+            'name': 'poolWithdrawAllowed',
+            'type': 'bool'
+          },
+          {
+            'name': 'playingAllowed',
+            'type': 'bool'
+          },
+          {
+            'name': 'distributionRecipient',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'bump',
+            'type': {
+              'array': [
+                'u8',
+                1
+              ]
+            }
+          }
+        ]
+      }
+    },
     {
       'name': 'GameSettled',
-      'fields': [
-        {
-          'name': 'user',
-          'type': 'publicKey',
-          'index': false
-        },
-        {
-          'name': 'pool',
-          'type': 'publicKey',
-          'index': false
-        },
-        {
-          'name': 'tokenMint',
-          'type': 'publicKey',
-          'index': false
-        },
-        {
-          'name': 'creator',
-          'type': 'publicKey',
-          'index': false
-        },
-        {
-          'name': 'creatorFee',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'gambaFee',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'poolFee',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'jackpotFee',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'underlyingUsed',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'bonusUsed',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'wager',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'payout',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'multiplierBps',
-          'type': 'u32',
-          'index': false
-        },
-        {
-          'name': 'payoutFromBonusPool',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'payoutFromNormalPool',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'jackpotProbabilityUbps',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'jackpotResult',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'nonce',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'clientSeed',
-          'type': 'string',
-          'index': false
-        },
-        {
-          'name': 'resultIndex',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'bet',
-          'type': {
-            'vec': 'u32'
+      'type': {
+        'kind': 'struct',
+        'fields': [
+          {
+            'name': 'user',
+            'type': 'pubkey'
           },
-          'index': false
-        },
-        {
-          'name': 'jackpotPayoutToUser',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'poolLiquidity',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'rngSeed',
-          'type': 'string',
-          'index': false
-        },
-        {
-          'name': 'nextRngSeedHashed',
-          'type': 'string',
-          'index': false
-        },
-        {
-          'name': 'metadata',
-          'type': 'string',
-          'index': false
-        }
-      ]
+          {
+            'name': 'pool',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'tokenMint',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'creator',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'creatorFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'gambaFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'poolFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotFee',
+            'type': 'u64'
+          },
+          {
+            'name': 'underlyingUsed',
+            'type': 'u64'
+          },
+          {
+            'name': 'bonusUsed',
+            'type': 'u64'
+          },
+          {
+            'name': 'wager',
+            'type': 'u64'
+          },
+          {
+            'name': 'payout',
+            'type': 'u64'
+          },
+          {
+            'name': 'multiplierBps',
+            'type': 'u32'
+          },
+          {
+            'name': 'payoutFromBonusPool',
+            'type': 'u64'
+          },
+          {
+            'name': 'payoutFromNormalPool',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotProbabilityUbps',
+            'type': 'u64'
+          },
+          {
+            'name': 'jackpotResult',
+            'type': 'u64'
+          },
+          {
+            'name': 'nonce',
+            'type': 'u64'
+          },
+          {
+            'name': 'clientSeed',
+            'type': 'string'
+          },
+          {
+            'name': 'resultIndex',
+            'type': 'u64'
+          },
+          {
+            'name': 'bet',
+            'type': {
+              'vec': 'u32'
+            }
+          },
+          {
+            'name': 'jackpotPayoutToUser',
+            'type': 'u64'
+          },
+          {
+            'name': 'poolLiquidity',
+            'type': 'u64'
+          },
+          {
+            'name': 'rngSeed',
+            'type': 'string'
+          },
+          {
+            'name': 'nextRngSeedHashed',
+            'type': 'string'
+          },
+          {
+            'name': 'metadata',
+            'type': 'string'
+          }
+        ]
+      }
     },
     {
       'name': 'PoolChange',
-      'fields': [
-        {
-          'name': 'user',
-          'type': 'publicKey',
-          'index': false
-        },
-        {
-          'name': 'pool',
-          'type': 'publicKey',
-          'index': false
-        },
-        {
-          'name': 'tokenMint',
-          'type': 'publicKey',
-          'index': false
-        },
-        {
-          'name': 'action',
-          'type': {
-            'defined': 'PoolAction'
+      'type': {
+        'kind': 'struct',
+        'fields': [
+          {
+            'name': 'user',
+            'type': 'pubkey'
           },
-          'index': false
-        },
-        {
-          'name': 'amount',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'postLiquidity',
-          'type': 'u64',
-          'index': false
-        },
-        {
-          'name': 'lpSupply',
-          'type': 'u64',
-          'index': false
-        }
-      ]
-    }
-  ],
-  'errors': [
-    {
-      'code': 6000,
-      'name': 'GenericError',
-      'msg': 'Something went wrong'
+          {
+            'name': 'pool',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'tokenMint',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'action',
+            'type': {
+              'defined': {
+                'name': 'PoolAction'
+              }
+            }
+          },
+          {
+            'name': 'amount',
+            'type': 'u64'
+          },
+          {
+            'name': 'postLiquidity',
+            'type': 'u64'
+          },
+          {
+            'name': 'lpSupply',
+            'type': 'u64'
+          }
+        ]
+      }
     },
     {
-      'code': 6001,
-      'name': 'Unauthorized',
-      'msg': 'Unauthorized'
+      'name': 'PoolCreated',
+      'type': {
+        'kind': 'struct',
+        'fields': [
+          {
+            'name': 'user',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'authority',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'pool',
+            'type': 'pubkey'
+          },
+          {
+            'name': 'tokenMint',
+            'type': 'pubkey'
+          }
+        ]
+      }
     }
   ]
-};
+}
 
 export const IDL: Gamba = {
-  version: '0.1.0',
-  name: 'gamba',
+  address: 'Gamba2hK6KV3quKq854B3sQG1WMdq3zgQLPKqyK4qS18',
+  metadata: {
+    name: 'gamba',
+    version: '0.1.0',
+    spec: '0.1.0',
+  },
   instructions: [
     {
       name: 'gambaInitialize',
+      discriminator: [
+        255,
+        140,
+        190,
+        102,
+        152,
+        30,
+        179,
+        112,
+      ],
       accounts: [
         {
           name: 'initializer',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'systemProgram' },
       ],
       args: [],
     },
     {
       name: 'gambaSetAuthority',
+      discriminator: [
+        60,
+        11,
+        159,
+        59,
+        150,
+        12,
+        106,
+        78,
+      ],
       accounts: [
         {
           name: 'authority',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
@@ -2259,28 +2913,50 @@ export const IDL: Gamba = {
       args: [
         {
           name: 'authority',
-          type: 'publicKey',
+          type: 'pubkey',
         },
       ],
     },
     {
       name: 'gambaSetConfig',
+      discriminator: [
+        205,
+        11,
+        209,
+        24,
+        204,
+        47,
+        25,
+        186,
+      ],
       accounts: [
         {
           name: 'authority',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
@@ -2292,7 +2968,7 @@ export const IDL: Gamba = {
       args: [
         {
           name: 'rngAddress',
-          type: 'publicKey',
+          type: 'pubkey',
         },
         {
           name: 'gambaFee',
@@ -2364,57 +3040,78 @@ export const IDL: Gamba = {
         },
         {
           name: 'distributionRecipient',
-          type: 'publicKey',
+          type: 'pubkey',
         },
       ],
     },
     {
       name: 'poolInitialize',
+      discriminator: [
+        37,
+        10,
+        195,
+        69,
+        4,
+        213,
+        88,
+        173,
+      ],
       accounts: [
         {
           name: 'initializer',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'pool',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Mint',
                 path: 'underlying_token_mint',
+                account: 'Mint',
               },
               {
                 kind: 'arg',
-                type: 'publicKey',
                 path: 'pool_authority',
               },
             ],
@@ -2422,253 +3119,323 @@ export const IDL: Gamba = {
         },
         {
           name: 'poolUnderlyingTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_ATA',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'poolBonusUnderlyingTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_BONUS_UNDERLYING_TA',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  85,
+                  78,
+                  68,
+                  69,
+                  82,
+                  76,
+                  89,
+                  73,
+                  78,
+                  71,
+                  95,
+                  84,
+                  65,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'poolJackpotTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_JACKPOT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'gambaStateAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'lpMint',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_LP_MINT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  76,
+                  80,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'lpMintMetadata',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'bonusMint',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_BONUS_MINT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'bonusMintMetadata',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'rent',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenMetadataProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'associatedTokenProgram' },
+        { name: 'tokenProgram' },
+        { name: 'systemProgram' },
+        { name: 'rent' },
+        { name: 'tokenMetadataProgram' },
       ],
       args: [
         {
           name: 'poolAuthority',
-          type: 'publicKey',
+          type: 'pubkey',
         },
         {
           name: 'lookupAddress',
-          type: 'publicKey',
+          type: 'pubkey',
         },
       ],
     },
     {
       name: 'poolDeposit',
+      discriminator: [
+        26,
+        109,
+        164,
+        79,
+        207,
+        145,
+        204,
+        217,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: false,
-          isSigner: false,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
         {
           name: 'pool',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'poolUnderlyingTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_ATA',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'lpMint',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_LP_MINT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  76,
+                  80,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'userUnderlyingAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'userLpAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'associatedTokenProgram' },
+        { name: 'tokenProgram' },
+        { name: 'systemProgram' },
       ],
       args: [
         {
@@ -2679,101 +3446,123 @@ export const IDL: Gamba = {
     },
     {
       name: 'poolWithdraw',
+      discriminator: [
+        50,
+        1,
+        23,
+        25,
+        135,
+        221,
+        159,
+        182,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'pool',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'poolUnderlyingTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_ATA',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'lpMint',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_LP_MINT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  76,
+                  80,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'userUnderlyingAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'userLpAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'gambaState',
-          isMut: false,
-          isSigner: false,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'associatedTokenProgram' },
+        { name: 'tokenProgram' },
+        { name: 'systemProgram' },
       ],
       args: [
         {
@@ -2784,121 +3573,171 @@ export const IDL: Gamba = {
     },
     {
       name: 'poolMintBonusTokens',
+      discriminator: [
+        105,
+        130,
+        72,
+        25,
+        88,
+        185,
+        100,
+        55,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
-        {
-          name: 'pool',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'pool' },
         {
           name: 'gambaState',
-          isMut: false,
-          isSigner: false,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'poolBonusUnderlyingTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_BONUS_UNDERLYING_TA',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  85,
+                  78,
+                  68,
+                  69,
+                  82,
+                  76,
+                  89,
+                  73,
+                  78,
+                  71,
+                  95,
+                  84,
+                  65,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'bonusMint',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_BONUS_MINT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'poolJackpotTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_JACKPOT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'userUnderlyingAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'userBonusAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'associatedTokenProgram' },
+        { name: 'tokenProgram' },
+        { name: 'systemProgram' },
       ],
       args: [
         {
@@ -2909,30 +3748,50 @@ export const IDL: Gamba = {
     },
     {
       name: 'poolAuthorityConfig',
+      discriminator: [
+        58,
+        12,
+        184,
+        118,
+        14,
+        99,
+        110,
+        17,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: false,
-          isSigner: false,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
         {
           name: 'pool',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
       ],
       args: [
@@ -2970,36 +3829,56 @@ export const IDL: Gamba = {
         },
         {
           name: 'depositWhitelistAddress',
-          type: 'publicKey',
+          type: 'pubkey',
         },
       ],
     },
     {
       name: 'poolGambaConfig',
+      discriminator: [
+        197,
+        177,
+        234,
+        111,
+        246,
+        248,
+        20,
+        155,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: false,
-          isSigner: false,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
         {
           name: 'pool',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
       ],
       args: [
@@ -3019,21 +3898,37 @@ export const IDL: Gamba = {
     },
     {
       name: 'playerInitialize',
+      discriminator: [
+        213,
+        160,
+        145,
+        88,
+        197,
+        68,
+        63,
+        150,
+      ],
       accounts: [
         {
           name: 'player',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'PLAYER',
+                value: [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3041,18 +3936,22 @@ export const IDL: Gamba = {
         },
         {
           name: 'game',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAME',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3060,39 +3959,51 @@ export const IDL: Gamba = {
         },
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'systemProgram' },
       ],
       args: [],
     },
     {
       name: 'playGame',
+      discriminator: [
+        37,
+        88,
+        207,
+        85,
+        42,
+        144,
+        122,
+        197,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'player',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'PLAYER',
+                value: [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3100,18 +4011,22 @@ export const IDL: Gamba = {
         },
         {
           name: 'game',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAME',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3119,115 +4034,127 @@ export const IDL: Gamba = {
         },
         {
           name: 'pool',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'bonusTokenMint',
-          isMut: false,
-          isSigner: false,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_BONUS_MINT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'userUnderlyingAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'creator',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'creator' },
         {
           name: 'creatorAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'playerAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'playerBonusAta',
-          isMut: true,
-          isSigner: false,
-          isOptional: true,
+          writable: true,
+          optional: true,
         },
         {
           name: 'userBonusAta',
-          isMut: true,
-          isSigner: false,
-          isOptional: true,
+          writable: true,
+          optional: true,
         },
         {
           name: 'gambaState',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
         {
           name: 'poolJackpotTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_JACKPOT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'systemProgram' },
+        { name: 'tokenProgram' },
+        { name: 'associatedTokenProgram' },
       ],
       args: [
         {
@@ -3258,26 +4185,42 @@ export const IDL: Gamba = {
     },
     {
       name: 'playerClose',
+      discriminator: [
+        26,
+        155,
+        61,
+        179,
+        53,
+        157,
+        80,
+        30,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'player',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'PLAYER',
+                value: [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3285,18 +4228,22 @@ export const IDL: Gamba = {
         },
         {
           name: 'game',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAME',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3307,31 +4254,43 @@ export const IDL: Gamba = {
     },
     {
       name: 'playerClaim',
+      discriminator: [
+        188,
+        220,
+        237,
+        31,
+        181,
+        18,
+        85,
+        45,
+      ],
       accounts: [
         {
           name: 'user',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'player',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'PLAYER',
+                value: [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3339,18 +4298,22 @@ export const IDL: Gamba = {
         },
         {
           name: 'game',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAME',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3358,59 +4321,60 @@ export const IDL: Gamba = {
         },
         {
           name: 'playerAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'userUnderlyingAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'systemProgram' },
+        { name: 'tokenProgram' },
+        { name: 'associatedTokenProgram' },
       ],
       args: [],
     },
     {
       name: 'rngSettle',
+      discriminator: [
+        23,
+        35,
+        236,
+        185,
+        14,
+        171,
+        26,
+        222,
+      ],
       accounts: [
         {
           name: 'rng',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'user',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'player',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'PLAYER',
+                value: [
+                  34,
+                  80,
+                  76,
+                  65,
+                  89,
+                  69,
+                  82,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3418,18 +4382,22 @@ export const IDL: Gamba = {
         },
         {
           name: 'game',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAME',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  69,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
                 path: 'user',
               },
             ],
@@ -3437,179 +4405,225 @@ export const IDL: Gamba = {
         },
         {
           name: 'pool',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'poolUnderlyingTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_ATA',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  65,
+                  84,
+                  65,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'poolBonusUnderlyingTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_BONUS_UNDERLYING_TA',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  85,
+                  78,
+                  68,
+                  69,
+                  82,
+                  76,
+                  89,
+                  73,
+                  78,
+                  71,
+                  95,
+                  84,
+                  65,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'playerAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'userUnderlyingAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'gambaState',
-          isMut: false,
-          isSigner: false,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
         {
           name: 'gambaStateAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'creator',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'creator' },
         {
           name: 'creatorAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'bonusTokenMint',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_BONUS_MINT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  66,
+                  79,
+                  78,
+                  85,
+                  83,
+                  95,
+                  77,
+                  73,
+                  78,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'playerBonusAta',
-          isMut: true,
-          isSigner: false,
-          isOptional: true,
+          writable: true,
+          optional: true,
         },
         {
           name: 'poolJackpotTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'POOL_JACKPOT',
+                value: [
+                  34,
+                  80,
+                  79,
+                  79,
+                  76,
+                  95,
+                  74,
+                  65,
+                  67,
+                  75,
+                  80,
+                  79,
+                  84,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Pool',
                 path: 'pool',
+                account: 'Pool',
               },
             ],
           },
         },
         {
           name: 'escrowTokenAccount',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'ESCROW',
+                value: [
+                  34,
+                  69,
+                  83,
+                  67,
+                  82,
+                  79,
+                  87,
+                  34,
+                ],
               },
               {
                 kind: 'account',
-                type: 'publicKey',
-                account: 'Player',
                 path: 'player',
+                account: 'Player',
               },
             ],
           },
         },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'rent',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'systemProgram' },
+        { name: 'tokenProgram' },
+        { name: 'associatedTokenProgram' },
+        { name: 'rent' },
       ],
       args: [
         {
@@ -3624,27 +4638,48 @@ export const IDL: Gamba = {
     },
     {
       name: 'rngProvideHashedSeed',
+      discriminator: [
+        238,
+        154,
+        25,
+        143,
+        191,
+        19,
+        25,
+        224,
+      ],
       accounts: [
         {
           name: 'game',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'rng',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
         {
           name: 'gambaState',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
@@ -3659,61 +4694,64 @@ export const IDL: Gamba = {
     },
     {
       name: 'distributeFees',
+      discriminator: [
+        120,
+        56,
+        27,
+        7,
+        53,
+        176,
+        113,
+        186,
+      ],
       accounts: [
         {
           name: 'signer',
-          isMut: true,
-          isSigner: true,
+          writable: true,
+          signer: true,
         },
-        {
-          name: 'underlyingTokenMint',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'underlyingTokenMint' },
         {
           name: 'gambaState',
-          isMut: true,
-          isSigner: false,
+          writable: true,
           pda: {
             seeds: [
               {
                 kind: 'const',
-                type: 'string',
-                value: 'GAMBA_STATE',
+                value: [
+                  34,
+                  71,
+                  65,
+                  77,
+                  66,
+                  65,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69,
+                  34,
+                ],
               },
             ],
           },
         },
         {
           name: 'gambaStateAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'distributionRecipient',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
         {
           name: 'distributionRecipientAta',
-          isMut: true,
-          isSigner: false,
+          writable: true,
         },
-        {
-          name: 'associatedTokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
+        { name: 'associatedTokenProgram' },
+        { name: 'tokenProgram' },
+        { name: 'systemProgram' },
       ],
       args: [
         {
@@ -3725,7 +4763,188 @@ export const IDL: Gamba = {
   ],
   accounts: [
     {
-      name: 'game',
+      name: 'Game',
+      discriminator: [
+        27,
+        90,
+        166,
+        125,
+        74,
+        100,
+        121,
+        18,
+      ],
+    },
+    {
+      name: 'Player',
+      discriminator: [
+        205,
+        222,
+        112,
+        7,
+        165,
+        155,
+        206,
+        218,
+      ],
+    },
+    {
+      name: 'Pool',
+      discriminator: [
+        241,
+        154,
+        109,
+        4,
+        17,
+        177,
+        109,
+        188,
+      ],
+    },
+    {
+      name: 'GambaState',
+      discriminator: [
+        142,
+        203,
+        14,
+        224,
+        153,
+        118,
+        52,
+        200,
+      ],
+    },
+  ],
+  events: [
+    {
+      name: 'GameSettled',
+      discriminator: [
+        63,
+        109,
+        128,
+        85,
+        229,
+        63,
+        167,
+        176,
+      ],
+    },
+    {
+      name: 'PoolChange',
+      discriminator: [
+        241,
+        7,
+        155,
+        154,
+        56,
+        57,
+        0,
+        101,
+      ],
+    },
+    {
+      name: 'PoolCreated',
+      discriminator: [
+        202,
+        44,
+        41,
+        88,
+        104,
+        220,
+        157,
+        82,
+      ],
+    },
+  ],
+  errors: [
+    {
+      code: 6000,
+      name: 'GenericError',
+      msg: 'Something went wrong',
+    },
+    {
+      code: 6001,
+      name: 'Unauthorized',
+      msg: 'Unauthorized',
+    },
+    {
+      code: 6002,
+      name: 'CustomPoolFeeExceedsLimit',
+      msg: 'Custom pool fee cannot exceed 100%',
+    },
+    {
+      code: 6003,
+      name: 'CustomMaxPayoutExceedsLimit',
+      msg: 'Custom max payout cannot exceed 50%',
+    },
+  ],
+  types: [
+    {
+      name: 'PlayerError',
+      type: {
+        kind: 'enum',
+        variants: [
+          { name: 'NotReadyToPlay' },
+          { name: 'CreatorFeeTooHigh' },
+          { name: 'WagerTooSmall' },
+          { name: 'TooFewBetOutcomes' },
+          { name: 'TooManyBetOutcomes' },
+          { name: 'PlayerAdvantage' },
+          { name: 'HouseAdvantageTooHigh' },
+          { name: 'MaxPayoutExceeded' },
+        ],
+      },
+    },
+    {
+      name: 'RngError',
+      type: {
+        kind: 'enum',
+        variants: [
+          { name: 'Generic' },
+          { name: 'InitialHashedSeedAlreadyProvided' },
+          { name: 'IncorrectRngSeed' },
+          { name: 'ResultNotRequested' },
+        ],
+      },
+    },
+    {
+      name: 'GambaStateError',
+      type: {
+        kind: 'enum',
+        variants: [
+          { name: 'PlaysNotAllowed' },
+          { name: 'DepositNotAllowed' },
+          { name: 'WithdrawalNotAllowed' },
+          { name: 'PoolCreationNotAllowed' },
+          { name: 'DepositLimitExceeded' },
+          { name: 'DepositWhitelistRequired' },
+        ],
+      },
+    },
+    {
+      name: 'PoolAction',
+      type: {
+        kind: 'enum',
+        variants: [
+          { name: 'Deposit' },
+          { name: 'Withdraw' },
+        ],
+      },
+    },
+    {
+      name: 'GameStatus',
+      type: {
+        kind: 'enum',
+        variants: [
+          { name: 'None' },
+          { name: 'NotInitialized' },
+          { name: 'Ready' },
+          { name: 'ResultRequested' },
+        ],
+      },
+    },
+    {
+      name: 'Game',
       type: {
         kind: 'struct',
         fields: [
@@ -3744,19 +4963,19 @@ export const IDL: Gamba = {
           },
           {
             name: 'user',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'tokenMint',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'pool',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'status',
-            type: { defined: 'GameStatus' },
+            type: { defined: { name: 'GameStatus' } },
           },
           {
             name: 'nextRngSeedHashed',
@@ -3778,7 +4997,7 @@ export const IDL: Gamba = {
           },
           {
             name: 'creator',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'creatorMeta',
@@ -3842,7 +5061,7 @@ export const IDL: Gamba = {
           },
           {
             name: 'pointsAuthority',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'metadata',
@@ -3852,7 +5071,7 @@ export const IDL: Gamba = {
       },
     },
     {
-      name: 'player',
+      name: 'Player',
       type: {
         kind: 'struct',
         fields: [
@@ -3867,7 +5086,7 @@ export const IDL: Gamba = {
           },
           {
             name: 'user',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'nonce',
@@ -3877,7 +5096,7 @@ export const IDL: Gamba = {
       },
     },
     {
-      name: 'pool',
+      name: 'Pool',
       type: {
         kind: 'struct',
         fields: [
@@ -3892,15 +5111,15 @@ export const IDL: Gamba = {
           },
           {
             name: 'lookupAddress',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'poolAuthority',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'underlyingTokenMint',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'antiSpamFeeExempt',
@@ -3952,7 +5171,7 @@ export const IDL: Gamba = {
           },
           {
             name: 'customBonusTokenMint',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'customBonusToken',
@@ -3972,27 +5191,27 @@ export const IDL: Gamba = {
           },
           {
             name: 'depositWhitelistAddress',
-            type: 'publicKey',
+            type: 'pubkey',
           },
         ],
       },
     },
     {
-      name: 'gambaState',
+      name: 'GambaState',
       type: {
         kind: 'struct',
         fields: [
           {
             name: 'authority',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'rngAddress',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'rngAddress2',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'antiSpamFee',
@@ -4064,7 +5283,7 @@ export const IDL: Gamba = {
           },
           {
             name: 'distributionRecipient',
-            type: 'publicKey',
+            type: 'pubkey',
           },
           {
             name: 'bump',
@@ -4078,260 +5297,177 @@ export const IDL: Gamba = {
         ],
       },
     },
-  ],
-  types: [
-    {
-      name: 'PlayerError',
-      type: {
-        kind: 'enum',
-        variants: [
-          { name: 'NotReadyToPlay' },
-          { name: 'CreatorFeeTooHigh' },
-          { name: 'WagerTooSmall' },
-          { name: 'TooFewBetOutcomes' },
-          { name: 'TooManyBetOutcomes' },
-          { name: 'PlayerAdvantage' },
-          { name: 'HouseAdvantageTooHigh' },
-          { name: 'MaxPayoutExceeded' },
-        ],
-      },
-    },
-    {
-      name: 'RngError',
-      type: {
-        kind: 'enum',
-        variants: [
-          { name: 'Generic' },
-          { name: 'InitialHashedSeedAlreadyProvided' },
-          { name: 'IncorrectRngSeed' },
-          { name: 'ResultNotRequested' },
-        ],
-      },
-    },
-    {
-      name: 'GambaStateError',
-      type: {
-        kind: 'enum',
-        variants: [
-          { name: 'PlaysNotAllowed' },
-          { name: 'DepositNotAllowed' },
-          { name: 'WithdrawalNotAllowed' },
-          { name: 'PoolCreationNotAllowed' },
-          { name: 'DepositLimitExceeded' },
-          { name: 'DepositWhitelistRequired' },
-        ],
-      },
-    },
-    {
-      name: 'PoolAction',
-      type: {
-        kind: 'enum',
-        variants: [
-          { name: 'Deposit' },
-          { name: 'Withdraw' },
-        ],
-      },
-    },
-    {
-      name: 'GameStatus',
-      type: {
-        kind: 'enum',
-        variants: [
-          { name: 'None' },
-          { name: 'NotInitialized' },
-          { name: 'Ready' },
-          { name: 'ResultRequested' },
-        ],
-      },
-    },
-  ],
-  events: [
     {
       name: 'GameSettled',
-      fields: [
-        {
-          name: 'user',
-          type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'pool',
-          type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'tokenMint',
-          type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'creator',
-          type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'creatorFee',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'gambaFee',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'poolFee',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'jackpotFee',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'underlyingUsed',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'bonusUsed',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'wager',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'payout',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'multiplierBps',
-          type: 'u32',
-          index: false,
-        },
-        {
-          name: 'payoutFromBonusPool',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'payoutFromNormalPool',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'jackpotProbabilityUbps',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'jackpotResult',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'nonce',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'clientSeed',
-          type: 'string',
-          index: false,
-        },
-        {
-          name: 'resultIndex',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'bet',
-          type: { vec: 'u32' },
-          index: false,
-        },
-        {
-          name: 'jackpotPayoutToUser',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'poolLiquidity',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'rngSeed',
-          type: 'string',
-          index: false,
-        },
-        {
-          name: 'nextRngSeedHashed',
-          type: 'string',
-          index: false,
-        },
-        {
-          name: 'metadata',
-          type: 'string',
-          index: false,
-        },
-      ],
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'user',
+            type: 'pubkey',
+          },
+          {
+            name: 'pool',
+            type: 'pubkey',
+          },
+          {
+            name: 'tokenMint',
+            type: 'pubkey',
+          },
+          {
+            name: 'creator',
+            type: 'pubkey',
+          },
+          {
+            name: 'creatorFee',
+            type: 'u64',
+          },
+          {
+            name: 'gambaFee',
+            type: 'u64',
+          },
+          {
+            name: 'poolFee',
+            type: 'u64',
+          },
+          {
+            name: 'jackpotFee',
+            type: 'u64',
+          },
+          {
+            name: 'underlyingUsed',
+            type: 'u64',
+          },
+          {
+            name: 'bonusUsed',
+            type: 'u64',
+          },
+          {
+            name: 'wager',
+            type: 'u64',
+          },
+          {
+            name: 'payout',
+            type: 'u64',
+          },
+          {
+            name: 'multiplierBps',
+            type: 'u32',
+          },
+          {
+            name: 'payoutFromBonusPool',
+            type: 'u64',
+          },
+          {
+            name: 'payoutFromNormalPool',
+            type: 'u64',
+          },
+          {
+            name: 'jackpotProbabilityUbps',
+            type: 'u64',
+          },
+          {
+            name: 'jackpotResult',
+            type: 'u64',
+          },
+          {
+            name: 'nonce',
+            type: 'u64',
+          },
+          {
+            name: 'clientSeed',
+            type: 'string',
+          },
+          {
+            name: 'resultIndex',
+            type: 'u64',
+          },
+          {
+            name: 'bet',
+            type: { vec: 'u32' },
+          },
+          {
+            name: 'jackpotPayoutToUser',
+            type: 'u64',
+          },
+          {
+            name: 'poolLiquidity',
+            type: 'u64',
+          },
+          {
+            name: 'rngSeed',
+            type: 'string',
+          },
+          {
+            name: 'nextRngSeedHashed',
+            type: 'string',
+          },
+          {
+            name: 'metadata',
+            type: 'string',
+          },
+        ],
+      },
     },
     {
       name: 'PoolChange',
-      fields: [
-        {
-          name: 'user',
-          type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'pool',
-          type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'tokenMint',
-          type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'action',
-          type: { defined: 'PoolAction' },
-          index: false,
-        },
-        {
-          name: 'amount',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'postLiquidity',
-          type: 'u64',
-          index: false,
-        },
-        {
-          name: 'lpSupply',
-          type: 'u64',
-          index: false,
-        },
-      ],
-    },
-  ],
-  errors: [
-    {
-      code: 6000,
-      name: 'GenericError',
-      msg: 'Something went wrong',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'user',
+            type: 'pubkey',
+          },
+          {
+            name: 'pool',
+            type: 'pubkey',
+          },
+          {
+            name: 'tokenMint',
+            type: 'pubkey',
+          },
+          {
+            name: 'action',
+            type: { defined: { name: 'PoolAction' } },
+          },
+          {
+            name: 'amount',
+            type: 'u64',
+          },
+          {
+            name: 'postLiquidity',
+            type: 'u64',
+          },
+          {
+            name: 'lpSupply',
+            type: 'u64',
+          },
+        ],
+      },
     },
     {
-      code: 6001,
-      name: 'Unauthorized',
-      msg: 'Unauthorized',
+      name: 'PoolCreated',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'user',
+            type: 'pubkey',
+          },
+          {
+            name: 'authority',
+            type: 'pubkey',
+          },
+          {
+            name: 'pool',
+            type: 'pubkey',
+          },
+          {
+            name: 'tokenMint',
+            type: 'pubkey',
+          },
+        ],
+      },
     },
   ],
 }

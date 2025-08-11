@@ -3,20 +3,29 @@ import styled, { css } from 'styled-components'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 
-const StyledButton = styled.button<{$main?: boolean, $size: ButtonSize}>`
+const StyledButton = styled.button<{
+  $main?: boolean
+  $size?: ButtonSize
+}>`
   --color: var(--gamba-ui-button-default-color);
   --background-color: var(--gamba-ui-button-default-background);
   --background-color-hover: var(--gamba-ui-button-default-background-hover);
 
-  ${(props) => props.$main && css`
-    --background-color: var(--gamba-ui-button-main-background);
-    --color: var(--gamba-ui-button-main-color);
-    --background-color-hover: var(--gamba-ui-button-main-background-hover);
-  `}
+  ${({ $main }) =>
+    $main &&
+    css`
+      --background-color: var(--gamba-ui-button-main-background);
+      --color: var(--gamba-ui-button-main-color);
+      --background-color-hover: var(--gamba-ui-button-main-background-hover);
+    `}
 
-  ${(props) => css`
-    --padding: ${props.$size === 'small' ? '5px' : props.$size === 'medium' ? '10px' : props.$size === 'large' && '15px'};
-  `}
+  /* default $size to "medium" */
+  ${({ $size = 'medium' }) =>
+    css`
+      --padding: ${
+        $size === 'small' ? '5px' : $size === 'large' ? '15px' : '10px'
+      };
+    `}
 
   background: var(--background-color);
   color: var(--color);
@@ -28,32 +37,44 @@ const StyledButton = styled.button<{$main?: boolean, $size: ButtonSize}>`
   border-radius: var(--gamba-ui-border-radius);
   padding: var(--padding);
   cursor: pointer;
-  /* min-width: 100px; */
   text-align: center;
-  align-items: center;
 
   &:disabled {
     cursor: default;
-    opacity: .7;
+    opacity: 0.7;
   }
 `
 
-export interface ButtonProps extends React.PropsWithChildren {
+export interface ButtonProps {
   disabled?: boolean
   onClick?: () => void
   main?: boolean
   size?: ButtonSize
+  children?: React.ReactNode | bigint
 }
 
-export function Button(props: ButtonProps) {
+export function Button({
+  disabled,
+  onClick,
+  main,
+  size,
+  children,
+}: ButtonProps) {
+  // coerce bigint → string
+  const safeChildren =
+    typeof children === 'bigint' ? children.toString() : children
+
+  // cast away the styled-component’s complex signature
+  const SButton: any = StyledButton
+
   return (
-    <StyledButton
-      disabled={props.disabled}
-      onClick={props.onClick}
-      $main={props.main}
-      $size={props.size ?? 'medium'}
+    <SButton
+      disabled={disabled}
+      onClick={onClick}
+      $main={main}
+      $size={size}
     >
-      {props.children}
-    </StyledButton>
+      {safeChildren}
+    </SButton>
   )
 }

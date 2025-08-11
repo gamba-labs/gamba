@@ -1,66 +1,88 @@
 import { useConnection } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
-import { AnyGambaEvent, GambaEventType, GambaTransaction, PROGRAM_ID, fetchGambaTransactions } from 'gamba-core-v2'
 import React from 'react'
-import { useGambaProgram } from '.'
+
+import {
+  fetchRecentLogs,
+  subscribeGambaLogs,
+  unsubscribeGambaLogs,
+  GambaEventType,
+  GambaTransaction,
+  PROGRAM_ID,
+} from 'gamba-core-v2'
 
 export interface UseGambaEventsParams {
+  /** Program or account to fetch logs from; defaults to Gamba PROGRAM_ID */
   address?: PublicKey
+  /** How many log entries to fetch; defaults to 30 */
   signatureLimit?: number
+  /** (reserved) */
   listen?: boolean
 }
 
+/**
+ * Subscribe to live Gamba events by parsing program logs.
+ * Fires `callback` whenever an event with `eventName` arrives.
+ */
 export function useGambaEventListener<T extends GambaEventType>(
   eventName: T,
-  callback: (event: GambaTransaction<T>) => void,
+  callback: (evt: GambaTransaction<T>) => void,
   deps: React.DependencyList = [],
+  address: PublicKey = PROGRAM_ID,
 ) {
-  const program = useGambaProgram()
+  const { connection } = useConnection()
 
   React.useEffect(() => {
-    const listener = program.addEventListener(
-      eventName,
-      (data, slot, signature) => {
-        const event = {
-          signature,
-          time: Date.now(),
-          name: eventName,
-          data,
+    const subId = subscribeGambaLogs(
+      connection,
+      address,
+      (evt) => {
+        if (evt.name === eventName) {
+          callback(evt as GambaTransaction<T>)
         }
-        callback(event)
       },
     )
     return () => {
-      program.removeEventListener(listener)
+      unsubscribeGambaLogs(connection, subId)
     }
-  }, [eventName, program, ...deps])
+  }, [connection, address, eventName, ...deps])
 }
 
 /**
- * Fetches previous events from the provided address (Defaults to creator set in <GambaProvider />)
+ * Fetch past Gamba events by pulling only program logs.
+ * Always uses `fetchRecentLogs` under the hood.
  */
 export function useGambaEvents<T extends GambaEventType>(
   eventName: T,
-  props: {address?: PublicKey, signatureLimit?: number} = {},
-) {
-  const { signatureLimit = 30 } = props
+  props: UseGambaEventsParams = {},
+): GambaTransaction<T>[] {
   const { connection } = useConnection()
-  const [events, setEvents] = React.useState<AnyGambaEvent[]>([])
-  const address = props.address ?? PROGRAM_ID
+  const {
+    address = PROGRAM_ID,
+    signatureLimit = 30,
+  } = props
 
-  React.useEffect(
-    () => {
-      fetchGambaTransactions(
-        connection,
-        address,
-        { limit: signatureLimit },
-      ).then((x) => setEvents(x))
+  const [events, setEvents] = React.useState<GambaTransaction<T>[]>([])
+
+  React.useEffect(() => {
+    let mounted = true
+
+    fetchRecentLogs(connection, address, signatureLimit)
+      .then((txs) => {
+        if (!mounted) return
+        // filter only the requested eventName
+        setEvents(
+          txs.filter((tx): tx is GambaTransaction<T> => tx.name === eventName),
+        )
+      })
+      .catch((err) => {
+        console.error('[useGambaEvents] fetchRecentLogs failed:', err)
+      })
+
+    return () => {
+      mounted = false
     }
-    , [connection, signatureLimit, address],
-  )
+  }, [connection, address, signatureLimit, eventName])
 
-  return React.useMemo(
-    () => events.filter((x) => x.name === eventName),
-    [eventName, events],
-  ) as GambaTransaction<T>[]
+  return React.useMemo(() => events, [events])
 }

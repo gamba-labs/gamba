@@ -1,0 +1,18 @@
+export default {
+  'parse-transaction-events': {
+    title: 'parseTransactionEvents',
+    href: '/docs/gamba-core-v2#parsetransactionevents'
+  },
+  'parse-gamba-transaction': {
+    title: 'parseGambaTransaction',
+    href: '/docs/gamba-core-v2#parsegambatransaction'
+  },
+  'fetch-gamba-transactions-from-signatures': {
+    title: 'fetchGambaTransactionsFromSignatures',
+    href: '/docs/gamba-core-v2#fetchgambatransactionsfromsignatures'
+  },
+  'fetch-gamba-transactions': {
+    title: 'fetchGambaTransactions',
+    href: '/docs/gamba-core-v2#fetchgambatransactions'
+  }
+}

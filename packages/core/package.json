@@ -1,38 +1,37 @@
 {
   "name": "gamba-core-v2",
-  "private": false,
   "version": "0.4.1",
+  "private": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "sideEffects": false,
-  "files": [
-    "dist/**"
-  ],
+  "files": ["dist/**"],
+  "scripts": {
+    "dev":   "tsup src/index.ts --watch --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint":  "tsc",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/spl-token": "^0.4.13",
+    "@solana/web3.js":   "^1.98.2",
+    "buffer":            "^6.0.3"
+  },
+  "peerDependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/spl-token": "^0.4.13",
+    "@solana/web3.js":   "^1.98.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "eslint":      "^9.30.1",
+    "tsup":        "^8.5.0",
+    "typescript":  "^5.2.2"
+  },
   "publishConfig": {
     "access": "public"
   },
-  "scripts": {
-    "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "lint": "tsc",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
-  },
-  "dependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
-    "@solana/spl-token": "^0.3.8",
-    "@solana/web3.js": "^1.93.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.48.0",
-    "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
-  },
-  "peerDependencies": {
-    "@coral-xyz/anchor": "^0.27.0",
-    "@solana/web3.js": "^1.93.0"
-  },
-  "keywords": [],
-  "author": "",
   "license": "MIT"
 }

@@ -1,4 +1,3 @@
-import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { Select } from './Select'
 import { TokenValue } from './TokenValue'
@@ -8,23 +7,24 @@ export interface WagerSelectProps {
   value: number
   onChange: (value: number) => void
   className?: string
+  disabled?: boolean
 }
 
-/**
- * @deprecated Use WagerInput with "options" prop
- */
-export function WagerSelect(props: WagerSelectProps) {
-  const gamba = useGamba()
+export function WagerSelect({
+  options,
+  value,
+  onChange,
+  className,
+  disabled = false,
+}: WagerSelectProps) {
   return (
     <Select
-      className={props.className}
-      options={props.options}
-      value={props.value}
-      onChange={props.onChange}
-      disabled={gamba.isPlaying}
-      label={(value) => (
-        <TokenValue amount={value} />
-      )}
+      className={className}
+      options={options}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      label={(val) => <TokenValue amount={val} />}
     />
   )
 }

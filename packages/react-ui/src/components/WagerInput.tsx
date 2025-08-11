@@ -1,4 +1,4 @@
-import { useGamba } from 'gamba-react-v2'
+// src/components/WagerInput.tsx
 import React, { useRef } from 'react'
 import styled, { css } from 'styled-components'
 import { useCurrentToken, useFees, useUserBalance } from '../hooks'
@@ -59,11 +59,8 @@ const Flex = styled.button`
 
 const Input = styled.input`
   border: none;
-  border-radius: 0;
   margin: 0;
-  padding: 10px;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 10px 0;
   color: var(--gamba-ui-input-color);
   background: var(--gamba-ui-input-background);
   outline: none;
@@ -74,8 +71,6 @@ const Input = styled.input`
     -webkit-appearance: none;
     margin: 0;
   }
-
-  /* Firefox */
   &[type=number] {
     -moz-appearance: textfield;
   }
@@ -83,7 +78,6 @@ const Input = styled.input`
 
 const InputButton = styled.button`
   border: none;
-  border-radius: 0;
   margin: 0;
   padding: 2px 10px;
   color: var(--gamba-ui-input-color);
@@ -104,14 +98,11 @@ const TokenImage = styled.img`
 `
 
 const WagerAmount = styled.div`
-  text-wrap: nowrap;
   padding: 10px 0;
   width: 40px;
-
   @media (min-width: 600px) {
     width: 100px;
   }
-
   opacity: .8;
   overflow: hidden;
 `
@@ -119,6 +110,11 @@ const WagerAmount = styled.div`
 export interface WagerInputBaseProps {
   value: number
   onChange: (value: number) => void
+  /** If provided, the input is locked to this exact lamports value */
+  lockedValue?: number
+  /** Optional lower/upper bounds in lamports (for range wager games) */
+  minValue?: number
+  maxValue?: number
 }
 
 export type WagerInputProps = WagerInputBaseProps & {
@@ -128,94 +124,113 @@ export type WagerInputProps = WagerInputBaseProps & {
 }
 
 export function WagerInput(props: WagerInputProps) {
-  const gamba = useGamba()
-  const token = useCurrentToken()
-  const [input, setInput] = React.useState('')
-  const balance = useUserBalance() // useBalance(walletAddress, token.mint)
-  const fees = useFees()
+  const token   = useCurrentToken()
+  const balance = useUserBalance()
+  const fees    = useFees()
+  const ref     = useRef<HTMLDivElement>(null!)
   const [isEditing, setIsEditing] = React.useState(false)
-  const ref = useRef<HTMLDivElement>(null!)
+  const [input, setInput]         = React.useState('')
 
-  React.useEffect(
-    () => {
-      props.onChange(token.baseWager)
-    },
-    [token.mint.toString()],
-  )
+  const isLocked = props.lockedValue != null
+  const effectiveValue = isLocked ? (props.lockedValue as number) : props.value
+
+  const clampToBounds = (n: number) => {
+    let x = n
+    if (props.minValue != null) x = Math.max(x, props.minValue)
+    if (props.maxValue != null) x = Math.min(x, props.maxValue)
+    return x
+  }
+
+  // whenever the mint changes, reset back to base wager
+  React.useEffect(() => {
+    props.onChange(token.baseWager)
+  }, [token.mint.toString()])
 
   useOnClickOutside(ref, () => setIsEditing(false))
 
   const startEditInput = () => {
+    if (props.disabled || isLocked) return
     if (props.options) {
       setIsEditing(!isEditing)
       return
     }
     setIsEditing(true)
-    setInput(String(props.value / (10 ** token.decimals)))
+    setInput(String(effectiveValue / 10 ** token.decimals))
   }
 
   const apply = () => {
-    props.onChange(Number(input) * (10 ** token.decimals))
+    if (isLocked) return
+    const next = Number(input) * 10 ** token.decimals
+    props.onChange(clampToBounds(next))
     setIsEditing(false)
   }
 
   const x2 = () => {
-    const availableBalance = balance.balance + balance.bonusBalance
-    const nextValue = Math.max(token.baseWager, (props.value * 2) || token.baseWager)
-    props.onChange(Math.max(0, Math.min(nextValue, availableBalance - nextValue * fees)))
+    if (isLocked) return
+    const available = balance.balance + balance.bonusBalance
+    const base      = token.baseWager
+    const want      = Math.max(base, effectiveValue * 2 || base)
+    const cappedBal = Math.min(want, available - want * fees)
+    const bounded   = clampToBounds(cappedBal)
+    props.onChange(bounded)
   }
 
   return (
     <div ref={ref} className={props.className} style={{ position: 'relative' }}>
       <StyledWagerInput $edit={isEditing}>
-        <Flex onClick={() => !gamba.isPlaying && startEditInput()}>
+        <Flex onClick={startEditInput}>
           <TokenImage src={token.image} />
-          {(!isEditing || props.options) ? (
+          {isLocked || (!isEditing || props.options) ? (
             <WagerAmount
-              title={(props.value / (10 ** token.decimals)).toLocaleString()}
+              title={(effectiveValue / 10 ** token.decimals).toLocaleString()}
             >
-              <TokenValue suffix="" amount={props.value} mint={token.mint} />
+              <TokenValue amount={effectiveValue} mint={token.mint} />
             </WagerAmount>
           ) : (
             <Input
               value={input}
               type="number"
-              max={balance.balance / (10 ** token.decimals)}
-              min={0}
-              step={.05}
+              max={(props.maxValue ?? balance.balance) / 10 ** token.decimals}
+              min={(props.minValue ?? 0) / 10 ** token.decimals}
+              step={0.05}
               style={{ width: '100px' }}
-              onChange={(evt) => setInput(evt.target.value)}
-              onKeyDown={(e) => e.code === 'Enter' && apply()}
-              onBlur={(evt) => apply()}
-              disabled={gamba.isPlaying}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.code === 'Enter' && apply()}
+              onBlur={apply}
+              disabled={props.disabled || isLocked}
               autoFocus
-              onFocus={(e) => e.target.select()}
+              onFocus={e => e.target.select()}
             />
           )}
         </Flex>
+
         {!props.options && (
           <Buttons>
-            <InputButton disabled={gamba.isPlaying} onClick={() => props.onChange(props.value / 2)}>
+            <InputButton
+              disabled={props.disabled || isLocked}
+              onClick={() => props.onChange(clampToBounds(effectiveValue / 2))}
+            >
               x.5
             </InputButton>
-            <InputButton disabled={gamba.isPlaying} onClick={x2}>
+            <InputButton disabled={props.disabled || isLocked} onClick={x2}>
               2x
             </InputButton>
           </Buttons>
         )}
       </StyledWagerInput>
-      {props.options && isEditing && (
+
+      {props.options && isEditing && !isLocked && (
         <StyledPopup>
-          {props.options.map((valueInBaseWager, i) => (
+          {props.options.map((opt, i) => (
             <button
               key={i}
               onClick={() => {
-                props.onChange(valueInBaseWager * token.baseWager)
+                props.onChange(opt * token.baseWager)
                 setIsEditing(false)
               }}
             >
               <TokenImage src={token.image} />
-              <TokenValue amount={valueInBaseWager * token.baseWager} mint={token.mint} />
+              <TokenValue amount={opt * token.baseWager} mint={token.mint} />
             </button>
           ))}
         </StyledPopup>

@@ -9,8 +9,8 @@ export type GambaEvent<T extends GambaEventType> = {name: string, data: IdlEvent
 
 export type AnyGambaEvent = GambaEvent<'GameSettled'> | GambaEvent<'PoolChange'>
 
-export type GambaState = IdlAccounts<GambaIdl>['gambaState']
-export type PlayerState = IdlAccounts<GambaIdl>['player']
-export type GameState = IdlAccounts<GambaIdl>['game']
-export type PoolState = IdlAccounts<GambaIdl>['pool']
+export type GambaState = IdlAccounts<GambaIdl>['GambaState']
+export type PlayerState = IdlAccounts<GambaIdl>['Player']
+export type GameState = IdlAccounts<GambaIdl>['Game']
+export type PoolState = IdlAccounts<GambaIdl>['Pool']
 export type GambaProviderWallet = Omit<NodeWallet, 'payer'> & {payer?: Keypair}

@@ -15,28 +15,23 @@ export interface SoundStore {
   masterGain: number
 }
 
-export const useSoundStore = create<SoundStore>(
-  (set, get) => ({
-    volume: .5,
-    masterGain: .5,
-    set: (volume) => set({ volume, masterGain: volume }),
-    get,
-  }),
-)
-
-/** @deprecated use "useSoundStore" */
-export const useGambaAudioStore = useSoundStore
+export const useSoundStore = create<SoundStore>((set, get) => ({
+  volume: 0.5,
+  masterGain: 0.5,
+  set: (volume) => set({ volume, masterGain: volume }),
+  get,
+}))
 
 class Sound {
-  player = new Player
-  gain = new Gain
+  player = new Player()
+  gain = new Gain()
   ready = false
   private url?: string
 
   constructor(url: string, autoPlay = false) {
     this.url = url
     this.player.load(url)
-      .then((x) => {
+      .then(x => {
         this.ready = x.loaded
         this.player.connect(this.gain)
         this.gain.toDestination()
@@ -45,10 +40,10 @@ class Sound {
           this.player.start()
         }
       })
-      .catch((err) => console.error('Failed to load audio', err))
+      .catch(err => console.error('Failed to load audio', err))
   }
 
-  play({ playbackRate = 1, gain = .1 }: PlaySoundParams = {}) {
+  play({ playbackRate = 1, gain = 0.1 }: PlaySoundParams = {}) {
     try {
       this.player.playbackRate = playbackRate
       this.gain.set({ gain })
@@ -59,60 +54,48 @@ class Sound {
   }
 }
 
-export function useSound<T extends {[s: string]: string}>(definition: T) {
+/**
+ * definition:  { id: url, ... }
+ * options.disposeOnUnmount: default true (old behavior). 
+ *                            set to false to keep sounds alive after unmount.
+ */
+export function useSound<T extends Record<string,string>>(
+  definition: T,
+  options?: { disposeOnUnmount?: boolean }
+) {
   const store = useSoundStore()
-  const sources = Object.keys(definition)
-  const soundById = useMemo(
-    () =>
-      Object
-        .entries(definition)
-        .map(([id, url]) => {
-          const sound = new Sound(url)
-          return { id, sound }
-        })
-        .reduce((prev, { id, sound }) => ({
-          ...prev,
-          [id]: sound,
-        }), {} as Record<keyof T, Sound>)
-    ,
-    [...sources],
-  )
-  const sounds = useMemo(() => Object.entries(soundById).map(([_, s]) => s), [soundById])
+  const keys = Object.keys(definition)
 
-  // Mute all sounds on unmount
-  useEffect(
-    () => {
-      return () => {
-        sounds.forEach((sound) => {
-          sound.player.stop()
-          sound.player.dispose()
-        })
-      }
-    },
-    [soundById],
-  )
+  const soundById = useMemo(() => {
+    return keys.reduce((acc, id) => {
+      acc[id as keyof T] = new Sound(definition[id])  
+      return acc
+    }, {} as Record<keyof T, Sound>)
+  }, [ ...keys ])
 
-  // Update the gain of played sounds
-  useEffect(
-    () => {
-      sounds.forEach((sound) => {
-        sound.gain.set({ gain: store.volume })
+  const sounds = useMemo(() => Object.values(soundById), [soundById])
+
+  // cleanup effect: only run if disposeOnUnmount !== false
+  useEffect(() => {
+    if (options?.disposeOnUnmount === false) return
+    return () => {
+      sounds.forEach(s => {
+        try { s.player.stop() } catch {}
+        try { s.player.dispose() } catch {}
       })
-    },
-    [store.volume],
-  )
+    }
+  }, [soundById, options?.disposeOnUnmount])
 
-  const play = useCallback(
-    (soundId: keyof T, params?: PlaySoundParams) => {
-      const gain = params?.gain ?? 1
-      const opts: PlaySoundParams = { ...params, gain: gain * store.get().volume }
-      soundById[soundId].play(opts)
-    },
-    [soundById],
-  )
+  // update gain on volume change
+  useEffect(() => {
+    sounds.forEach(s => s.gain.set({ gain: store.get().volume }))
+  }, [store.volume, sounds])
 
-  return {
-    play,
-    sounds: soundById,
-  }
+  const play = useCallback((id: keyof T, params?: PlaySoundParams) => {
+    const base = params?.gain ?? 1
+    const gain = base * store.get().volume
+    soundById[id].play({ ...params, gain })
+  }, [soundById])
+
+  return { play, sounds: soundById }
 }

@@ -7,6 +7,7 @@ export * from './useGambaPlay'
 export * from './usePool'
 export * from './useSendTransaction'
 export * from './useTransactionStore'
+export * from '../multiplayer/useMultiplayer';
 
 export function useGambaProvider() {
   return useGambaContext().provider

@@ -1,0 +1,11 @@
+
+export default {
+  throwtransactionerror: {
+    title: 'throwTransactionError',
+    href: '/docs/gamba-react-v2#throwtransactionerror'
+  },
+  createcustomfeeplugin: {
+    title: 'createCustomFeePlugin',
+    href: '/docs/gamba-react-v2#createcustomfeeplugin'
+  }
+}

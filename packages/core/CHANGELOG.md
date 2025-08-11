@@ -1,5 +1,12 @@
 # gamba-core-v2
 
+## 2.0.0
+
+### Major Changes
+
+- Multiplayer support and integration with `@gamba-labs/multiplayer-sdk`.
+- Updated to Anchor 0.31.1 and Solana libs (`@solana/web3.js` 1.98.2, `@solana/spl-token` 0.4.13).
+
 ## 0.4.1
 
 ### Patch Changes

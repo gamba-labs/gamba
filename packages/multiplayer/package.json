@@ -1,6 +1,6 @@
 {
   "name": "@gamba-labs/multiplayer-sdk",
-  "version": "0.1.2",
+  "version": "2.0.0",
   "private": false,
   "description": "Gamba Multiplayer on-chain game helper layer (Anchor 0.31.1)",
   "main": "dist/index.js",

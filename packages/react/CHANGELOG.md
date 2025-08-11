@@ -1,5 +1,19 @@
 # gamba-react-v2
 
+## 2.0.0
+
+### Major Changes
+
+- Multiplayer support via `@gamba-labs/multiplayer-sdk`.
+- Anchor 0.31.1 compatibility.
+- Externalized singleton deps (React/Solana/wallet-adapter) to prevent duplicate contexts in production.
+
+### Patch Changes
+
+- Updated dependencies
+  - gamba-core-v2@2.0.0
+  - @gamba-labs/multiplayer-sdk@2.0.0
+
 ## 1.2.1
 
 ### Patch Changes

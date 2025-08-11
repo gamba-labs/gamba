@@ -1,5 +1,19 @@
 # gamba-react-ui-v2
 
+## 2.0.0
+
+### Major Changes
+
+- Multiplayer UI support built on top of `gamba-react-v2`.
+- Anchor 0.31.1 compatibility.
+
+### Patch Changes
+
+- Updated dependencies
+  - gamba-react-v2@2.0.0
+  - gamba-core-v2@2.0.0
+  - @gamba-labs/multiplayer-sdk@2.0.0
+
 ## 0.7.1
 
 ### Patch Changes

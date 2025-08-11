@@ -12,6 +12,7 @@ export default defineConfig(() => ({
     react({ jsxRuntime: 'classic' }),
   ],
   resolve: {
+    dedupe: ['react', 'react-dom', '@solana/web3.js', '@solana/wallet-adapter-react'],
     alias: [
       { find: "@", replacement: fileURLToPath(new URL("./src", import.meta.url)) },
     ],

@@ -7,8 +7,8 @@
   "types": "dist/index.d.ts",
   "files": ["dist/**"],
   "scripts": {
-    "dev": "tsup src/index.ts --watch --format cjs,esm --dts --external react --external react-dom --external react/jsx-runtime --external styled-components --external @solana/web3.js --external @solana/spl-token --external @solana/wallet-adapter-react --external @coral-xyz/anchor --external gamba-react-v2 --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
-    "build": "tsup src/index.ts --format cjs,esm --dts --external react --external react-dom --external react/jsx-runtime --external styled-components --external @solana/web3.js --external @solana/spl-token --external @solana/wallet-adapter-react --external @coral-xyz/anchor --external gamba-react-v2 --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
+    "dev": "tsup src/index.ts --watch --format cjs,esm --dts --external react --external react-dom --external @solana/web3.js --external @solana/spl-token --external @solana/wallet-adapter-react --external @coral-xyz/anchor --external styled-components --external gamba-react-v2 --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
+    "build": "tsup src/index.ts --format cjs,esm --dts --external react --external react-dom --external @solana/web3.js --external @solana/spl-token --external @solana/wallet-adapter-react --external @coral-xyz/anchor --external styled-components --external gamba-react-v2 --external gamba-core-v2 --external @gamba-labs/multiplayer-sdk",
     "lint": "tsc",
     "clean": "rm -rf .turbo node_modules dist"
   },

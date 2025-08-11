@@ -7,9 +7,9 @@ export default {
   apps: '🎰 Apps',
   pools: '🏦 Pools',
   games: '🎲 Games',
+  multiplayer: '🤝 Multiplayer',
   explorer: '🔎 Explorer',
   examples: '👨‍💻 Examples',
-  dao: '🏛️ DAO (Soon)',
   '-- Development': {
     type: 'separator',
     title: 'Development'

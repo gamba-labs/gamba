@@ -1,0 +1,132 @@
+# 🤝 Multiplayer
+
+Build multiplayer games on Gamba using the Multiplayer SDK. This page covers how to create a game and how players join, with the exact parameters you need.
+
+## Install
+
+```bash
+pnpm add @gamba-labs/multiplayer-sdk @coral-xyz/anchor @solana/web3.js @solana/spl-token
+```
+
+## Create Game
+
+Function: `createGameIx(provider, params)`
+
+- Automatically chooses native SOL vs SPL flow based on `params.accounts.mint` (`WRAPPED_SOL_MINT` = native)
+- Returns a `TransactionInstruction`
+
+### Params
+
+```ts
+type CreateGameParams = {
+  preAllocPlayers: number
+  maxPlayers: number
+  numTeams: number
+  winnersTarget: number
+  wagerType: number
+  payoutType: number
+  wager: BN | number
+  softDuration: BN | number
+  hardDuration: BN | number
+  gameSeed: BN | number
+  minBet: BN | number
+  maxBet: BN | number
+  accounts: {
+    gameMaker: web3.PublicKey
+    mint: web3.PublicKey
+  }
+}
+```
+
+Wager types: `sameWager`, `customWager`, `betRange` (as numeric enum in the IDL). If using `betRange`, UI should clamp inputs between `minBet` and `maxBet`.
+
+Payout types: `same`, `exponentialDecay` (as numeric enum in the IDL).
+
+### Example
+
+```ts
+import { AnchorProvider, BN, web3 } from '@coral-xyz/anchor'
+import { createGameIx, WRAPPED_SOL_MINT } from '@gamba-labs/multiplayer-sdk'
+
+const provider = AnchorProvider.env()
+const walletPubkey = provider.wallet.publicKey
+
+const ix = await createGameIx(provider, {
+  preAllocPlayers: 100,
+  maxPlayers: 1000,
+  numTeams: 1,
+  winnersTarget: 1,
+  wagerType: 0,          // e.g. sameWager
+  payoutType: 0,         // e.g. same
+  wager: new BN(1_000_000),  // 0.001 in token base units
+  softDuration: new BN(60),  // seconds
+  hardDuration: new BN(300), // seconds
+  gameSeed: new BN(Date.now()),
+  minBet: new BN(1_000_000),
+  maxBet: new BN(1_000_000),
+  accounts: {
+    gameMaker: walletPubkey,
+    mint: WRAPPED_SOL_MINT, // or any SPL mint
+  },
+})
+
+const tx = new web3.Transaction().add(ix)
+await provider.sendAndConfirm(tx)
+```
+
+## Join Game
+
+Function: `joinGameIx(provider, params)`
+
+- Handles native SOL or SPL automatically
+- Returns a `TransactionInstruction`
+
+### Params
+
+```ts
+type JoinGameParams = {
+  creatorFeeBps: number
+  wager: BN | number
+  team?: number
+  playerMeta?: Buffer | Uint8Array
+  accounts: {
+    gameAccount: web3.PublicKey
+    mint: web3.PublicKey
+    playerAccount: web3.PublicKey
+    creatorAddress: web3.PublicKey
+  }
+}
+```
+
+### Example
+
+```ts
+import { AnchorProvider, BN, web3 } from '@coral-xyz/anchor'
+import { joinGameIx, WRAPPED_SOL_MINT } from '@gamba-labs/multiplayer-sdk'
+
+const provider = AnchorProvider.env()
+const walletPubkey = provider.wallet.publicKey
+
+const ix = await joinGameIx(provider, {
+  creatorFeeBps: 200, // 2%
+  wager: new BN(1_000_000),
+  team: 0, // optional
+  // playerMeta: new Uint8Array(32), // optional 32 bytes
+  accounts: {
+    gameAccount: new web3.PublicKey('<GAME_ACCOUNT_PUBKEY>'),
+    mint: WRAPPED_SOL_MINT, // or the SPL mint used by the game
+    playerAccount: walletPubkey,
+    creatorAddress: walletPubkey, // referral / creator
+  },
+})
+
+const tx = new web3.Transaction().add(ix)
+await provider.sendAndConfirm(tx)
+```
+
+## Notes
+
+- For SPL mints, associated token accounts are derived lazily by the SDK and created if missing.
+- `gameSeed` should be unique per game; a timestamp or counter works well.
+- For `betRange`, ensure your UI clamps any wager changes within `[minBet, maxBet]`.
+

@@ -24,4 +24,3 @@ export function decodeAnchorError(err: unknown): string | null {
 
   return null;
 }
-   

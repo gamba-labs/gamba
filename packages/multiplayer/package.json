@@ -15,7 +15,6 @@
     "dev": "tsup src/index.ts --watch --format cjs,esm --dts",
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "lint": "tsc --noEmit",
-    "test": "vitest run",
     "clean": "rm -rf .turbo node_modules dist"
   },
   "peerDependencies": {
@@ -26,8 +25,7 @@
   "devDependencies": {
     "@types/node": "^24.0.10",
     "tsup": "^8.5.0",
-    "typescript": "^5.2.2",
-    "vitest": "^1.6.0"
+    "typescript": "^5.9.2"
   },
   "publishConfig": {
     "access": "public"

@@ -92,11 +92,11 @@ export function RecentGames() {
   )
 
   const filtered = React.useMemo<
-    ParsedEvent<'winnersSelected'>[]
+  ParsedEvent<'winnersSelected'>[]
   >(() => {
     return events.filter(ev =>
       ev.data.gameMaker.equals(DESIRED_CREATOR) &&
-      ev.data.maxPlayers === DESIRED_MAX_PLAYERS
+      ev.data.maxPlayers === DESIRED_MAX_PLAYERS,
     )
   }, [events])
 

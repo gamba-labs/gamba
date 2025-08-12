@@ -13,11 +13,24 @@ export default defineConfig({
       // === POINT TO THE PACKAGE FOLDERS, NOT entry files ===
       react: path.resolve(__dirname, 'node_modules/react'),
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+      '@solana/web3.js': path.resolve(__dirname, 'node_modules/@solana/web3.js'),
+      '@solana/wallet-adapter-react': path.resolve(
+        __dirname,
+        'node_modules/@solana/wallet-adapter-react',
+      ),
+      '@solana/spl-token': path.resolve(__dirname, 'node_modules/@solana/spl-token'),
 
       // your other alias stays the same
       crypto: 'crypto-browserify',
     },
-    dedupe: ['react', 'react-dom']
+    dedupe: [
+      'react',
+      'react-dom',
+      '@solana/web3.js',
+      '@solana/wallet-adapter-react',
+      '@solana/wallet-adapter-react-ui',
+      '@solana/spl-token',
+    ],
   },
   plugins: [
     react({ jsxRuntime: 'classic' }),

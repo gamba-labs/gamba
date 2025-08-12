@@ -42,5 +42,16 @@
     "@types/three": "^0.161.2",
     "@vitejs/plugin-react": "^3.1.0",
     "vite": "^4.2.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "18.3.1",
+      "react-dom": "18.3.1",
+      "@solana/web3.js": "1.98.2",
+      "@solana/spl-token": "0.4.13",
+      "@solana/wallet-adapter-react": "0.15.39",
+      "@solana/wallet-adapter-react-ui": "0.9.34",
+      "@solana/wallet-adapter-wallets": "0.19.18"
+    }
   }
 }

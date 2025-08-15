@@ -113,6 +113,7 @@ export class GambaProvider {
       pool,
       poolUnderlyingTokenAccount: poolUnderlyingTA,
       poolBonusUnderlyingTokenAccount: poolBonusUnderlyingTA,
+      poolJackpotTokenAccount: poolJackpotTA,
       gambaStateAta,                     
       lpMint,
       lpMintMetadata,

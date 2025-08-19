@@ -21,10 +21,18 @@ function useIsCompact(): boolean {
       window.innerWidth <= COMPACT_BREAKPOINT
   )
   useEffect(() => {
-    const onResize = () =>
-      setIsCompact(window.innerWidth <= COMPACT_BREAKPOINT)
+    let timeoutId: NodeJS.Timeout
+    const onResize = () => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        setIsCompact(window.innerWidth <= COMPACT_BREAKPOINT)
+      }, 100) // Throttle resize events
+    }
     window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', onResize)
+    }
   }, [])
   return isCompact
 }

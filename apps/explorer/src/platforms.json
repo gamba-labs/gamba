@@ -1,9 +1,16 @@
 [
+   
   {
     "address": "V2grJiwjs25iJYqumbHyKo5MTK7SFqZSdmoRaj8QWb9",
     "name": "Gamba Demo",
     "url": "https://play.gamba.so",
     "image": "/logos/gamba.png"
+  },
+  {
+    "address": "J9VLjzyza2NQ2KWZL1nWGJu63hMsu5d78hS73rchXf7N",
+    "name": "ChadBet",
+    "url": "https://chadbet.xyz/",
+    "image": "/logos/chadbetxyz.png"
   },
   {
     "address": "9xm4BvFvQ6dysZDXVyn1rPvyovXQLAPybT5o6KoEwL5h",

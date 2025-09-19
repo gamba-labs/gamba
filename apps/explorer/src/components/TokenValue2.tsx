@@ -27,13 +27,13 @@ export function TokenValue2(props: TokenValueProps) {
     () => {
       if (!props.exact) {
         if (amount >= 1e9) {
-          return (amount / 1e9).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'B'
+          return (amount / 1e9).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'B'
         }
         if (amount >= 1e6) {
-          return (amount / 1e6).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'M'
+          return (amount / 1e6).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'M'
         }
-        if (amount > 1000) {
-          return (amount / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'K'
+        if (amount >= 1e3) {
+          return (amount / 1e3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'K'
         }
       }
       return amount.toLocaleString(undefined, { maximumFractionDigits: Math.floor(amount) > 100 ? 1 : 5 })

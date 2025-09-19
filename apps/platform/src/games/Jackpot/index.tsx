@@ -133,7 +133,7 @@ export default function Jackpot() {
 
               <S.MainContent>
                 {!liveGame && (
-                  <S.CenterBlock layout>
+                  <S.CenterBlock>
                     <Waiting />
                   </S.CenterBlock>
                 )}
@@ -163,7 +163,7 @@ export default function Jackpot() {
                       />
                     )}
 
-                    <S.CenterBlock layout>
+                    <S.CenterBlock>
 
                       {phase === 'animation' && (
                         <WinnerAnimation

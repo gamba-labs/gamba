@@ -1,29 +1,37 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { motion, AnimatePresence, animate } from 'framer-motion'
 
 function AnimatedNumber({ value }: { value: number }) {
-  const ref = useRef<HTMLSpanElement>(null)
+  const animationRef = useRef<any>(null)
+  const [displayValue, setDisplayValue] = useState(value)
 
   useEffect(() => {
-    const node = ref.current
-    if (!node) return
-
-    const controls = animate(
-      Number(node.textContent) || 0,
-      value,
-      {
-        duration: 0.5,
-        ease: 'easeOut',
-        onUpdate(latest) {
-          node.textContent = latest.toFixed(2)
-        },
+    if (animationRef.current) {
+      try { animationRef.current.stop() } catch {}
+      animationRef.current = null
+    }
+    const startValue = displayValue
+    animationRef.current = animate(startValue, value, {
+      duration: 0.5,
+      ease: 'easeOut',
+      onUpdate(latest) {
+        setDisplayValue(latest)
+      },
+      onComplete() {
+        setDisplayValue(value)
+        animationRef.current = null
+      },
+    })
+    return () => {
+      if (animationRef.current) {
+        try { animationRef.current.stop() } catch {}
+        animationRef.current = null
       }
-    )
-    return () => controls.stop()
+    }
   }, [value])
 
-  return <span ref={ref} />
+  return <span>{displayValue.toFixed(2)}</span>
 }
 
 const Wrap = styled(motion.div)`
@@ -61,7 +69,7 @@ const containerVariants = {
     opacity: 1,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 500,
       damping: 30,
       staggerChildren: 0.1,
@@ -82,9 +90,7 @@ interface Props {
 export function MyStats({ betSOL, chancePct }: Props) {
   return (
     <AnimatePresence>
-      {/* keyed so AnimatePresence can detect mount/unmount if needed */}
       <Wrap
-        key="mystats"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

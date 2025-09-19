@@ -223,5 +223,11 @@
     "name": "BONKBET",
     "url": "https://www.bonkbet.live",
     "image": "/logos/bonkbet.png"
+  },
+  {
+    "address": "wJcKfaPRRDM295zkbx93XNR5JfcJeErEDLsWx8tbets",
+    "name": "Onchain Bets",
+    "url": "https://www.onchainbets.fun/",
+    "image": "/logos/onchainbets.png"
   }
 ]

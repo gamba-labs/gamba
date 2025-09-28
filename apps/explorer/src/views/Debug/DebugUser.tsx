@@ -1,5 +1,6 @@
 import { Box, Button, Card, Flex, Grid, Heading, Link, Text } from "@radix-ui/themes"
-import { PublicKey, TransactionInstruction } from "@solana/web3.js"
+import { PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js"
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token"
 import { decodeGame, decodePlayer, getGameAddress, getPlayerAddress, getPlayerUnderlyingAta, getUserUnderlyingAta } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useGambaProvider, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
@@ -39,6 +40,7 @@ export function ConnectUserCard() {
 function Inner() {
   const publicKey = useWalletAddress()
   const program = useGambaProgram()
+  const gamba = useGambaProvider()
   const playerAddress = getPlayerAddress(publicKey)
   const gameAddress = getGameAddress(publicKey)
 
@@ -53,13 +55,9 @@ function Inner() {
   const initialize = async () => {
     setInitializing(true)
     try {
-      await sendTransaction(
-        program.methods
-          .playerInitialize()
-          .accounts({})
-          .instruction(),
-        {confirmation: "confirmed"}
-      )
+      await sendTransaction([
+        gamba.createPlayer(),
+      ], { confirmation: "confirmed" })
     } finally {
       setInitializing(false)
     }
@@ -68,13 +66,9 @@ function Inner() {
   const close = async () => {
     setClosing(true)
     try {
-      await sendTransaction(
-        program.methods
-          .playerClose()
-          .accounts({ game: gameAddress })
-          .instruction(),
-        {confirmation: "confirmed"}
-      )
+      await sendTransaction([
+        gamba.closePlayer(),
+      ], { confirmation: "confirmed" })
     } finally {
       setClosing(false)
     }
@@ -83,19 +77,20 @@ function Inner() {
   const claim = async (underlyingTokenMint: PublicKey) => {
     const playerAta = getPlayerUnderlyingAta(publicKey, underlyingTokenMint)
     const userUnderlyingAta = getUserUnderlyingAta(publicKey, underlyingTokenMint)
-    await sendTransaction(
-      [
-        program.methods
-          .playerClaim()
-          .accounts({
-            playerAta,
-            underlyingTokenMint,
-            userUnderlyingAta,
-          })
-          .instruction(),
-      ],
-      { confirmation: "confirmed" },
-    )
+    const accs = {
+      user: publicKey,
+      underlyingTokenMint,
+      player: playerAddress,
+      game: gameAddress,
+      playerAta,
+      userUnderlyingAta,
+      systemProgram: SystemProgram.programId,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+    }
+    await sendTransaction([
+      program.methods.playerClaim().accountsPartial(accs as any).instruction(),
+    ], { confirmation: "confirmed" })
     mutate("token-accounts-" + playerAddress)
   }
 
@@ -104,14 +99,18 @@ function Inner() {
       if (!token.amount) return null
       const playerAta = getPlayerUnderlyingAta(publicKey, token.mint)
       const userUnderlyingAta = getUserUnderlyingAta(publicKey, token.mint)
-      return program.methods
-      .playerClaim()
-        .accounts({
-          playerAta,
-          underlyingTokenMint: token.mint,
-          userUnderlyingAta,
-        })
-        .instruction()
+      const accs = {
+        user: publicKey,
+        underlyingTokenMint: token.mint,
+        player: playerAddress,
+        game: gameAddress,
+        playerAta,
+        userUnderlyingAta,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      }
+      return program.methods.playerClaim().accountsPartial(accs as any).instruction()
     }).filter((x) => !!x) as Promise<TransactionInstruction>[]
 
     if (instructions.length > 0) {

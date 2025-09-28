@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor"
 import { Button, Flex, Grid, Heading, Text, TextField } from "@radix-ui/themes"
 import { useWallet } from "@solana/wallet-adapter-react"
-import { BPS_PER_WHOLE } from "gamba-core-v2"
+import { BPS_PER_WHOLE, getGambaStateAddress } from "gamba-core-v2"
 import { useGambaProgram, useSendTransaction } from "gamba-react-v2"
 import React, { useState } from "react"
 import { mutate } from "swr"
@@ -49,7 +49,7 @@ export default function PoolGambaConfigDialog({ pool }: { pool: UiPool }) {
           customGambaFeeEnabled,
           new anchor.BN(customGambaFeeBps),
         )
-        .accounts({ user: publicKey!, pool: pool.publicKey })
+        .accountsPartial({ user: publicKey!, gambaState: getGambaStateAddress(), pool: pool.publicKey } as any)
         .instruction(),
       { confirmation: "confirmed" },
     )

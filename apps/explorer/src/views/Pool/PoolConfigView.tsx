@@ -112,7 +112,7 @@ function PoolConfigDialog({ pool }: { pool: UiPool }) {
           depositWhitelistRequired,
           depositWhitelistPublicKey,
         )
-        .accounts({ user: publicKey!, pool: pool.publicKey })
+        .accountsPartial({ user: publicKey!, gambaState: getGambaStateAddress(), pool: pool.publicKey } as any)
         .instruction(),
       { confirmation: "confirmed" },
     )

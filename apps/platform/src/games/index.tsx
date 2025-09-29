@@ -145,4 +145,17 @@ export const GAMES: ExtendedGameBundle[] = [
     },
     app: React.lazy(() => import('./PlinkoRace')),
   },
+  {
+    id: 'pvpflip',
+    meta: {
+      background: '#222a59',
+      name: 'PvpFlip',
+      image: '/games/pvpflip.png',
+      description: `
+        Create or join a 1v1 coin flip. Fixed two players, winner takes all.
+      `,
+      tag: 'Multiplayer',
+    },
+    app: React.lazy(() => import('./PvpFlip')),
+  },
 ];

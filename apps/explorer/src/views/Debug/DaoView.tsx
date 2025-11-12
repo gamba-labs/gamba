@@ -9,8 +9,8 @@ import { TokenValue2 } from "@/components/TokenValue2"
 import { useGetTokenMeta, useTokenAccountsByOwner } from "@/hooks"
 import { GearIcon } from "@radix-ui/react-icons"
 import { Button, Card, Dialog, Flex, Grid, Text } from "@radix-ui/themes"
-import { NATIVE_MINT, getAssociatedTokenAddressSync } from "@solana/spl-token"
-import { PublicKey } from "@solana/web3.js"
+import { NATIVE_MINT, getAssociatedTokenAddressSync, ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token"
+import { PublicKey, SystemProgram } from "@solana/web3.js"
 import { decodeGambaState, getGambaStateAddress } from "gamba-core-v2"
 import { useAccount, useGambaProgram, useSendTransaction, useWalletAddress } from "gamba-react-v2"
 import React from "react"
@@ -108,13 +108,16 @@ export default function DaoView() {
 
     const instruction = program.methods
       .distributeFees(isNative)
-      .accounts({
+    .accounts({
+      signer: userPublicKey!,
         gambaState: daoAddress,
         underlyingTokenMint,
         gambaStateAta: gambaStateAtaAddress,
         distributionRecipient: distributionRecipient,
         distributionRecipientAta: distributionRecipientAta,
-
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
       })
       .instruction()
 

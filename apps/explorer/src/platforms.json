@@ -229,5 +229,10 @@
     "name": "Onchain Bets",
     "url": "https://www.onchainbets.fun/",
     "image": "/logos/onchainbets.png"
+  },
+  {
+    "address": "EhBmPfGrnfCDHroVbCdbhJQNNkRMT8hijztCeuRquMd1",
+    "name": "Sol-Win Casino",
+    "url": "https://www.sol-win.casino/"
   }
 ]

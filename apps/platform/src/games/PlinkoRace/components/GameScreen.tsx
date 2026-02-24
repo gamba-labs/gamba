@@ -170,25 +170,27 @@ export default function GameScreen({
 
         {/* Conditional game controls */}
         {waiting && chainGame?.state.waiting ? (
-          publicKey && !chainGame.players.some(p => p.user.equals(publicKey)) ? (
-            <Multiplayer.JoinGame
-              pubkey={pk}
-              account={chainGame}
-              creatorAddress={PLATFORM_CREATOR_ADDRESS}
-              creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
-              referralFee={PLATFORM_REFERRAL_FEE}     // ← pass platform referral %
-              enableMetadata
-              onTx={() => {}}
-            />
-          ) : (
-            <Multiplayer.EditBet
-              pubkey={pk}
-              account={chainGame}
-              creatorAddress={PLATFORM_CREATOR_ADDRESS}
-              creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
-              onComplete={() => {}}
-            />
-          )
+          publicKey ? (
+            !chainGame.players.some(p => p.user.equals(publicKey)) ? (
+              <Multiplayer.JoinGame
+                pubkey={pk}
+                account={chainGame}
+                creatorAddress={PLATFORM_CREATOR_ADDRESS}
+                creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+                referralFee={PLATFORM_REFERRAL_FEE}     // ← pass platform referral %
+                enableMetadata
+                onTx={() => {}}
+              />
+            ) : (
+              <Multiplayer.EditBet
+                pubkey={pk}
+                account={chainGame}
+                creatorAddress={PLATFORM_CREATOR_ADDRESS}
+                creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+                onComplete={() => {}}
+              />
+            )
+          ) : null
         ) : null}
       </GambaUi.Portal>
     </>

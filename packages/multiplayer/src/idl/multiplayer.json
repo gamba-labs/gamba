@@ -1538,26 +1538,31 @@
     },
     {
       "code": 6007,
+      "name": "ZeroWager",
+      "msg": "Wager must be greater than zero"
+    },
+    {
+      "code": 6008,
       "name": "AlreadySettled",
       "msg": "Game already settled"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "NumericalOverflow",
       "msg": "numerical overflow"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "CreatorMismatch",
       "msg": "Creator Missmatch"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "PlayerMismatch",
       "msg": "player rmismatch"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "GameFull",
       "msg": "Game is Full"
     }

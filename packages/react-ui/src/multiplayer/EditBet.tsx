@@ -27,7 +27,7 @@ export default function EditBet({
     (gambaProvider?.anchorProvider as AnchorProvider) || null;
 
   // **Always** call hooks; don’t return early
-  const walletPk  = anchorProvider?.wallet.publicKey ?? null;
+  const walletPk  = anchorProvider?.wallet?.publicKey ?? null;
   const myEntry   = walletPk
     ? account.players.find(p => p.user.equals(walletPk))
     : null;
@@ -42,10 +42,10 @@ export default function EditBet({
 
   const desiredLp = Math.floor(parseFloat(inputSol) * LAMPORTS_PER_SOL) || 0;
   const newLp     = Math.max(desiredLp, currentLp);
-  const canRaise  = !!anchorProvider && newLp > currentLp;
+  const canRaise  = !!walletPk && newLp > currentLp;
 
   const handle = useCallback(async () => {
-    if (!anchorProvider) return;  // guard but after all hooks
+    if (!anchorProvider || !walletPk) return;  // guard but after all hooks
     setBusy(true);
     try {
       const params: {
@@ -79,6 +79,7 @@ export default function EditBet({
     creatorFeeBps,
     onComplete,
     anchorProvider,
+    walletPk,
   ]);
 
   const isFixedWager = 'sameWager' in (account as any).wagerType;
@@ -98,7 +99,7 @@ export default function EditBet({
         lockedValue={isFixedWager ? account.wager.toNumber() : undefined}
         minValue={isRangeWager ? minBet : undefined}
         maxValue={isRangeWager ? maxBet : undefined}
-        disabled={busy || !anchorProvider}
+        disabled={busy || !walletPk}
       />
       <Button
         main

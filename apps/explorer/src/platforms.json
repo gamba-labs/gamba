@@ -1,5 +1,4 @@
 [
-   
   {
     "address": "V2grJiwjs25iJYqumbHyKo5MTK7SFqZSdmoRaj8QWb9",
     "name": "Gamba Demo",
@@ -234,5 +233,11 @@
     "address": "EhBmPfGrnfCDHroVbCdbhJQNNkRMT8hijztCeuRquMd1",
     "name": "Sol-Win Casino",
     "url": "https://www.sol-win.casino/"
+  },
+  {
+    "address": "HBZPPQpwzmMNrvbT3SywLWQofpCzwdJFeGeG2CcZcT6j",
+    "name": "Select",
+    "url": "https://play.tryaigility.com",
+    "image": "/logos/select.png"
   }
 ]
